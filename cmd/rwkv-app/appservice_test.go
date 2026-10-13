@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -444,6 +446,8 @@ func TestChatCancellationPersistsStoppedTurn(t *testing.T) {
 	}()
 	select {
 	case <-started:
+	case err := <-done:
+		t.Fatalf("chat ended before request: %v", err)
 	case <-time.After(5 * time.Second):
 		t.Fatal("model request never started")
 	}
@@ -467,5 +471,67 @@ func TestChatCancellationPersistsStoppedTurn(t *testing.T) {
 	stopped := bootstrap.Conversation.Messages[1]
 	if stopped.Role != "error" || !strings.Contains(stopped.Content, "已停止") {
 		t.Fatalf("stopped message = %+v", stopped)
+	}
+}
+
+func TestChatCancellationRetainsStreamedAnswer(t *testing.T) {
+	t.Parallel()
+	connected := make(chan struct{})
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = fmt.Fprint(w, "data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"已经收到的回答\"}}]}\n\n")
+		w.(http.Flusher).Flush()
+		close(connected)
+		select {
+		case <-r.Context().Done():
+		case <-release:
+		}
+	}))
+	defer server.Close()
+	defer close(release)
+	service, err := agentapi.NewService(agentapi.Options{Workspace: resolvedWorkspace(t)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, testAppStore(t))
+	defer backend.Close()
+	config := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: server.URL, Model: "partial-model"}
+	if _, err := backend.ConfigureProvider(t.Context(), "", "", config); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { _, err := backend.Chat(ctx, "hello"); done <- err }()
+	select {
+	case <-connected:
+	case err := <-done:
+		t.Fatalf("run failed: %v", err)
+	case <-time.After(3 * time.Second):
+		t.Fatal("request never connected")
+	}
+	// Allow the flushed SSE chunk to reach the observer before requesting Stop.
+	time.Sleep(100 * time.Millisecond)
+	cancel()
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatal(err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("run did not stop")
+	}
+	state, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stopped := state.Conversation.Messages[1]
+	if stopped.Trace == nil || stopped.Trace.Output != "已经收到的回答" {
+		t.Fatalf("lost partial answer: %+v", stopped.Trace)
+	}
+	if len(backend.active.Transcript) != 0 {
+		t.Fatal("cancelled output was committed as a successful turn")
 	}
 }

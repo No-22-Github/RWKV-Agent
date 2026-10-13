@@ -90,6 +90,7 @@ type AppService struct {
 	runtimeProviderID string
 	app               *application.App
 	warning           string
+	runSequence       uint64
 	closed            bool
 }
 
@@ -381,8 +382,29 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 	}()
 	beforeChanges, _ := session.FileChanges()
 	turnStarted := time.Now().UTC()
+	s.runSequence++
+	runID := fmt.Sprint(s.runSequence)
+	emitEvent := func(event agentapi.Event) {
+		s.emit("agent:event", struct {
+			agentapi.Event
+			RunID string `json:"runId"`
+		}{event, runID})
+	}
+	emitEvent(agentapi.Event{Kind: "run_start"})
+	var preview strings.Builder
 	result, err := session.RunWithObserver(ctx, prompt, func(event agentapi.Event) {
-		s.emit("agent:event", event)
+		if ctx.Err() != nil {
+			return
+		}
+		if event.SubagentIndex == 0 {
+			switch event.Kind {
+			case agentapi.EventAnswerDelta:
+				preview.WriteString(event.Text)
+			case agentapi.EventAnswerReset:
+				preview.Reset()
+			}
+		}
+		emitEvent(event)
 	})
 	role := "assistant"
 	content := result.Output
@@ -392,6 +414,9 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 		content = err.Error()
 		if errors.Is(err, context.Canceled) {
 			content = "已停止：本轮运行被手动中断。"
+			if preview.Len() > 0 {
+				result.Output = preview.String()
+			}
 		}
 		// 已经跑过工具的失败轮：把查了什么、拿到了什么讲清楚，而不是只给一行协议错误。
 		if explanation := failureExplanation(result, err); explanation != "" {

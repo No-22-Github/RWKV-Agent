@@ -857,6 +857,66 @@ describe('App', () => {
     expect(screen.getByLabelText('消息')).toHaveValue('下一条消息\n继续检查')
   })
 
+  it('preserves stopped output and rejects late events in the next conversation', async () => {
+    bootstrapWithRunningProvider()
+    let reject!: (reason: unknown) => void
+    const pending = new Promise<Result>((_, fail) => { reject = fail }) as Promise<Result> & { cancel: () => void }
+    pending.cancel = () => reject(new Error('cancelled'))
+    vi.mocked(Backend.Chat).mockReturnValue(pending as ReturnType<typeof Backend.Chat>)
+    render(<App />)
+    await waitRuntimeReady()
+    fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'first' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送' }))
+    await screen.findByRole('button', { name: '停止运行' })
+    const emit = (data: object) => act(async () => { eventHandlers.get('agent:event')?.({ data }) })
+    await emit({ kind: 'run_start', runId: '1' })
+    const partial = '已经收到的回答'.repeat(50)
+    await emit({ kind: 'answer_delta', runId: '1', text: partial })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ status: readyStatus(), conversation: new ConversationView({ id: 'stopped', messages: [
+      new DisplayMessage({ id: 'u1', role: 'user', content: 'first' }),
+      new DisplayMessage({ id: 'a1', role: 'error', content: '已停止', trace: new Result({ output: partial, steps: [] }) }),
+    ] }) }))
+    fireEvent.click(screen.getByRole('button', { name: '停止运行' }))
+    expect(screen.getByText(partial)).toBeInTheDocument()
+    await screen.findByRole('button', { name: '发送' })
+    expect(screen.getByText(partial)).toBeInTheDocument()
+    expect(document.querySelector('.stream-tok')).toBeNull()
+    fireEvent.keyDown(window, { key: 'n', metaKey: true })
+    await waitFor(() => expect(screen.queryByText(partial)).not.toBeInTheDocument())
+    vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => {}) as ReturnType<typeof Backend.Chat>)
+    fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'second' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送' }))
+    await screen.findByRole('button', { name: '停止运行' })
+    await emit({ kind: 'run_start', runId: '2' })
+    await emit({ kind: 'answer_delta', runId: '1', text: '旧会话不应出现' })
+    await emit({ kind: 'tool_start', runId: '1', tool: 'web_search' })
+    expect(document.querySelector('.turn-answer')).toBeNull()
+    expect(screen.queryByText('旧会话不应出现')).not.toBeInTheDocument()
+  })
+
+  it('keeps Stop available for local playback and flushes without cancelling a completed request', async () => {
+    bootstrapWithRunningProvider()
+    let resolve!: (result: Result) => void
+    const pending = new Promise<Result>(done => { resolve = done }) as Promise<Result> & { cancel: () => void }
+    pending.cancel = vi.fn()
+    vi.mocked(Backend.Chat).mockReturnValue(pending as ReturnType<typeof Backend.Chat>)
+    render(<App />)
+    await waitRuntimeReady()
+    fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'animation' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送' }))
+    await screen.findByRole('button', { name: '停止运行' })
+    const text = '本地积压的完整回答'.repeat(500)
+    await act(async () => {
+      eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', text } })
+      resolve(new Result({ output: text, steps: [], durationMs: 1 }))
+    })
+    fireEvent.click(await screen.findByRole('button', { name: '停止运行' }))
+    expect(screen.getByText(text)).toBeInTheDocument()
+    expect(document.querySelector('.stream-tok')).toBeNull()
+    expect(pending.cancel).not.toHaveBeenCalled()
+    expect(await screen.findByRole('button', { name: '发送' })).toBeInTheDocument()
+  })
+
   it('closes a conversation menu when its own button is clicked again', async () => {
     const conversation = new ConversationSummary({ id: 'c1', title: '检查项目', updatedAt: new Date().toISOString(), pinned: false })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [conversation] }))

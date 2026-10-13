@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import { ModelState, Status, type Result, type Step } from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import { ModelState, Status, Result, type Step } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
@@ -48,9 +48,10 @@ type Message = {
 }
 // 动画只播一次：对话页在切到轨迹时会整页卸载，这份记录放在 App 层跨越重新挂载。
 // seen 记已经播过入场/显影的回合与回答；progress 记流式回答已放出的字数。
-type MotionMemory = { seen: Set<string>; progress: Map<string, number> }
+type MotionMemory = { seen: Set<string>; progress: Map<string, number>; instant: Set<string> }
 type AgentActivity = {
   // 收到事件的时刻：事件本身不带时间戳，轨迹页实时轮次靠它画时间线。
+  runId?: string
   at: number
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
@@ -72,7 +73,7 @@ export default function App() {
   // 正在生成的回答预览：后端 answer_delta 逐段追加、answer_reset 清空；一轮结束后由正式结果取代。
   const [liveAnswer, setLiveAnswer] = useState('')
   const liveAnswerRef = useRef('')
-  const motionMemory = useRef<MotionMemory>({ seen: new Set(), progress: new Map() })
+  const motionMemory = useRef<MotionMemory>({ seen: new Set(), progress: new Map(), instant: new Set() })
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
   const [fileChanges, setFileChanges] = useState<FileChange[]>([])
@@ -93,6 +94,9 @@ export default function App() {
   // （如输入法确认时连发两次回车）两次都会读到 busy=false，第二条会在后端操作锁上排队，
   // 等第一轮结束后被悄悄跑掉。
   const turnInFlight = useRef(false)
+  const stopped = useRef(false)
+  const eventRunID = useRef<string | null>(null)
+  const latestEventRun = useRef(0)
   // 聊天页的失败要在聊天页看得见：settingsMessage 只在设置页底部渲染。
   const reportError = (error: unknown) => notify(errorText(error), 'error')
   const { settingsOpen } = manager
@@ -102,6 +106,15 @@ export default function App() {
     const offStatus = Events.On('model:status', (event) => setStatus(Status.createFrom(event.data)))
     const offAgent = Events.On('agent:event', (event) => {
       const data = event.data as AgentActivity
+      if (!turnInFlight.current || stopped.current) return
+      if (data.kind === 'run_start') {
+        if (eventRunID.current === null && Number(data.runId) > latestEventRun.current) {
+          eventRunID.current = data.runId!
+          latestEventRun.current = Number(data.runId)
+        }
+        return
+      }
+      if (data.runId && data.runId !== eventRunID.current) return
       if (data.kind === 'answer_delta' || data.kind === 'answer_reset') {
         // 子 Agent 的回答只是它交回主 Agent 的中间结果，不显示在对话里。
         if (data.subagentIndex) return
@@ -189,6 +202,7 @@ export default function App() {
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
+    liveAnswerRef.current = ''; setLiveAnswer('')
     setOpenFile(null); setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setScrollResetKey(key => key + 1); if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
@@ -231,20 +245,33 @@ export default function App() {
     await runTurn(content, (current) => [...current.slice(0, current.findLastIndex((message) => message.role === 'user')), userMessage(content)], () => Backend.EditLast(content), true)
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
+    flushAnswers()
+    stopped.current = false
+    eventRunID.current = null
     turnInFlight.current = true
     setScrollResetKey(key => key + 1)
-    setActivity([]); setMessages(stage); setBusy(true)
+    setActivity([])
+    setMessages(current => {
+      const next = stage(current)
+      const user = next.findLast(message => message.role === 'user')
+      if (user) motionMemory.current.instant.delete(`turn:${user.id}`)
+      return next
+    })
+    setBusy(true)
     liveAnswerRef.current = ''; setLiveAnswer('')
     try {
       const call = run()
       runningChat.current = call
       const result = await call
+      runningChat.current = null
       const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
       const savedFiles = persisted.conversation?.messages.at(-1)?.files
       if (savedFiles?.length) setMessages(current => current.map(m => m.id === assistant.id ? { ...m, files: savedFiles } : m))
     } catch (error) {
+      const failure: Message = { id: `error-${nextMessageID++}`, role: 'error', content: stopped.current ? '已停止：本轮运行被手动中断。' : errorText(error),
+        trace: liveAnswerRef.current ? new Result({ output: liveAnswerRef.current, steps: [] }) : undefined }
       try {
         const persisted = await Backend.Bootstrap()
         // 停止或失败后重载历史，保留运行期间输入的下一条草稿。
@@ -256,10 +283,10 @@ export default function App() {
         if (!persistedThisTurn) {
           setMessages((current) => [...current,
             ...(restoreUser ? [userMessage(content)] : []),
-            { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
+            failure])
         }
       } catch {
-        setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
+        setMessages((current) => [...current, failure])
       }
     }
     finally { try { setFileChanges(await Backend.FileChanges()) } catch (error) { reportError(error) }; runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
@@ -277,13 +304,21 @@ export default function App() {
       setOpenFile(current => current ? stored.flatMap(m => m.files || []).find(f => sameChange(f.change, current.change)) || current : null)
     } catch (error) { reportError(error) }
   }
-  function stopRun() { runningChat.current?.cancel() }
+  function flushAnswers() {
+    for (const message of messages) motionMemory.current.instant.add(`turn:${message.id}`)
+    setMessages(current => [...current])
+  }
+  function stopRun() {
+    stopped.current = true
+    flushAnswers()
+    runningChat.current?.cancel()
+  }
   function submitMessage() { void sendMessage(prompt) }
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     // 输入法组字中的回车是确认候选词，不是发送（WebKit 组字时 keyCode 为 229）。
     if (event.nativeEvent.isComposing || event.keyCode === 229 || busy) return
     if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
-  async function newConversation() { if (busy) return; try { await Backend.NewConversation(); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
+  async function newConversation() { if (busy) return; try { await Backend.NewConversation(); liveAnswerRef.current = ''; setLiveAnswer(''); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } } finally { setBusy(false) } }
@@ -401,7 +436,8 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
   const empty = turns.length === 0
   const { scrollRef, contentRef, showScrollButton, scrollToBottom, schedule: followAnswer } = useConversationScroll(empty, scrollResetKey)
   // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
-  const running = busy && !empty && !turns[turns.length - 1].response
+  const [answerAnimating, setAnswerAnimating] = useState(false)
+  const running = (busy && !empty && !turns[turns.length - 1].response) || answerAnimating
   const stageRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
   const metrics = useRef({ dockedTop: 0, offset: 0 })
@@ -455,7 +491,7 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
       {/* 滚动容器铺满舞台，滚动条贴窗口最右；两侧预留等宽槽位，滚动条出现时正文不被挤、也不偏离输入框的中线。 */}
       {!empty && <div ref={scrollRef} tabIndex={0} aria-label="对话消息" className="conversation-scroll overscroll-y-contain [overflow-anchor:none] [scroll-behavior:auto] absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
         <div ref={contentRef} className="mx-auto content-narrow">
-          {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
+          {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} onAnimating={setAnswerAnimating} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
         </div>
       </div>}
     </div>
@@ -469,7 +505,7 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
   </div>
 }
 
-function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate, onEditLast }: { fileChanges: FileChange[]; fallbackChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
+function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, onOpenFile, turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate, onEditLast }: { onAnimating: (value: boolean) => void; fileChanges: FileChange[]; fallbackChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const calls = pending ? callsFromEvents(activity) : response?.trace ? callsFromSteps(response.trace.steps) : callsFromTrajectory(response?.trajectory || [])
@@ -483,7 +519,9 @@ function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, tu
   const turnKey = `turn:${turn.user?.id || response?.id || index}`
   const answerKey = response ? `answer:${response.id}` : ''
   const [settledText, setSettledText] = useState<string | null>(() => (motion.progress.get(turnKey) ?? 0) >= streamText.length ? streamText : '')
-  const showFooter = !pending && (!streamText || settledText === streamText)
+  const immediate = motion.instant.has(turnKey)
+  useEffect(() => { if (last) onAnimating(Boolean(streamText && !immediate && settledText !== streamText)); return () => { if (last) onAnimating(false) } }, [last, streamText, settledText, immediate, onAnimating])
+  const showFooter = !pending && (!streamText || immediate || settledText === streamText)
   const [enterFresh] = useState(() => !motion.seen.has(turnKey))
   const answerFresh = useRef<boolean | null>(null)
   if (answerKey && answerFresh.current === null) answerFresh.current = !motion.seen.has(answerKey)
@@ -497,8 +535,9 @@ function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, tu
       {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
-        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
+        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} immediate={immediate} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
         : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal animate-answer-reveal motion-reduce:animate-none' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
+      {response?.role === 'error' && response.trace?.output && <div className="turn-answer text-md leading-[1.8] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.trace.output} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{response.content}</span></div>}
       {response && showFooter && <FileChangesPanel artifacts={response.files} changes={response.files?.length ? fileChanges : fallbackChanges} fallbackChanges={fallbackChanges} disabled={busy} onResolve={onResolveFiles} onOpen={onOpenFile} />}
       {response && showFooter && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
@@ -582,7 +621,7 @@ function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, on
       <div data-running={running || undefined} className="composer-box data-running:running-ring relative flex min-h-[52px] min-w-0 items-end rounded-lg border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
         <textarea aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.4] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-center p-[12px_12px_12px_6px]">
-          {busy
+          {busy || running
             // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。
             ? <button type="button" title="停止" aria-label="停止运行" onClick={onStop} className="flex h-[28px] w-[28px] items-center justify-center rounded-md border-0 bg-ink p-0 text-paper transition-opacity hover:opacity-85"><Square size={10} fill="currentColor" /></button>
             : <button type="button" title="发送（⏎）" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim()} className="flex h-[28px] w-[28px] items-center justify-center rounded-md border-0 bg-brand p-0 text-brand-fg transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-transparent disabled:text-ink-ghost"><CornerDownLeft size={15} /></button>}

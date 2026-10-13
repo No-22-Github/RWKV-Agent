@@ -23,6 +23,18 @@ describe('PacedAnswer', () => {
     expect(container.querySelectorAll('.stream-tok').length).toBeGreaterThan(0)
   })
 
+  it('flushes the entire backlog without animation when stopped', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    const text = '保留输出'.repeat(200)
+    const { container, rerender } = render(<PacedAnswer text={text} live />)
+    act(() => { vi.advanceTimersByTime(100) })
+    expect(container.textContent!.length).toBeLessThan(text.length)
+    rerender(<PacedAnswer text={text} live immediate />)
+    expect(container.textContent).toBe(text)
+    expect(container.querySelector('.stream-tok')).toBeNull()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
   it('reveals streamed text at a steady pace and finishes it after the run settles', () => {
     vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
     const text = '杭'.repeat(90)

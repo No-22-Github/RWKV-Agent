@@ -14,9 +14,10 @@ const prefersReducedMotion = () => typeof window !== 'undefined' && window.match
  * 追平后交回普通 Markdown 渲染（不再拆字）。同一实例要跨越「生成中 → 落定」，
  * 否则落定瞬间会把还没放出来的字一次性甩出来。
  */
-export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onProgress, onSettled }: {
+export default function PacedAnswer({ text, live, immediate = false, onGrow, initialShown = 0, onProgress, onSettled }: {
   text: string
   live: boolean
+  immediate?: boolean
   onGrow?: () => void
   // 切页回来时的恢复进度（已经放出的字数）：这部分直接显示、不再淡入，余下的接着按节奏放。
   initialShown?: number
@@ -43,6 +44,7 @@ export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onPr
   }, [text])
 
   useEffect(() => {
+    if (immediate) { setShown(textRef.current.length); setStaticChars(textRef.current.length); return }
     if (caughtUp) return
     if (prefersReducedMotion()) { setShown(textRef.current.length); return }
     let frame = 0
@@ -75,9 +77,9 @@ export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onPr
     return () => cancelAnimationFrame(frame)
     // 追平状态或生成状态切换时重启，以当前显示位置进入收尾加速。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [caughtUp, live])
+  }, [caughtUp, live, immediate])
 
-  const settled = !live && caughtUp
+  const settled = immediate || (!live && caughtUp)
   useEffect(() => { onSettled?.(settled ? text : null) }, [settled, text, onSettled])
   return <MarkdownMessage content={settled ? text : text.slice(0, shown)} streaming={!settled} staticChars={staticChars} />
 }
