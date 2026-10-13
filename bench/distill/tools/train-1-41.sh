@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# v1.41 masked state tuning: segments-1-41.jsonl (train 3662 rows), GPU0/GPU1 LR pair.
+# v1.41 masked state tuning: segments-1-41.jsonl (train 3662 rows), two-GPU LR pair.
 # Same recipe as train-1-3.sh; only the data and the step counts change.
 #
 #   ./train-1-41.sh              start both runs in the background
 #   SMOKE=1 ./train-1-41.sh      one optimizer step per GPU, foreground, then exit
 #   MODEL=xxx.pth ./train-1-41.sh
+#   GPUS="1 3" ./train-1-41.sh   physical GPUs for lr2e-2 and lr1e-2 (default 1 3)
 #
 # Run it from the rwkv_lighting_cuda directory (rwkv_state_tune, vocab and
 # segments-1-41.jsonl live there). Upload
@@ -23,6 +24,7 @@ DATA_SHA256=feb2fd6b4ea874c298e1822ea62ec79305ca7711c0618b3dbe77859dc62d6a75
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
 OUT=${OUT:-train-1-41}
 SMOKE=${SMOKE:-0}
+read -r GPU_A GPU_B <<<"${GPUS:-1 3}"
 
 # 3662 rows / batch 8 = 458 updates per epoch (trainer rounds up); 3 epochs = 1374 updates.
 # A checkpoint every 153 updates is one per 1/3 epoch, as in v1.3.
@@ -46,11 +48,11 @@ if [[ $SMOKE == 1 ]]; then
   COMMON+=(--max-steps 1)
 fi
 
-# name gpu lr lr-final, the v1.3 pair: GPU0 peak 2e-2, GPU1 peak 1e-2,
-# both decaying to 1/6 of peak.
+# name gpu lr lr-final, the v1.3 pair: peak 2e-2 and peak 1e-2, both decaying
+# to 1/6 of peak. v1.3 ran them on GPU0/GPU1; GPU0 now hosts vLLM.
 RUNS=(
-  "lr2e-2 0 0.02 0.0033333333"
-  "lr1e-2 1 0.01 0.0016666667"
+  "lr2e-2 $GPU_A 0.02 0.0033333333"
+  "lr1e-2 $GPU_B 0.01 0.0016666667"
 )
 
 pids=()
