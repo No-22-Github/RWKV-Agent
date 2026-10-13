@@ -1,0 +1,63 @@
+{
+  "id": "wth-0014",
+  "description": "weather probe / negative / config_lookup. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "weatherprobe",
+  "tags": {
+    "scenario": "weatherprobe",
+    "task_type": "config_lookup",
+    "probe_axis": "negative",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "config/app.yaml": "service: dashboard\nweather_api_timeout: 15\ncache_ttl: 600\n"
+  },
+  "turns": [
+    {
+      "prompt": "config/app.yaml 里 weather_api_timeout 设的是多少秒？只回答数字。",
+      "expect": {
+        "forbidden_tools": [
+          "get_weather"
+        ],
+        "expected_number": 15,
+        "tolerance": 0
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "北京",
+      "aliases": [
+        "Beijing"
+      ],
+      "report": {
+        "location": "北京，北京，中国",
+        "current": "晴 24°C 体感 23°C 湿度 35% 风速 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "18~28",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "17~26",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "16~27",
+            "rain_chance": "0%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "wth-0013",
+  "description": "weather probe / negative / concept_question. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "weatherprobe",
+  "tags": {
+    "scenario": "weatherprobe",
+    "task_type": "concept_question",
+    "probe_axis": "negative",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "用一两句话解释一下什么是梅雨季。",
+      "expect": {
+        "forbidden_tools": [
+          "get_weather"
+        ],
+        "output_contains": [
+          "梅雨"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "杭州",
+      "aliases": [
+        "Hangzhou"
+      ],
+      "report": {
+        "location": "杭州，浙江，中国",
+        "current": "小雨 21°C 体感 22°C 湿度 88% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "中雨",
+            "temp_c": "18~23",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "18~25",
+            "rain_chance": "40%"
+          }
+        ]
+      }
+    }
+  ]
+}

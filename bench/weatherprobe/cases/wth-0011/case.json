@@ -1,0 +1,117 @@
+{
+  "id": "wth-0011",
+  "description": "weather probe / multiturn / second_city. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "weatherprobe",
+  "tags": {
+    "scenario": "weatherprobe",
+    "task_type": "second_city",
+    "probe_axis": "multiturn",
+    "traps": [],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "合肥今天天气怎么样？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "多云",
+          "28"
+        ]
+      }
+    },
+    {
+      "prompt": "那重庆呢？明天适合出门逛吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "阴",
+          "40",
+          "29"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "合肥",
+      "aliases": [
+        "Hefei"
+      ],
+      "report": {
+        "location": "合肥，安徽，中国",
+        "current": "多云 25°C 体感 26°C 湿度 66% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "20~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "19~29",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "20~28",
+            "rain_chance": "15%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "重庆",
+      "aliases": [
+        "Chongqing"
+      ],
+      "report": {
+        "location": "重庆，重庆，中国",
+        "current": "多云 28°C 体感 31°C 湿度 70% 风速 5 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "24~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "23~29",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "22~27",
+            "rain_chance": "70%"
+          }
+        ]
+      }
+    }
+  ]
+}

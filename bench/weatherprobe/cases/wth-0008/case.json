@@ -1,0 +1,79 @@
+{
+  "id": "wth-0008",
+  "description": "weather probe / artifact / markdown_brief. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "weatherprobe",
+  "tags": {
+    "scenario": "weatherprobe",
+    "task_type": "markdown_brief",
+    "probe_axis": "artifact",
+    "traps": [],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "查一下明天成都的天气，写成一份 Markdown 简报保存到 weather.md，写完回复 DONE。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [
+        "Chengdu"
+      ],
+      "report": {
+        "location": "成都，四川，中国",
+        "current": "阴 23°C 体感 24°C 湿度 81% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "20~25",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "19~26",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "weather.md": {
+        "contains": [
+          "小雨",
+          "19",
+          "24"
+        ]
+      }
+    }
+  }
+}

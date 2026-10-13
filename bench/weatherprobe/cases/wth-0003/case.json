@@ -1,0 +1,67 @@
+{
+  "id": "wth-0003",
+  "description": "weather probe / explicit / day_after_high. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "weatherprobe",
+  "tags": {
+    "scenario": "weatherprobe",
+    "task_type": "day_after_high",
+    "probe_axis": "explicit",
+    "traps": [],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "广州后天最高温度是多少？只回答数字。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "expected_number": 34,
+        "tolerance": 0
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "广州",
+      "aliases": [
+        "Guangzhou"
+      ],
+      "report": {
+        "location": "广州，广东，中国",
+        "current": "多云 30°C 体感 35°C 湿度 75% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "26~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "26~32",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "27~34",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}
