@@ -35,6 +35,10 @@ curl -sS https://api-7b.rwkvos.com/v1/server/status -H "CF-Access-Client-Id: $RW
 hard_max_bsz 只按显存算，2026-09-23 约 168 个请求同时预填充把这个共享端点打挂过。
 **跑完再拍一次**，模型 id 变了整轮作废（端点会被静默换模型）。
 
+state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api-7b.rwkvos.com/v1` 加两个 `--api-header-env`），串行上传，每个约 21 秒；推理照旧直连 `http://100.64.0.4:8018/v1`，两条路是同一个部署。
+2026-10-13 起，直连 Tailscale 链路一遇到超过约 1 MB 的请求体就会卡死，还会让整条隧道假死十几秒；小请求不受影响。
+`RWKV_CLI=<路径>` 可以让 sweep 使用固定版本的 cli，不必替换 `local/bin/rwkv-cli`。
+
 ## 3. 命令模板
 
 RWKV（workbank）：

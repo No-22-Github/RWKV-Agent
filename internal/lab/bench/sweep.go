@@ -95,7 +95,17 @@ func scaledParallelism(names []string, budget int) map[string]int {
 	return out
 }
 
-func binaryPath() string { return filepath.Join(lab.RepoRoot(), "local", "bin", "rwkv-cli") }
+// binaryPath is the rwkv-cli the sweep runs: $RWKV_CLI when set (a pinned
+// build such as local/bin/rwkv-cli-688cbfa1), else local/bin/rwkv-cli.
+func binaryPath() string {
+	if path := os.Getenv("RWKV_CLI"); path != "" {
+		if abs, err := filepath.Abs(path); err == nil {
+			return abs
+		}
+		return path
+	}
+	return filepath.Join(lab.RepoRoot(), "local", "bin", "rwkv-cli")
+}
 
 // SweepArgs are the `bench sweep` flags.
 type SweepArgs struct {

@@ -1,6 +1,10 @@
 package bench
 
-import "testing"
+import (
+	"path/filepath"
+	"strings"
+	"testing"
+)
 
 func sumOf(m map[string]int) int {
 	sum := 0
@@ -65,4 +69,16 @@ func TestScaledParallelism(t *testing.T) {
 			t.Fatalf("unexpected p13 spec: %+v", spec)
 		}
 	})
+}
+
+func TestBinaryPathHonorsRWKVCLI(t *testing.T) {
+	t.Setenv("RWKV_CLI", "")
+	if got := binaryPath(); !strings.HasSuffix(got, filepath.Join("local", "bin", "rwkv-cli")) {
+		t.Fatalf("default binaryPath = %q", got)
+	}
+	pinned := filepath.Join(t.TempDir(), "rwkv-cli-pinned")
+	t.Setenv("RWKV_CLI", pinned)
+	if got := binaryPath(); got != pinned {
+		t.Fatalf("binaryPath = %q, want %q", got, pinned)
+	}
 }

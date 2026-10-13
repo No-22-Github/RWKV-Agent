@@ -8,30 +8,43 @@
 # Arms: none, v13b-s688 (v1.3 pick, already on the endpoint), then every
 # v1.41 checkpoint: v141a-sNNN (lr2e-2) / v141b-sNNN (lr1e-2), finals first.
 #
-# Every run uses the 688cbfa1 cli/lab/sidecar: b12 was rendered with them and
-# main's 51eef6ff changes the work-v2 bash description. sweep runs
-# local/bin/rwkv-cli, so that path must hold the 688cbfa1 build (checked below).
+# Every run uses the 688cbfa1 cli and sidecar: b12 was rendered with them and
+# main's 51eef6ff changes the work-v2 bash description. sweep picks the cli up
+# from RWKV_CLI; the lab itself is the main build (local/bin/rwkv-lab).
 # Reruns resume: sweep skips finished runs, bashprobe skips dirs with summary.json.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 SRC=${1:?usage: test-1-41.sh <train-1-41 dir> [state_id ...]}
 shift
 API=${API:-http://100.64.0.4:8018/v1}
-# Uploads may go another way: on 2026-10-13 the direct link stalled on bodies
-# over ~1 MB, so UPLOAD_API=https://api-7b.rwkvos.com/v1 (Cloudflare, same
-# deployment) with RWKV_CF_ID/RWKV_CF_SECRET exported.
-UPLOAD_API=${UPLOAD_API:-$API}
+# Uploads go through Cloudflare (same deployment): since 2026-10-13 the direct
+# Tailscale link stalls on request bodies over ~1 MB (bulk UDP upstream is
+# throttled; small inference requests are fine), and a stalled upload also
+# wedges the tunnel for a few seconds. UPLOAD_API=$API restores direct uploads.
+UPLOAD_API=${UPLOAD_API:-https://api-7b.rwkvos.com/v1}
 MODEL=${MODEL:-rwkv7-g1k-7.2b-20260930-ctx25600}
 OUT=${OUT:-local/runs/bench-20261013-v141}
 K=${K:-0}  # replica indices, e.g. K="1 2" for the replica pass
 STATES=local/states/v141
 CLI=local/bin/rwkv-cli-688cbfa1
-LAB=local/bin/rwkv-lab-688cbfa1
+LAB=local/bin/rwkv-lab
+export RWKV_CLI=$PWD/$CLI
 export RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar-688cbfa1
 export NO_PROXY="100.64.0.4" no_proxy="100.64.0.4"
+# Cloudflare Access credentials: the environment, else ~/.config/rwkv/cf.env,
+# whose keys are the header names (CF-Access-Client-Id=...).
+CF_ENV=${CF_ENV:-$HOME/.config/rwkv/cf.env}
+cf_value() { sed -nE "s/^[[:space:]]*(export[[:space:]]+)?$1[[:space:]]*=[[:space:]]*\"?([^\"]*)\"?.*/\2/p" "$CF_ENV" | head -n 1; }
+if [[ -z ${RWKV_CF_ID:-} && -r $CF_ENV ]]; then
+  RWKV_CF_ID=$(cf_value CF-Access-Client-Id) RWKV_CF_SECRET=$(cf_value CF-Access-Client-Secret)
+fi
+if [[ $UPLOAD_API == https://* && ( -z ${RWKV_CF_ID:-} || -z ${RWKV_CF_SECRET:-} ) ]]; then
+  echo "Cloudflare upload needs RWKV_CF_ID/RWKV_CF_SECRET (or $CF_ENV); or set UPLOAD_API=$API" >&2
+  exit 1
+fi
 export RWKV_CF_ID=${RWKV_CF_ID:-unused} RWKV_CF_SECRET=${RWKV_CF_SECRET:-unused}
 
-cmp -s local/bin/rwkv-cli "$CLI" || { echo "local/bin/rwkv-cli is not $CLI" >&2; exit 1; }
+[[ -x $CLI && -x $LAB ]] || { echo "need $CLI and $LAB (go build -o $LAB ./cmd/rwkv-lab)" >&2; exit 1; }
 
 mkdir -p "$STATES" "$OUT"
 for pair in "lr2e-2:v141a" "lr1e-2:v141b"; do
