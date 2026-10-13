@@ -409,6 +409,7 @@ func TestRollbackLastTurnRejectsMissingResponse(t *testing.T) {
 // 用户中断正在运行的一轮：取消 Chat 的 ctx 后调用及时返回，失败轮以中文“已停止”落盘。
 func TestChatCancellationPersistsStoppedTurn(t *testing.T) {
 	t.Parallel()
+	requireBashSidecar(t)
 	workspace := resolvedWorkspace(t)
 	store := testAppStore(t)
 	started := make(chan struct{}, 1)
@@ -476,6 +477,7 @@ func TestChatCancellationPersistsStoppedTurn(t *testing.T) {
 
 func TestChatCancellationRetainsStreamedAnswer(t *testing.T) {
 	t.Parallel()
+	requireBashSidecar(t)
 	connected := make(chan struct{})
 	release := make(chan struct{})
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -38,11 +38,7 @@ func TestConversationViewRetainsFileArtifacts(t *testing.T) {
 }
 
 func TestFileArtifactStaysOnResponseAfterApproval(t *testing.T) {
-	binary, err := tools.ResolveBashSidecar(filepath.Join("..", "..", "local", "bin", "justbash-sidecar"))
-	if err != nil {
-		t.Skip("build just-bash sidecar first")
-	}
-	t.Setenv(tools.BashSidecarEnv, binary)
+	requireBashSidecar(t)
 	outputs := []string{`<tool_call>{"name":"write_file","arguments":{"path":"index.html","content":"<h1>Hello</h1>"}}</tool_call>`, "已暂存，请确认保存。"}
 	var calls atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
