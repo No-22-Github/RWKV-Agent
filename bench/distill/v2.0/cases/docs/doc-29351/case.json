@@ -1,0 +1,125 @@
+{
+  "id": "doc-29351",
+  "description": "Three turns: counts pages that pin atlas==2.3.N, bumps those pins to 2.4.0 outside history pages, then reverts the internal pages to their old pin. DISTILL-CANARY-dc26568a",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-doc-b12n-atlaspin-01",
+    "ref_calls": 5,
+    "fixture_bytes": 769,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-9351"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/guide/install.md": "# install\n\nSteps for install.\npip install atlas==2.3.4\n",
+    "docs/guide/quickstart.md": "# quickstart\n\nSteps for quickstart.\npip install atlas==2.3.0\n",
+    "docs/guide/upgrade.md": "# upgrade\n\nSteps for upgrade.\npip install atlas==2.2.9\n",
+    "docs/guide/faq.md": "# faq\n\nSteps for faq.\nNo pinned versions here.\n",
+    "docs/api/client.md": "# client\n\npip install atlas==2.3.12\nAlso tested with atlas==2.30.1 in the lab.\n",
+    "docs/api/server.md": "# server\n\nServer needs atlas==2.4.0 or newer.\n",
+    "docs/internal/runbook.md": "# runbook\n\npip install atlas==2.3.1\n",
+    "docs/internal/onboarding.md": "# onboarding\n\npip install atlas==2.3.1\n",
+    "docs/internal/tools.md": "# tools\n\npip install atlas==2.3.1\npip install atlas==2.3.1 --upgrade\n",
+    "docs/internal/notes.md": "# notes\n\nNothing pinned.\n",
+    "docs/CHANGELOG.md": "# Changelog\n\n2.3.9: first release with atlas==2.3.9\n2.2.0: older\n",
+    "docs/archive/old-install.md": "# old install\n\npip install atlas==2.3.2\n",
+    "docs/README.md": "# Docs\n\ndocs/archive and docs/CHANGELOG.md are history: they never count and are never edited.\nA pin means the exact text atlas==2.3.N with N a number.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many pages under docs pin atlas to a 2.3.N version (the exact text atlas==2.3.N)? docs/README.md says which pages are history and left out. Reply with a bare number.",
+      "expect": {
+        "output_contains_any": [
+          "6"
+        ]
+      }
+    },
+    {
+      "prompt": "Bump those pins to atlas==2.4.0 in every page that counts, and leave every other line as it is. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    },
+    {
+      "prompt": "The internal tooling is not ready for 2.4.0, so under docs/internal set the pins back to atlas==2.3.1. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/guide/install.md": {
+        "equals": "# install\n\nSteps for install.\npip install atlas==2.4.0\n"
+      },
+      "docs/guide/quickstart.md": {
+        "equals": "# quickstart\n\nSteps for quickstart.\npip install atlas==2.4.0\n"
+      },
+      "docs/guide/upgrade.md": {
+        "unchanged": true
+      },
+      "docs/guide/faq.md": {
+        "unchanged": true
+      },
+      "docs/api/client.md": {
+        "equals": "# client\n\npip install atlas==2.4.0\nAlso tested with atlas==2.30.1 in the lab.\n"
+      },
+      "docs/api/server.md": {
+        "unchanged": true
+      },
+      "docs/internal/runbook.md": {
+        "unchanged": true
+      },
+      "docs/internal/onboarding.md": {
+        "unchanged": true
+      },
+      "docs/internal/tools.md": {
+        "unchanged": true
+      },
+      "docs/internal/notes.md": {
+        "unchanged": true
+      },
+      "docs/CHANGELOG.md": {
+        "unchanged": true
+      },
+      "docs/archive/old-install.md": {
+        "unchanged": true
+      },
+      "docs/README.md": {
+        "unchanged": true
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "bash"
+    ]
+  }
+}

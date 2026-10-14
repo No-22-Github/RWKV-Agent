@@ -1,0 +1,115 @@
+{
+  "id": "fs-29072",
+  "description": "Renames .htm pages to .html across a static site while a vendor folder and a look-alike .bak file keep their names. DISTILL-CANARY-efa8fa5f",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b12c-htmrename-01",
+    "ref_calls": 2,
+    "fixture_bytes": 575,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "fs-9072"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/index.htm": "<html><body>site/index.htm</body></html>\n",
+    "site/about.htm": "<html><body>site/about.htm</body></html>\n",
+    "site/blog/first.htm": "<html><body>site/blog/first.htm</body></html>\n",
+    "site/blog/second.htm": "<html><body>site/blog/second.htm</body></html>\n",
+    "site/blog/2026/q3.htm": "<html><body>site/blog/2026/q3.htm</body></html>\n",
+    "site/help/faq.htm": "<html><body>site/help/faq.htm</body></html>\n",
+    "site/vendor/jquery-ui.htm": "<html><body>vendor jquery-ui.htm</body></html>\n",
+    "site/vendor/demo.htm": "<html><body>vendor demo.htm</body></html>\n",
+    "site/blog/archive.htm.bak": "backup of the archive page\n",
+    "site/already.html": "<html><body>already</body></html>\n",
+    "site/README.txt": "Static site notes.\nThe new web server only serves .html.\nsite/vendor/ mirrors third-party packages by their original file names; never rename anything there.\n"
+  },
+  "turns": [
+    {
+      "prompt": "新服务器只认 .html。把 site 下所有 .htm 页面改名成 .html，该保持原样的看 site/README.txt。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "site/index.htm": {
+        "absent": true
+      },
+      "site/about.htm": {
+        "absent": true
+      },
+      "site/blog/first.htm": {
+        "absent": true
+      },
+      "site/blog/second.htm": {
+        "absent": true
+      },
+      "site/blog/2026/q3.htm": {
+        "absent": true
+      },
+      "site/help/faq.htm": {
+        "absent": true
+      },
+      "site/vendor/jquery-ui.htm": {
+        "unchanged": true
+      },
+      "site/vendor/demo.htm": {
+        "unchanged": true
+      },
+      "site/blog/archive.htm.bak": {
+        "unchanged": true
+      },
+      "site/already.html": {
+        "unchanged": true
+      },
+      "site/README.txt": {
+        "unchanged": true
+      },
+      "site/index.html": {
+        "equals": "<html><body>site/index.htm</body></html>\n"
+      },
+      "site/about.html": {
+        "equals": "<html><body>site/about.htm</body></html>\n"
+      },
+      "site/blog/first.html": {
+        "equals": "<html><body>site/blog/first.htm</body></html>\n"
+      },
+      "site/blog/second.html": {
+        "equals": "<html><body>site/blog/second.htm</body></html>\n"
+      },
+      "site/blog/2026/q3.html": {
+        "equals": "<html><body>site/blog/2026/q3.htm</body></html>\n"
+      },
+      "site/help/faq.html": {
+        "equals": "<html><body>site/help/faq.htm</body></html>\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "bash"
+    ]
+  }
+}

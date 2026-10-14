@@ -1,0 +1,39 @@
+{
+  "id": "nt-21039",
+  "description": "Daily Q&A answered inside the agent environment with no workspace; source dengxiaodi/deepseek-v4.1-flash-distill-zh-2k id 419, category 能源与环境. DISTILL-CANARY-af4e031b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b20d-c35-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20d",
+    "source_dataset": "dengxiaodi/deepseek-v4.1-flash-distill-zh-2k",
+    "source_id": 419,
+    "source_category": "能源与环境",
+    "license": "CC-BY-4.0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "核电站的工作原理涉及哪些核心概念？请分别用一句话解释。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ]
+}

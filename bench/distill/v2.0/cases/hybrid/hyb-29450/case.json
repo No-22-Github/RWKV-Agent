@@ -1,0 +1,102 @@
+{
+  "id": "hyb-29450",
+  "description": "Composite request: cable-car fare from web search plus the day-after-tomorrow forecast from the weather tool. DISTILL-CANARY-4e2b8a45",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "大雾",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-yungu-01",
+    "ref_calls": 2,
+    "fixture_bytes": 28,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9450"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云谷索道",
+      "url": "https://www.hsscenic.example.cn/ropeway",
+      "url_match": "hsscenic",
+      "title": "黄山云谷索道 运营与票价",
+      "snippet": "黄山云谷索道上行单程票价 80 元，首班 7:00，运行约 8 分钟；旺季请提前预约。",
+      "content": "# 黄山云谷索道 运营与票价\n\n黄山云谷索道上行单程票价 80 元，首班 7:00，运行约 8 分钟；旺季请提前预约。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "旅行/黄山.md": "# 黄山行\n\n- 周五上山\n"
+  },
+  "turns": [
+    {
+      "prompt": "后天上黄山，云谷索道上行单程多少钱？黄山后天天气怎么样？",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "output_contains": [
+          "大雾",
+          "80"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "黄山",
+      "aliases": [
+        "Huangshan"
+      ],
+      "report": {
+        "location": "黄山",
+        "current": "多云 19°C 体感 18°C 湿度 70% 风速 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "16~26",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "15~24",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "大雾",
+            "temp_c": "12~19",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

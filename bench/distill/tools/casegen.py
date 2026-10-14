@@ -36,7 +36,7 @@ class Batch:
 
     def write_case(self, cid, *, desc, task_type, family, level, ref_calls, files, turns, verify, notes,
                    traps=(), decoys=None, axes=(), web=None, weather_fixture=None, offered_tools=None,
-                   case_expect=None, answer_style="natural", version=1):
+                   case_expect=None, answer_style="natural", version=1, tool_policy=None, extra_tags=None):
         scenario = SCEN[cid.split("-")[0]]
         can = self.canary(cid)
         tags = {
@@ -57,6 +57,8 @@ class Batch:
         }
         if self.tool_catalog:
             tags["tool_catalog"] = self.tool_catalog
+        if extra_tags:
+            tags.update(extra_tags)
         case = {
             "id": cid,
             "description": desc.rstrip(".") + ". " + can,
@@ -70,6 +72,10 @@ class Batch:
             case["weather_fixture"] = list(weather_fixture)
         if offered_tools is not None:
             case["offered_tools"] = list(offered_tools)
+        if tool_policy is not None:
+            # v2.0: {"must_offer": [...], "never_offer": [...]}; the batch's
+            # tool-set generator draws offered_tools from it at run time.
+            case["tool_policy"] = {k: list(v) for k, v in tool_policy.items() if v}
         if case_expect:
             case["expect"] = case_expect
         d = os.path.join(self.cases, scenario, cid)

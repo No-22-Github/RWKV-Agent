@@ -1,0 +1,61 @@
+{
+  "id": "tab-20109",
+  "description": "Counts store orders, then averages their minutes, with no shell. DISTILL-CANARY-317dd783",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-C-table-multi",
+    "ref_calls": 2,
+    "fixture_bytes": 10420,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "C-table-multi"
+  },
+  "web_fixture": [],
+  "files": {
+    "exports/orders.csv": "order_id,channel,category,status,amount,minutes\nO20000,phone,wear,done,884.75,50\nO20001,web,wear,cancelled,821.23,26\nO20002,phone,food,done,560.88,164\nO20003,app,wear,refund,678.94,159\nO20004,web,tech,pending,73.07,11\nO20005,web,home,cancelled,805.59,85\nO20006,phone,home,cancelled,664.37,129\nO20007,app,tech,cancelled,293.52,143\nO20008,app,food,done,244.65,75\nO20009,app,tech,cancelled,119.51,29\nO20010,store,wear,done,26.87,2\nO20011,web,home,refund,62.60,98\nO20012,phone,wear,done,653.25,201\nO20013,store,food,done,349.01,106\nO20014,app,home,done,112.01,17\nO20015,phone,wear,done,581.24,116\nO20016,web,home,done,401.14,103\nO20017,phone,home,done,894.75,79\nO20018,app,home,done,883.77,166\nO20019,app,tech,refund,227.56,68\nO20020,app,food,pending,404.09,21\nO20021,app,home,cancelled,257.01,155\nO20022,store,food,cancelled,139.75,125\nO20023,web,wear,done,166.39,234\nO20024,web,home,cancelled,171.94,163\nO20025,web,wear,pending,627.10,109\nO20026,app,tech,done,533.32,63\nO20027,phone,food,done,619.62,77\nO20028,web,tech,done,499.71,169\nO20029,app,food,done,217.95,6\nO20030,app,food,done,264.07,13\nO20031,web,food,done,594.16,25\nO20032,store,home,pending,347.84,189\nO20033,web,tech,refund,495.45,181\nO20034,store,tech,done,660.09,125\nO20035,app,food,done,83.09,117\nO20036,store,tech,pending,763.94,182\nO20037,web,food,done,710.60,232\nO20038,app,wear,refund,39.63,148\nO20039,app,wear,done,21.77,20\nO20040,app,tech,cancelled,272.53,188\nO20041,store,wear,refund,719.74,119\nO20042,phone,wear,pending,94.66,194\nO20043,app,food,cancelled,501.02,60\nO20044,app,wear,pending,684.62,67\nO20045,app,food,done,703.78,53\nO20046,web,food,cancelled,461.63,230\nO20047,web,food,done,265.25,164\nO20048,phone,home,pending,402.28,151\nO20049,store,home,done,517.44,216\nO20050,app,tech,refund,292.21,30\nO20051,phone,wear,done,228.52,99\nO20052,phone,food,cancelled,871.79,117\nO20053,store,tech,pending,293.77,12\nO20054,store,food,done,819.72,6\nO20055,web,wear,cancelled,34.98,214\nO20056,store,home,pending,824.06,163\nO20057,app,wear,done,557.83,165\nO20058,store,tech,cancelled,213.60,67\nO20059,web,tech,pending,556.91,11\nO20060,web,home,done,363.69,180\nO20061,web,wear,pending,725.28,24\nO20062,phone,wear,done,473.25,162\nO20063,app,wear,cancelled,677.64,205\nO20064,store,wear,done,218.12,186\nO20065,app,home,done,408.11,81\nO20066,store,food,refund,885.02,91\nO20067,app,tech,done,572.53,198\nO20068,store,wear,refund,232.08,111\nO20069,app,home,cancelled,712.17,122\nO20070,web,wear,refund,513.74,178\nO20071,app,home,done,581.37,214\nO20072,web,food,done,399.78,55\nO20073,store,home,refund,545.34,148\nO20074,phone,home,done,126.64,3\nO20075,phone,tech,cancelled,54.66,236\nO20076,phone,tech,cancelled,716.21,18\nO20077,phone,wear,refund,828.51,70\nO20078,web,wear,cancelled,356.55,232\nO20079,phone,food,done,438.79,9\nO20080,store,home,cancelled,32.04,51\nO20081,web,home,done,299.41,187\nO20082,store,home,cancelled,116.63,189\nO20083,app,food,cancelled,727.67,226\nO20084,phone,tech,done,432.67,159\nO20085,web,home,pending,555.81,57\nO20086,web,home,done,767.80,209\nO20087,store,home,done,331.24,57\nO20088,web,tech,done,254.16,188\nO20089,app,food,done,454.53,141\nO20090,web,home,done,710.02,26\nO20091,web,food,refund,378.14,182\nO20092,store,home,pending,502.13,8\nO20093,app,wear,done,197.14,54\nO20094,web,home,refund,698.12,150\nO20095,app,home,refund,482.09,197\nO20096,app,food,done,445.65,92\nO20097,phone,home,cancelled,22.81,181\nO20098,app,home,done,473.46,191\nO20099,store,wear,refund,628.21,26\nO20100,app,food,pending,829.90,226\nO20101,phone,home,cancelled,358.97,68\nO20102,store,tech,pending,805.20,210\nO20103,phone,home,pending,560.88,96\nO20104,phone,home,done,748.23,20\nO20105,store,food,cancelled,19.45,165\nO20106,app,home,done,691.38,88\nO20107,web,wear,cancelled,554.09,101\nO20108,phone,home,cancelled,789.50,149\nO20109,app,tech,cancelled,765.30,67\nO20110,phone,wear,cancelled,788.25,167\nO20111,phone,tech,done,265.35,233\nO20112,store,wear,refund,590.12,165\nO20113,phone,tech,cancelled,693.97,13\nO20114,phone,home,done,182.63,140\nO20115,app,wear,refund,439.36,136\nO20116,phone,food,done,301.61,169\nO20117,store,food,cancelled,774.37,8\nO20118,app,home,cancelled,657.20,106\nO20119,phone,tech,pending,775.50,14\nO20120,store,tech,pending,238.54,186\nO20121,phone,food,refund,258.05,135\nO20122,app,wear,done,845.31,156\nO20123,app,tech,cancelled,475.15,54\nO20124,app,food,cancelled,136.46,115\nO20125,web,wear,cancelled,277.81,151\nO20126,phone,food,pending,552.17,76\nO20127,web,home,cancelled,524.39,202\nO20128,store,food,done,710.92,146\nO20129,web,food,pending,203.31,130\nO20130,web,tech,cancelled,18.34,68\nO20131,phone,tech,cancelled,113.28,140\nO20132,store,tech,pending,701.20,142\nO20133,web,food,cancelled,371.26,88\nO20134,store,wear,pending,867.09,207\nO20135,app,wear,pending,647.98,198\nO20136,web,wear,done,273.49,209\nO20137,web,food,done,865.76,85\nO20138,store,home,done,387.74,26\nO20139,phone,food,done,94.55,146\nO20140,phone,wear,done,803.01,21\nO20141,store,home,refund,627.10,179\nO20142,store,wear,cancelled,719.41,74\nO20143,web,home,done,752.41,95\nO20144,app,food,cancelled,591.76,237\nO20145,store,wear,cancelled,321.58,83\nO20146,web,wear,refund,756.66,65\nO20147,app,food,pending,33.46,175\nO20148,phone,wear,pending,765.72,96\nO20149,phone,home,pending,585.22,47\nO20150,app,wear,pending,297.02,58\nO20151,app,home,cancelled,31.83,217\nO20152,phone,tech,cancelled,321.69,23\nO20153,store,tech,done,116.40,23\nO20154,app,home,done,844.83,110\nO20155,web,home,cancelled,543.43,197\nO20156,phone,wear,done,835.42,174\nO20157,web,wear,cancelled,833.92,20\nO20158,app,wear,pending,691.44,220\nO20159,app,wear,pending,484.69,165\nO20160,app,food,cancelled,830.14,109\nO20161,phone,home,done,175.81,98\nO20162,web,food,done,444.67,76\nO20163,store,tech,cancelled,757.14,79\nO20164,web,home,refund,780.58,6\nO20165,phone,tech,done,211.23,93\nO20166,web,home,cancelled,492.76,132\nO20167,web,wear,done,296.51,46\nO20168,store,wear,pending,505.51,236\nO20169,store,tech,cancelled,235.51,14\nO20170,web,home,pending,403.67,205\nO20171,store,tech,cancelled,252.01,225\nO20172,phone,food,done,261.91,109\nO20173,web,wear,done,338.18,68\nO20174,web,food,cancelled,63.19,148\nO20175,web,tech,done,875.19,212\nO20176,web,tech,done,638.91,137\nO20177,app,wear,cancelled,93.95,152\nO20178,store,tech,pending,435.24,236\nO20179,app,wear,done,565.52,136\nO20180,phone,home,refund,327.40,81\nO20181,phone,tech,cancelled,487.85,185\nO20182,app,food,done,152.13,172\nO20183,phone,wear,pending,812.15,169\nO20184,phone,tech,pending,737.90,123\nO20185,web,food,cancelled,478.98,4\nO20186,web,home,done,394.69,193\nO20187,store,food,pending,577.85,24\nO20188,store,home,done,757.14,86\nO20189,store,food,cancelled,750.81,86\nO20190,phone,wear,done,153.79,26\nO20191,web,home,done,420.04,216\nO20192,phone,tech,done,42.20,33\nO20193,phone,wear,pending,358.54,239\nO20194,web,home,pending,849.88,100\nO20195,phone,food,refund,646.01,188\nO20196,phone,food,refund,817.31,171\nO20197,app,food,done,359.39,168\nO20198,phone,tech,cancelled,218.65,87\nO20199,store,tech,cancelled,171.32,198\nO20200,store,home,done,521.65,38\nO20201,web,home,cancelled,36.80,170\nO20202,web,tech,done,498.73,108\nO20203,store,food,done,378.34,120\nO20204,app,wear,refund,147.30,233\nO20205,app,food,done,772.42,155\nO20206,web,tech,refund,12.36,177\nO20207,store,home,pending,380.21,49\nO20208,app,wear,done,193.84,37\nO20209,store,wear,cancelled,664.97,6\nO20210,web,home,done,42.18,137\nO20211,phone,tech,cancelled,186.43,135\nO20212,web,food,done,349.06,166\nO20213,app,home,done,518.76,28\nO20214,phone,food,done,647.88,146\nO20215,phone,food,cancelled,483.88,106\nO20216,phone,tech,cancelled,547.42,136\nO20217,phone,wear,pending,337.06,77\nO20218,phone,wear,cancelled,778.39,227\nO20219,app,home,done,466.31,130\nO20220,phone,tech,cancelled,116.67,234\nO20221,web,food,cancelled,250.08,235\nO20222,store,wear,cancelled,177.28,168\nO20223,phone,tech,pending,109.66,204\nO20224,web,tech,pending,598.58,2\nO20225,store,home,pending,33.41,46\nO20226,app,wear,pending,844.67,103\nO20227,web,food,cancelled,245.05,80\nO20228,app,wear,pending,324.41,129\nO20229,web,wear,pending,216.37,221\nO20230,app,home,done,888.45,232\nO20231,phone,tech,done,723.71,53\nO20232,web,home,refund,60.83,29\nO20233,store,food,refund,289.53,184\nO20234,web,food,cancelled,806.56,108\nO20235,app,home,done,323.15,183\nO20236,web,food,done,250.64,172\nO20237,store,food,done,686.67,228\nO20238,app,home,refund,193.85,59\nO20239,store,home,cancelled,101.59,21\nO20240,phone,tech,cancelled,55.00,155\nO20241,store,food,done,591.11,44\nO20242,store,home,done,294.93,142\nO20243,app,home,pending,163.04,161\nO20244,phone,wear,done,520.07,48\nO20245,app,food,done,504.04,134\nO20246,store,home,cancelled,798.21,30\nO20247,phone,home,cancelled,569.98,67\nO20248,web,food,cancelled,235.74,156\nO20249,phone,food,done,620.91,15\nO20250,phone,home,done,631.02,157\nO20251,phone,wear,cancelled,749.33,221\nO20252,app,tech,done,191.72,165\nO20253,web,home,done,444.05,180\nO20254,store,food,pending,519.11,168\nO20255,web,wear,done,172.63,178\nO20256,phone,tech,done,487.46,180\nO20257,web,tech,done,782.97,155\nO20258,web,home,pending,543.95,12\nO20259,app,home,done,547.18,25\nO20260,phone,food,cancelled,87.04,176\nO20261,web,food,done,574.30,109\nO20262,phone,tech,refund,381.39,88\nO20263,web,tech,done,608.83,16\nO20264,store,home,cancelled,411.27,99\nO20265,phone,tech,done,364.31,49\nO20266,web,wear,done,228.76,121\nO20267,store,wear,done,650.86,48\nO20268,phone,home,cancelled,438.09,14\nO20269,store,food,refund,644.02,134\nO20270,web,food,cancelled,589.83,185\nO20271,web,food,done,67.19,188\nO20272,store,home,pending,749.15,7\nO20273,store,wear,done,884.48,85\nO20274,store,tech,done,631.30,127\nO20275,app,home,done,618.16,10\nO20276,web,food,done,499.69,179\nO20277,web,food,done,471.85,98\nO20278,web,home,pending,556.91,117\nO20279,phone,home,done,895.45,59\nO20280,app,food,done,634.27,37\nO20281,app,tech,pending,503.72,4\nO20282,store,tech,refund,230.71,178\nO20283,store,tech,refund,898.47,62\nO20284,store,tech,pending,131.50,128\nO20285,app,wear,done,345.36,129\nO20286,store,home,done,421.25,123\nO20287,web,food,cancelled,254.66,25\nO20288,store,wear,pending,498.74,67\nO20289,store,tech,pending,132.46,234\nO20290,app,wear,done,395.63,218\nO20291,store,wear,cancelled,268.09,8\nO20292,app,food,done,391.72,78\nO20293,store,home,cancelled,402.78,89\nO20294,store,tech,cancelled,230.98,21\nO20295,app,wear,cancelled,74.35,19\nO20296,phone,wear,done,403.04,207\nO20297,web,food,done,378.60,7\nO20298,web,home,done,273.87,58\nO20299,web,tech,refund,412.00,63\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many orders in exports/orders.csv were placed in store? Number only.",
+      "expect": {
+        "output_contains": [
+          "71"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    },
+    {
+      "prompt": "And the average minutes for those store orders, two decimals? Number only.",
+      "expect": {
+        "output_contains_any": [
+          "107.48"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "data_query"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

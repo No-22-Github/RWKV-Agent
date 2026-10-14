@@ -50,6 +50,10 @@ type WorkspaceMutationResult interface {
 }
 
 type Options struct {
+	// PreserveToolOrder keeps the tools in the order the caller passed them,
+	// in the text catalog and the native tools array alike, instead of
+	// sorting by name (v2.0 generated directories; see eval.Case).
+	PreserveToolOrder       bool
 	MaxSteps                int
 	ProtocolRetries         int
 	DecisionMaxOutputTokens int

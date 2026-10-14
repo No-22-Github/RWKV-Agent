@@ -1,0 +1,55 @@
+{
+  "id": "cfg-28603",
+  "description": "Raise a parcel-station overdue threshold nested under a rule block; cold-chain block has a similar key. DISTILL-CANARY-3f807ba5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-parcelhold-01",
+    "ref_calls": 3,
+    "fixture_bytes": 182,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8603"
+  },
+  "web_fixture": [],
+  "files": {
+    "站点/驿站规则.yaml": "取件规则:\n  普通件:\n    超期天数: 3        # 超期转退回\n    短信提醒次数: 2\n  冷链件:\n    超期天数: 1        # 生鲜不留存\n    短信提醒次数: 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "驿站普通件的超期天数要从 3 天放宽到 5 天，改 站点/驿站规则.yaml，冷链件那条别碰。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "站点/驿站规则.yaml": {
+        "equals": "取件规则:\n  普通件:\n    超期天数: 5        # 超期转退回\n    短信提醒次数: 2\n  冷链件:\n    超期天数: 1        # 生鲜不留存\n    短信提醒次数: 3\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "read_lines",
+      "replace_lines"
+    ]
+  }
+}

@@ -54,12 +54,30 @@ type Case struct {
 	// wire_hash covers the catalog rendering mode, not the tool list, so a
 	// subset does not fork the wire.
 	OfferedTools []string `json:"offered_tools,omitempty"`
+	// OfferedToolsOrdered (v2.0) presents OfferedTools in the listed order
+	// instead of sorting by name, in the text catalog and the native tools
+	// array alike, so teacher and student face the same directory bytes.
+	OfferedToolsOrdered bool `json:"offered_tools_ordered,omitempty"`
+	// ToolPolicy (v2.0) is the authored contract a tool-set generator draws
+	// OfferedTools from: tools the case cannot be solved or scored without,
+	// and tools that would void the lesson if offered. It is checked against
+	// OfferedTools at load time and otherwise inert.
+	ToolPolicy *ToolPolicy `json:"tool_policy,omitempty"`
 	// Expect (v5) holds case-level result expectations evaluated after the
 	// final turn against the workspace state and the whole transcript.
 	Expect    *CaseExpect        `json:"expect,omitempty"`
 	Turns     []Turn             `json:"turns"`
 	Primitive *PrimitiveMetadata `json:"primitive,omitempty"`
 	primitive *primitiveRuntime
+}
+
+// ToolPolicy constrains which catalog tools a generated directory may offer.
+// MustOffer tools are always present (the case's required tools, the traps a
+// forbidden_tools expectation tests); NeverOffer tools are always absent (a
+// "no tool can do this" lesson collapses if one is offered).
+type ToolPolicy struct {
+	MustOffer  []string `json:"must_offer,omitempty"`
+	NeverOffer []string `json:"never_offer,omitempty"`
 }
 
 // CaseExpect carries the v5 case-level expectations. Unlike turn expectations,

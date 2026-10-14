@@ -1,0 +1,46 @@
+{
+  "id": "doc-28031",
+  "description": "Tea-chain copywriting workspace available but the user forbids opening it and asks how to render a sold-out notice in English. DISTILL-CANARY-8cd6feba",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b10-boba-01",
+    "ref_calls": 0,
+    "fixture_bytes": 171,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-8031"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沐棠茶饮 门店文案库\n\n上架与海报文案以 文案/在用清单.md 为准，改稿前先对照。\n",
+    "文案/在用清单.md": "- 桂花乌龙：秋日限定\n- 云雾青柠：冰饮更佳\n"
+  },
+  "turns": [
+    {
+      "prompt": "不用翻文案库，直接帮我翻：「今日鲜奶茶已售罄」翻成英文怎么说？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "sold out",
+          "sold-out",
+          "out of stock",
+          "run out of"
+        ]
+      }
+    }
+  ]
+}

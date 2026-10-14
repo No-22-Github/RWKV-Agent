@@ -30,6 +30,7 @@ func SuiteFor(name string) SuiteSpec {
 // configuration that actually executes instead of a suite-level approximation.
 func resolveCaseOptions(config Config, testCase Case) (agent.Options, error) {
 	options := config.Runner
+	options.PreserveToolOrder = testCase.OfferedToolsOrdered
 	if !SuiteFor(config.Suite).Primitive {
 		return options, nil
 	}

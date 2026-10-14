@@ -1,0 +1,46 @@
+{
+  "id": "cfg-28059",
+  "description": "Convert a gantry crane's lift capacity from pounds in a config to metric tonnes, bare number. DISTILL-CANARY-0bc68873",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10b-cranelb-01",
+    "ref_calls": 2,
+    "fixture_bytes": 70,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8059"
+  },
+  "web_fixture": [],
+  "files": {
+    "port/crane.cfg": "lift_capacity_lb = 88000\nspreader_weight_kg = 9800\nboom_length_m = 42\n"
+  },
+  "turns": [
+    {
+      "prompt": "Convert the lift capacity in port/crane.cfg to metric tonnes (1 lb = 0.45359237 kg). Round to two decimals and give the number only.",
+      "expect": {
+        "expected_number": 39.92,
+        "tolerance": 0.005,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator"
+    ]
+  }
+}

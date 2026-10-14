@@ -1,0 +1,84 @@
+{
+  "id": "web-28045",
+  "description": "官网概况更新于改造完成后，区分了固定座席与演唱会模式；百科和娱乐新闻用的是旧数或座席数（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-03289383",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "20000"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-arenacapacity-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "web-8045"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云梯体育馆",
+      "url_match": "baike.example-wiki.cn/yunti",
+      "url": "https://baike.example-wiki.cn/yunti",
+      "title": "云梯体育馆 - 百科",
+      "snippet": "可容纳 2 万人。",
+      "content": "# 云梯体育馆\n\n建成于 2009 年，演唱会模式可容纳约 20000 人。（改造前数据）\n",
+      "published_at": "2025-01-15"
+    },
+    {
+      "query_match": "云梯体育馆",
+      "url_match": "www.yule-bagua.cn/n/yunti-concert",
+      "url": "https://www.yule-bagua.cn/n/yunti-concert",
+      "title": "云梯演唱会门票开售",
+      "snippet": "场馆 1.8 万座。",
+      "content": "# 云梯演唱会门票开售\n\n场馆 1.8 万座，开票即抢空。\n",
+      "published_at": "2026-08-01"
+    },
+    {
+      "query_match": "云梯体育馆",
+      "url_match": "www.yunti-arena.cn/about/capacity",
+      "url": "https://www.yunti-arena.cn/about/capacity",
+      "title": "场馆概况 | 云梯体育馆",
+      "snippet": "座席与容量数据。",
+      "content": "# 场馆概况\n\n2026 年 6 月改造完成后：固定座席 18600 个；演唱会模式（含内场加座）最大容量 21500 人。\n",
+      "published_at": "2026-07-05"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "云梯体育馆举办演唱会时最多能容纳多少观众？",
+      "expect": {
+        "output_contains_any": [
+          "21500",
+          "21,500",
+          "2.15 万",
+          "2.15万"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

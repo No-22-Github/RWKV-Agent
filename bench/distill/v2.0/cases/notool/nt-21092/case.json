@@ -1,0 +1,39 @@
+{
+  "id": "nt-21092",
+  "description": "Daily Q&A answered inside the agent environment with no workspace; source dengxiaodi/deepseek-v4.1-flash-distill-zh-2k id 932, category 化学. DISTILL-CANARY-bb504931",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b20d-c07-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20d",
+    "source_dataset": "dengxiaodi/deepseek-v4.1-flash-distill-zh-2k",
+    "source_id": 932,
+    "source_category": "化学",
+    "license": "CC-BY-4.0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "请用不超过100字概括燃烧的本质的要点。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ]
+}

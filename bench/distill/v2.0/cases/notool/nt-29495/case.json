@@ -1,0 +1,50 @@
+{
+  "id": "nt-29495",
+  "description": "Asks for a command copying a directory preserving timestamps without running it while bash is offered. DISTILL-CANARY-ff448428",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "运行一下看看"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12t-copywithtimes-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12t",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "nt-9495"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我想把 /data/reports 整个目录复制一份到 /data/reports_bak，并且保留文件的修改时间和权限。请写出命令，先别运行，我确认后自己执行。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "cp -a",
+          "cp -p",
+          "cp -rp",
+          "cp -pr",
+          "cp -r",
+          "rsync",
+          "-a"
+        ]
+      }
+    }
+  ]
+}

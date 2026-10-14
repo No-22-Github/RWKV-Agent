@@ -1,0 +1,60 @@
+{
+  "id": "tab-28409",
+  "description": "Sum amounts of one category in a boat charter bookings export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-a3f8e305",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "15892",
+      "TR-HEADER": "sail_date"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-mdboatb-mixdates-01",
+    "ref_calls": 4,
+    "fixture_bytes": 7774,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "tab-8409"
+  },
+  "web_fixture": [],
+  "files": {
+    "charters/bookings.csv": "booking,dep,hull,usd\nCH-00657,2026/04/03,catamaran,1351\nCH-00636,2026/04/10,ketch,1258\nCH-00754,\"Apr 3, 2026\",trawler,880\nCH-00742,10-04-2026,trawler,781\nCH-00679,08-04-2026,sloop,733\nCH-00737,2026/04/08,sloop,1062\nCH-00642,09-04-2026,sloop,354\nCH-00796,2026/04/08,ketch,855\nCH-00693,08-04-2026,ketch,1283\nCH-00615,2026/04/10,trawler,1311\nCH-00711,\"Apr 4, 2026\",trawler,865\nCH-00614,03-04-2026,trawler,666\nCH-00654,\"Apr 2, 2026\",catamaran,1246\nCH-00815,2026/04/05,catamaran,1337\nCH-00708,2026/04/06,trawler,1327\nCH-00637,\"Apr 7, 2026\",sloop,995\nCH-00730,06-04-2026,ketch,1363\nCH-00611,2026/04/04,sloop,257\nCH-00792,\"Apr 10, 2026\",ketch,770\nCH-00749,10-04-2026,sloop,458\nCH-00768,10-04-2026,ketch,684\nCH-00819,08-04-2026,ketch,462\nCH-00728,10-04-2026,ketch,1060\nCH-00766,04-04-2026,catamaran,633\nCH-00646,05-04-2026,trawler,317\nCH-00761,2026/04/02,sloop,869\nCH-00769,07-04-2026,trawler,1195\nCH-00770,08-04-2026,ketch,1079\nCH-00667,07-04-2026,trawler,732\nCH-00743,05-04-2026,catamaran,189\nCH-00808,2026/04/07,ketch,1225\nCH-00662,2026/04/07,catamaran,1334\nCH-00787,\"Apr 9, 2026\",trawler,607\nCH-00732,09-04-2026,sloop,961\nCH-00643,10-04-2026,catamaran,568\nCH-00802,\"Apr 5, 2026\",sloop,527\nCH-00786,10-04-2026,ketch,841\nCH-00723,2026/04/07,sloop,1062\nCH-00790,2026/04/08,catamaran,348\nCH-00800,05-04-2026,trawler,295\nCH-00740,\"Apr 6, 2026\",ketch,669\nCH-00716,07-04-2026,trawler,561\nCH-00681,08-04-2026,ketch,1138\nCH-00656,\"Apr 10, 2026\",ketch,1267\nCH-00726,09-04-2026,ketch,562\nCH-00762,10-04-2026,trawler,1105\nCH-00824,\"Apr 9, 2026\",ketch,208\nCH-00827,\"Apr 7, 2026\",trawler,229\nCH-00816,\"Apr 4, 2026\",trawler,1240\nCH-00712,2026/04/05,sloop,1287\nCH-00696,\"Apr 6, 2026\",sloop,188\nCH-00772,\"Apr 3, 2026\",ketch,1086\nCH-00810,2026/04/09,ketch,687\nCH-00634,2026/04/03,catamaran,804\nCH-00676,2026/04/09,sloop,823\nCH-00674,2026/04/03,sloop,880\nCH-00623,\"Apr 3, 2026\",ketch,807\nCH-00781,03-04-2026,trawler,1030\nCH-00699,\"Apr 2, 2026\",catamaran,494\nCH-00825,\"Apr 7, 2026\",trawler,865\nCH-00801,10-04-2026,trawler,376\nCH-00748,\"Apr 3, 2026\",catamaran,698\nCH-00697,\"Apr 7, 2026\",sloop,1417\nCH-00794,\"Apr 10, 2026\",sloop,795\nCH-00714,2026/04/03,trawler,956\nCH-00670,02-04-2026,catamaran,510\nCH-00831,03-04-2026,sloop,1186\nCH-00687,02-04-2026,sloop,639\nCH-00647,2026/04/09,ketch,837\nCH-00633,2026/04/04,catamaran,889\nCH-00691,04-04-2026,sloop,1387\nCH-00707,\"Apr 6, 2026\",catamaran,233\nCH-00759,09-04-2026,sloop,319\nCH-00695,06-04-2026,ketch,1362\nCH-00764,07-04-2026,sloop,1406\nCH-00720,09-04-2026,sloop,344\nCH-00672,2026/04/07,trawler,1009\nCH-00703,\"Apr 4, 2026\",ketch,692\nCH-00803,2026/04/05,catamaran,556\nCH-00625,2026/04/09,sloop,293\nCH-00744,\"Apr 3, 2026\",ketch,1067\nCH-00620,2026/04/08,sloop,368\nCH-00671,04-04-2026,sloop,532\nCH-00733,06-04-2026,catamaran,774\nCH-00617,\"Apr 5, 2026\",ketch,511\nCH-00649,2026/04/02,trawler,1287\nCH-00675,02-04-2026,ketch,378\nCH-00664,\"Apr 7, 2026\",catamaran,1147\nCH-00817,2026/04/04,ketch,183\nCH-00694,\"Apr 6, 2026\",catamaran,933\nCH-00822,\"Apr 2, 2026\",catamaran,536\nCH-00724,2026/04/05,trawler,881\nCH-00644,\"Apr 9, 2026\",catamaran,496\nCH-00765,2026/04/03,catamaran,1196\nCH-00665,07-04-2026,ketch,403\nCH-00738,\"Apr 6, 2026\",trawler,812\nCH-00710,2026/04/07,sloop,1169\nCH-00618,\"Apr 3, 2026\",ketch,1383\nCH-00785,07-04-2026,catamaran,1257\nCH-00684,\"Apr 2, 2026\",ketch,868\nCH-00692,2026/04/08,ketch,227\nCH-00775,04-04-2026,trawler,278\nCH-00809,02-04-2026,sloop,686\nCH-00739,\"Apr 7, 2026\",trawler,323\nCH-00641,2026/04/07,trawler,856\nCH-00767,2026/04/05,trawler,351\nCH-00624,02-04-2026,trawler,1114\nCH-00705,\"Apr 6, 2026\",sloop,1017\nCH-00648,2026/04/02,catamaran,1223\nCH-00619,2026/04/08,trawler,1380\nCH-00780,\"Apr 7, 2026\",catamaran,237\nCH-00778,06-04-2026,ketch,287\nCH-00755,\"Apr 6, 2026\",catamaran,212\nCH-00653,07-04-2026,ketch,928\nCH-00621,\"Apr 4, 2026\",trawler,616\nCH-00729,2026/04/08,ketch,1194\nCH-00826,2026/04/03,sloop,690\nCH-00651,2026/04/05,sloop,275\nCH-00635,09-04-2026,ketch,1323\nCH-00702,10-04-2026,sloop,1358\nCH-00773,2026/04/05,trawler,292\nCH-00718,03-04-2026,ketch,327\nCH-00698,05-04-2026,catamaran,659\nCH-00774,\"Apr 4, 2026\",trawler,1276\nCH-00632,\"Apr 7, 2026\",catamaran,409\nCH-00746,09-04-2026,trawler,972\nCH-00741,\"Apr 6, 2026\",ketch,1108\nCH-00660,05-04-2026,catamaran,242\nCH-00678,09-04-2026,catamaran,1353\nCH-00727,04-04-2026,trawler,370\nCH-00821,\"Apr 8, 2026\",catamaran,989\nCH-00745,\"Apr 7, 2026\",ketch,913\nCH-00788,04-04-2026,catamaran,226\nCH-00719,\"Apr 6, 2026\",catamaran,340\nCH-00795,\"Apr 7, 2026\",ketch,728\nCH-00757,\"Apr 9, 2026\",sloop,1030\nCH-00812,\"Apr 5, 2026\",trawler,1410\nCH-00725,\"Apr 10, 2026\",ketch,1068\nCH-00688,\"Apr 8, 2026\",trawler,208\nCH-00784,\"Apr 4, 2026\",trawler,721\nCH-00659,07-04-2026,catamaran,1067\nCH-00771,\"Apr 7, 2026\",sloop,1036\nCH-00829,\"Apr 10, 2026\",sloop,959\nCH-00640,\"Apr 10, 2026\",trawler,1321\nCH-00721,2026/04/09,trawler,386\nCH-00779,\"Apr 7, 2026\",trawler,1067\nCH-00813,\"Apr 6, 2026\",sloop,1144\nCH-00793,2026/04/03,ketch,932\nCH-00820,08-04-2026,catamaran,1314\nCH-00638,\"Apr 7, 2026\",catamaran,189\nCH-00782,2026/04/02,catamaran,380\nCH-00639,\"Apr 10, 2026\",catamaran,843\nCH-00616,\"Apr 8, 2026\",ketch,799\nCH-00610,\"Apr 3, 2026\",ketch,660\nCH-00814,2026/04/08,trawler,795\nCH-00777,\"Apr 3, 2026\",trawler,765\nCH-00807,05-04-2026,sloop,1063\nCH-00731,2026/04/02,catamaran,1061\nCH-00713,\"Apr 4, 2026\",sloop,646\nCH-00706,02-04-2026,ketch,959\nCH-00682,\"Apr 7, 2026\",trawler,278\nCH-00673,02-04-2026,ketch,1450\nCH-00631,08-04-2026,catamaran,1112\nCH-00686,09-04-2026,trawler,382\nCH-00735,10-04-2026,trawler,1011\nCH-00626,\"Apr 2, 2026\",ketch,473\nCH-00806,02-04-2026,trawler,681\nCH-00700,02-04-2026,ketch,590\nCH-00804,2026/04/02,ketch,1201\nCH-00799,02-04-2026,trawler,945\nCH-00685,07-04-2026,trawler,1242\nCH-00629,07-04-2026,ketch,1365\nCH-00789,2026/04/02,catamaran,562\nCH-00760,2026/04/05,trawler,1041\nCH-00627,09-04-2026,trawler,652\nCH-00758,2026/04/06,trawler,967\nCH-00690,\"Apr 3, 2026\",catamaran,398\nCH-00747,2026/04/08,sloop,343\nCH-00704,2026/04/03,ketch,268\nCH-00715,\"Apr 2, 2026\",catamaran,335\nCH-00756,03-04-2026,catamaran,729\nCH-00622,\"Apr 5, 2026\",sloop,950\nCH-00797,06-04-2026,catamaran,233\nCH-00658,07-04-2026,sloop,1220\nCH-00652,08-04-2026,catamaran,421\nCH-00666,2026/04/07,trawler,1408\nCH-00750,\"Apr 3, 2026\",ketch,813\nCH-00823,\"Apr 8, 2026\",catamaran,1238\nCH-00798,2026/04/02,trawler,192\nCH-00655,\"Apr 4, 2026\",sloop,810\nCH-00650,2026/04/03,sloop,1076\nCH-00645,09-04-2026,catamaran,339\nCH-00612,\"Apr 2, 2026\",trawler,183\nCH-00830,\"Apr 4, 2026\",ketch,1332\nCH-00791,\"Apr 6, 2026\",catamaran,1333\nCH-00776,08-04-2026,ketch,489\nCH-00753,2026/04/09,ketch,1040\nCH-00763,\"Apr 2, 2026\",trawler,572\nCH-00661,03-04-2026,sloop,1025\nCH-00669,2026/04/08,sloop,495\nCH-00818,05-04-2026,trawler,1113\nCH-00613,04-04-2026,sloop,1386\nCH-00811,\"Apr 10, 2026\",sloop,783\nCH-00701,07-04-2026,trawler,1310\nCH-00668,04-04-2026,catamaran,298\nCH-00689,\"Apr 6, 2026\",trawler,1403\nCH-00717,05-04-2026,ketch,1091\nCH-00751,\"Apr 7, 2026\",catamaran,1139\nCH-00680,2026/04/10,trawler,753\nCH-00683,2026/04/06,trawler,1416\nCH-00736,2026/04/02,ketch,1072\nCH-00709,06-04-2026,sloop,608\nCH-00783,\"Apr 9, 2026\",sloop,232\nCH-00722,2026/04/05,sloop,526\nCH-00752,08-04-2026,ketch,903\nCH-00628,06-04-2026,sloop,225\nCH-00828,2026/04/03,ketch,279\nCH-00677,2026/04/02,catamaran,455\nCH-00663,\"Apr 9, 2026\",catamaran,633\nCH-00734,2026/04/09,trawler,1182\nCH-00630,09-04-2026,ketch,641\nCH-00805,\"Apr 9, 2026\",trawler,1230\n",
+    "README.md": "# Tern Island Charters - bookings\n\nOne row per booked day trip.\nThe date column comes from three systems and is not uniform: the dock office writes 2026/04/02; the agency feed writes short dates as day-month-year, so 07-04-2026 is 7 Apr 2026; the booking site writes Apr 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n\nColumn guide: booking=booking id; dep=departure date, mixed formats; hull=vessel class; usd=fare in dollars\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tern Island: total fares in dollars for catamaran trips from April 3 to April 7, inclusive? The bookings file is charters/bookings.csv.",
+      "expect": {
+        "output_contains_any": [
+          "21,042",
+          "21042"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator",
+      "data_query"
+    ]
+  }
+}

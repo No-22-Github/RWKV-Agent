@@ -1,0 +1,92 @@
+{
+  "id": "hyb-29039",
+  "description": "Asks the day-after-tomorrow low temperature of a city; get_weather answers it directly. DISTILL-CANARY-1ca5b251",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "15"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12a-harbinlow-01",
+    "ref_calls": 1,
+    "fixture_bytes": 50,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9039"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/哈尔滨.md": "# 哈尔滨出差\n\n- 9 月 18 日 早班机到达\n"
+  },
+  "turns": [
+    {
+      "prompt": "我后天一大早到哈尔滨，那天最低气温大概几度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "13"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "哈尔滨",
+      "aliases": [
+        "Harbin"
+      ],
+      "report": {
+        "location": "哈尔滨",
+        "current": "晴 18°C 体感 17°C 湿度 55% 风速 14 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "16~24",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "15~23",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "13~19",
+            "rain_chance": "55%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "id": "hyb-29136",
+  "description": "Two turns: appends a forecast row for one city to a markdown weather table, then a row for another city and day. DISTILL-CANARY-84b64df3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DECOY": "晴 17~24°C 5%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12e-weathertable-01",
+    "ref_calls": 6,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9136"
+  },
+  "web_fixture": [],
+  "files": {
+    "出游/天气表.md": "# 出游天气表\n\n| 日期 | 城市 | 天气 | 气温 |\n| --- | --- | --- | --- |\n| 09-15 | 厦门 | 晴 | 25~31°C |\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 出游/天气表.md 表格最后追加一行青岛明天的天气，格式「| <月-日> | 青岛 | <天气> | <最低>~<最高>°C |」，其余各行不动，文件仍以换行结尾。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "再加一行大连后天的天气，格式同上，追加在刚才那行的后面，其余各行不动，文件仍以换行结尾。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "青岛",
+      "aliases": [
+        "Qingdao"
+      ],
+      "report": {
+        "location": "青岛",
+        "current": "多云 23°C 体感 24°C 湿度 66% 风速 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "18~24",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "19~25",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "18~22",
+            "rain_chance": "65%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "大连",
+      "aliases": [
+        "Dalian"
+      ],
+      "report": {
+        "location": "大连",
+        "current": "晴 21°C 体感 21°C 湿度 55% 风速 17 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "16~23",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "17~24",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "16~21",
+            "rain_chance": "55%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "出游/天气表.md": {
+        "equals": "# 出游天气表\n\n| 日期 | 城市 | 天气 | 气温 |\n| --- | --- | --- | --- |\n| 09-15 | 厦门 | 晴 | 25~31°C |\n| 09-17 | 青岛 | 多云 | 19~25°C |\n| 09-18 | 大连 | 阵雨 | 16~21°C |\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "append_file",
+      "web_search",
+      "web_fetch",
+      "bash",
+      "get_weather"
+    ]
+  }
+}

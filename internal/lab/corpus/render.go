@@ -34,10 +34,14 @@ import (
 // or work-v2 per render, and benchFlagsFor prepends it.
 var benchFlags = []string{
 	"--file-tools", "lines",
-	"--max-steps", "16", "--max-tokens", "4096", "--decision-max-tokens", "2048",
-	"--profile", "g1k", "--strict-spec",
+	"--max-steps", "16", "--max-tokens", "4096",
+	"--strict-spec",
 	"--trace-prompt-bytes", "-1",
 }
+
+// decisionBudget is the decision-stage output budget per wire profile: the
+// g1k bench arm uses 2048, the thinking wire 4096 (think-full retest T arm).
+var decisionBudget = map[string]string{"g1k": "2048", "g1k-think": "4096"}
 
 // RenderArgs are the `corpus render` flags.
 type RenderArgs struct {
@@ -58,11 +62,17 @@ type RenderArgs struct {
 	// ToolCatalog is the fixed bank catalog the rows replay against: work-v1
 	// (default) or work-v2 (v1.41 b12: + bash, get_weather).
 	ToolCatalog string
-	Extra       []string
+	// Profile is the registered wire the rows replay under: g1k (1.x state
+	// corpora, default) or g1k-think (2.x MiSS corpora: real thinking, one
+	// row per step; see eval.BuildCorpusSteps).
+	Profile string
+	Extra   []string
 }
 
-func benchFlagsFor(catalog string) []string {
-	return append([]string{"--tool-catalog", catalog}, benchFlags...)
+func benchFlagsFor(catalog, profile string) []string {
+	flags := []string{"--tool-catalog", catalog, "--profile", profile,
+		"--decision-max-tokens", decisionBudget[profile]}
+	return append(flags, benchFlags...)
 }
 
 // RunRender is the `corpus render` command.
@@ -75,6 +85,13 @@ func RunRender(args RenderArgs) int {
 	}
 	if args.ToolCatalog == "" {
 		args.ToolCatalog = eval.WorkToolCatalogName
+	}
+	if args.Profile == "" {
+		args.Profile = "g1k"
+	}
+	if _, ok := decisionBudget[args.Profile]; !ok {
+		fmt.Fprintf(stderr, "error: --profile %q is not a corpus wire (g1k, g1k-think)\n", args.Profile)
+		return 2
 	}
 	if !eval.IsWorkToolCatalog(args.ToolCatalog) {
 		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (work-v1, work-v2)\n", args.ToolCatalog)
@@ -208,7 +225,7 @@ func RunRender(args RenderArgs) int {
 		fmt.Fprintf(stderr, "unloadable %s: %s\n", item.caseID, item.reason)
 	}
 
-	replay(args.CLI, scriptPath, casesPath, runDir, args.ToolCatalog, args.Parallelism, args.Extra)
+	replay(args.CLI, scriptPath, casesPath, runDir, args.ToolCatalog, args.Profile, args.Parallelism, args.Extra)
 	if !lab.FileExists(filepath.Join(runDir, "trace.jsonl")) {
 		fmt.Fprintln(stderr, "agent-eval produced no trace")
 		return 1
@@ -254,11 +271,11 @@ func CasesForScript(cases map[string]*lab.OrderedMap, entries []*lab.OrderedMap)
 	return resolved, nil
 }
 
-func replay(cli, scriptPath, casesPath, runDir, catalog string, parallelism int, extra []string) {
+func replay(cli, scriptPath, casesPath, runDir, catalog, profile string, parallelism int, extra []string) {
 	command := []string{cli, "agent-eval", "--script", scriptPath, "--cases", casesPath,
 		"--include-draft", "--case-parallelism", fmt.Sprintf("%d", parallelism),
 		"--output", runDir}
-	command = append(command, benchFlagsFor(catalog)...)
+	command = append(command, benchFlagsFor(catalog, profile)...)
 	command = append(command, extra...)
 	fmt.Fprintln(stderr, "+ "+strings.Join(command, " "))
 	cmd := exec.Command(command[0], command[1:]...)

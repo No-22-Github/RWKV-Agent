@@ -173,6 +173,9 @@ func ValidateCases(cases []Case) error {
 		if err := validateCaseExpect(testCase); err != nil {
 			return err
 		}
+		if err := validateToolPolicy(testCase); err != nil {
+			return err
+		}
 		if !caseIsDraft(testCase) {
 			if status, ok := testCase.Tags["status"].(string); ok &&
 				status != "draft" && status != "reviewed" && status != "frozen" {
@@ -370,6 +373,46 @@ func caseDeclaresResultExpectation(testCase Case) bool {
 	return len(testCase.Expect.Files) > 0 ||
 		testCase.Expect.Run != nil ||
 		len(testCase.Expect.MaxCalls) > 0
+}
+
+// validateToolPolicy checks the authored tool contract against the offered
+// list: an ordered directory must list each tool once, and a materialized
+// OfferedTools must keep every must_offer tool and drop every never_offer one.
+// The catalog-dependent half (a nil OfferedTools faces the whole catalog)
+// runs in evalTools, where the catalog is known.
+func validateToolPolicy(testCase Case) error {
+	if testCase.OfferedToolsOrdered && testCase.OfferedTools == nil {
+		return fmt.Errorf("case %q sets offered_tools_ordered without offered_tools", testCase.ID)
+	}
+	offered := make(map[string]struct{}, len(testCase.OfferedTools))
+	for _, name := range testCase.OfferedTools {
+		if _, dup := offered[name]; dup {
+			return fmt.Errorf("case %q lists %q twice in offered_tools", testCase.ID, name)
+		}
+		offered[name] = struct{}{}
+	}
+	policy := testCase.ToolPolicy
+	if policy == nil {
+		return nil
+	}
+	must := make(map[string]struct{}, len(policy.MustOffer))
+	for _, name := range policy.MustOffer {
+		must[name] = struct{}{}
+		if testCase.OfferedTools != nil {
+			if _, ok := offered[name]; !ok {
+				return fmt.Errorf("case %q offered_tools drops must_offer tool %q", testCase.ID, name)
+			}
+		}
+	}
+	for _, name := range policy.NeverOffer {
+		if _, clash := must[name]; clash {
+			return fmt.Errorf("case %q tool_policy lists %q as both must_offer and never_offer", testCase.ID, name)
+		}
+		if _, ok := offered[name]; ok {
+			return fmt.Errorf("case %q offered_tools includes never_offer tool %q", testCase.ID, name)
+		}
+	}
+	return nil
 }
 
 func validateCaseExpect(testCase Case) error {

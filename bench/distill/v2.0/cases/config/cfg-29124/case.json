@@ -1,0 +1,85 @@
+{
+  "id": "cfg-29124",
+  "description": "Two turns: moves DB_HOST to a new database host in four environment files without touching the template or REPLICA_HOST, then puts staging back and points dev at its own host. DISTILL-CANARY-ebd4b20c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12e-dbhost-01",
+    "ref_calls": 4,
+    "fixture_bytes": 595,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-9124"
+  },
+  "web_fixture": [],
+  "files": {
+    "envs/prod/db.env": "DB_HOST=db-old.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_prod\n",
+    "envs/qa/db.env": "DB_HOST=db-old.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_qa\n",
+    "envs/staging/db.env": "DB_HOST=db-old.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_staging\n",
+    "envs/dev/db.env": "DB_HOST=db-old.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_dev\n",
+    "envs/_template/db.env": "DB_HOST=db-old.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_tpl\n",
+    "envs/README.md": "# Environment files\n\nOne directory per environment; _template is copied for new environments and stays as it is.\nREPLICA_HOST moves next month, leave it on db-old.internal for now.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The primary database moved. In every environment's db.env under envs, change DB_HOST from db-old.internal to db-new.internal. envs/README.md says what must stay as it is. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    },
+    {
+      "prompt": "Staging cannot reach the new host until the firewall change lands, so put staging back on db-old.internal, and point dev at db-dev.internal instead. Leave the other environments as they are now. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "envs/prod/db.env": {
+        "equals": "DB_HOST=db-new.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_prod\n"
+      },
+      "envs/qa/db.env": {
+        "equals": "DB_HOST=db-new.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_qa\n"
+      },
+      "envs/staging/db.env": {
+        "unchanged": true
+      },
+      "envs/dev/db.env": {
+        "equals": "DB_HOST=db-dev.internal\nDB_PORT=5432\nREPLICA_HOST=db-old.internal\nDB_NAME=app_dev\n"
+      },
+      "envs/_template/db.env": {
+        "unchanged": true
+      },
+      "envs/README.md": {
+        "unchanged": true
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "bash"
+    ]
+  }
+}

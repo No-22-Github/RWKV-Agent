@@ -1,0 +1,62 @@
+{
+  "id": "tab-20118",
+  "description": "Totals eight sales figures, then the share of the first product, when no table tool exists. DISTILL-CANARY-2cdea62d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-D-small-multi",
+    "ref_calls": 3,
+    "fixture_bytes": 109,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "D-small-multi"
+  },
+  "web_fixture": [],
+  "files": {
+    "销售/销量.csv": "产品,销量\n产品A,97\n产品B,106\n产品C,319\n产品D,345\n产品E,131\n产品F,155\n产品G,107\n产品H,366\n"
+  },
+  "turns": [
+    {
+      "prompt": "销售/销量.csv 里八个产品的总销量是多少？只回答数字。",
+      "expect": {
+        "output_contains": [
+          "1626"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "产品A 占总销量的百分之几？保留一位小数，只回答数字。",
+      "expect": {
+        "output_contains": [
+          "6.0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator"
+    ],
+    "never_offer": [
+      "data_query"
+    ]
+  }
+}

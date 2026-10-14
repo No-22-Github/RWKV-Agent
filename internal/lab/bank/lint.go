@@ -24,7 +24,7 @@ var requiredTags = []string{
 const defaultCanaryPrefix = "WORKBANK-CANARY"
 
 var (
-	caseIDRe  = regexp.MustCompile(`^([a-z]+)-(\d{4})$`)
+	caseIDRe  = regexp.MustCompile(`^([a-z]+)-(\d{4,5})$`)
 	notesSecs = []string{"Traps", "Reference solution", "Why the answer is unique"}
 )
 

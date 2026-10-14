@@ -1,0 +1,104 @@
+{
+  "id": "hyb-29056",
+  "description": "Applies a running club's heat rule to tomorrow's forecast to decide the training time. DISTILL-CANARY-96bc8868",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "10%",
+      "TR-DECOY": "30"
+    },
+    "axes": [
+      "DEC",
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12b-jinanrun-01",
+    "ref_calls": 2,
+    "fixture_bytes": 261,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9056"
+  },
+  "web_fixture": [],
+  "files": {
+    "社团/晨跑规则.md": "# 晨跑社规则\n\n- 当日最高气温 ≥ 30°C：训练改到早上 6 点至 7 点进行，不得安排在下午。\n- 当日降水概率 ≥ 40%：训练取消。\n- 其余情况按原计划（下午 5 点）训练。\n",
+    "社团/说明.md": "# 说明\n\n本目录存放日常规则。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按社团的晨跑规则，明天济南的训练还能按原计划下午 5 点进行吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "31"
+        ],
+        "output_contains_any": [
+          "早上",
+          "早晨",
+          "6 点",
+          "6点"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "济南",
+      "aliases": [
+        "Jinan"
+      ],
+      "report": {
+        "location": "济南",
+        "current": "晴 28°C 体感 30°C 湿度 45% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "22~30",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "23~31",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "22~29",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

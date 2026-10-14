@@ -1,0 +1,65 @@
+{
+  "id": "cfg-28032",
+  "description": "Turn 1 reads a branch config for its closing time; turn 2 forbids tools and asks the same branch's opening hours per day. DISTILL-CANARY-59f8dc06",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-chainbranch-01",
+    "ref_calls": 2,
+    "fixture_bytes": 357,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8032"
+  },
+  "web_fixture": [],
+  "files": {
+    "门店/滨江店.yaml": "门店编码: HJ-BJ\n工位数: 6\n举升机: 4\n开门时间: 08:30\n闭店时间: 19:30\n值班技师: 沈国栋\n代步车: 3\n",
+    "门店/城西店.yaml": "门店编码: HJ-CX\n工位数: 4\n举升机: 2\n开门时间: 08:30\n闭店时间: 18:00\n值班技师: 韩丽娟\n代步车: 2\n",
+    "README.md": "# 恒捷养车 连锁门店参数\n\n各门店参数以 门店/ 下的 yaml 为准，文件名就是门店名。\n"
+  },
+  "turns": [
+    {
+      "prompt": "恒捷养车滨江店晚上几点闭店？",
+      "expect": {
+        "output_contains": [
+          "19:30"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "别再调用工具了，就按刚才读到的滨江店参数说：滨江店一天营业多少个小时？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "11 小时",
+          "11小时",
+          "11 个小时",
+          "11个小时"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

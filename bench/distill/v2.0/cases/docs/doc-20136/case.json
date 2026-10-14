@@ -1,0 +1,58 @@
+{
+  "id": "doc-20136",
+  "description": "Replaces a version string everywhere in a doc when no file-writing tool exists. DISTILL-CANARY-0170510f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-G-bash",
+    "ref_calls": 1,
+    "fixture_bytes": 129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "G-bash"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 部署指南 v1.2\n\n当前版本 v1.2，升级请见下表。\n| 版本 | 说明 |\n| v1.2 | 稳定 |\n旧版 v1.1 不再维护。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 README.md 里所有的 v1.2 都换成 v1.3，v1.1 别动。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "write_file",
+      "replace_lines",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "equals": "# 部署指南 v1.3\n\n当前版本 v1.3，升级请见下表。\n| 版本 | 说明 |\n| v1.3 | 稳定 |\n旧版 v1.1 不再维护。\n"
+      }
+    }
+  }
+}

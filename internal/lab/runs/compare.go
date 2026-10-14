@@ -375,7 +375,7 @@ func loadConfig(configName string) (map[string]compareCase, error) {
 	return cases, nil
 }
 
-var excludeIDRe = regexp.MustCompile(`^[a-z]+-\d{4}$`)
+var excludeIDRe = regexp.MustCompile(`^[a-z]+-\d{4,5}$`)
 
 // readExcludeFile reads an exclusion list: one case id per line; `#` starts a
 // comment; blank lines are allowed. Any other line is a hard error so a wrong

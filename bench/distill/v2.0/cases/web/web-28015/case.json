@@ -1,0 +1,92 @@
+{
+  "id": "web-28015",
+  "description": "Asks a city's current bridge-inspection fee standard; the only fee page is the repealed 2023 edition and a notice says the current standard is issued separately. DISTILL-CANARY-f04c80f0",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-WEBSTALE": "4.5"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b10-spaninspect-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "web-8015"
+  },
+  "web_fixture": [
+    {
+      "query_match": "洛津",
+      "url_match": "luojin.gov.cn/bridge/fee-2023",
+      "url": "https://www.luojin.gov.cn/bridge/fee-2023",
+      "title": "洛津市桥梁定期检测收费标准（2023 版）",
+      "snippet": "2023 版桥梁定期检测收费标准，按桥梁规模分档。",
+      "content": "# 洛津市桥梁定期检测收费标准（2023 版）\n\n特大桥：每座次 4.5 万元。\n大桥：每座次 2.8 万元。\n中桥：每座次 1.6 万元。\n检测频次按养护等级执行。\n",
+      "published_at": "2023-06-15"
+    },
+    {
+      "query_match": "洛津",
+      "url_match": "luojin.gov.cn/bridge/notice",
+      "url": "https://www.luojin.gov.cn/bridge/notice",
+      "title": "洛津市交通运输局 栏目公告",
+      "snippet": "桥梁栏目收费信息调整公告。",
+      "content": "# 栏目公告\n\n《洛津市桥梁定期检测收费标准（2023 版）》已废止。现行标准由市交通运输局另行发文，本页不再更新收费信息。\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "洛津市桥梁定期检测的现行收费标准是多少？",
+      "expect": {
+        "output_contains": [
+          "洛津"
+        ],
+        "output_contains_any": [
+          "没有",
+          "不存在",
+          "找不到",
+          "没找到",
+          "未找到",
+          "尚未",
+          "还没",
+          "废止",
+          "另行发文",
+          "不再更新",
+          "旧版"
+        ],
+        "output_excludes": [
+          "4.5",
+          "2.8",
+          "1.6"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

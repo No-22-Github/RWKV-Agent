@@ -1,0 +1,83 @@
+{
+  "id": "fs-20033",
+  "description": "Two turns of deletion with bash, then a count. DISTILL-CANARY-f733b0a6",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b20a-do-rm-multi",
+    "ref_calls": 3,
+    "fixture_bytes": 13,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20a"
+  },
+  "web_fixture": [],
+  "files": {
+    "tmp/1.tmp": "a\n",
+    "tmp/2.tmp": "b\n",
+    "tmp/notes.txt": "keep\n",
+    "old/x.txt": "x\n",
+    "old/y.txt": "y\n"
+  },
+  "turns": [
+    {
+      "prompt": "删掉 tmp 里的 .tmp 文件。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ]
+      }
+    },
+    {
+      "prompt": "再把 old 整个目录也删了，最后告诉我现在一共还剩几个文件。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "tmp/1.tmp": {
+        "absent": true
+      },
+      "tmp/2.tmp": {
+        "absent": true
+      },
+      "tmp/notes.txt": {
+        "unchanged": true
+      },
+      "old/x.txt": {
+        "absent": true
+      },
+      "old/y.txt": {
+        "absent": true
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "nt-28226",
+  "description": "Translate a short Chinese thank-you phrase into English. DISTILL-CANARY-1398dc09",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10c-thankstrans-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "nt-8226"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "How do you say '谢谢你的耐心等待' in English?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "patience"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "never_offer": [
+      "read_lines",
+      "write_file",
+      "replace_lines",
+      "append_file",
+      "calculator",
+      "data_query",
+      "datetime",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

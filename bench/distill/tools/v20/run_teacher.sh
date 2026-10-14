@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# v2.0 teacher run for one batch: draw the tool directories, check
+# contamination against every test bank, then run DeepSeek with thinking on
+# every step and NO system suffix (the 1.x suffix leaked into the reasoning).
+#
+#   bench/distill/tools/v20/run_teacher.sh <batch> <id-glob> [k] [ids-file]
+#   bench/distill/tools/v20/run_teacher.sh smoke '*' 1 local/runs/distill/v20/smoke-ids.txt
+#
+# Output: local/runs/distill/v20/<batch>/{cases,toolsets.jsonl,decontam.txt,teacher-k<i>}.
+# Credentials: ~/.llm_api_key.sh (API_BASE / API_KEY / MODEL_NAME).
+# Needs local/bin/rwkv-cli-chat-v20 (go build -tags chatcompletions) and
+# local/bin/rwkv-lab-v20, built from a tree with tool_policy support.
+set -euo pipefail
+batch="${1:?batch}"; glob="${2:?id glob}"; k="${3:-1}"; ids="${4:-}"
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"; cd "$repo"
+T="local/runs/distill/v20/$batch"
+mkdir -p "$T"
+idarg=(); [ -n "$ids" ] && idarg=(--ids-file "$ids")
+python3 bench/distill/tools/v20/materialize.py --cases bench/distill/v2.0/cases --out "$T/cases" \
+  --ids-glob "$glob" "${idarg[@]}"
+echo "cases: $(find "$T/cases" -name case.json | wc -l)"
+: > "$T/decontam.txt"
+for t in bench/workbank/cases bench/workbank/cases-shelved bench/holdout/p13 bench/distill/v1/cases-shelved \
+         bench/bashprobe/cases bench/bashprobe/cases-b14 bench/bashprobe/reserve \
+         bench/weatherprobe/cases bench/weatherprobe/cases-b14 bench/weatherprobe/reserve; do
+  printf '%s ' "$t" >> "$T/decontam.txt"
+  local/bin/rwkv-lab-v20 corpus decontam --test "$t" --candidates "$T/cases" 2>&1 | grep -E "files|names" | tr '\n' ' ' >> "$T/decontam.txt"
+  echo >> "$T/decontam.txt"
+done
+cat "$T/decontam.txt"
+source "$HOME/.llm_api_key.sh"
+for i in $(seq 0 $((k - 1))); do
+  local/bin/rwkv-cli-chat-v20 agent-eval --completion chat-completions --api-url "$API_BASE" --model "$MODEL_NAME" \
+    --api-key-env API_KEY --chat-thinking enabled --temperature 0.3 --top-p 1 \
+    --tool-catalog work-v2 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
+    --case-parallelism "${PARALLEL:-12}" --case-timeout 30m --remote-batch-wait 0s \
+    --cases "$T/cases" --include-draft --output "$T/teacher-k$i" > "$T/teacher-k$i.log" 2>&1 || true
+  grep -h "cases passed" "$T/teacher-k$i.log" || tail -3 "$T/teacher-k$i.log"
+done

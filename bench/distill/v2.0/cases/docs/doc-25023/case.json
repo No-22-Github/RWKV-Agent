@@ -1,0 +1,46 @@
+{
+  "id": "doc-25023",
+  "description": "Count of items a horticultural college asks an applicant to bring to an interview, from its applicant checklist. DISTILL-CANARY-e5138bd0",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-thornholme-01",
+    "ref_calls": 2,
+    "fixture_bytes": 364,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-5023"
+  },
+  "web_fixture": [],
+  "files": {
+    "checklist.txt": "Items to hand in at the interview\nPortfolio of drawn work\nLetter from the previous school\nPhotographic identification\nAccess assessment form\nItems to hand in before the course starts\nSteel boots and overalls\nStudio materials deposit\n",
+    "visiting-notes.md": "# Visiting the college\n\nThe college runs a minibus from the station on interview days.\nCandidate parking is behind the glasshouse.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornholme College of Horticulture interviews applicants through the winter for its spring intake. How many items does the college ask a candidate to bring to the interview?",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

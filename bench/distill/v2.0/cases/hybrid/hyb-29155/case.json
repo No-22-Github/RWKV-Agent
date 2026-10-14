@@ -1,0 +1,97 @@
+{
+  "id": "hyb-29155",
+  "description": "Overwrites a one-line JSON forecast file with tomorrow's forecast in a fully specified compact layout. DISTILL-CANARY-e6f9288c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "晴"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12f-urumqijson-01",
+    "ref_calls": 3,
+    "fixture_bytes": 81,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9155"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据/forecast.json": "{\"city\":\"克拉玛依\",\"date\":\"2026-09-14\",\"condition\":\"晴\",\"low\":12,\"high\":28}\n"
+  },
+  "turns": [
+    {
+      "prompt": "把乌鲁木齐明天的预报写进 数据/forecast.json，整个文件覆盖成下面这一行 JSON（键的顺序、无空格都照抄，最低、最高写成不带单位的整数）：{\"city\":\"乌鲁木齐\",\"date\":\"<日期，格式 2026-09-17>\",\"condition\":\"<天气>\",\"low\":<最低>,\"high\":<最高>}。这一行以换行结束，文件里不要有别的内容。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "乌鲁木齐",
+      "aliases": [
+        "Urumqi"
+      ],
+      "report": {
+        "location": "乌鲁木齐",
+        "current": "晴 22°C 体感 21°C 湿度 30% 风速 10 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "11~26",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "9~24",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "10~25",
+            "rain_chance": "0%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "数据/forecast.json": {
+        "equals": "{\"city\":\"乌鲁木齐\",\"date\":\"2026-09-17\",\"condition\":\"多云\",\"low\":9,\"high\":24}\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

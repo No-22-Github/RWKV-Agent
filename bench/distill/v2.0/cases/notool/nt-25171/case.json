@@ -1,0 +1,53 @@
+{
+  "id": "nt-25171",
+  "description": "Give the clause that locks the rows a reading statement selects. DISTILL-CANARY-6b40f2a9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "FOR UPDATE SKIP LOCKED"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-sqlclause-23",
+    "ref_calls": 0,
+    "fixture_bytes": 352,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "nt-5171"
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/lock-clauses.tsv": "hold-until-commit\tFOR UPDATE\tsame clause with the table named\nlet-others-past\tFOR UPDATE SKIP LOCKED\tlocked rows are dropped from the result\n",
+    "README.md": "# Grangemoor Hide & Tallow - night ledger\n\nThe ledger reads hide_batch in one transaction and the stock clerks write to the same table.\nThe clauses the database team reviewed are carded in sql/lock-clauses.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Grangemoor Hide & Tallow lets its night ledger and its stock clerks work on the same hide_batch table. A clerk who writes a row that the ledger has read has to wait until the ledger's transaction has committed. Give the clause to put at the end of the ledger's reading statement so that the clerk's write waits.",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "FOR UPDATE"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

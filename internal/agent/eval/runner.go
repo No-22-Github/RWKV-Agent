@@ -546,11 +546,25 @@ func evalTools(
 				offered[name] = struct{}{}
 			}
 			filtered := make([]agent.Tool, 0, len(testCase.OfferedTools))
-			for _, tool := range catalog {
-				name := tool.Spec().Name
-				if _, want := offered[name]; want {
-					filtered = append(filtered, tool)
-					delete(offered, name)
+			if testCase.OfferedToolsOrdered {
+				// v2.0: the generated order is part of the lesson; keep it.
+				byName := make(map[string]agent.Tool, len(catalog))
+				for _, tool := range catalog {
+					byName[tool.Spec().Name] = tool
+				}
+				for _, name := range testCase.OfferedTools {
+					if tool, ok := byName[name]; ok {
+						filtered = append(filtered, tool)
+						delete(offered, name)
+					}
+				}
+			} else {
+				for _, tool := range catalog {
+					name := tool.Spec().Name
+					if _, want := offered[name]; want {
+						filtered = append(filtered, tool)
+						delete(offered, name)
+					}
 				}
 			}
 			if len(offered) > 0 {
@@ -563,6 +577,9 @@ func evalTools(
 					config.ToolCatalog, names)
 			}
 			catalog = filtered
+		}
+		if err := checkToolPolicyCatalog(testCase, catalog); err != nil {
+			return nil, nil, err
 		}
 		return catalog, nil, nil
 	}
@@ -688,4 +705,30 @@ func evalTools(
 	default:
 		return workspaceTools, nil, nil
 	}
+}
+
+// checkToolPolicyCatalog enforces a case's tool_policy against the directory
+// it actually faces: every must_offer tool present, no never_offer tool. A case
+// without offered_tools faces the whole catalog, so a never_offer entry there
+// is an authoring error caught before the model sees the turn.
+func checkToolPolicyCatalog(testCase Case, catalog []agent.Tool) error {
+	policy := testCase.ToolPolicy
+	if policy == nil {
+		return nil
+	}
+	present := make(map[string]struct{}, len(catalog))
+	for _, tool := range catalog {
+		present[tool.Spec().Name] = struct{}{}
+	}
+	for _, name := range policy.MustOffer {
+		if _, ok := present[name]; !ok {
+			return fmt.Errorf("tool_policy must_offer %q is not in the case's directory", name)
+		}
+	}
+	for _, name := range policy.NeverOffer {
+		if _, ok := present[name]; ok {
+			return fmt.Errorf("tool_policy never_offer %q is in the case's directory", name)
+		}
+	}
+	return nil
 }

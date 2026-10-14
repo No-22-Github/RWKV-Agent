@@ -1,0 +1,58 @@
+{
+  "id": "fs-20124",
+  "description": "Finds a named file among near-name decoys when no listing tool exists. DISTILL-CANARY-85049ab8",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-E-bash",
+    "ref_calls": 2,
+    "fixture_bytes": 200,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "E-bash"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/billing/invoice.py": "def parse_invoice(text):\n    return text.split(',')\n",
+    "src/billing/tax.py": "def tax(x):\n    return x * 0.2\n",
+    "src/core/settings.json": "{}\n",
+    "config/settings.json": "{\"a\": 1}\n",
+    "config/settings.local.json": "{\"a\": 2}\n",
+    "scripts/deploy.sh": "#!/bin/sh\necho deploy\n",
+    "scripts/backup.sh": "#!/bin/sh\necho backup\n",
+    "tools/ci/lint.sh": "#!/bin/sh\necho lint\n",
+    "tools/ci/test.sh": "#!/bin/sh\necho test\n",
+    "README.md": "# repo\n",
+    "docs/notes.txt": "misc\n"
+  },
+  "turns": [
+    {
+      "prompt": "Where is settings.local.json? Give me the path only.",
+      "expect": {
+        "output_contains": [
+          "config/settings.local.json"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "list_files"
+    ]
+  }
+}

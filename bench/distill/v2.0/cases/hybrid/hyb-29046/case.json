@@ -1,0 +1,102 @@
+{
+  "id": "hyb-29046",
+  "description": "Composite request: tomorrow's forecast from the weather tool plus a race fee from web search. DISTILL-CANARY-7f4e5b6d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "雷阵雨",
+      "TR-DECOY": "168"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12a-dalianrun-01",
+    "ref_calls": 2,
+    "fixture_bytes": 46,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9046"
+  },
+  "web_fixture": [
+    {
+      "query_match": "马拉松",
+      "url": "https://www.dlmarathon.example.cn/2026/signup",
+      "url_match": "dlmarathon",
+      "title": "2026 大连国际马拉松 报名须知",
+      "snippet": "2026 大连国际马拉松全程报名费 198 元（2025 年为 168 元），报名截止 9 月 28 日。",
+      "content": "# 报名须知\n\n2026 大连国际马拉松全程报名费 198 元（2025 年为 168 元），半程 128 元，报名截止 9 月 28 日。",
+      "published_at": "2026-08-20"
+    }
+  ],
+  "files": {
+    "跑步/计划.md": "# 秋季跑步计划\n\n- 目标：大连全马\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天我要在大连跑个晨跑，先看看那边明天的天气；另外帮我查下大连国际马拉松全程的报名费是多少。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "output_contains": [
+          "雷阵雨",
+          "198"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "大连",
+      "aliases": [
+        "Dalian"
+      ],
+      "report": {
+        "location": "大连",
+        "current": "多云 21°C 体感 20°C 湿度 70% 风速 22 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "18~23",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "17~22",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "16~24",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

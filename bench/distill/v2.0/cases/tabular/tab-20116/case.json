@@ -1,0 +1,56 @@
+{
+  "id": "tab-20116",
+  "description": "Totals twelve monthly amounts when no table tool exists. DISTILL-CANARY-93d872db",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-D-small",
+    "ref_calls": 3,
+    "fixture_bytes": 191,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "D-small"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/月度开销.csv": "月份,开销\n2026-01,3860\n2026-02,3501\n2026-03,2571.25\n2026-04,3028\n2026-05,1323.5\n2026-06,970.25\n2026-07,3599.25\n2026-08,2859\n2026-09,3402.5\n2026-10,1793.25\n2026-11,2475.25\n2026-12,1627.25\n"
+  },
+  "turns": [
+    {
+      "prompt": "data/月度开销.csv 记了今年每个月的开销，全年合计多少？只回答数字。",
+      "expect": {
+        "output_contains_any": [
+          "31010.50",
+          "31010.5",
+          "31,010.50",
+          "31,010.5"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator"
+    ],
+    "never_offer": [
+      "data_query"
+    ]
+  }
+}

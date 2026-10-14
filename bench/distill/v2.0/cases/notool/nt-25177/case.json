@@ -1,0 +1,52 @@
+{
+  "id": "nt-25177",
+  "description": "Give the push flag that refuses when the remote branch moved on. DISTILL-CANARY-95b0e24f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "--force"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-flowflag-25",
+    "ref_calls": 0,
+    "fixture_bytes": 356,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "nt-5177"
+  },
+  "web_fixture": [],
+  "files": {
+    "vcs/push-flag-cards.tsv": "refuse-if-branch-moved\t--force-with-lease\t--force-with-lease=|git push --force-with-lease origin main\nreplace-whatever-is-there\t--force\tgit push --force origin main\n",
+    "README.md": "# Fellstone Apiaries - hive survey tool\n\nSeveral operators amend the tip of the survey branch and push it to the shared remote.\nThe flags the team uses are carded in vcs/push-flag-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fellstone Apiaries amends the tip of a branch that several operators share. Give the flag that lets a push replace the tip on the shared remote, but makes the push refuse when that branch has moved on the remote since the local copy last fetched it.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "--force-with-lease",
+          "--force-with-lease=",
+          "git push --force-with-lease origin main"
+        ],
+        "output_contains": [
+          "--force-with-lease"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

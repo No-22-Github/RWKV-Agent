@@ -1,0 +1,68 @@
+{
+  "id": "fs-20126",
+  "description": "Finds two files by their quoted availability figures, one per turn, when no listing tool exists. DISTILL-CANARY-90e4dbb9",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-E-search-multi",
+    "ref_calls": 2,
+    "fixture_bytes": 292,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "E-search-multi"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/客服/售后手册.md": "# 售后手册\n\n退款流程：申请 -> 审核 -> 打款。\n",
+    "docs/客服/话术.md": "# 话术\n\n开场白要简短。\n",
+    "docs/运营/周报模板.md": "# 周报\n\n本周完成：\n",
+    "src/app/main.py": "def main():\n    pass\n",
+    "src/app/util.py": "def clamp(x):\n    return x\n",
+    "config/dev.yaml": "port: 8080\n",
+    "config/prod.yaml": "port: 8443\n",
+    "config/test.yaml": "port: 9090\n",
+    "finance/invoice-2026-08.csv": "id,amt\n1,10\n",
+    "finance/summary.csv": "m,t\n8,10\n",
+    "README.md": "# 项目\n",
+    "docs/运营/SLA说明.md": "# SLA\n\n承诺可用性 99.9%\n",
+    "docs/运营/旧SLA.md": "# 旧 SLA\n\n承诺可用性 99.5%\n"
+  },
+  "turns": [
+    {
+      "prompt": "哪个文件里写了可用性 99.9%？只回答文件名。",
+      "expect": {
+        "output_contains": [
+          "SLA说明.md"
+        ]
+      }
+    },
+    {
+      "prompt": "那写 99.5% 的是哪个文件？同样只回答文件名。",
+      "expect": {
+        "output_contains": [
+          "旧SLA.md"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text"
+    ],
+    "never_offer": [
+      "list_files"
+    ]
+  }
+}

@@ -719,6 +719,65 @@ func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
 			t.Fatalf("case error = %q, want the catalog error", report.Summary.Cases[0].Error)
 		}
 	})
+
+	// v2.0: offered_tools_ordered presents the directory in the listed order.
+	firstPrompt := func(t *testing.T, testCase Case) string {
+		t.Helper()
+		var prompts []string
+		config := newConfig([]continuation.Result{generatedWork("7"), generatedWork("7")}, &prompts)
+		config.Cases = []Case{testCase}
+		if _, err := Run(context.Background(), config); err != nil {
+			t.Fatal(err)
+		}
+		if len(prompts) == 0 {
+			t.Fatal("no prompt captured")
+		}
+		return prompts[0]
+	}
+	t.Run("an ordered directory keeps the listed order", func(t *testing.T) {
+		ordered := base
+		ordered.OfferedTools = []string{"read_file", "calculator", "list_files"}
+		ordered.OfferedToolsOrdered = true
+		prompt := firstPrompt(t, ordered)
+		read, calc, list := strings.Index(prompt, "- read_file:"), strings.Index(prompt, "- calculator:"), strings.Index(prompt, "- list_files:")
+		if read < 0 || calc < 0 || list < 0 || !(read < calc && calc < list) {
+			t.Fatalf("directory order read=%d calc=%d list=%d, want listed order", read, calc, list)
+		}
+		unordered := ordered
+		unordered.OfferedToolsOrdered = false
+		prompt = firstPrompt(t, unordered)
+		read, calc, list = strings.Index(prompt, "- read_file:"), strings.Index(prompt, "- calculator:"), strings.Index(prompt, "- list_files:")
+		if !(calc < list && list < read) {
+			t.Fatalf("unordered directory should stay sorted: read=%d calc=%d list=%d", read, calc, list)
+		}
+	})
+
+	t.Run("tool_policy is enforced against the directory", func(t *testing.T) {
+		for name, mutate := range map[string]func(*Case){
+			"must_offer dropped": func(c *Case) { c.ToolPolicy = &ToolPolicy{MustOffer: []string{"calculator"}} },
+			"never_offer in the full catalog": func(c *Case) {
+				c.OfferedTools = nil
+				c.ToolPolicy = &ToolPolicy{NeverOffer: []string{"web_fetch"}}
+			},
+		} {
+			broken := base
+			mutate(&broken)
+			config := newConfig([]continuation.Result{generatedWork("7")}, nil)
+			config.Cases = []Case{broken}
+			report, err := Run(context.Background(), config)
+			if err == nil && !strings.Contains(report.Summary.Cases[0].Error, "tool_policy") &&
+				!strings.Contains(report.Summary.Cases[0].Error, "must_offer") {
+				t.Fatalf("%s: case error = %q, want a tool_policy error", name, report.Summary.Cases[0].Error)
+			}
+		}
+		if err := ValidateCases([]Case{{ID: "p-1", Description: "d", OfferedTools: []string{"read_file", "web_fetch"},
+			ToolPolicy: &ToolPolicy{NeverOffer: []string{"web_fetch"}}, Turns: base.Turns}}); err == nil {
+			t.Fatal("never_offer inside offered_tools must fail validation")
+		}
+		if err := ValidateCases([]Case{{ID: "p-2", Description: "d", OfferedToolsOrdered: true, Turns: base.Turns}}); err == nil {
+			t.Fatal("offered_tools_ordered without offered_tools must fail validation")
+		}
+	})
 }
 
 func strPtr(s string) *string { return &s }

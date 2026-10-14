@@ -1,0 +1,39 @@
+{
+  "id": "nt-21098",
+  "description": "Daily Q&A answered inside the agent environment with no workspace; source dengxiaodi/deepseek-v4.1-flash-distill-zh-2k id 984, category 汽车. DISTILL-CANARY-55be5bb9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b20d-c23-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20d",
+    "source_dataset": "dengxiaodi/deepseek-v4.1-flash-distill-zh-2k",
+    "source_id": 984,
+    "source_category": "汽车",
+    "license": "CC-BY-4.0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "如果要向完全外行的人解释汽车碰撞测试，你会怎么讲？控制在150字以内。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ]
+}

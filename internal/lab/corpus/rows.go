@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/lab"
@@ -131,7 +132,12 @@ func RunRows(args RowsArgs) int {
 			rejects = append(rejects, rowsReject{result.ID, "teacher trajectory fails the case expectations"})
 			continue
 		}
-		texts, buildErr := eval.BuildCorpusTurns(calls[result.ID], turns[result.ID], entry)
+		build := eval.BuildCorpusTurns
+		if strings.Contains(wires[result.ID][0], "thinking=full") {
+			// Full thinking keeps only actions in history: one row per step.
+			build = eval.BuildCorpusSteps
+		}
+		texts, buildErr := build(calls[result.ID], turns[result.ID], entry)
 		if buildErr != nil {
 			rejects = append(rejects, rowsReject{result.ID, buildErr.Error()})
 			continue
@@ -148,7 +154,7 @@ func RunRows(args RowsArgs) int {
 			turnsTotal = len(turns[result.ID])
 		}
 		for _, built := range texts {
-			traj := BuildTraj(entry.Outputs, built.FirstOutput, built.Generations, built.Turn,
+			traj := BuildTraj(entry.Outputs, built.TurnFirstOutput, built.TurnGenerations, built.Turn,
 				turnsTotal, world.Count(built.Text), turnExpect(caseObj, built.Turn))
 			row := eval.CorpusRow{
 				Text:      built.Text,
@@ -156,6 +162,7 @@ func RunRows(args RowsArgs) int {
 				Meta: eval.CorpusMeta{
 					CaseID:         result.ID,
 					Turn:           built.Turn,
+					Step:           built.Step,
 					Passed:         result.Passed,
 					Generations:    built.Generations,
 					Supervised:     built.Supervised,

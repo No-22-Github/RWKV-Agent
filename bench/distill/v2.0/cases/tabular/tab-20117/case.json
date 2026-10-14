@@ -1,0 +1,53 @@
+{
+  "id": "tab-20117",
+  "description": "Averages nine scores when no table tool exists. DISTILL-CANARY-c3fd4c59",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-D-small",
+    "ref_calls": 3,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "D-small"
+  },
+  "web_fixture": [],
+  "files": {
+    "成绩/期中.csv": "姓名,分数\n学生1,96\n学生2,85\n学生3,99\n学生4,72\n学生5,73\n学生6,67\n学生7,59\n学生8,59\n学生9,71\n"
+  },
+  "turns": [
+    {
+      "prompt": "成绩/期中.csv 里的平均分是多少？保留两位小数，只回答数字。",
+      "expect": {
+        "output_contains_any": [
+          "75.67"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator"
+    ],
+    "never_offer": [
+      "data_query"
+    ]
+  }
+}

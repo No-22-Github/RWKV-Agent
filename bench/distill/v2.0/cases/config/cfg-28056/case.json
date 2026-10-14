@@ -1,0 +1,46 @@
+{
+  "id": "cfg-28056",
+  "description": "Monthly defrost-heater energy from daily cycle count, minutes per cycle and heater power in a config, bare number. DISTILL-CANARY-372b20cf",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10b-defrostheat-01",
+    "ref_calls": 2,
+    "fixture_bytes": 90,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8056"
+  },
+  "web_fixture": [],
+  "files": {
+    "冷库/化霜.ini": "[defrost]\ncycles_per_day = 4\nminutes_per_cycle = 38\nheater_kw = 2.35\nterminate_temp_c = 8\n"
+  },
+  "turns": [
+    {
+      "prompt": "冷库的化霜参数在 冷库/化霜.ini。按配置里的每天次数、每次分钟数和加热功率，30 天一共耗多少度电？保留一位小数，只回数字。",
+      "expect": {
+        "expected_number": 178.6,
+        "tolerance": 0.05,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "nt-28227",
+  "description": "Arrival time from departure time and a trip duration crossing the hour. DISTILL-CANARY-4dfe745b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10c-trainarrive-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "nt-8227"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "A train leaves at 9:25 and the trip takes 3 hours 50 minutes. What time does it arrive?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "13:15",
+          "1:15 pm",
+          "1:15 PM",
+          "1:15pm",
+          "1:15 p.m."
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "never_offer": [
+      "read_lines",
+      "write_file",
+      "replace_lines",
+      "append_file",
+      "calculator",
+      "data_query",
+      "datetime",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "hyb-29152",
+  "description": "Applies a venue rule with a heat trigger to tomorrow's sunny but hot forecast to decide lawn or indoor hall. DISTILL-CANARY-18b29e1e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "UNKNOWN",
+      "TR-DECOY": "照常"
+    },
+    "axes": [
+      "DEC",
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12f-hefeiwedding-01",
+    "ref_calls": 2,
+    "fixture_bytes": 204,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9152"
+  },
+  "web_fixture": [],
+  "files": {
+    "场地/婚礼规定.md": "# 草坪婚礼场地规定\n\n- 当日降水概率 ≥ 30%：改到室内厅。\n- 当日最高气温 ≥ 33°C：改到室内厅。\n- 其余情况在草坪举行。\n",
+    "场地/说明.md": "# 说明\n\n本目录存放日常规则。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按场地规定，合肥明天的婚礼是在草坪办还是改室内？结论请只用「改室内」或「照常」二选一，另一个词不要出现，再用一句话说明依据。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600,
+        "output_contains_any": [
+          "改室内"
+        ],
+        "output_excludes": [
+          "照常"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "合肥",
+      "aliases": [
+        "Hefei"
+      ],
+      "report": {
+        "location": "合肥",
+        "current": "晴 30°C 体感 33°C 湿度 55% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "24~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "26~34",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "25~30",
+            "rain_chance": "35%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "id": "hyb-29045",
+  "description": "Overwrites a weather brief file with a day-after-tomorrow forecast in a fully specified six-line layout. DISTILL-CANARY-d7a7e21f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "晴"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12a-weatherbrief-01",
+    "ref_calls": 3,
+    "fixture_bytes": 91,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-9045"
+  },
+  "web_fixture": [],
+  "files": {
+    "报告/天气速报.md": "# 天气速报\n\n- 城市：成都\n- 日期：2026-09-14\n- 天气：晴\n- 气温：20~29°C\n"
+  },
+  "turns": [
+    {
+      "prompt": "把后天重庆的天气重新写进 报告/天气速报.md，整个文件覆盖成下面六行（第二行为空行）：「# 天气速报」「」「- 城市：重庆」「- 日期：<日期，格式 2026-09-18>」「- 天气：<天气>」「- 气温：<最低>~<最高>°C」。每行都以换行结束，最后一行之后恰好一个换行，不要多余空行。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "重庆",
+      "aliases": [
+        "Chongqing"
+      ],
+      "report": {
+        "location": "重庆",
+        "current": "阴 27°C 体感 31°C 湿度 85% 风速 5 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "24~30",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "24~32",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "22~27",
+            "rain_chance": "85%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "报告/天气速报.md": {
+        "equals": "# 天气速报\n\n- 城市：重庆\n- 日期：2026-09-18\n- 天气：中雨\n- 气温：22~27°C\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "read_lines",
+      "write_file",
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

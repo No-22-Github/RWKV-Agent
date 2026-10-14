@@ -1,0 +1,58 @@
+{
+  "id": "cfg-20135",
+  "description": "Edits one section's value in an ini file when no file-writing tool exists. DISTILL-CANARY-017a7de7",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-G-bash",
+    "ref_calls": 1,
+    "fixture_bytes": 70,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "G-bash"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/app.ini": "[server]\nport=8080\ntimeout=30\n\n[client]\ntimeout=30\nconnect_timeout=30\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 config/app.ini 里 [server] 段的 timeout 从 30 改成 60，别的都不要动。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "write_file",
+      "replace_lines",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/app.ini": {
+        "equals": "[server]\nport=8080\ntimeout=60\n\n[client]\ntimeout=30\nconnect_timeout=30\n"
+      }
+    }
+  }
+}

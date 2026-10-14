@@ -1,0 +1,75 @@
+{
+  "id": "hyb-28022",
+  "description": "本地笔记给出当前版本，官方发布表给出最新稳定版；运维博客停在 6 月的 3.5.0，预览版 rc 不是稳定版（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-69599283",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "3.5.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10b-gatewayver-01",
+    "ref_calls": 3,
+    "fixture_bytes": 101,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "hyb-8022"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Heron",
+      "url_match": "www.yunwei-note.cn/heron-3-5",
+      "url": "https://www.yunwei-note.cn/heron-3-5",
+      "title": "Heron 3.5 升级记",
+      "snippet": "目前最新稳定版 3.5.0。",
+      "content": "# Heron 3.5 升级记\n\n6 月份我们升到了 3.5.0，也是当时的最新稳定版。\n",
+      "published_at": "2026-06-18"
+    },
+    {
+      "query_match": "Heron",
+      "url_match": "heron-gw.org/releases",
+      "url": "https://heron-gw.org/releases",
+      "title": "Heron 发布记录",
+      "snippet": "Heron 网关各版本。",
+      "content": "# Heron 发布记录\n\n| 版本 | 通道 | 日期 |\n|---|---|---|\n| 3.7.0-rc.1 | 预览 | 2026-09-20 |\n| 3.6.2 | stable | 2026-09-11 |\n| 3.6.1 | stable | 2026-08-03 |\n| 3.4.1 | stable | 2026-03-09 |\n",
+      "published_at": "2026-09-20"
+    }
+  ],
+  "files": {
+    "运维/部署笔记.md": "生产网关：Heron 3.4.1（2026-03 上线）\n配置目录：/etc/heron\n下次变更窗口：10 月\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署笔记里记的是我们现在跑的 Heron 网关版本，官方最新稳定版是多少？比我们的新吗？",
+      "expect": {
+        "output_contains_any": [
+          "3.6.2"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

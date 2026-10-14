@@ -1,0 +1,104 @@
+{
+  "id": "fs-29125",
+  "description": "Two turns: moves finished CSV exports from an inbox to a processed folder except scratch exports, then moves two of them back. DISTILL-CANARY-32d907b2",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-fs-b12e-inboxmove-01",
+    "ref_calls": 4,
+    "fixture_bytes": 333,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "fs-9125"
+  },
+  "web_fixture": [],
+  "files": {
+    "inbox/q3-sales.csv": "sku,qty\nA1,40\nB2,12\n",
+    "inbox/q3-refunds.csv": "sku,qty\nA1,3\n",
+    "inbox/q3-returns.csv": "sku,qty\nC3,5\nB2,1\n",
+    "inbox/q3-stock.csv": "sku,qty\nA1,210\nB2,98\nC3,17\n",
+    "inbox/tmp_scratch.csv": "scratch export\n",
+    "inbox/tmp_probe.csv": "probe export\n",
+    "inbox/notes.txt": "remember to ask finance about the refund batch\n",
+    "inbox/README.md": "# Inbox\n\nFinished CSV exports move to processed/. Only .csv files move; notes.txt stays.\ntmp_*.csv are scratch exports from the BI tool: they never go to processed/.\n",
+    "processed/q2-sales.csv": "sku,qty\nA1,35\n"
+  },
+  "turns": [
+    {
+      "prompt": "Move the finished CSV exports from inbox to processed. inbox/README.md says what stays behind. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    },
+    {
+      "prompt": "q3-sales.csv and q3-refunds.csv need another pass, so put those two back in inbox; everything else stays where it is now. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "inbox/q3-sales.csv": {
+        "unchanged": true
+      },
+      "inbox/q3-refunds.csv": {
+        "unchanged": true
+      },
+      "inbox/q3-returns.csv": {
+        "absent": true
+      },
+      "inbox/q3-stock.csv": {
+        "absent": true
+      },
+      "inbox/tmp_scratch.csv": {
+        "unchanged": true
+      },
+      "inbox/tmp_probe.csv": {
+        "unchanged": true
+      },
+      "inbox/notes.txt": {
+        "unchanged": true
+      },
+      "inbox/README.md": {
+        "unchanged": true
+      },
+      "processed/q2-sales.csv": {
+        "unchanged": true
+      },
+      "processed/q3-returns.csv": {
+        "equals": "sku,qty\nC3,5\nB2,1\n"
+      },
+      "processed/q3-stock.csv": {
+        "equals": "sku,qty\nA1,210\nB2,98\nC3,17\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "bash"
+    ]
+  }
+}

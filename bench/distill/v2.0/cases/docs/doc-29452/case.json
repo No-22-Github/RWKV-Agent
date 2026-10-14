@@ -1,0 +1,97 @@
+{
+  "id": "doc-29452",
+  "description": "Replaces one placeholder line in a markdown brief with tomorrow's forecast, leaving the other lines untouched. DISTILL-CANARY-aeec061e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "阴"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12r-briefplaceholder-01",
+    "ref_calls": 3,
+    "fixture_bytes": 130,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-9452"
+  },
+  "web_fixture": [],
+  "files": {
+    "简报/出差简报.md": "# 苏州出差简报\n\n- 出发：周四早班高铁\n- 住宿：观前街酒店\n- 明天天气：【待填】\n- 联系人：李敏\n"
+  },
+  "turns": [
+    {
+      "prompt": "简报/出差简报.md 里有一行「- 明天天气：【待填】」，把【待填】三个字连同括号换成苏州明天的天气，写成「天气 最低~最高°C」（比如「晴 16~24°C」）。其他各行原样保留，文件仍以一个换行结尾。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [
+        "Suzhou"
+      ],
+      "report": {
+        "location": "苏州",
+        "current": "阴 26°C 体感 28°C 湿度 74% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "23~29",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "24~28",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "23~30",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "简报/出差简报.md": {
+        "equals": "# 苏州出差简报\n\n- 出发：周四早班高铁\n- 住宿：观前街酒店\n- 明天天气：阵雨 24~28°C\n- 联系人：李敏\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "web_search",
+      "web_fetch",
+      "get_weather"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "doc-29224",
+  "description": "Single-file minimum-Python-version lookup in a README with a .bak decoy while bash is offered but forbidden. DISTILL-CANARY-fba52a63",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3.8"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12i-minpython-01",
+    "ref_calls": 1,
+    "fixture_bytes": 269,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-9224"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pinecone Toolkit\n\n## Requirements\n\n- Python 3.11 or newer\n- 2 GB of free disk space\n\n## Install\n\nRun `pip install pinecone-toolkit`.\n",
+    "README.md.bak": "# Pinecone Toolkit\n\n## Requirements\n\n- Python 3.8 or newer\n- 1 GB of free disk space\n\n## Install\n\nRun `pip install pinecone-toolkit`.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the minimum Python version listed in README.md?",
+      "expect": {
+        "output_contains_any": [
+          "3.11"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "bash"
+    ]
+  }
+}

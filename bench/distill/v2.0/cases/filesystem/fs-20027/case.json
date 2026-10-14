@@ -1,0 +1,71 @@
+{
+  "id": "fs-20027",
+  "description": "Deletes .log files with bash and reports the count. DISTILL-CANARY-be77e908",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b20a-do-rm",
+    "ref_calls": 1,
+    "fixture_bytes": 11,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20a"
+  },
+  "web_fixture": [],
+  "files": {
+    "tmp/a.log": "x\n",
+    "tmp/b.log": "y\n",
+    "tmp/c.log": "z\n",
+    "tmp/keep.txt": "keep\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 tmp 目录里的 .log 文件都删掉，别动其他文件，做完用一句话告诉我删了几个。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "tmp/a.log": {
+        "absent": true
+      },
+      "tmp/b.log": {
+        "absent": true
+      },
+      "tmp/c.log": {
+        "absent": true
+      },
+      "tmp/keep.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

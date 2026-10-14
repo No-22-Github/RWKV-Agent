@@ -1,0 +1,81 @@
+{
+  "id": "cfg-28026",
+  "description": "Asks the softener's early-regeneration hardness trigger; neither config sets it, the docs say the valve's self-learning mode decides, and the fixed regeneration period days are the decoy. DISTILL-CANARY-897f49f3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "6"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b10-softenvalve-01",
+    "ref_calls": 3,
+    "fixture_bytes": 643,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8026"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/软水机.yaml": "设备: 中央软水机\n型号: RS-800\n出水硬度目标: 4\n再生周期天: 6\n",
+    "config/网点覆盖/清晏园.yaml": "网点: 清晏园\n出水硬度目标: 3\n",
+    "docs/软水机参数.md": "# 软水机参数说明\n\n- 出水硬度目标：制水硬度的目标值。\n- 再生周期天：定时再生的间隔天数。\n- 再生启动硬度：出水硬度超过该值时在定时再生之外提前再生。未设置时由软水阀的自学习模式决定提前再生的启动点，自学习算法随阀体固件版本不同，仓库里没有记录，建议显式设置。\n",
+    "README.md": "# 澄泉净水 网点设备参数仓库\n\n各网点设备参数在 config/ 下，网点差异放 config/网点覆盖/，参数含义见 docs/。\n"
+  },
+  "turns": [
+    {
+      "prompt": "清晏园的物业问中央软水机什么情况会提前再生，也就是再生启动硬度设的多少，帮我查一下。",
+      "expect": {
+        "output_contains": [
+          "再生启动硬度",
+          "自学习"
+        ],
+        "output_contains_any": [
+          "没设",
+          "没有设置",
+          "未设置",
+          "没有配置",
+          "未配置",
+          "没配置",
+          "没有这一项",
+          "没有这项",
+          "没有这个键",
+          "没有这个参数",
+          "都没有",
+          "查不到"
+        ],
+        "output_excludes": [
+          "硬度是 6",
+          "硬度为 6",
+          "启动硬度 6",
+          "启动硬度是 6",
+          "启动硬度为 6"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

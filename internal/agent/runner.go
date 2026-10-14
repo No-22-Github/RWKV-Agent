@@ -202,7 +202,7 @@ func registerTools(tools []Tool, options Options) (map[string]Tool, []ToolSpec, 
 		registered[loader.Spec().Name] = loader
 		specs = append(specs, loader.Spec())
 	}
-	if !preservesToolOrder(options.Protocol) {
+	if !preservesToolOrder(options.Protocol) && !options.PreserveToolOrder {
 		sort.Slice(specs, func(left, right int) bool {
 			return specs[left].Name < specs[right].Name
 		})

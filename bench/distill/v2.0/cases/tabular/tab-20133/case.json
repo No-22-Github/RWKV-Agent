@@ -1,0 +1,47 @@
+{
+  "id": "tab-20133",
+  "description": "Computes a flat-interest monthly payment when no calculator exists. DISTILL-CANARY-5b28cb83",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-F-mental",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "F-mental"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "A 12-month loan of 7,850 carries 6% flat interest on the principal. What is the monthly payment? Two decimals, number only.",
+      "expect": {
+        "output_contains_any": [
+          "693.42"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator"
+    ]
+  }
+}

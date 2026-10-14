@@ -1,0 +1,49 @@
+{
+  "id": "tab-20130",
+  "description": "Applies a discount and a flat reduction when no calculator exists (awk available). DISTILL-CANARY-59eddc4f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-F-bash",
+    "ref_calls": 1,
+    "fixture_bytes": 17,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20c",
+    "sub": "F-bash"
+  },
+  "web_fixture": [],
+  "files": {
+    "price.txt": "电饭煲 898.50\n"
+  },
+  "turns": [
+    {
+      "prompt": "price.txt 里那个电饭煲打八五折以后再减 30 元，实付多少？保留两位小数，只回答数字。",
+      "expect": {
+        "output_contains_any": [
+          "733.73"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "calculator"
+    ]
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "doc-28805",
+  "description": "Read the named target, then reuse evidence without reopening it. DISTILL-CANARY-9822fe78",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b13-direct-06",
+    "ref_calls": 1,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-8805"
+  },
+  "web_fixture": [],
+  "files": {
+    "garden/entry.md": "# Garden access\nCollection point: Fern Gate\n",
+    "README.md": "# Shared reception workspace\nContact the duty desk for unrelated services.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which collection point does garden/entry.md specify?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "list_files"
+        ],
+        "output_contains": [
+          "Fern Gate"
+        ]
+      }
+    },
+    {
+      "prompt": "Turn the result you already found into a visitor reminder.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "Fern Gate"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

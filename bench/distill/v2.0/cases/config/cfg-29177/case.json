@@ -1,0 +1,55 @@
+{
+  "id": "cfg-29177",
+  "description": "Single-file retention lookup while bash is offered; the read tool is the right call. DISTILL-CANARY-85adf81e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "14"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12g-logretention-01",
+    "ref_calls": 1,
+    "fixture_bytes": 92,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-9177"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/retention.yaml": "logs_days: 30\nmetrics_days: 90\ntraces_days: 7\n",
+    "config/retention.yaml.example": "logs_days: 14\nmetrics_days: 60\ntraces_days: 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "In config/retention.yaml, how many days are application logs kept?",
+      "expect": {
+        "output_contains": [
+          "30"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "bash"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "bash"
+    ]
+  }
+}

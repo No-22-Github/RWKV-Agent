@@ -121,7 +121,7 @@ func (r *Runner) generate(
 		ToolChoice:        toolchat.ToolChoiceNone,
 	}
 	if compiled.OfferNative && len(toolSpecs) > 0 {
-		chatRequest.Tools = nativeTools(toolSpecs)
+		chatRequest.Tools = nativeTools(toolSpecs, r.options.PreserveToolOrder)
 		chatRequest.ToolChoice = toolchat.ToolChoiceAuto
 		chatRequest.AssistantPrefix = ""
 		if compiled.RequireNative {
@@ -154,7 +154,7 @@ func (r *Runner) generate(
 	return generated, &call, completed.ReasoningContent, nil
 }
 
-func nativeTools(specs []ToolSpec) []toolchat.Tool {
+func nativeTools(specs []ToolSpec, preserveOrder bool) []toolchat.Tool {
 	result := make([]toolchat.Tool, 0, len(specs))
 	for _, spec := range specs {
 		result = append(result, toolchat.Tool{
@@ -164,9 +164,11 @@ func nativeTools(specs []ToolSpec) []toolchat.Tool {
 			Strict:      spec.Strict,
 		})
 	}
-	sort.Slice(result, func(left, right int) bool {
-		return result[left].Name < result[right].Name
-	})
+	if !preserveOrder {
+		sort.Slice(result, func(left, right int) bool {
+			return result[left].Name < result[right].Name
+		})
+	}
 	return result
 }
 
@@ -188,7 +190,7 @@ func (r *Runner) nativeTracePrompt(
 		AssistantPrefix: nativeAssistantPrefix(assistantPrefix),
 	}
 	if offerTools && len(toolSpecs) > 0 {
-		payload.Tools = nativeTools(toolSpecs)
+		payload.Tools = nativeTools(toolSpecs, r.options.PreserveToolOrder)
 		payload.ToolChoice = toolchat.ToolChoiceAuto
 		payload.AssistantPrefix = ""
 		if requireTool {

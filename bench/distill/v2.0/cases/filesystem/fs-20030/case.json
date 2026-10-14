@@ -1,0 +1,71 @@
+{
+  "id": "fs-20030",
+  "description": "Counts then removes a directory with bash. DISTILL-CANARY-b450ec04",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b20a-do-rmdir-count",
+    "ref_calls": 1,
+    "fixture_bytes": 15,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20a"
+  },
+  "web_fixture": [],
+  "files": {
+    "build/a.o": "o\n",
+    "build/b.o": "o\n",
+    "build/c.o": "o\n",
+    "build/app.bin": "o\n",
+    "src/main.c": "int x;\n"
+  },
+  "turns": [
+    {
+      "prompt": "Count the files in build/, then delete the whole build/ directory. Tell me the count you found.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "build/a.o": {
+        "absent": true
+      },
+      "build/b.o": {
+        "absent": true
+      },
+      "build/c.o": {
+        "absent": true
+      },
+      "build/app.bin": {
+        "absent": true
+      },
+      "src/main.c": {
+        "unchanged": true
+      }
+    }
+  }
+}

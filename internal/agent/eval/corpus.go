@@ -19,11 +19,14 @@ type CorpusRow struct {
 }
 
 type CorpusMeta struct {
-	CaseID      string `json:"case_id"`
-	Turn        int    `json:"turn"`
-	Passed      bool   `json:"passed"`
-	Generations int    `json:"generations"`
-	Supervised  int    `json:"supervised"`
+	CaseID string `json:"case_id"`
+	Turn   int    `json:"turn"`
+	// Step is set on per-step rows (full-thinking wire): the 1-based
+	// generation within the turn whose output this row supervises.
+	Step        int  `json:"step,omitempty"`
+	Passed      bool `json:"passed"`
+	Generations int  `json:"generations"`
+	Supervised  int  `json:"supervised"`
 	// Canonicalized counts tool calls the harness wrote back with different
 	// bytes but the same JSON (Go escapes <, > and & as \u003c...); the row
 	// carries the harness bytes, which are what the model sees in history.
@@ -103,6 +106,13 @@ type CorpusText struct {
 	// FirstOutput is the index of the turn's first script output, so a caller
 	// can recover the outputs (and their supervised flags) a row covers.
 	FirstOutput int
+	// Step is the 1-based generation within the turn for a per-step row
+	// (BuildCorpusSteps), 0 for a whole-turn row. TurnFirstOutput and
+	// TurnGenerations always describe the whole turn, so row statistics stay
+	// per turn either way.
+	Step            int
+	TurnFirstOutput int
+	TurnGenerations int
 }
 
 // BuildCorpusText assembles one case's training text from the generations
@@ -159,6 +169,7 @@ func BuildCorpusTurns(calls []ModelCallTrace, turns []int, entry ScriptEntry) ([
 		}
 		text.Turn = turns[start]
 		text.FirstOutput = start
+		text.TurnFirstOutput, text.TurnGenerations = start, end-start
 		texts = append(texts, text)
 		start = end
 	}
@@ -174,7 +185,7 @@ func buildSegment(calls []ModelCallTrace, outputs []ScriptOutput, offset int) (C
 		if call.Error != "" {
 			return CorpusText{}, fmt.Errorf("generation %d failed: %s", offset+index+1, call.Error)
 		}
-		if call.Response.Text != outputs[index].Text {
+		if call.Response.Text != scriptedResponse(call, outputs[index]) {
 			return CorpusText{}, fmt.Errorf("generation %d response differs from the script", offset+index+1)
 		}
 		if index == len(calls)-1 {
@@ -219,6 +230,94 @@ func buildSegment(calls []ModelCallTrace, outputs []ScriptOutput, offset int) (C
 		Text: text, LossSpans: runeSpans(text, spans), Canonicalized: canonicalized,
 		Generations: len(calls), Supervised: len(spans),
 	}, nil
+}
+
+// scriptedResponse is the text the script generator returned for this call:
+// the bare action, or the thinking-wrapped one when the prompt withheld an
+// open think tag (see ScriptGeneratorFactory).
+func scriptedResponse(call ModelCallTrace, output ScriptOutput) string {
+	if ExpectsThinking(call.Request.Prompt) {
+		return ScriptThinkingText(output)
+	}
+	return output.Text
+}
+
+// BuildCorpusSteps is the per-step cut for a full-thinking wire. The harness
+// keeps only actions in history, so step k's thinking never appears in step
+// k+1's prompt and a whole-turn row could supervise the last step's thinking
+// only. Each supervised generation therefore becomes its own row: the exact
+// prompt that step saw plus its full output (thinking, closing tag, action),
+// with the loss on that output alone. Every row is byte-identical to what the
+// model sees at that step. Consistency checks mirror BuildCorpusTurns: the
+// next prompt in the same turn must extend this prompt (minus the withheld
+// think opening) with this step's action, thinking stripped.
+func BuildCorpusSteps(calls []ModelCallTrace, turns []int, entry ScriptEntry) ([]CorpusText, error) {
+	if len(calls) != len(entry.Outputs) {
+		return nil, fmt.Errorf(
+			"harness made %d generations, script has %d outputs", len(calls), len(entry.Outputs),
+		)
+	}
+	if len(turns) != len(calls) {
+		return nil, fmt.Errorf("%d turn numbers for %d generations", len(turns), len(calls))
+	}
+	var texts []CorpusText
+	for start := 0; start < len(calls); {
+		end := start + 1
+		for end < len(calls) && turns[end] == turns[start] {
+			end++
+		}
+		if end < len(calls) && turns[end] < turns[start] {
+			return nil, fmt.Errorf("generation %d goes back from turn %d to %d", end+1, turns[start], turns[end])
+		}
+		for index := start; index < end; index++ {
+			call, output := calls[index], entry.Outputs[index]
+			if call.Error != "" {
+				return nil, fmt.Errorf("generation %d failed: %s", index+1, call.Error)
+			}
+			if !ExpectsThinking(call.Request.Prompt) {
+				return nil, fmt.Errorf("generation %d prompt does not withhold a think opening; per-step rows are for the full-thinking wire", index+1)
+			}
+			if call.Response.Text != ScriptThinkingText(output) {
+				return nil, fmt.Errorf("generation %d response differs from the script", index+1)
+			}
+			action := strings.TrimSpace(output.Text)
+			if index+1 < end {
+				prompt := strings.TrimSuffix(call.Request.Prompt, withheldThinkOpening)
+				next := calls[index+1].Request.Prompt
+				if !strings.HasPrefix(next, prompt) {
+					return nil, fmt.Errorf("transcript is not append-only after generation %d", index+1)
+				}
+				block := assistantBlock(next[len(prompt):])
+				if compareAction(block, action) == actionDiffers {
+					return nil, fmt.Errorf("generation %d written back as %q, script action %q",
+						index+1, strings.TrimSpace(block), action)
+				}
+			} else if end < len(calls) && !strings.Contains(calls[end].Request.Prompt, action) {
+				return nil, fmt.Errorf("turn %d history does not carry turn %d's last output", turns[end], turns[start])
+			}
+			if !output.Supervised {
+				continue
+			}
+			final := strings.TrimSpace(call.Response.Text)
+			if strings.Contains(action, "<tool_call>") && !strings.HasSuffix(final, toolCallClose) {
+				final += toolCallClose
+			}
+			text := call.Request.Prompt + final
+			texts = append(texts, CorpusText{
+				Text:            text,
+				LossSpans:       runeSpans(text, [][2]int{{len(call.Request.Prompt), len(text)}}),
+				Turn:            turns[start],
+				Generations:     1,
+				Supervised:      1,
+				FirstOutput:     index,
+				Step:            index - start + 1,
+				TurnFirstOutput: start,
+				TurnGenerations: end - start,
+			})
+		}
+		start = end
+	}
+	return texts, nil
 }
 
 // assistantBlock returns the assistant content at the head of rest: up to

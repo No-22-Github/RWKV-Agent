@@ -1,0 +1,39 @@
+{
+  "id": "nt-21020",
+  "description": "Daily Q&A answered inside the agent environment with no workspace; source dengxiaodi/deepseek-v4.1-flash-distill-zh-2k id 202, category 数学应用题. DISTILL-CANARY-5aa9171f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b20d-c20-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20d",
+    "source_dataset": "dengxiaodi/deepseek-v4.1-flash-distill-zh-2k",
+    "source_id": 202,
+    "source_category": "数学应用题",
+    "license": "CC-BY-4.0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "一段路全程6公里上坡、6公里下坡，上坡时速4公里、下坡时速6公里，全程平均速度是多少？",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ]
+}

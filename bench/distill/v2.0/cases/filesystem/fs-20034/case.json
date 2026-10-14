@@ -1,0 +1,75 @@
+{
+  "id": "fs-20034",
+  "description": "Deletes all but one log with bash. DISTILL-CANARY-efb2c45e",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b20a-do-rm-keep",
+    "ref_calls": 2,
+    "fixture_bytes": 13,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20a"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/current.log": "live\n",
+    "logs/old-1.log": "1\n",
+    "logs/old-2.log": "2\n",
+    "logs/old-3.log": "3\n",
+    "logs/index.txt": "i\n"
+  },
+  "turns": [
+    {
+      "prompt": "Delete every .log file under logs/ but keep logs/current.log. Then name the files that remain.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "current.log",
+          "index.txt"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "logs/current.log": {
+        "unchanged": true
+      },
+      "logs/old-1.log": {
+        "absent": true
+      },
+      "logs/old-2.log": {
+        "absent": true
+      },
+      "logs/old-3.log": {
+        "absent": true
+      },
+      "logs/index.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

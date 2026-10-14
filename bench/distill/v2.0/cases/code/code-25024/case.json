@@ -1,0 +1,46 @@
+{
+  "id": "code-25024",
+  "description": "Name the module that defines the laundry bench's bundle-weighing helper. DISTILL-CANARY-e2181ab3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-bundleweigh-31",
+    "ref_calls": 2,
+    "fixture_bytes": 483,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "code-5024"
+  },
+  "web_fixture": [],
+  "files": {
+    "bench/sorting.py": "from scales.bundles import weigh_bundle\n\n# Sort the crates the vans bring in.\nBENCHES = [\"fine\", \"heavy\"]\n\n\ndef sort_crate(crate):\n    crate = weigh_bundle(crate)\n    crate[\"bench\"] = BENCHES[0]\n    return crate\n",
+    "scales/__init__.py": "\"\"\"Weighing helpers for the laundry's scales.\"\"\"\n",
+    "scales/bundles.py": "\"\"\"Bundle weighing for the Bywell Steam Laundry.\"\"\"\n\nTARE_KG = 3\n\n\ndef weigh_bundle(bundle):\n    \"\"\"Return the bundle with its net weight filled in.\"\"\"\n    bundle[\"net_kg\"] = bundle[\"gross_kg\"] - TARE_KG\n    return bundle\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Bywell Steam Laundry's sorting bench weighs each crate by calling weigh_bundle. Which module defines that helper?",
+      "expect": {
+        "output_contains": [
+          "scales/bundles.py"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text"
+    ]
+  }
+}

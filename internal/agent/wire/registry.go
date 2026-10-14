@@ -261,6 +261,17 @@ func init() {
 	g1k.Align = AlignQwen36
 	g1k.Stages = StagesOne
 	Register("g1k", g1k)
+
+	// g1k-think is the v2.0 (MiSS) wire: g1k with real thinking — the model
+	// completes the withheld "<think" prefix, closes it, then acts — and the
+	// post-tool reminder that does not forbid thinking. It is the
+	// 2026-10-10 think-full retest's T arm (g1k+think-full --wire nudge=think)
+	// under a short name, so v2.0 corpora render with --strict-spec.
+	g1kThink := g1k
+	g1kThink.Thinking = ThinkingFull
+	g1kThink.Prefill = PrefillNone
+	g1kThink.Experiments.Nudge = "think"
+	Register("g1k-think", g1kThink)
 }
 
 // parseCanonical decodes the exact string produced by Spec.Canonical. It is
@@ -269,9 +280,17 @@ func init() {
 func parseCanonical(value string) (Spec, error) {
 	spec := Spec{}
 	fields := strings.Split(value, ";")
-	if len(fields) != 18 {
+	// Experiment axes trail the 18 base fields only when set (see
+	// Experiments.canonical), so a preset carrying one still round-trips.
+	experimentFields := 0
+	for _, field := range fields {
+		if key, _, ok := strings.Cut(field, "="); ok && isExperimentKey(key) {
+			experimentFields++
+		}
+	}
+	if len(fields)-experimentFields != 18 {
 		return Spec{}, fail("resolve.canonical-fields",
-			fmt.Sprintf("canonical spec has %d fields, want 18", len(fields)),
+			fmt.Sprintf("canonical spec has %d base fields, want 18", len(fields)-experimentFields),
 			"copy the string printed by `eval explain`")
 	}
 	seen := map[string]bool{}
@@ -326,6 +345,10 @@ func parseCanonical(value string) (Spec, error) {
 			}
 			spec.Loop = loop
 		default:
+			if isExperimentKey(key) {
+				setExperiment(&spec.Experiments, key, raw)
+				continue
+			}
 			return Spec{}, fail("resolve.canonical-unknown", fmt.Sprintf("unknown field %q", key), "")
 		}
 	}
@@ -333,6 +356,36 @@ func parseCanonical(value string) (Spec, error) {
 		return Spec{}, err
 	}
 	return spec, nil
+}
+
+func setExperiment(e *Experiments, key, value string) {
+	switch key {
+	case "recovery":
+		e.Recovery = value
+	case "exit":
+		e.Exit = value
+	case "history":
+		e.History = value
+	case "thinkcontrol":
+		e.ThinkControl = value
+	case "nudge":
+		e.Nudge = value
+	case "duplicate":
+		e.Duplicate = value
+	case "answeropen":
+		e.AnswerOpen = value
+	case "toolrole":
+		e.ToolRole = value
+	}
+}
+
+func isExperimentKey(key string) bool {
+	for _, entry := range (Experiments{}).entries() {
+		if entry[0] == key {
+			return true
+		}
+	}
+	return false
 }
 
 func parseLoop(value string) (Loop, error) {

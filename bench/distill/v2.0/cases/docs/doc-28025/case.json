@@ -1,0 +1,64 @@
+{
+  "id": "doc-28025",
+  "description": "Turn 1 reads the delivery-promise sheet for the panel-and-paint lead time; turn 2 forbids tools and asks the rush surcharge in the same sheet. DISTILL-CANARY-50a1c059",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b10-turnaround-01",
+    "ref_calls": 1,
+    "fixture_bytes": 310,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "doc-8025"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/交车时效承诺.md": "# 交车时效承诺\n\n## 时限\n- 保养与小修：当日 17:30 前交车。\n- 钣喷单：3 个工作日交车。\n- 加急单：次日交车，加收工时费 25%。\n\n## 顺延\n- 等件期间时效顺延，前台会提前告知。\n",
+    "README.md": "# 峰驰汽修 服务承诺\n\n交车口径见 制度/交车时效承诺.md。\n"
+  },
+  "turns": [
+    {
+      "prompt": "峰驰汽修的钣喷单多久能交车？",
+      "expect": {
+        "output_contains_any": [
+          "3 个工作日",
+          "3个工作日"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "别再调用工具了，就按刚才读到的承诺说：加急单要加收多少？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "25%",
+          "25％",
+          "百分之二十五"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

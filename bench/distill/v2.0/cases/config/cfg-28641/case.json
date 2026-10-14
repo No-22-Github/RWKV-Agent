@@ -1,0 +1,57 @@
+{
+  "id": "cfg-28641",
+  "description": "Change the length of a school period in a bell-schedule YAML, keep the comment. DISTILL-CANARY-f156497f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-schoolbell-01",
+    "ref_calls": 3,
+    "fixture_bytes": 96,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20s",
+    "derived_from": "cfg-8641"
+  },
+  "web_fixture": [],
+  "files": {
+    "校务/作息.yaml": "作息:\n  课时分钟: 40      # 2025 秋季学期起\n  课间分钟: 10\n  大课间分钟: 25\n"
+  },
+  "turns": [
+    {
+      "prompt": "校务/作息.yaml 的课时分钟改成 35，课间、大课间不变。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "校务/作息.yaml": {
+        "equals": "作息:\n  课时分钟: 35      # 2025 秋季学期起\n  课间分钟: 10\n  大课间分钟: 25\n"
+      }
+    }
+  },
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "cfg-20032",
+  "description": "Copies a config file with bash and reads a value. DISTILL-CANARY-c9b3e1d6",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b20a-do-cp",
+    "ref_calls": 1,
+    "fixture_bytes": 32,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b20a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b20a"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/app.yaml": "port: 8080\nmode: prod\n",
+    "config/db.yaml": "host: db1\n"
+  },
+  "turns": [
+    {
+      "prompt": "Make a backup copy of config/app.yaml next to it called app.yaml.bak, then say which port the file sets.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "8080"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/app.yaml": {
+        "unchanged": true
+      },
+      "config/app.yaml.bak": {
+        "equals": "port: 8080\nmode: prod\n"
+      },
+      "config/db.yaml": {
+        "unchanged": true
+      }
+    }
+  }
+}

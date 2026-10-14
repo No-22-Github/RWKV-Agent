@@ -119,7 +119,7 @@ func ScriptGeneratorFactory(entries map[string]ScriptEntry) GeneratorFactory {
 		next := 0
 		generator := continuation.GenerateFunc(func(
 			_ context.Context,
-			_ continuation.Request,
+			request continuation.Request,
 			_ continuation.EventSink,
 		) (continuation.Result, error) {
 			mu.Lock()
@@ -130,10 +130,34 @@ func ScriptGeneratorFactory(entries map[string]ScriptEntry) GeneratorFactory {
 					ErrScriptExhausted, id, next+1, len(entry.Outputs),
 				)
 			}
-			output := entry.Outputs[next].Text
+			output := entry.Outputs[next]
 			next++
-			return continuation.Result{Text: output, FinishReason: continuation.FinishStop}, nil
+			text := output.Text
+			if ExpectsThinking(request.Prompt) {
+				text = ScriptThinkingText(output)
+			}
+			return continuation.Result{Text: text, FinishReason: continuation.FinishStop}, nil
 		})
 		return generator, nil, nil
 	}
+}
+
+// withheldThinkOpening is the unfinished tag a full-thinking wire leaves at the
+// end of the prompt (inference.ThinkBlockFull); the model completes it.
+const withheldThinkOpening = "<think"
+
+// ExpectsThinking reports whether the prompt withholds an open think tag the
+// generation must complete: the full-thinking wire (g1k-think). The fast wire
+// ends with a closed "<think></think" and does not count.
+func ExpectsThinking(prompt string) bool {
+	return strings.HasSuffix(prompt, withheldThinkOpening)
+}
+
+// ScriptThinkingText is the generation a full-thinking replay returns for one
+// script output: the ">" that completes the withheld tag, the teacher's
+// reasoning for that step, the closing tag, then the action. A step the
+// teacher did not think about replays as an empty block, the shape the wire
+// accepts and a thinking model emits for a routine step.
+func ScriptThinkingText(output ScriptOutput) string {
+	return ">" + strings.TrimSpace(output.Reasoning) + "</think>\n" + strings.TrimSpace(output.Text)
 }
