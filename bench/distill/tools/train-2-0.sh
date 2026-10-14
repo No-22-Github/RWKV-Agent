@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # v2.0 MiSS (thinking) adapter training: segments-2-0.jsonl (train 2142 rows),
-# one GPU, runs queued one after another (a small parameter sweep).
+# an 8-run sweep scheduled on 4 GPUs: each GPU works through its own lane of
+# runs one after another, the four lanes run in parallel.
 #
-#   ./train-2-0.sh              start the queue in the background (nohup)
-#   SMOKE=1 ./train-2-0.sh      one optimizer step of the first run, foreground
-#   ONLY=r16-lr1e-4 ./train-2-0.sh   run just the named entries (space separated)
-#   GPU=3 MODEL=xxx.pth ./train-2-0.sh
+#   ./train-2-0.sh              start the four lanes in the background (nohup)
+#   SMOKE=1 ./train-2-0.sh      one optimizer step of every run on the first
+#                               GPU, foreground (checks each rank fits)
+#   ONLY="r16-lr1e-4-e2 r64-lr1e-4-e2" ./train-2-0.sh   only these runs
+#   GPUS="0 1 2 3" MODEL=xxx.pth ./train-2-0.sh
 #
 # Run it from the rwkv_lighting_cuda directory (rwkv_miss_tune, vocab, model
 # and segments-2-0.jsonl live there). Upload
@@ -28,7 +30,7 @@ DATA=${DATA:-segments-2-0.jsonl}
 DATA_SHA256=afbf2fc552a743981a7384233c3d6a83ac719dbcac3ab63a876974071421356d
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
 OUT=${OUT:-train-2-0}
-GPU=${GPU:-3}
+read -r -a GPU_LIST <<<"${GPUS:-0 1 2 3}"
 SMOKE=${SMOKE:-0}
 ONLY=${ONLY:-}
 
@@ -41,14 +43,21 @@ COMMON=(--model "$MODEL" --data "$DATA" --vocab "$VOCAB"
   --targets all --ctx 8192 --chunk 1024 --wkv_tape
   --batch-size 8 --warmup-steps 10 --save-every 67)
 
-# name rank alpha lr lr-final epochs
-# First entry = the MiSS README production example (rank 16, alpha 16,
-# lr 1e-4 -> 1e-5, 1 epoch), only ctx changed. The rest move one knob each.
+# lane name rank alpha lr lr-final epochs
+# Base point: rank 16, lr 1e-4 (the MiSS README example), 2 epochs; the
+# 1/4-epoch checkpoints include the end of epoch 1. Two one-knob axes around
+# it (lr x4, rank x4) and one long run. lr-final is always lr/10.
+# Lanes are balanced in optimizer updates: a 2-epoch run is 536, the 4-epoch
+# run 1072, so lane 0 holds 1608 and the others 1072.
 RUNS=(
-  "r16-lr1e-4-e1  16 16 0.0001 0.00001 1"
-  "r16-lr3e-4-e1  16 16 0.0003 0.00003 1"
-  "r16-lr1e-4-e2  16 16 0.0001 0.00001 2"
-  "r64-lr1e-4-e1  64 64 0.0001 0.00001 1"
+  "0 r16-lr1e-4-e4   16  16 0.0001 0.00001  4"
+  "0 r256-lr1e-4-e2 256 256 0.0001 0.00001  2"
+  "1 r16-lr1e-4-e2   16  16 0.0001 0.00001  2"
+  "1 r16-lr3e-5-e2   16  16 0.00003 0.000003 2"
+  "2 r16-lr3e-4-e2   16  16 0.0003 0.00003  2"
+  "2 r16-lr1e-3-e2   16  16 0.001  0.0001   2"
+  "3 r4-lr1e-4-e2     4   4 0.0001 0.00001  2"
+  "3 r64-lr1e-4-e2   64  64 0.0001 0.00001  2"
 )
 
 for f in ./rwkv_miss_tune "$MODEL" "$DATA" "$VOCAB"; do
@@ -61,7 +70,7 @@ if [[ $actual != "$DATA_SHA256" ]]; then
 fi
 
 run_one() {
-  local name=$1 rank=$2 alpha=$3 lr=$4 lr_final=$5 epochs=$6 extra=("${@:7}")
+  local gpu=$1 name=$2 rank=$3 alpha=$4 lr=$5 lr_final=$6 epochs=$7 extra=("${@:8}")
   local dir=$OUT/$name log=$OUT/logs/$name
   if [[ -e $dir/adapter-final.pth ]]; then
     echo "$name: done, skipping"
@@ -76,40 +85,46 @@ run_one() {
     --lr "$lr" --lr-final "$lr_final" --epochs "$epochs" "${extra[@]}")
   {
     echo "date: $(date -Is)"
-    echo "gpu: $GPU"
+    echo "gpu: $gpu"
     echo "model: $MODEL ($(stat -c %s "$MODEL") bytes)"
     echo "data: $DATA sha256 $DATA_SHA256"
-    echo "cmd: CUDA_VISIBLE_DEVICES=$GPU ${cmd[*]}"
+    echo "cmd: CUDA_VISIBLE_DEVICES=$gpu ${cmd[*]}"
   } >"$log.run.txt"
-  echo "$name: start $(date -Is) -> $log.log"
-  CUDA_VISIBLE_DEVICES=$GPU "${cmd[@]}" >"$log.log" 2>&1
+  echo "$name: start on GPU$gpu $(date -Is) -> $log.log"
+  CUDA_VISIBLE_DEVICES=$gpu "${cmd[@]}" >"$log.log" 2>&1
   echo "$name: exit $? $(date -Is)"
 }
 
 if [[ $SMOKE == 1 ]]; then
   OUT=$OUT-smoke
-  read -r name rank alpha lr lr_final epochs <<<"${RUNS[0]}"
   rm -rf "$OUT"
-  run_one "$name" "$rank" "$alpha" "$lr" "$lr_final" "$epochs" --max-steps 1 || true
-  tail -n 15 "$OUT/logs/$name.log"
+  for run in "${RUNS[@]}"; do
+    read -r _ name rank alpha lr lr_final epochs <<<"$run"
+    run_one "${GPU_LIST[0]}" "$name" "$rank" "$alpha" "$lr" "$lr_final" "$epochs" --max-steps 1 || true
+    tail -n 3 "$OUT/logs/$name.log"
+  done
   exit 0
 fi
 
-queue() {
+lane() {
+  local lane=$1 gpu=${GPU_LIST[$1]}
   for run in "${RUNS[@]}"; do
-    read -r name rank alpha lr lr_final epochs <<<"$run"
+    read -r l name rank alpha lr lr_final epochs <<<"$run"
+    [[ $l == "$lane" ]] || continue
     if [[ -n $ONLY && " $ONLY " != *" $name "* ]]; then continue; fi
-    # one failed run does not stop the queue; its log says why
-    run_one "$name" "$rank" "$alpha" "$lr" "$lr_final" "$epochs" || true
+    # one failed run does not stop the lane; its log says why
+    run_one "$gpu" "$name" "$rank" "$alpha" "$lr" "$lr_final" "$epochs" || true
   done
-  echo "queue finished $(date -Is)"
+  echo "lane $lane (GPU$gpu) finished $(date -Is)"
 }
 
 mkdir -p "$OUT/logs"
-if [[ ${QUEUE_CHILD:-0} == 1 ]]; then
-  queue
+if [[ -n ${LANE_CHILD:-} ]]; then
+  lane "$LANE_CHILD"
   exit 0
 fi
-QUEUE_CHILD=1 nohup "$0" >"$OUT/logs/queue.log" 2>&1 &
-echo "queue pid $! on GPU$GPU -> $OUT/logs/queue.log"
-echo "follow: tail -f $OUT/logs/queue.log $OUT/logs/*.log"
+for i in "${!GPU_LIST[@]}"; do
+  LANE_CHILD=$i nohup "$0" >"$OUT/logs/lane$i.log" 2>&1 &
+  echo "lane $i: GPU${GPU_LIST[$i]} pid $! -> $OUT/logs/lane$i.log"
+done
+echo "follow: tail -f $OUT/logs/lane*.log"
