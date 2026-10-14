@@ -113,6 +113,10 @@ type Config struct {
 	TokenLimit                 TokenLimitField
 	Headers                    http.Header
 	HTTPClient                 *http.Client
+	// ReasoningEffort, when set, is sent as the top-level reasoning_effort
+	// field (DeepSeek: low/medium/high/max; 2026-10-14 probe: max raises the
+	// share of thinking steps from ~60-70% to ~90%). Empty sends nothing.
+	ReasoningEffort string
 	// SystemSuffix is appended to the system message of every request this
 	// client sends. It exists for distillation teachers: the teacher sees the
 	// student's system block plus authoring rules (answer shape, read-back
@@ -135,6 +139,7 @@ type normalizedConfig struct {
 	secrets                    []string
 	httpClient                 *http.Client
 	systemSuffix               string
+	reasoningEffort            string
 }
 
 func normalizeConfig(config Config) (normalizedConfig, error) {
@@ -193,6 +198,7 @@ func normalizeConfig(config Config) (normalizedConfig, error) {
 		secrets:                    secrets,
 		httpClient:                 httpClient,
 		systemSuffix:               strings.TrimSpace(config.SystemSuffix),
+		reasoningEffort:            strings.TrimSpace(config.ReasoningEffort),
 	}, nil
 }
 

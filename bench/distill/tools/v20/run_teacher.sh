@@ -5,6 +5,7 @@
 #
 #   bench/distill/tools/v20/run_teacher.sh <batch> <id-glob> [k] [ids-file]
 #   bench/distill/tools/v20/run_teacher.sh smoke '*' 1 local/runs/distill/v20/smoke-ids.txt
+#   TEACHER_ENV_FILE=~/.commandcode_key.sh TEACHER_MODEL=<model> REASONING_EFFORT=max PARALLEL=16 run_teacher.sh ...   (optional overrides)
 #
 # Output: local/runs/distill/v20/<batch>/{cases,toolsets.jsonl,decontam.txt,teacher-k<i>}.
 # Credentials: ~/.llm_api_key.sh (API_BASE / API_KEY / MODEL_NAME).
@@ -33,10 +34,11 @@ for id in $(grep "~" "$T/decontam.txt" | awk '{print $1}' | sort -u); do
   rm -rf "$T"/cases/*/"$id"; echo "$id" >> "$T/decontam-dropped.txt"
 done
 echo "cases after decontam: $(find "$T/cases" -name case.json | wc -l)"
-source "$HOME/.llm_api_key.sh"
+source "${TEACHER_ENV_FILE:-$HOME/.llm_api_key.sh}"   # must export API_BASE, API_KEY (and MODEL_NAME unless TEACHER_MODEL is set)
 for i in $(seq 0 $((k - 1))); do
-  local/bin/rwkv-cli-chat-v20 agent-eval --completion chat-completions --api-url "$API_BASE" --model "$MODEL_NAME" \
-    --api-key-env API_KEY --chat-thinking enabled --temperature 0.3 --top-p 1 \
+  local/bin/rwkv-cli-chat-v20 agent-eval --completion chat-completions --api-url "$API_BASE" --model "${TEACHER_MODEL:-$MODEL_NAME}" \
+    --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} \
+    --temperature 0.3 --top-p 1 \
     --tool-catalog work-v2 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism "${PARALLEL:-12}" --case-timeout 30m --remote-batch-wait 0s \
     --cases "$T/cases" --include-draft --output "$T/teacher-k$i" > "$T/teacher-k$i.log" 2>&1 || true

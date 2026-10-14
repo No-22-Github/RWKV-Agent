@@ -77,6 +77,7 @@ type runOptions struct {
 	apiURL                   string
 	apiKeyEnv                string
 	chatThinking             string
+	chatReasoningEffort      string
 	chatPromptMode           string
 	chatPromptExplicit       bool
 	chatTokenLimit           string
@@ -483,6 +484,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"chat-thinking",
 			string(chatcompletions.ThinkingAuto),
 			"upstream Chat Completions thinking extension: auto, disabled, enabled, or split (MiniMax reasoning_split)",
+		)
+		fs.StringVar(
+			&options.chatReasoningEffort,
+			"chat-reasoning-effort",
+			"",
+			"upstream Chat Completions reasoning_effort (e.g. DeepSeek low, medium, high, max); empty sends nothing",
 		)
 		fs.StringVar(
 			&options.chatPromptMode,
@@ -1248,11 +1255,12 @@ func newAgentGeneratorSource(
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
 			Credential: credential, Headers: headers,
-			ChatThinking:     chatcompletions.ThinkingMode(options.chatThinking),
-			ChatPromptMode:   chatcompletions.PromptMode(options.chatPromptMode),
-			ChatTokenLimit:   chatcompletions.TokenLimitField(options.chatTokenLimit),
-			ChatSystemSuffix: options.chatSystemSuffix,
-			StopTokens:       options.apiStopTokens, StateID: options.stateID,
+			ChatThinking:        chatcompletions.ThinkingMode(options.chatThinking),
+			ChatReasoningEffort: options.chatReasoningEffort,
+			ChatPromptMode:      chatcompletions.PromptMode(options.chatPromptMode),
+			ChatTokenLimit:      chatcompletions.TokenLimitField(options.chatTokenLimit),
+			ChatSystemSuffix:    options.chatSystemSuffix,
+			StopTokens:          options.apiStopTokens, StateID: options.stateID,
 			Stream: &options.apiStream, BatchWait: batchWait,
 		})
 		if err != nil {
@@ -1828,6 +1836,7 @@ func runAgentEval(args []string) error {
 		model.PromptMode = options.chatPromptMode
 		model.UnsupportedSampling = []string{"top_k", "penalty_decay"}
 		model.UpstreamThinking = options.chatThinking
+		model.ReasoningEffort = options.chatReasoningEffort
 		model.TokenLimitField = options.chatTokenLimit
 		if options.chatSystemSuffix != "" {
 			sum := sha256.Sum256([]byte(options.chatSystemSuffix))

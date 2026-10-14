@@ -28,6 +28,7 @@ type Client struct {
 	tokenLimit                 TokenLimitField
 	secrets                    []string
 	systemSuffix               string
+	reasoningEffort            string
 }
 
 func New(config Config) (*Client, error) {
@@ -58,6 +59,7 @@ func New(config Config) (*Client, error) {
 		promptMode:                 normalized.promptMode,
 		tokenLimit:                 normalized.tokenLimit,
 		secrets:                    normalized.secrets,
+		reasoningEffort:            normalized.reasoningEffort,
 		systemSuffix:               normalized.systemSuffix,
 	}, nil
 }
@@ -308,6 +310,9 @@ func (c *Client) thinkingOption() []option.RequestOption {
 		options = append(options,
 			option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
 		)
+	}
+	if c.reasoningEffort != "" {
+		options = append(options, option.WithJSONSet("reasoning_effort", c.reasoningEffort))
 	}
 	if c.chatTemplateEnableThinking != nil {
 		options = append(options, option.WithJSONSet(
