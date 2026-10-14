@@ -1,0 +1,59 @@
+{
+  "id": "bsh-0148",
+  "description": "Two turns: cd into a folder and list it, then read a same-named file whose root copy is a decoy. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3.2.0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-cwd-10155",
+    "ref_calls": 2,
+    "fixture_bytes": 67,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "recover",
+    "probe_part": "b14",
+    "source_id": "cfg-10155"
+  },
+  "web_fixture": [],
+  "files": {
+    "版本.txt": "主程序 3.2.0\n",
+    "插件/导出/版本.txt": "导出插件 0.9.4\n",
+    "插件/导出/readme.md": "导出插件\n",
+    "插件/导入/版本.txt": "导入插件 1.1.0\n"
+  },
+  "turns": [
+    {
+      "prompt": "到 插件/导出 目录下看看都有什么。",
+      "expect": {
+        "output_contains": [
+          "readme.md"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "它目录里的 版本.txt 写的版本号是多少？",
+      "expect": {
+        "output_contains": [
+          "0.9.4"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

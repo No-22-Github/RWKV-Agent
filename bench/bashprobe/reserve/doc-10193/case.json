@@ -1,0 +1,50 @@
+{
+  "id": "doc-10193",
+  "description": "Single named-file lookup while bash is offered; the read tool is the right call. BASHPROBE-CANARY-7d41c0e9",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "- 结论：支付重构 10 月 8 日上线"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b14-single-10193",
+    "ref_calls": 1,
+    "fixture_bytes": 166,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "boundary",
+    "probe_part": "b14",
+    "source_id": "doc-10193"
+  },
+  "web_fixture": [],
+  "files": {
+    "会议/周会纪要-0915.md": "# 周会 9/15\n\n- 结论：支付重构推迟到 10 月 20 日上线\n- 负责人：陈默\n- 下次周会 9/22\n",
+    "会议/周会纪要-0908.md": "# 周会 9/8\n\n- 结论：支付重构 10 月 8 日上线\n"
+  },
+  "turns": [
+    {
+      "prompt": "会议/周会纪要-0915.md 里，支付重构定在哪天上线？",
+      "expect": {
+        "output_contains": [
+          "10 月 20 日"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

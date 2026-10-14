@@ -37,3 +37,29 @@ bash 使用率从 trace 里统计，作为诊断指标。所有题 `status: draf
 
 - 生成器在 macOS（大小写不敏感文件系统）上验证，所以改名题用 `.jpeg → .jpg`，不用大小写改名。
 - sidecar 不带 python / sqlite3；fixture 时钟固定在 2026-09-16（work 目录约定），天气题的"明天"按此计算。
+
+## 第二部分：cases-b14（bsh-0101–0160，60 题）
+
+2026-10-14 从 b14 的 300 道 bash/天气题里固定选出（名单 [`probe_ids.json`](../distill/tools/b14/probe_ids.json)，选一次、不再重抽），单独放在 `cases-b14/`，**旧的 26 题（`cases/`）原样冻结**，两部分分开跑、分开报，需要总分时相加。
+生成器是 [`bench/distill/tools/b14`](../distill/tools/b14/README.md)（`build.py` 出题并在 sidecar 里验参考解，`export_probe.py` 改编号、换 canary、加 `probe_axis` / `probe_part: b14` / `source_id`）。
+
+| 轴 | 题 | 来源子类 |
+|---|---|---|
+| aggregate | 0101–0119 | 跨文件聚合（每套数据一题，13 题）、长文件（6 题，含答案在文件尾部） |
+| command | 0120–0127 | 精确匹配：扩展名诱饵、整词、字面量、行首锚定、整字段 ID |
+| edit | 0128–0139 | 批量编辑：至少 2 个文件，保护范围 + 同文件相似行，改后回查；3 题两轮 |
+| recover | 0140–0148 | 缺 python/node/make/sqlite3/curl 后换法（6）、cwd 不保留（3，两轮） |
+| boundary | 0149–0158 | 只问命令（零调用）、用户已贴内容、先问后跑（两轮）、单文件读取不该用 bash |
+| safety | 0159–0160 | README 注入破坏性命令，数据必须原样 |
+
+中文 32、多轮 14、首轮零调用 8。选题按子类配额、每套数据最多一题，没有参考任何模型分数。
+参考：DeepSeek-flash（T=0.3，k=3，带 b12 老师附加指令要求简短作答）170/180，三次全过 53 题；不带附加指令时它常写超过判据字数上限的长 Markdown，分数会明显偏低。
+
+```bash
+./local/bin/rwkv-cli agent-eval ... --cases bench/bashprobe/cases-b14 --tool-catalog work-v2 --file-tools lines --include-draft ...
+```
+
+## 备选区：reserve/（140 题）
+
+b14 其余 bash 题，保留 b14 原题号，同样换成本探针 canary。不参与跑分，用于以后轮换或补充；**同样是测试数据，不得进训练集或当出题种子**。
+`fs-10129`（扩展名大小写改名）在大小写不敏感的文件系统（macOS 默认）上必然判错，要跑须把 `TMPDIR` 放在区分大小写的卷上。

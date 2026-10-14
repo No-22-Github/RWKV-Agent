@@ -1,0 +1,83 @@
+{
+  "id": "code-10101",
+  "description": "Two turns: changes a cache address in shell scripts, then deletes an obsolete comment line, leaving generated scripts. BASHPROBE-CANARY-7d41c0e9",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-b14-cacheaddr-01",
+    "ref_calls": 3,
+    "fixture_bytes": 573,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "code-10101"
+  },
+  "web_fixture": [],
+  "files": {
+    "脚本/导出.sh": "#!/bin/sh\n缓存地址=redis://cache-a.lan:6379\necho 连接 $缓存地址\n# 备用：redis://cache-a.lan:6380\n",
+    "脚本/清理.sh": "#!/bin/sh\n缓存地址=redis://cache-a.lan:6379\necho 连接 $缓存地址\n# 备用：redis://cache-a.lan:6380\n",
+    "脚本/统计.sh": "#!/bin/sh\n缓存地址=redis://cache-a.lan:6379\necho 连接 $缓存地址\n# 备用：redis://cache-a.lan:6380\n",
+    "脚本/备份.sh": "#!/bin/sh\n缓存地址=redis://cache-a.lan:6379\necho 连接 $缓存地址\n# 备用：redis://cache-a.lan:6380\n",
+    "脚本/生成/自动.sh": "#!/bin/sh\n缓存地址=redis://cache-a.lan:6379\n",
+    "脚本/说明.md": "# 脚本\n\n生成/ 里的脚本由流水线生成，手改会被覆盖，不要改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "缓存集群切换了：脚本 目录里各脚本的 缓存地址 从 cache-a 换到 redis://cache-b.lan:6379（生成目录除外）。改完核对，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "顺便把这几个脚本里「# 备用：」那行注释删掉，已经没用了。删完再检查一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "脚本/导出.sh": {
+        "equals": "#!/bin/sh\n缓存地址=redis://cache-b.lan:6379\necho 连接 $缓存地址\n"
+      },
+      "脚本/清理.sh": {
+        "equals": "#!/bin/sh\n缓存地址=redis://cache-b.lan:6379\necho 连接 $缓存地址\n"
+      },
+      "脚本/统计.sh": {
+        "equals": "#!/bin/sh\n缓存地址=redis://cache-b.lan:6379\necho 连接 $缓存地址\n"
+      },
+      "脚本/备份.sh": {
+        "equals": "#!/bin/sh\n缓存地址=redis://cache-b.lan:6379\necho 连接 $缓存地址\n"
+      },
+      "脚本/生成/自动.sh": {
+        "unchanged": true
+      },
+      "脚本/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

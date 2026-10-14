@@ -1,6 +1,8 @@
 # b14 出题脚本（v1.42：bash 与 get_weather「做对」批，work-v2）
 
-v1.42 的 300 道题：bash 200（10001–10200）、天气 100（10201–10300）。规划见 [distill-allocation-v1.42.md](../../v1.42/distill-allocation-v1.42.md)，出题报告见 [b14-authoring.md](../../v1.42/reports/b14-authoring.md)。
+v1.42 的 300 道题：bash 200（10001–10200）、天气 100（10201–10300）。
+
+> **2026-10-14 起 b14 是测试题，不是蒸馏数据。** `export_probe.py` 把构建结果搬出 distill 目录：`probe_ids.json` 里固定的 90 题成为 `bench/bashprobe/cases-b14`（bsh-0101–0160）和 `bench/weatherprobe/cases-b14`（wth-0101–0130），其余 210 题进两个探针的 `reserve/`。`bench/distill/v1.42/cases` 只是构建暂存区，导出后删除。下文的老师跑题、behavior.py 属于当初的蒸馏设想，已不适用。规划见 [distill-allocation-v1.42.md](../../v1.42/distill-allocation-v1.42.md)，出题报告见 [b14-authoring.md](../../v1.42/reports/b14-authoring.md)。
 
 | 文件 | 题号 | 内容 |
 | --- | --- | --- |
@@ -17,10 +19,9 @@ v1.42 的 300 道题：bash 200（10001–10200）、天气 100（10201–10300�
 scripts/build-justbash.sh                              # 先有 local/bin/justbash-sidecar（需要 bun）
 cd bench/distill/tools/b14 && python3 build.py         # 写 300 题、在 sidecar 里跑 bash 参考解、写 specs.json
 python3 build.py --no-sidecar                          # 没有 sidecar 时只写题，bash 题全部标 UNVERIFIED
-../gate.sh v1.42                                       # bank lint + bank verify --strict-shape
+python3 export_probe.py                                # 搬到两个探针的 cases-b14/ 与 reserve/，删除暂存区（逐字节可复现）
 python3 dedup.py --json ../../v1.42/reports/b14-dedup.json   # 8 字符片段重叠
 python3 stats.py --json ../../v1.42/reports/b14-stats.json   # 子类、中文、多轮、零调用占比
-./run_teacher.sh b14a 10001 10040                      # 本地：去污染六面 + 老师 k=3 + behavior.py
 ```
 
 - 随机数固定种子，重跑逐字节一致（已核对）。只重建部分题用 `--only m9edit` 或 `--ids cfg-10091,...`；这两种情况下不改写 `specs.json`。

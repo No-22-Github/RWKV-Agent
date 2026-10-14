@@ -1,0 +1,126 @@
+{
+  "id": "wth-0111",
+  "description": "Two turns: Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b14-write-10252",
+    "ref_calls": 4,
+    "fixture_bytes": 149,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "artifact",
+    "probe_part": "b14",
+    "source_id": "hyb-10252"
+  },
+  "web_fixture": [],
+  "files": {
+    "台账/三亚.txt": "# 天气台账\n日期=2026-09-14 城市=三亚 天气=阴 温度=17/24 降水=30%\n日期=2026-09-15 城市=三亚 天气=晴 温度=18/27 降水=10%\n"
+  },
+  "turns": [
+    {
+      "prompt": "三亚明天的天气按 台账/三亚.txt 的格式记一行，记完核对。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    },
+    {
+      "prompt": "后天的也记上，只加后天那一行。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "三亚",
+      "aliases": [],
+      "report": {
+        "location": "三亚",
+        "current": "阵雨 22°C 体感 22°C 湿度 79% 风速 19 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阵雨",
+            "temp_c": "17~27",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "大雨",
+            "temp_c": "17~30",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "19~31",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "雷阵雨",
+            "temp_c": "22~30",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "中雨",
+            "temp_c": "19~25",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "阵雨",
+            "temp_c": "16~29",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "中雨",
+            "temp_c": "20~25",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "台账/三亚.txt": {
+        "equals": "# 天气台账\n日期=2026-09-14 城市=三亚 天气=阴 温度=17/24 降水=30%\n日期=2026-09-15 城市=三亚 天气=晴 温度=18/27 降水=10%\n日期=2026-09-17 城市=三亚 天气=大雨 温度=17/30 降水=90%\n日期=2026-09-18 城市=三亚 天气=小雨 温度=19/31 降水=70%\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "bsh-0152",
+  "description": "Answers from content the user pasted into the prompt while bash and file tools are offered. BASHPROBE-CANARY-7d41c0e9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "# Q3"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-pasted-10189",
+    "ref_calls": 0,
+    "fixture_bytes": 5,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "boundary",
+    "probe_part": "b14",
+    "source_id": "nt-10189"
+  },
+  "web_fixture": [],
+  "files": {
+    "reports/q3.md": "# Q3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quarterly revenue, pasted from the deck: North 1.2M, South 0.9M, East 1.5M, West 1.1M. Which region is highest?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "East"
+        ],
+        "max_output_chars": 900
+      }
+    }
+  ]
+}

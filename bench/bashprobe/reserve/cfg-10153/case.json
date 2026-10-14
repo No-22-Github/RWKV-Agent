@@ -1,0 +1,59 @@
+{
+  "id": "cfg-10153",
+  "description": "Two turns: cd into a folder and list it, then read a same-named file whose root copy is a decoy. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "22:00"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-cwd-10153",
+    "ref_calls": 2,
+    "fixture_bytes": 66,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "recover",
+    "probe_part": "b14",
+    "source_id": "cfg-10153"
+  },
+  "web_fixture": [],
+  "files": {
+    "营业时间.txt": "默认 10:00-22:00\n",
+    "门店/杭州西湖店/营业时间.txt": "周末 09:00-23:30\n",
+    "门店/杭州西湖店/菜单.md": "# 菜单\n",
+    "门店/上海徐汇店/营业时间.txt": "周末 10:00-22:30\n"
+  },
+  "turns": [
+    {
+      "prompt": "cd 进 门店/杭州西湖店 目录，看看有哪些文件。",
+      "expect": {
+        "output_contains": [
+          "菜单.md"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "那家店周末几点关门？看它目录里的 营业时间.txt。",
+      "expect": {
+        "output_contains": [
+          "23:30"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "id": "bsh-0136",
+  "description": "Files bills into per-month folders by the date in their names while a template with a similar name stays. BASHPROBE-CANARY-7d41c0e9",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b14-billmonths-01",
+    "ref_calls": 2,
+    "fixture_bytes": 160,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "fs-10127"
+  },
+  "web_fixture": [],
+  "files": {
+    "下载/账单-20260715-0.pdf": "pdf\n",
+    "下载/账单-20260703-1.pdf": "pdf\n",
+    "下载/账单-20260708-2.pdf": "pdf\n",
+    "下载/账单-20260822-3.pdf": "pdf\n",
+    "下载/账单-20260905-4.pdf": "pdf\n",
+    "下载/账单-20260923-5.pdf": "pdf\n",
+    "下载/账单-20260916-6.pdf": "pdf\n",
+    "下载/账单-20260914-7.pdf": "pdf\n",
+    "下载/账单-20260805-8.pdf": "pdf\n",
+    "下载/账单-20260924-9.pdf": "pdf\n",
+    "下载/账单-20260817-10.pdf": "pdf\n",
+    "下载/账单-20260919-11.pdf": "pdf\n",
+    "下载/账单-20260710-12.pdf": "pdf\n",
+    "下载/账单-20260720-13.pdf": "pdf\n",
+    "下载/账单-20260703-14.pdf": "pdf\n",
+    "下载/账单-20260820-15.pdf": "pdf\n",
+    "下载/账单-20260713-16.pdf": "pdf\n",
+    "下载/账单-20260925-17.pdf": "pdf\n",
+    "下载/账单模板.pdf": "pdf\n",
+    "下载/说明.txt": "按月份把账单归到 账单/2026-07 这类目录；账单模板 不是账单。\n",
+    "账单/2026-07/.keep": "",
+    "账单/2026-08/.keep": "",
+    "账单/2026-09/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "下载 目录里那堆账单 PDF，按文件名里的月份归档到 账单/2026-07、账单/2026-08、账单/2026-09 这几个目录。模板别动。弄完列一下目录确认，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "下载/账单-20260715-0.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260703-1.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260708-2.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260822-3.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260905-4.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260923-5.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260916-6.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260914-7.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260805-8.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260924-9.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260817-10.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260919-11.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260710-12.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260720-13.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260703-14.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260820-15.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260713-16.pdf": {
+        "absent": true
+      },
+      "下载/账单-20260925-17.pdf": {
+        "absent": true
+      },
+      "下载/账单模板.pdf": {
+        "unchanged": true
+      },
+      "下载/说明.txt": {
+        "unchanged": true
+      },
+      "账单/2026-07/.keep": {
+        "unchanged": true
+      },
+      "账单/2026-08/.keep": {
+        "unchanged": true
+      },
+      "账单/2026-09/.keep": {
+        "unchanged": true
+      },
+      "账单/2026-07/账单-20260703-1.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260703-14.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260708-2.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260710-12.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260713-16.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260715-0.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-07/账单-20260720-13.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-08/账单-20260805-8.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-08/账单-20260817-10.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-08/账单-20260820-15.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-08/账单-20260822-3.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260905-4.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260914-7.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260916-6.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260919-11.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260923-5.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260924-9.pdf": {
+        "equals": "pdf\n"
+      },
+      "账单/2026-09/账单-20260925-17.pdf": {
+        "equals": "pdf\n"
+      }
+    }
+  }
+}

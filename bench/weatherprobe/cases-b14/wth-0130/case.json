@@ -1,0 +1,121 @@
+{
+  "id": "wth-0130",
+  "description": "Two turns: a weather concept question answered without a call, then a real forecast question that needs the weather tool. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "a forecast lookup in turn 1"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-concept-10297",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "negative",
+    "probe_part": "b14",
+    "source_id": "nt-10297"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "空气湿度 90% 是不是就一定会下雨？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不一定",
+          "不等于"
+        ],
+        "max_output_chars": 900
+      }
+    },
+    {
+      "prompt": "那广州明天下雨的可能性有多大？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "0%"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "广州",
+      "aliases": [
+        "Guangzhou"
+      ],
+      "report": {
+        "location": "广州",
+        "current": "中雨 25°C 体感 27°C 湿度 71% 风速 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "21~30",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "16~31",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "20~31",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "大雨",
+            "temp_c": "19~29",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "小雨",
+            "temp_c": "20~31",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "中雨",
+            "temp_c": "21~28",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "多云",
+            "temp_c": "17~29",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

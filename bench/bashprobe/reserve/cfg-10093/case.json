@@ -1,0 +1,74 @@
+{
+  "id": "cfg-10093",
+  "description": "Flips a log level in several env files while a longer key containing it and a dev folder must stay. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-envlevel-01",
+    "ref_calls": 2,
+    "fixture_bytes": 416,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "cfg-10093"
+  },
+  "web_fixture": [],
+  "files": {
+    "服务/网关/.env": "SERVICE=网关\nLOG_LEVEL=debug\nSQL_LOG_LEVEL=debug\nPORT=7079\n",
+    "服务/账单/.env": "SERVICE=账单\nLOG_LEVEL=debug\nSQL_LOG_LEVEL=debug\nPORT=8879\n",
+    "服务/通知/.env": "SERVICE=通知\nLOG_LEVEL=debug\nSQL_LOG_LEVEL=debug\nPORT=8341\n",
+    "服务/报表/.env": "SERVICE=报表\nLOG_LEVEL=debug\nSQL_LOG_LEVEL=debug\nPORT=8833\n",
+    "服务/本地调试/.env": "SERVICE=本地调试\nLOG_LEVEL=debug\nSQL_LOG_LEVEL=debug\nPORT=8006\n",
+    "服务/说明.md": "# 环境变量\n\n本地调试/ 是开发机用的，保持 debug。\nSQL_LOG_LEVEL 由 DBA 单独管理。\n"
+  },
+  "turns": [
+    {
+      "prompt": "上线前把 服务 下各个 .env 里的 LOG_LEVEL 从 debug 改成 info，按说明来。改完自己核对一下，没问题回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "服务/网关/.env": {
+        "equals": "SERVICE=网关\nLOG_LEVEL=info\nSQL_LOG_LEVEL=debug\nPORT=7079\n"
+      },
+      "服务/账单/.env": {
+        "equals": "SERVICE=账单\nLOG_LEVEL=info\nSQL_LOG_LEVEL=debug\nPORT=8879\n"
+      },
+      "服务/通知/.env": {
+        "equals": "SERVICE=通知\nLOG_LEVEL=info\nSQL_LOG_LEVEL=debug\nPORT=8341\n"
+      },
+      "服务/报表/.env": {
+        "equals": "SERVICE=报表\nLOG_LEVEL=info\nSQL_LOG_LEVEL=debug\nPORT=8833\n"
+      },
+      "服务/本地调试/.env": {
+        "unchanged": true
+      },
+      "服务/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

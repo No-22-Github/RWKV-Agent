@@ -1,0 +1,114 @@
+{
+  "id": "wth-0114",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10241",
+    "ref_calls": 3,
+    "fixture_bytes": 142,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "artifact",
+    "probe_part": "b14",
+    "source_id": "hyb-10241"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/edinburgh.md": "# Edinburgh trip notes\n\n## Weather\n* **Mon 14 Sep** — Overcast, 17 to 24 °C (30% rain)\n* **Tue 15 Sep** — Sunny, 18 to 27 °C (10% rain)\n"
+  },
+  "turns": [
+    {
+      "prompt": "Put the next two days of Edinburgh weather under the Weather heading in notes/edinburgh.md, same style as the lines already there. Re-read it when done.",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Edinburgh",
+      "aliases": [],
+      "report": {
+        "location": "Edinburgh",
+        "current": "Thunderstorms 14°C feels 13°C humidity 67% wind 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Thunderstorms",
+            "temp_c": "11~18",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Sunny",
+            "temp_c": "12~23",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Heavy rain",
+            "temp_c": "11~19",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Overcast",
+            "temp_c": "12~20",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Showers",
+            "temp_c": "10~24",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Light rain",
+            "temp_c": "14~19",
+            "rain_chance": "50%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Sunny",
+            "temp_c": "13~20",
+            "rain_chance": "0%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "notes/edinburgh.md": {
+        "equals": "# Edinburgh trip notes\n\n## Weather\n* **Mon 14 Sep** — Overcast, 17 to 24 °C (30% rain)\n* **Tue 15 Sep** — Sunny, 18 to 27 °C (10% rain)\n* **Thu 17 Sep** — Sunny, 12 to 23 °C (10% rain)\n* **Fri 18 Sep** — Heavy rain, 11 to 19 °C (95% rain)\n"
+      }
+    }
+  }
+}

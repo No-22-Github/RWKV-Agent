@@ -21,7 +21,8 @@
 | `workbank/out/workbank.json` | 由 cases 构建的题库快照 | 0.6 MB | — |
 | `workbank/tools/` | 一次性审计工具（Go）及其 testdata | — | — |
 | `workbank/reports-data/` | `docs/workbank/reports/` 各报告的机器可读数据 | 0.7 MB | [报告目录](../docs/workbank/reports/) |
-| `bashprobe/` | 沙箱 bash 能力探针（`work-v2` 目录）；`cases/` 由 `gen.py` 生成并在 just-bash sidecar 里验证参考解 | 26 题 / 0.9 MB | [README](bashprobe/README.md) |
+| `bashprobe/` | 沙箱 bash 能力探针（`work-v2` 目录）；`cases/` 由 `gen.py` 生成（冻结），`cases-b14/` 是第二部分，`reserve/` 是备选题，后两者由 `distill/tools/b14` 生成并在 just-bash sidecar 里验证参考解 | 26 + 60 题，备选 140 | [README](bashprobe/README.md) |
+| `weatherprobe/` | get_weather 能力探针（`work-v2`）；`cases/` 由 `gen.py` 生成（冻结），`cases-b14/` 第二部分，`reserve/` 备选 | 14 + 30 题，备选 70 | [README](weatherprobe/README.md) |
 | `distill/` | **蒸馏的全部东西**：按版本分 `v1/` `v1.3/` `v1.4/` `v1.41/`，每个版本下是计划与 `reports/`、题目 `cases/`、老师动作脚本 `teacher/`；`common/` 放流程规格、批次登记、排除表、标签映射、审阅统计；`tools/` 放所有脚本 | 1631 题 + 27 下架 | [目录说明](distill/README.md) |
 | `archive/v10-baseline/` | v8–v10 boundary 基线（RWKV 13B / DeepSeek v4 Flash） | 5.6 MB | [README](archive/v10-baseline/README.md) |
 | `archive/primitive-orig30-snapshot-416b073d/` | Primitive Bench 原始 30 题快照 | — | [README](archive/primitive-orig30-snapshot-416b073d/README.md) |

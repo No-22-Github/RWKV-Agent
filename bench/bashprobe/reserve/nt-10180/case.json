@@ -1,0 +1,52 @@
+{
+  "id": "nt-10180",
+  "description": "Asks for a shell command without running it while bash is offered. BASHPROBE-CANARY-7d41c0e9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ran the command instead of answering"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-howto-10180",
+    "ref_calls": 0,
+    "fixture_bytes": 16,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "boundary",
+    "probe_part": "b14",
+    "source_id": "nt-10180"
+  },
+  "web_fixture": [],
+  "files": {
+    "web/src/app.js": "// TODO\n",
+    "web/node_modules/x/index.js": "// TODO\n"
+  },
+  "turns": [
+    {
+      "prompt": "How do I grep for TODO across web/ but skip node_modules? Just the command for now.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "--exclude-dir",
+          "-not -path",
+          "! -path",
+          "-prune"
+        ],
+        "max_output_chars": 900
+      }
+    }
+  ]
+}

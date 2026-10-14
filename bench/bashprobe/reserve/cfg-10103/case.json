@@ -1,0 +1,83 @@
+{
+  "id": "cfg-10103",
+  "description": "Two turns: raises the Python floor in project manifests, then the linter target, leaving an experiment project. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-pyfloor-01",
+    "ref_calls": 3,
+    "fixture_bytes": 547,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "cfg-10103"
+  },
+  "web_fixture": [],
+  "files": {
+    "工程/清洗/pyproject.toml": "[project]\nname = \"清洗\"\nversion = \"2.3.0\"\nrequires-python = \">=3.9\"\n\n[tool.ruff]\ntarget-version = \"py39\"\n",
+    "工程/建模/pyproject.toml": "[project]\nname = \"建模\"\nversion = \"2.3.0\"\nrequires-python = \">=3.9\"\n\n[tool.ruff]\ntarget-version = \"py39\"\n",
+    "工程/报表/pyproject.toml": "[project]\nname = \"报表\"\nversion = \"2.3.0\"\nrequires-python = \">=3.9\"\n\n[tool.ruff]\ntarget-version = \"py39\"\n",
+    "工程/调度/pyproject.toml": "[project]\nname = \"调度\"\nversion = \"2.3.0\"\nrequires-python = \">=3.9\"\n\n[tool.ruff]\ntarget-version = \"py39\"\n",
+    "工程/实验/pyproject.toml": "[project]\nname = \"实验\"\nrequires-python = \">=3.9\"\n",
+    "工程/说明.md": "# 工程\n\n实验/ 是个人试验项目，不跟随统一升级。\n"
+  },
+  "turns": [
+    {
+      "prompt": "工程 下的项目统一把 requires-python 从 >=3.9 提到 >=3.11（看说明，有不跟的）。改完检查，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "ruff 的 target-version 也同步改成 py311，范围一样。改完再查一次，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "工程/清洗/pyproject.toml": {
+        "equals": "[project]\nname = \"清洗\"\nversion = \"2.3.0\"\nrequires-python = \">=3.11\"\n\n[tool.ruff]\ntarget-version = \"py311\"\n"
+      },
+      "工程/建模/pyproject.toml": {
+        "equals": "[project]\nname = \"建模\"\nversion = \"2.3.0\"\nrequires-python = \">=3.11\"\n\n[tool.ruff]\ntarget-version = \"py311\"\n"
+      },
+      "工程/报表/pyproject.toml": {
+        "equals": "[project]\nname = \"报表\"\nversion = \"2.3.0\"\nrequires-python = \">=3.11\"\n\n[tool.ruff]\ntarget-version = \"py311\"\n"
+      },
+      "工程/调度/pyproject.toml": {
+        "equals": "[project]\nname = \"调度\"\nversion = \"2.3.0\"\nrequires-python = \">=3.11\"\n\n[tool.ruff]\ntarget-version = \"py311\"\n"
+      },
+      "工程/实验/pyproject.toml": {
+        "unchanged": true
+      },
+      "工程/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

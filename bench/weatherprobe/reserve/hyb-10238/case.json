@@ -1,0 +1,114 @@
+{
+  "id": "hyb-10238",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10238",
+    "ref_calls": 3,
+    "fixture_bytes": 158,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "artifact",
+    "probe_part": "b14",
+    "source_id": "hyb-10238"
+  },
+  "web_fixture": [],
+  "files": {
+    "站点/天气.html": "<html><body>\n  <h1>上海 天气</h1>\n  <ul>\n    <li>9月14日 周一 阴 17–24°C</li>\n    <li>9月15日 周二 晴 18–27°C</li>\n  </ul>\n</body></html>\n"
+  },
+  "turns": [
+    {
+      "prompt": "站点/天气.html 的列表里加上上海明天的天气，写法跟现有的 li 一样，放在列表最后。改完检查一下页面文件。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "上海",
+      "aliases": [],
+      "report": {
+        "location": "上海",
+        "current": "晴 23°C 体感 26°C 湿度 47% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "17~29",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "20~29",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "20~31",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "大雨",
+            "temp_c": "21~27",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "多云",
+            "temp_c": "21~29",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "小雨",
+            "temp_c": "22~30",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "雷阵雨",
+            "temp_c": "20~25",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "站点/天气.html": {
+        "equals": "<html><body>\n  <h1>上海 天气</h1>\n  <ul>\n    <li>9月14日 周一 阴 17–24°C</li>\n    <li>9月15日 周二 晴 18–27°C</li>\n    <li>9月17日 周四 阴 20–29°C</li>\n  </ul>\n</body></html>\n"
+      }
+    }
+  }
+}

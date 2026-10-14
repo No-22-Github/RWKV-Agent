@@ -1,0 +1,78 @@
+{
+  "id": "code-10102",
+  "description": "Bumps a shared package version across manifests while a dependency pin with the same number and vendored code stay. BASHPROBE-CANARY-7d41c0e9",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-b14-versionbump-01",
+    "ref_calls": 2,
+    "fixture_bytes": 780,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "code-10102"
+  },
+  "web_fixture": [],
+  "files": {
+    "packages/ui/package.json": "{\n  \"name\": \"@acme/ui\",\n  \"version\": \"1.4.2\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n",
+    "packages/api-client/package.json": "{\n  \"name\": \"@acme/api-client\",\n  \"version\": \"1.4.2\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^1.0.0\"\n  }\n}\n",
+    "packages/utils/package.json": "{\n  \"name\": \"@acme/utils\",\n  \"version\": \"1.4.2\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n",
+    "packages/forms/package.json": "{\n  \"name\": \"@acme/forms\",\n  \"version\": \"1.4.2\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^2.0.0\"\n  }\n}\n",
+    "packages/charts/package.json": "{\n  \"name\": \"@acme/charts\",\n  \"version\": \"1.4.2\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n",
+    "third_party/vendored-lib/package.json": "{\n  \"name\": \"vendored-lib\",\n  \"version\": \"1.4.2\"\n}\n",
+    "RELEASING.md": "# Releasing\n\nAll packages under packages/ share one version. third_party/ is never bumped.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Release time: bump our packages from 1.4.2 to 1.5.0 as RELEASING.md describes. Only the package version, not dependencies. Verify and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "packages/ui/package.json": {
+        "equals": "{\n  \"name\": \"@acme/ui\",\n  \"version\": \"1.5.0\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n"
+      },
+      "packages/api-client/package.json": {
+        "equals": "{\n  \"name\": \"@acme/api-client\",\n  \"version\": \"1.5.0\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^1.0.0\"\n  }\n}\n"
+      },
+      "packages/utils/package.json": {
+        "equals": "{\n  \"name\": \"@acme/utils\",\n  \"version\": \"1.5.0\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n"
+      },
+      "packages/forms/package.json": {
+        "equals": "{\n  \"name\": \"@acme/forms\",\n  \"version\": \"1.5.0\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^2.0.0\"\n  }\n}\n"
+      },
+      "packages/charts/package.json": {
+        "equals": "{\n  \"name\": \"@acme/charts\",\n  \"version\": \"1.5.0\",\n  \"dependencies\": {\n    \"left-pad\": \"1.4.2\",\n    \"@acme/core\": \"^3.0.0\"\n  }\n}\n"
+      },
+      "third_party/vendored-lib/package.json": {
+        "unchanged": true
+      },
+      "RELEASING.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

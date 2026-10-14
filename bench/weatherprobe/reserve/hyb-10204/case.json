@@ -1,0 +1,108 @@
+{
+  "id": "hyb-10204",
+  "description": "Asks a dated forecast value; the day word must map to the right row. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "20%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-direct-10204",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "explicit",
+    "probe_part": "b14",
+    "source_id": "hyb-10204"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "周六去昆明滇池边骑车，那天降水概率大概多少？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "55%"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "昆明",
+      "aliases": [
+        "Kunming"
+      ],
+      "report": {
+        "location": "昆明",
+        "current": "大雨 24°C 体感 24°C 湿度 81% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "大雨",
+            "temp_c": "18~30",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "22~27",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "22~26",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "阵雨",
+            "temp_c": "15~22",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "阴",
+            "temp_c": "20~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "大雨",
+            "temp_c": "22~27",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "阵雨",
+            "temp_c": "20~28",
+            "rain_chance": "50%"
+          }
+        ]
+      }
+    }
+  ]
+}

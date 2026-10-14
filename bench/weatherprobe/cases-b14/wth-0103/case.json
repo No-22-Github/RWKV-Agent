@@ -1,0 +1,108 @@
+{
+  "id": "wth-0103",
+  "description": "Asks a dated forecast value; the day word must map to the right row. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "18"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-direct-10209",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "explicit",
+    "probe_part": "b14",
+    "source_id": "hyb-10209"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "下周一合肥最低温多少？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "14"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "合肥",
+      "aliases": [
+        "Hefei"
+      ],
+      "report": {
+        "location": "合肥",
+        "current": "阴 23°C 体感 25°C 湿度 46% 风速 11 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "20~27",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "16~31",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "18~31",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "阴",
+            "temp_c": "17~30",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "阵雨",
+            "temp_c": "21~31",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "阴",
+            "temp_c": "14~22",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "晴",
+            "temp_c": "18~26",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

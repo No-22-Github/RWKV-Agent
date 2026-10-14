@@ -1,0 +1,51 @@
+{
+  "id": "nt-10168",
+  "description": "Asks for a shell command without running it while bash is offered. BASHPROBE-CANARY-7d41c0e9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ran the command instead of answering"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-howto-10168",
+    "ref_calls": 0,
+    "fixture_bytes": 22,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "boundary",
+    "probe_part": "b14",
+    "source_id": "nt-10168"
+  },
+  "web_fixture": [],
+  "files": {
+    "脚本/部署.sh": "#!/bin/sh\necho deploy\n"
+  },
+  "turns": [
+    {
+      "prompt": "脚本/部署.sh 没有执行权限，怎么加？告诉我命令就行，我自己改。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "chmod +x",
+          "chmod u+x",
+          "chmod 755",
+          "chmod 744"
+        ],
+        "max_output_chars": 900
+      }
+    }
+  ]
+}

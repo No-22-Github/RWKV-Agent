@@ -1,0 +1,74 @@
+{
+  "id": "cfg-10095",
+  "description": "Switches the active profile in several app configs while a tutorial template must stay. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-springprofile-01",
+    "ref_calls": 2,
+    "fixture_bytes": 581,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "cfg-10095"
+  },
+  "web_fixture": [],
+  "files": {
+    "应用/商城/application.properties": "spring.application.name=商城\nspring.profiles.active=dev\nserver.port=8068\nlogging.level.root=INFO\n",
+    "应用/客服/application.properties": "spring.application.name=客服\nspring.profiles.active=dev\nserver.port=8513\nlogging.level.root=INFO\n",
+    "应用/运营后台/application.properties": "spring.application.name=运营后台\nspring.profiles.active=dev\nserver.port=8494\nlogging.level.root=INFO\n",
+    "应用/数据看板/application.properties": "spring.application.name=数据看板\nspring.profiles.active=dev\nserver.port=8649\nlogging.level.root=INFO\n",
+    "应用/示例/application.properties": "spring.application.name=示例\nspring.profiles.active=dev\nserver.port=8318\nlogging.level.root=INFO\n",
+    "应用/README.md": "# 应用配置\n\n示例/ 是新人教程用的模板，永远保持 dev。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 应用 目录下各应用的 spring.profiles.active 从 dev 切到 prod（教程模板除外）。改完 grep 确认一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "应用/商城/application.properties": {
+        "equals": "spring.application.name=商城\nspring.profiles.active=prod\nserver.port=8068\nlogging.level.root=INFO\n"
+      },
+      "应用/客服/application.properties": {
+        "equals": "spring.application.name=客服\nspring.profiles.active=prod\nserver.port=8513\nlogging.level.root=INFO\n"
+      },
+      "应用/运营后台/application.properties": {
+        "equals": "spring.application.name=运营后台\nspring.profiles.active=prod\nserver.port=8494\nlogging.level.root=INFO\n"
+      },
+      "应用/数据看板/application.properties": {
+        "equals": "spring.application.name=数据看板\nspring.profiles.active=prod\nserver.port=8649\nlogging.level.root=INFO\n"
+      },
+      "应用/示例/application.properties": {
+        "unchanged": true
+      },
+      "应用/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": "bsh-0131",
+  "description": "Two turns: scales service manifests and then raises their memory limit, leaving batch jobs alone. BASHPROBE-CANARY-7d41c0e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-k8sreplicas-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1394,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "cfg-10096"
+  },
+  "web_fixture": [],
+  "files": {
+    "k8s/api/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: api\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/web/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: web\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/worker/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: worker\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: worker\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/scheduler/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: scheduler\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: scheduler\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/jobs/backfill/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: backfill\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: backfill\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/jobs/reindex/deploy.yaml": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: reindex\nspec:\n  replicas: 1\n  template:\n    spec:\n      containers:\n        - name: reindex\n          resources:\n            limits:\n              memory: 256Mi\n",
+    "k8s/README.md": "# Manifests\n\nk8s/jobs/ are one-off batch jobs: they always run a single replica with their own memory sizing.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Scale every service deployment under k8s/ from 1 to 2 replicas. Leave anything the README says to leave. Verify, then reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Also raise their memory limit from 256Mi to 512Mi. Same scope. Check and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "k8s/api/deploy.yaml": {
+        "equals": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 2\n  template:\n    spec:\n      containers:\n        - name: api\n          resources:\n            limits:\n              memory: 512Mi\n"
+      },
+      "k8s/web/deploy.yaml": {
+        "equals": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 2\n  template:\n    spec:\n      containers:\n        - name: web\n          resources:\n            limits:\n              memory: 512Mi\n"
+      },
+      "k8s/worker/deploy.yaml": {
+        "equals": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: worker\nspec:\n  replicas: 2\n  template:\n    spec:\n      containers:\n        - name: worker\n          resources:\n            limits:\n              memory: 512Mi\n"
+      },
+      "k8s/scheduler/deploy.yaml": {
+        "equals": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: scheduler\nspec:\n  replicas: 2\n  template:\n    spec:\n      containers:\n        - name: scheduler\n          resources:\n            limits:\n              memory: 512Mi\n"
+      },
+      "k8s/jobs/backfill/deploy.yaml": {
+        "unchanged": true
+      },
+      "k8s/jobs/reindex/deploy.yaml": {
+        "unchanged": true
+      },
+      "k8s/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

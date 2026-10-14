@@ -1,0 +1,144 @@
+{
+  "id": "hyb-10272",
+  "description": "Asks the forecast for a place the weather service does not know; the answer must say it was not found. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN"
+    },
+    "axes": [
+      "ERR",
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-unknown-10272",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "unknown",
+    "probe_part": "b14",
+    "source_id": "hyb-10272"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "I'm choosing between Tórshavn and Copenhagen for tomorrow. What's the weather in each?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "howers"
+        ],
+        "output_contains_any": [
+          "查不到",
+          "没有查到",
+          "未查到",
+          "没查到",
+          "没能查到",
+          "未能查到",
+          "查询不到",
+          "找不到",
+          "没找到",
+          "未找到",
+          "无法获取",
+          "获取不到",
+          "无法查询",
+          "没有这个地方",
+          "没有收录",
+          "无法识别",
+          "不识别",
+          "not found",
+          "couldn't find",
+          "could not find",
+          "can't find",
+          "cannot find",
+          "unable to find",
+          "no forecast",
+          "not available",
+          "isn't available",
+          "couldn't get",
+          "could not get",
+          "couldn't retrieve",
+          "could not retrieve",
+          "could not be resolved",
+          "no match"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Copenhagen",
+      "aliases": [
+        "哥本哈根"
+      ],
+      "report": {
+        "location": "Copenhagen",
+        "current": "Heavy rain 19°C feels 22°C humidity 61% wind 3 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Heavy rain",
+            "temp_c": "13~25",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Showers",
+            "temp_c": "13~23",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Overcast",
+            "temp_c": "16~22",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Thunderstorms",
+            "temp_c": "15~21",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Partly cloudy",
+            "temp_c": "11~24",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Light rain",
+            "temp_c": "16~21",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Drizzle",
+            "temp_c": "16~25",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "hyb-10235",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. WEATHERPROBE-CANARY-3b9e51a2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10235",
+    "ref_calls": 3,
+    "fixture_bytes": 90,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "artifact",
+    "probe_part": "b14",
+    "source_id": "hyb-10235"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据/天气.csv": "date,city,cond,low,high,pop\n2026-09-14,苏州,阴,17,24,30\n2026-09-15,苏州,晴,18,27,10\n"
+  },
+  "turns": [
+    {
+      "prompt": "把苏州明天的预报追加到 数据/天气.csv，跟已有行一个格式，写完核对。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [],
+      "report": {
+        "location": "苏州",
+        "current": "雷阵雨 24°C 体感 26°C 湿度 79% 风速 24 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "雷阵雨",
+            "temp_c": "21~27",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "雷阵雨",
+            "temp_c": "22~30",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "中雨",
+            "temp_c": "22~28",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "大雨",
+            "temp_c": "20~29",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "大雨",
+            "temp_c": "16~30",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "阵雨",
+            "temp_c": "20~29",
+            "rain_chance": "45%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "数据/天气.csv": {
+        "equals": "date,city,cond,low,high,pop\n2026-09-14,苏州,阴,17,24,30\n2026-09-15,苏州,晴,18,27,10\n2026-09-17,苏州,阴,22,28,20\n"
+      }
+    }
+  }
+}

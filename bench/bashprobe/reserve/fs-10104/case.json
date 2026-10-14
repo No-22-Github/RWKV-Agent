@@ -1,0 +1,195 @@
+{
+  "id": "fs-10104",
+  "description": "Renames an extension across nested photo folders while a referenced asset folder keeps its names. BASHPROBE-CANARY-7d41c0e9",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b14-jpegrename-01",
+    "ref_calls": 2,
+    "fixture_bytes": 169,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "probe_axis": "edit",
+    "probe_part": "b14",
+    "source_id": "fs-10104"
+  },
+  "web_fixture": [],
+  "files": {
+    "照片/2025/年会/合影232.jpeg": "img\n",
+    "照片/2026/春节/IMG_374.jpeg": "img\n",
+    "照片/2025/年会/合影186.png": "img\n",
+    "照片/2026/旅行/合影372.jpeg": "img\n",
+    "照片/2026/旅行/合影317.jpeg": "img\n",
+    "照片/2026/旅行/合影65.jpeg": "img\n",
+    "照片/2026/旅行/合影363.jpeg": "img\n",
+    "照片/2026/春节/IMG_295.png": "img\n",
+    "照片/2025/年会/IMG_145.jpeg": "img\n",
+    "照片/2026/春节/合影145.jpeg": "img\n",
+    "照片/2025/年会/合影176.jpeg": "img\n",
+    "照片/2025/年会/合影48.png": "img\n",
+    "照片/2026/春节/IMG_110.png": "img\n",
+    "照片/2026/春节/IMG_144.jpeg": "img\n",
+    "照片/2026/春节/合影105.jpeg": "img\n",
+    "照片/2026/旅行/IMG_181.png": "img\n",
+    "照片/2026/春节/合影7.jpeg": "img\n",
+    "照片/2025/年会/合影68.png": "img\n",
+    "照片/2025/年会/合影311.jpeg": "img\n",
+    "照片/2026/旅行/IMG_297.png": "img\n",
+    "照片/2026/春节/IMG_125.jpeg": "img\n",
+    "照片/2026/旅行/IMG_5.jpeg": "img\n",
+    "照片/素材库/logo.jpeg": "img\n",
+    "照片/素材库/banner.jpeg": "img\n",
+    "照片/说明.md": "# 照片\n\n素材库/ 的文件名被网站直接引用，不能改名。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 照片 下所有 .jpeg 扩展名统一改成 .jpg，子目录也算，但别动说明里提到的那个目录。改完列一下确认，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "照片/2025/年会/合影232.jpeg": {
+        "absent": true
+      },
+      "照片/2026/春节/IMG_374.jpeg": {
+        "absent": true
+      },
+      "照片/2025/年会/合影186.png": {
+        "unchanged": true
+      },
+      "照片/2026/旅行/合影372.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/合影317.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/合影65.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/合影363.jpeg": {
+        "absent": true
+      },
+      "照片/2026/春节/IMG_295.png": {
+        "unchanged": true
+      },
+      "照片/2025/年会/IMG_145.jpeg": {
+        "absent": true
+      },
+      "照片/2026/春节/合影145.jpeg": {
+        "absent": true
+      },
+      "照片/2025/年会/合影176.jpeg": {
+        "absent": true
+      },
+      "照片/2025/年会/合影48.png": {
+        "unchanged": true
+      },
+      "照片/2026/春节/IMG_110.png": {
+        "unchanged": true
+      },
+      "照片/2026/春节/IMG_144.jpeg": {
+        "absent": true
+      },
+      "照片/2026/春节/合影105.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/IMG_181.png": {
+        "unchanged": true
+      },
+      "照片/2026/春节/合影7.jpeg": {
+        "absent": true
+      },
+      "照片/2025/年会/合影68.png": {
+        "unchanged": true
+      },
+      "照片/2025/年会/合影311.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/IMG_297.png": {
+        "unchanged": true
+      },
+      "照片/2026/春节/IMG_125.jpeg": {
+        "absent": true
+      },
+      "照片/2026/旅行/IMG_5.jpeg": {
+        "absent": true
+      },
+      "照片/素材库/logo.jpeg": {
+        "unchanged": true
+      },
+      "照片/素材库/banner.jpeg": {
+        "unchanged": true
+      },
+      "照片/说明.md": {
+        "unchanged": true
+      },
+      "照片/2025/年会/IMG_145.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2025/年会/合影176.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2025/年会/合影232.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2025/年会/合影311.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/旅行/IMG_5.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/旅行/合影317.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/旅行/合影363.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/旅行/合影372.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/旅行/合影65.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/IMG_125.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/IMG_144.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/IMG_374.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/合影105.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/合影145.jpg": {
+        "equals": "img\n"
+      },
+      "照片/2026/春节/合影7.jpg": {
+        "equals": "img\n"
+      }
+    }
+  }
+}
