@@ -47,6 +47,11 @@ type BashOptions struct {
 	Overlay *StagedWorkspace
 	// CatalogOnly builds a non-executable catalog entry without starting a sidecar.
 	CatalogOnly bool
+	// ApplyToDisk writes every change a command made straight back to the
+	// workspace once the command returns, so the other file tools and the
+	// eval's expect.files check see it. Agent eval uses it; the app keeps
+	// changes staged for review.
+	ApplyToDisk bool
 }
 
 // ResolveBashSidecar finds the sidecar binary: the explicit path, then
@@ -79,7 +84,7 @@ func BashTools(options BashOptions) ([]agent.Tool, error) {
 		root = resolved
 	}
 	if options.CatalogOnly {
-		return []agent.Tool{&bashTool{}}, nil
+		return []agent.Tool{&bashTool{applyToDisk: options.ApplyToDisk}}, nil
 	}
 	sidecar, err := ResolveBashSidecar(options.Sidecar)
 	if err != nil {
@@ -95,14 +100,15 @@ func BashTools(options BashOptions) ([]agent.Tool, error) {
 	if timeout <= 0 {
 		timeout = bashDefaultTimeout
 	}
-	return []agent.Tool{&bashTool{root: root, sidecar: sidecar, timeout: timeout, overlay: options.Overlay}}, nil
+	return []agent.Tool{&bashTool{root: root, sidecar: sidecar, timeout: timeout, overlay: options.Overlay, applyToDisk: options.ApplyToDisk}}, nil
 }
 
 type bashTool struct {
-	overlay *StagedWorkspace
-	root    string
-	sidecar string
-	timeout time.Duration
+	overlay     *StagedWorkspace
+	root        string
+	sidecar     string
+	timeout     time.Duration
+	applyToDisk bool
 }
 
 // BashResult is what the model sees. Output streams are capped; a capped
@@ -117,12 +123,21 @@ type BashResult struct {
 
 func (r BashResult) WorkspaceChanged() bool { return r.changed }
 
-func (*bashTool) Spec() agent.ToolSpec {
+// bashStagedNote is said only where changes really wait for review. Applied
+// changes keep the pre-staging wording, which the work-v2 catalog hash and the
+// v1.41 training data were built with.
+const bashStagedNote = "Changes are staged in memory for user review; all file tools share the session view. "
+
+func (t *bashTool) Spec() agent.ToolSpec {
+	staged := bashStagedNote
+	if t.applyToDisk {
+		staged = ""
+	}
 	return agent.ToolSpec{
 		Name: "bash",
 		Description: "Run a bash command in a sandbox at /workspace (no network, python or node) and return exit_code, stdout and stderr. " +
 			"Supports pipes, redirection, loops and common Unix tools: ls, cat, head, tail, grep, rg, sed, awk, sort, uniq, wc, cut, tr, find, xargs, jq, yq, diff, tar, gzip, base64, sha256sum, date, seq. " +
-			"Changes are staged in memory for user review; all file tools share the session view. Each call starts in /workspace and does not keep cd or variables from earlier calls.",
+			staged + "Each call starts in /workspace and does not keep cd or variables from earlier calls.",
 		Arguments: `{"command":"bash command line"}`,
 		Parameters: json.RawMessage(`{
 			"type":"object",
@@ -156,21 +171,39 @@ func (t *bashTool) Execute(ctx context.Context, raw json.RawMessage) (any, error
 	if len(args.Command) > bashMaxCommandBytes {
 		return nil, invalidArguments("command is longer than %d bytes; write long content with write_file", bashMaxCommandBytes)
 	}
-	client, err := sharedBashSidecar(t.sidecar)
+	result, err := t.run(ctx, args.Command)
 	if err != nil {
 		return nil, err
+	}
+	if !t.applyToDisk || !result.changed {
+		return result, nil
+	}
+	changes, err := t.overlay.Changes()
+	if err == nil && len(changes) > 0 {
+		_, err = t.overlay.Resolve(changes, true)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("bash: writing changes to the workspace: %w", err)
+	}
+	return result, nil
+}
+
+func (t *bashTool) run(ctx context.Context, command string) (BashResult, error) {
+	client, err := sharedBashSidecar(t.sidecar)
+	if err != nil {
+		return BashResult{}, err
 	}
 	t.overlay.mu.Lock()
 	defer t.overlay.mu.Unlock()
 	before := t.overlay.revision
 	response, err := client.run(ctx, bashSidecarRequest{
-		Session: t.overlay.id, Root: t.root, Command: args.Command, TimeoutMillis: int(t.timeout / time.Millisecond),
+		Session: t.overlay.id, Root: t.root, Command: command, TimeoutMillis: int(t.timeout / time.Millisecond),
 	}, t.timeout+5*time.Second)
 	if err != nil {
-		return nil, err
+		return BashResult{}, err
 	}
 	if response.Error != "" {
-		return nil, fmt.Errorf("bash: %s", response.Error)
+		return BashResult{}, fmt.Errorf("bash: %s", response.Error)
 	}
 	changed := response.Revision != before
 	t.overlay.revision = response.Revision

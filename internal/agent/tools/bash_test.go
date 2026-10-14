@@ -10,6 +10,10 @@ import (
 )
 
 func newTestBashTool(t *testing.T) (*bashTool, string) {
+	return newTestBashToolWith(t, BashOptions{})
+}
+
+func newTestBashToolWith(t *testing.T, options BashOptions) (*bashTool, string) {
 	t.Helper()
 	sidecar, err := ResolveBashSidecar(filepath.Join("..", "..", "..", "local", "bin", "justbash-sidecar"))
 	if err != nil {
@@ -19,7 +23,8 @@ func newTestBashTool(t *testing.T) (*bashTool, string) {
 	if err := os.WriteFile(filepath.Join(root, "data.csv"), []byte("name,score\nalice,90\nbob,72\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	tools, err := BashTools(BashOptions{Workspace: root, Sidecar: sidecar})
+	options.Workspace, options.Sidecar = root, sidecar
+	tools, err := BashTools(options)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,6 +74,53 @@ func TestBashToolWritesStayInsideWorkspace(t *testing.T) {
 	}
 	if !strings.Contains(result.Stderr, "/etc/hosts: No such file") {
 		t.Fatalf("host file readable: %+v", result)
+	}
+}
+
+func TestBashToolApplyToDiskWritesEveryChange(t *testing.T) {
+	tool, root := newTestBashToolWith(t, BashOptions{ApplyToDisk: true})
+	if strings.Contains(tool.Spec().Description, "staged") {
+		t.Fatal("apply-to-disk description still says changes are staged")
+	}
+	if err := os.WriteFile(filepath.Join(root, "old.txt"), []byte("gone\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	result := runBash(t, tool, "sed -i 's/bob/carol/' data.csv && mkdir -p out && echo ok > out/new.txt && mv old.txt out/moved.txt")
+	if !result.WorkspaceChanged() {
+		t.Fatal("edits did not report a workspace change")
+	}
+	for path, want := range map[string]string{"data.csv": "name,score\nalice,90\ncarol,72\n", "out/new.txt": "ok\n", "out/moved.txt": "gone\n"} {
+		got, err := os.ReadFile(filepath.Join(root, path))
+		if err != nil || string(got) != want {
+			t.Fatalf("%s on disk = %q, %v; want %q", path, got, err, want)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, "old.txt")); !os.IsNotExist(err) {
+		t.Fatal("the moved file is still on disk")
+	}
+	// Another tool writes the disk between commands; bash must see it and keep applying.
+	if err := os.WriteFile(filepath.Join(root, "data.csv"), []byte("name,score\ndave,50\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if result := runBash(t, tool, "cat data.csv; echo more >> data.csv"); result.Stdout != "name,score\ndave,50\n" {
+		t.Fatalf("bash read a stale file: %q", result.Stdout)
+	}
+	if got, _ := os.ReadFile(filepath.Join(root, "data.csv")); string(got) != "name,score\ndave,50\nmore\n" {
+		t.Fatalf("second edit on disk = %q", got)
+	}
+	if changes, err := tool.overlay.Changes(); err != nil || len(changes) != 0 {
+		t.Fatalf("changes left staged = %v, %v", changes, err)
+	}
+}
+
+func TestBashToolRefusesEntriesBelowAFile(t *testing.T) {
+	tool, root := newTestBashToolWith(t, BashOptions{ApplyToDisk: true})
+	result := runBash(t, tool, "mkdir -p data.csv/old; echo rc=$?; mv data.csv data.csv/old/x; echo rc=$?")
+	if result.Stdout != "rc=1\nrc=1\n" || !strings.Contains(result.Stderr, "ENOTDIR") {
+		t.Fatalf("result = %+v", result)
+	}
+	if got, _ := os.ReadFile(filepath.Join(root, "data.csv")); string(got) != "name,score\nalice,90\nbob,72\n" {
+		t.Fatalf("data.csv on disk = %q", got)
 	}
 }
 

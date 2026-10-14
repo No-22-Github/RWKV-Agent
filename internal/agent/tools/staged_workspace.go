@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"io"
@@ -16,6 +17,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -306,7 +308,7 @@ func (w *StagedWorkspace) diskSnapshot(rel string) (FileSnapshot, error) {
 		}
 		p = filepath.Join(p, part)
 		i, e := os.Lstat(p)
-		if os.IsNotExist(e) {
+		if os.IsNotExist(e) || errors.Is(e, syscall.ENOTDIR) {
 			return FileSnapshot{Kind: "missing"}, nil
 		}
 		if e != nil {

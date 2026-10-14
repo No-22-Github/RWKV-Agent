@@ -22,6 +22,8 @@ class Workspace {
         const paths = name === "mv" ? [args[0], args[1]] : name === "cp" || name === "link" ? [args[1]] : name === "symlink" ? [args[1]] : [args[0]];
         if ((name === "rm" || name === "mv") && posix.normalize(args[0]) === mountPoint) throw new Error("cannot remove or move workspace root");
         const recursive = name === "rm" || name === "mv" || name === "cp";
+        // OverlayFs would happily create entries below a file; a real filesystem refuses.
+        for (const path of paths) await this.requireDirectoryParents(path);
         for (const path of paths) await this.remember(path, recursive);
         const result = await original(...args);
         if (name === "mv" || name === "cp") for (const path of paths) await this.remember(path, true);
@@ -31,6 +33,16 @@ class Workspace {
     }
     const fs = this.overlay;
     this.shell = new Bash({ fs, cwd: mountPoint, env: { HOME: mountPoint, TZ: "Asia/Shanghai" }, commands, defenseInDepth: false });
+  }
+  async requireDirectoryParents(path: string) {
+    path = posix.normalize(path);
+    for (let parent = posix.dirname(path); parent !== mountPoint && parent.startsWith(mountPoint + "/"); parent = posix.dirname(parent)) {
+      if ((await this.overlay.exists(parent)) && !(await this.overlay.lstat(parent)).isDirectory) {
+        const error: any = new Error(`ENOTDIR: not a directory, '${path}'`);
+        error.code = "ENOTDIR";
+        throw error;
+      }
+    }
   }
   path(path = ".") {
     const result = posix.resolve(mountPoint, path);

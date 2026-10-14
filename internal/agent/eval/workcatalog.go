@@ -100,7 +100,7 @@ func buildWorkToolCatalog(
 	})
 	catalog := append(append(append(workspaceTools, editTools...), localTools...), webTools...)
 	if name == WorkV2ToolCatalogName {
-		bash, err := tools.BashTools(tools.BashOptions{Workspace: workspace})
+		bash, err := tools.BashTools(tools.BashOptions{Workspace: workspace, ApplyToDisk: true})
 		if err != nil {
 			return nil, err
 		}
