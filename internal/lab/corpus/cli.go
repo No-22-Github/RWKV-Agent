@@ -63,6 +63,8 @@ func pathsFlagSet(args *PathsArgs, runs *stringList) *flag.FlagSet {
 	fs.StringVar(&args.Out, "out", "", "new script JSONL")
 	fs.StringVar(&args.Report, "report", "", "optional per-case JSONL: pass@k, kept paths, drop reasons")
 	fs.IntVar(&args.MaxPerCase, "max-per-case", 2, "paths to keep per case")
+	fs.BoolVar(&args.IncludeFailed, "include-failed", false,
+		"also keep clean paths of runs that failed the case expectations, after the passing ones; render --require-pass re-judges them against the (fixed) cases")
 	return fs
 }
 

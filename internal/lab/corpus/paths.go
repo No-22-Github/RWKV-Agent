@@ -209,11 +209,20 @@ type CaseStats struct {
 type candidate struct {
 	path     Trajectory
 	runIndex int
+	passed   bool
 }
 
 // Collect groups runs by case, counting drops. The returned order is the order
 // cases were first seen, which print_summary's drop tally depends on.
-func Collect(runDirs []string) (map[string]*CaseStats, []string, error) {
+//
+// includeFailed (v2.0) also keeps clean paths of runs that failed the case's
+// expectations, ranked after every passing path. They exist for a judge fix:
+// `corpus render` replays them against the corrected cases and its rows step
+// (--require-pass) keeps only those that now pass, without re-buying the
+// teacher. A run whose path cannot be extracted (runner error, tool errors)
+// is still dropped.
+func Collect(runDirs []string, includeFailed ...bool) (map[string]*CaseStats, []string, error) {
+	keepFailed := len(includeFailed) > 0 && includeFailed[0]
 	stats := map[string]*CaseStats{}
 	var order []string
 	for runIndex, runDir := range runDirs {
@@ -233,17 +242,19 @@ func Collect(runDirs []string) (map[string]*CaseStats, []string, error) {
 				order = append(order, run.CaseID)
 			}
 			stat.Runs++
-			if !run.Passed {
+			if !run.Passed && !keepFailed {
 				stat.Drops.Add("failed")
 				continue
 			}
-			stat.Passed++
+			if run.Passed {
+				stat.Passed++
+			}
 			path, err := Extract(run)
 			if err != nil {
 				stat.Drops.Add(err.Error())
 				continue
 			}
-			stat.Candidates = append(stat.Candidates, candidate{path: path, runIndex: runIndex})
+			stat.Candidates = append(stat.Candidates, candidate{path: path, runIndex: runIndex, passed: run.Passed})
 		}
 	}
 	return stats, order, nil
@@ -257,6 +268,9 @@ func Select(stat *CaseStats, maxPerCase int) []Trajectory {
 	var kept []Trajectory
 	ordered := append([]candidate(nil), stat.Candidates...)
 	sort.SliceStable(ordered, func(i, j int) bool {
+		if ordered[i].passed != ordered[j].passed {
+			return ordered[i].passed
+		}
 		if len(ordered[i].path) != len(ordered[j].path) {
 			return len(ordered[i].path) < len(ordered[j].path)
 		}
@@ -290,11 +304,14 @@ type PathsArgs struct {
 	Out        string
 	Report     string
 	MaxPerCase int
+	// IncludeFailed keeps failing runs' clean paths after the passing ones
+	// (see Collect); render's --require-pass re-judges them.
+	IncludeFailed bool
 }
 
 // RunPaths is the `corpus paths` command.
 func RunPaths(args PathsArgs) int {
-	stats, order, err := Collect(args.Run)
+	stats, order, err := Collect(args.Run, args.IncludeFailed)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1

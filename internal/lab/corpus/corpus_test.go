@@ -285,11 +285,11 @@ func TestSelectPrefersShortestThenNewToolSequences(t *testing.T) {
 	answer := Action{Text: "42", Final: true}
 
 	stat := &CaseStats{Drops: newOrderedCounter(), Candidates: []candidate{
-		{Trajectory{search, read, answer}, 0},
-		{Trajectory{read, answer}, 1},
-		{Trajectory{read, answer}, 2},        // exact duplicate
-		{Trajectory{readB, answer}, 3},       // same tool sequence as the kept (read, answer)
-		{Trajectory{read, readB, answer}, 4}, // new shape but over the cap
+		{Trajectory{search, read, answer}, 0, true},
+		{Trajectory{read, answer}, 1, true},
+		{Trajectory{read, answer}, 2, true},        // exact duplicate
+		{Trajectory{readB, answer}, 3, true},       // same tool sequence as the kept (read, answer)
+		{Trajectory{read, readB, answer}, 4, true}, // new shape but over the cap
 	}}
 	kept := Select(stat, 2)
 	if len(kept) != 2 || !sameTrajectory(kept[0], Trajectory{read, answer}) ||
@@ -597,7 +597,7 @@ func TestDecontamAgainstBFCLProductSuite(t *testing.T) {
 	writeCandidate(unrelated, "cand-far",
 		"统计部署日志里报错的行数，按天汇总，把总数和最晚的一天告诉我。", om())
 	if code := RunDecontam(DecontamArgs{
-		TestSuite:       "bfcl-product", Candidates: unrelated,
+		TestSuite: "bfcl-product", Candidates: unrelated,
 		PromptThreshold: 0.35, FilesThreshold: 0.30, NamesThreshold: 0.30, Boilerplate: 0.05,
 	}); code != 0 {
 		t.Fatalf("exit = %d, want 0 (an unrelated candidate must pass)", code)
@@ -672,5 +672,18 @@ func TestExtractDropsUnrecoveredWeatherMiss(t *testing.T) {
 	}, nil, true, 0)
 	if _, err := Extract(run); err == nil {
 		t.Fatal("a weather miss with no successful retry was kept")
+	}
+}
+
+func TestSelectRanksPassingPathsBeforeFailed(t *testing.T) {
+	read := Action{Text: `<tool_call>{"name":"read_file","arguments":{"path":"a"}}</tool_call>`, Tool: "read_file"}
+	answer := Action{Text: "42", Final: true}
+	stat := &CaseStats{Drops: newOrderedCounter(), Candidates: []candidate{
+		{Trajectory{answer}, 0, false},
+		{Trajectory{read, answer}, 1, true},
+	}}
+	kept := Select(stat, 1)
+	if len(kept) != 1 || len(kept[0]) != 2 {
+		t.Fatalf("the passing path must win over a shorter failing one: %+v", kept)
 	}
 }
