@@ -14,9 +14,12 @@ path is kept only when every check passes; nothing is patched. Checks:
                      Markdown (bold, code, bullets, tables). Elsewhere Markdown
                      is kept: the App renders it and a table or code block is
                      often the better answer (user decision 2026-10-14)
-  final_language     first prompt Chinese and a final answer without Chinese,
-                     or prompt without Chinese and a final answer mostly Chinese
-  reasoning_too_long one step's reasoning > 3000 chars, or a path > 12000
+  final_language     first prompt Chinese and a final answer that is English
+                     prose (no Chinese, 4+ English words; a bare value, path
+                     or DONE is language-neutral), or prompt without Chinese
+                     and a final answer mostly Chinese
+  reasoning_too_long one step's reasoning > 3000 chars (daily-QA 5000), or a
+                     path > 12000
   reasoning_meta     the reasoning talks about its own instructions or harness
                      ("system prompt", "the instructions say", "my rules",
                      "the example says", "test case", "verify") — the student
@@ -70,7 +73,7 @@ def check(entry, case):
             continue
         reasoning = (out.get("reasoning") or "").strip()
         total += len(reasoning)
-        if len(reasoning) > 3000:
+        if len(reasoning) > (5000 if daily else 3000):
             reasons.append("reasoning_too_long")
         if META.search(reasoning):
             reasons.append("reasoning_meta")
@@ -83,7 +86,8 @@ def check(entry, case):
             reasons.append("final_too_long")
         if value_only and MD.search(text):
             reasons.append("final_markdown")
-        if prompt_zh and not CJK.search(text):
+        if prompt_zh and not CJK.search(text) and len(re.findall(r"[A-Za-z]{3,}", text)) >= 4:
+            # a bare value, path or DONE is language-neutral; only prose counts
             reasons.append("final_language")
         if not prompt_zh and zh_share(text) > 0.5:
             reasons.append("final_language")

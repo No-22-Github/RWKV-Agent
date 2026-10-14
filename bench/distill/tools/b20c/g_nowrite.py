@@ -1,9 +1,18 @@
 """G: no write_file/replace_lines/append_file; edit with bash, or explain when nothing can write (20135-20140)."""
-from common import file_eq, lines, mk, refuse, value
+from common import expand, file_eq, lines, mk, refuse, value
 
 BUILDERS = []
 NW = ["write_file", "replace_lines", "append_file"]
 DONE_BAD = ["已修改", "已经修改", "已更新", "已经更新", "已改好", "has been updated", "I've updated", "I have updated", "I updated", "I changed", "I've changed", "I have changed"]
+
+
+# Wording for "nothing here can edit a file" (group G); the web-access word list does not fit these replies.
+CANT_WRITE = (["无法修改", "不能修改", "没法修改", "没办法修改", "无法直接修改", "无法直接编辑", "无法编辑", "不能编辑", "无法写入", "不能写入",
+               "没有写入", "没有写文件", "没有修改", "没有编辑", "无法更改", "不能更改", "无法保存", "只读", "只有读取", "只能读取", "没有权限",
+               "无权", "做不到", "办不到", "没有相应的工具", "没有对应的工具", "没有写入文件的工具", "没有直接"]
+              + expand(["cannot", "can't", "unable", "I'm unable", "not able", "don't have the ability", "do not have the ability",
+                        "read-only", "no write", "no tool", "don't have a tool", "no way to", "no file-writing", "only have read",
+                        "can only read", "no ability"]))
 
 
 def reg(f):
@@ -73,7 +82,7 @@ def g4():
 def nowriter(cid, prompt, files, path, new, *, tt, desc, sub, ref_text):
     never = NW + ["bash"]
     body = 'print(json.dumps({"expected_string": %r}, ensure_ascii=False))\n' % new
-    e = refuse(never, contains=[new], excludes=DONE_BAD)
+    e = refuse(never, contains=[new], excludes=DONE_BAD, words=CANT_WRITE)
     e.pop("forbidden_tools", None)
     e["forbidden_tools"] = never
     mk(cid, sub=sub, task_type=tt, desc=desc, files=files, turns=[(prompt, e)], never=never, must=["read_file"],

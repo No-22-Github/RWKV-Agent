@@ -54,13 +54,15 @@ print(json.dumps({"files": {p: (r["equals"] if "equals" in r else case["files"][
           decoys=decoys, axes=("OBS",), ref=(cmds, check))
 
 
-def missing_case(cid, *, task_type, sub, files, prompts, cmds, ref, desc, decoy, contains=None, must=("bash", "read_file")):
+def missing_case(cid, *, task_type, sub, files, prompts, cmds, ref, desc, decoy, contains=None, must=("bash", "read_file"),
+                 later_required=None):
     from common import refusal_turn
     contains = contains or {}
     turns = []
     for i, p in enumerate(prompts):
         t = refusal_turn(p, forbid=["write_file", "replace_lines", "append_file"], contains=contains.get(i))
-        t["expect"]["required_tools"] = ["bash"]
+        # a follow-up turn may ask for something else once the attempt has failed (e.g. read the file instead)
+        t["expect"]["required_tools"] = list(later_required) if (i > 0 and later_required) else ["bash"]
         t["expect"]["output_contains_any"] = CANT_ANY + ["not found", "未找到", "找不到", "不存在", "127", "没有安装", "没装", "isn't installed", "not installed"]
         turns.append(t)
     exp = {p: {"unchanged": True} for p in files}
@@ -70,7 +72,8 @@ def missing_case(cid, *, task_type, sub, files, prompts, cmds, ref, desc, decoy,
     body = '''
 exp = case["expect"]["files"]
 assert all(r.get("unchanged") and p in case["files"] for p, r in exp.items())
-assert all("bash" in t["expect"]["required_tools"] for t in case["turns"])
+assert "bash" in case["turns"][0]["expect"]["required_tools"]
+assert all(set(t["expect"]["required_tools"]) <= set(case["tool_policy"]["must_offer"]) for t in case["turns"])
 print(json.dumps({"files": {p: case["files"][p] for p in exp}}, ensure_ascii=False))
 '''
     notes = ("## Traps\n- TR-NOCAP: bash is offered, but the sandbox has no such command (exit 127 'command not found').\n\n"

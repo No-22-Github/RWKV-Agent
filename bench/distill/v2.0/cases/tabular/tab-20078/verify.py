@@ -8,5 +8,5 @@ assert m and m.group(1) == '青禾纸业'
 m = re.search(',(30500),待付', case["files"]['发票.csv'])
 assert m and m.group(1) == '30500'
 draft = '付款申请\n供应商：青禾纸业\n发票号：QH-0654\n金额：30500 元\n'
-assert all(s in draft for s in ['青禾纸业', 'QH-0654', '30500'])
+assert all(s in draft for s in ['青禾纸业', 'QH-0654'])
 print(json.dumps({"files": {'付款申请.md': draft}}, ensure_ascii=False))

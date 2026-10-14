@@ -65,6 +65,16 @@
           "查不到",
           "没有查询天气",
           "没有天气查询",
+          "无法提供",
+          "没法提供",
+          "不能提供",
+          "无法给出",
+          "没办法提供",
+          "无法直接",
+          "不能直接",
+          "没有直接",
+          "历史报价",
+          "可能已有调整",
           "cannot",
           "Cannot",
           "can't",
@@ -122,7 +132,15 @@
           "aren't able",
           "Aren't able",
           "aren’t able",
-          "Aren’t able"
+          "Aren’t able",
+          "I'm unable",
+          "I’m unable",
+          "don't have the ability",
+          "Don't have the ability",
+          "don’t have the ability",
+          "Don’t have the ability",
+          "do not have the ability",
+          "Do not have the ability"
         ],
         "output_contains": [
           "5.1.4"

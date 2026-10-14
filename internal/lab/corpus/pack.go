@@ -256,7 +256,7 @@ func decodePackLines(path, text string) ([]*lab.OrderedMap, error) {
 func decodePackLinesWithRaw(path, text string) ([]*lab.OrderedMap, []string, error) {
 	var objects []*lab.OrderedMap
 	var raws []string
-	for _, line := range lab.SplitLines(text) {
+	for _, line := range lab.SplitJSONLLines(text) {
 		if isBlank(line) {
 			continue
 		}

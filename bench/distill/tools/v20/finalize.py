@@ -11,6 +11,7 @@ Steps, same discipline as the 1.x finalizers:
     are also "\\n\\nUser:", the tool response turn);
   - sha256(family) % 32 == 0 -> validation, so one trajectory's step rows
     and its family never straddle the split;
+  - rows over 8128 tokens are dropped first (late steps after a large read);
   - corpus pack (--max-tokens 8128), to_segments, segcheck per side;
   - the train segments are also written shuffled with a fixed seed
     (segments-shuffled.jsonl): the trainer reads files in order, and the step
@@ -33,6 +34,7 @@ from distill_paths import REPO  # noqa: E402
 
 LAB = "local/bin/rwkv-lab-v20"
 SEED = 20261014
+MAX_TOKENS = 8128
 CALL = re.compile(r'<tool_call>\{"name":"(\w+)"')
 CJK = re.compile(r"[一-鿿]")
 
@@ -84,10 +86,16 @@ def main():
     rows, inputs = [], {}
     for batch in args.batch:
         path = root / "local/runs/distill/v20" / batch / "corpus" / "rows.jsonl"
-        batch_rows = [json.loads(line) for line in path.read_text().splitlines()]
+        batch_rows = [json.loads(line) for line in path.read_text().split("\n") if line]
         inputs[str(path.relative_to(root))] = {"rows": len(batch_rows), "sha256": sha(path)}
         rows += batch_rows
     rows = [r if r["text"].endswith(SUFFIX) else add_suffix(r) for r in rows]
+    # Per-step rows carry every earlier tool result; a late step after a large
+    # read can exceed the trainer context. Drop such rows (each row stands on
+    # its own; the trajectory's earlier steps stay). meta.traj.tokens is the
+    # World count of the text before the suffix.
+    over = [r for r in rows if r["meta"]["traj"]["tokens"] + 8 > MAX_TOKENS]
+    rows = [r for r in rows if r["meta"]["traj"]["tokens"] + 8 <= MAX_TOKENS]
     split = {"train": [], "validation": []}
     sides = collections.defaultdict(set)
     for r in rows:
@@ -103,17 +111,17 @@ def main():
         source.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in selected))
         dest = out / "dataset" / side
         run(root, out / (side + "-pack.log"), [LAB, "corpus", "pack", "--rows", str(source),
-                                               "--max-tokens", "8128", "--out", str(dest)])
+                                               "--max-tokens", str(MAX_TOKENS), "--out", str(dest)])
         run(root, out / (side + "-segments.log"), ["python3", "bench/distill/tools/to_segments.py",
                                                    "--rows", str(dest / "rows.jsonl"), "--out", str(dest / "segments.jsonl")])
         run(root, out / (side + "-segcheck.log"), [LAB, "corpus", "segcheck", str(dest / "segments.jsonl")])
-    lines = (out / "dataset" / "train" / "segments.jsonl").read_text().splitlines(keepends=True)
+    lines = [l + "\n" for l in (out / "dataset" / "train" / "segments.jsonl").read_text().split("\n") if l]
     order = list(range(len(lines)))
     random.Random(SEED).shuffle(order)
     (out / "dataset" / "train" / "segments-shuffled.jsonl").write_text("".join(lines[i] for i in order))
     stats = {
         "inputs": inputs, "split_method": "sha256(family) mod 32 == 0 -> validation",
-        "shuffle_seed": SEED, "wire_hash": sorted({r["meta"]["wire_hash"] for r in rows}),
+        "shuffle_seed": SEED, "dropped_over_max_tokens": len(over), "max_tokens": MAX_TOKENS, "wire_hash": sorted({r["meta"]["wire_hash"] for r in rows}),
         "all": composition(rows), "train": composition(split["train"]),
         "validation": composition(split["validation"]),
         "artifact_sha256": {str(p.relative_to(out)): sha(p) for p in sorted((out / "dataset").glob("*/*")) if p.is_file()},

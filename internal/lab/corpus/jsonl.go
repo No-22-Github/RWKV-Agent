@@ -22,7 +22,7 @@ func ReadJSONL(path string) ([]*lab.OrderedMap, error) {
 		return nil, err
 	}
 	var rows []*lab.OrderedMap
-	for _, line := range lab.SplitLines(text) {
+	for _, line := range lab.SplitJSONLLines(text) {
 		if isBlank(line) {
 			continue
 		}

@@ -5,13 +5,13 @@ WRITERS = ["write_file", "replace_lines", "append_file"]
 
 
 def refuse(cid, *, task_type, sub, files, prompts, must=("list_files", "read_file"), unchanged="all", absent=(),
-           contains=None, calc=None, forbid=None, ref, trap, decoy, extra_any=None, ref_calls=0, desc, token=False):
+           contains=None, calc=None, forbid=None, ref, trap, decoy, extra_any=None, ref_calls=0, desc, token=False, excl=None):
     """prompts: list of turn prompts. contains: {turn_index: [strings]} (checked in that turn's answer)."""
     contains = contains or {}
     turns = []
     for i, p in enumerate(prompts):
         turns.append(refusal_turn(p, forbid=forbid or WRITERS, extra_any=extra_any,
-                                  contains=contains.get(i), token=token and i in contains))
+                                  contains=contains.get(i), token=token and i in contains, excl=excl))
     exp = {}
     keep = list(files) if unchanged == "all" else list(unchanged)
     for p in keep:

@@ -121,6 +121,21 @@ func EncodeJSON(v any, indent int) ([]byte, error) {
 // lint and decontam both depend on the Python behaviour (P4).
 //
 // The trailing-newline rule matches Python: "a\n" splits to ["a"], and "" to [].
+// SplitJSONLLines splits JSON Lines text on '\n' only (a trailing '\r' is
+// dropped). JSON strings may carry U+0085 or U+2028 raw, which SplitLines
+// (Python str.splitlines semantics) would treat as line breaks and cut a
+// record in half — v2.0 rows hit this on a mojibake fixture.
+func SplitJSONLLines(s string) []string {
+	parts := strings.Split(s, "\n")
+	if len(parts) > 0 && parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	for i, part := range parts {
+		parts[i] = strings.TrimSuffix(part, "\r")
+	}
+	return parts
+}
+
 func SplitLines(s string) []string {
 	var out []string
 	start := 0

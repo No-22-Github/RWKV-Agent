@@ -18,15 +18,24 @@ NOWEB = ["web_search", "web_fetch"]
 
 _ZH = ["无法联网", "不能联网", "没法联网", "没办法联网", "没有联网", "无法实时", "没法实时", "无法获取", "无法查询", "查询不了",
        "查不了", "无法核实", "未能核实", "无法确认", "无法验证", "无法查证", "没有网络", "无法访问", "不能访问", "无法上网",
-       "未核实", "未经核实", "没法核实", "没办法核实", "无法实时查询", "无法查到", "查不到", "没有查询天气", "没有天气查询"]
+       "未核实", "未经核实", "没法核实", "没办法核实", "无法实时查询", "无法查到", "查不到", "没有查询天气", "没有天气查询",
+       "无法提供", "没法提供", "不能提供", "无法给出", "没办法提供", "无法直接", "不能直接", "没有直接", "历史报价", "可能已有调整"]
 _EN = ["cannot", "can't", "can not", "unable", "not able", "don't have access", "do not have access", "no internet",
        "no web", "not connected", "couldn't", "could not", "unverified", "not verified", "no way to", "don't have a way",
-       "do not have a way", "no live", "no real-time", "without internet", "isn't available", "is not available", "aren't able"]
+       "do not have a way", "no live", "no real-time", "without internet", "isn't available", "is not available", "aren't able",
+       "I'm unable", "don't have the ability", "do not have the ability"]
 
 
 def cant_words():
     out = list(_ZH)
     for w in _EN:
+        out += [w, w.capitalize(), w.replace("'", "’"), w.capitalize().replace("'", "’")]
+    return list(dict.fromkeys(out))
+
+
+def expand(words):
+    out = []
+    for w in words:
         out += [w, w.capitalize(), w.replace("'", "’"), w.capitalize().replace("'", "’")]
     return list(dict.fromkeys(out))
 
@@ -85,8 +94,8 @@ def mk(cid, *, sub, task_type, desc, files, turns, never, must, traps_notes, ref
 
 
 # ---- expectation builders
-def refuse(forbid, *, contains=(), excludes=(), token=False, required=()):
-    e = {"forbidden_tools": list(forbid), "output_contains_any": cant_words()}
+def refuse(forbid, *, contains=(), excludes=(), token=False, required=(), words=None):
+    e = {"forbidden_tools": list(forbid), "output_contains_any": list(words) if words is not None else cant_words()}
     if contains:
         e["output_contains"] = list(contains)
         if token:

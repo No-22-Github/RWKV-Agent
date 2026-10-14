@@ -5,5 +5,6 @@ _pin = hashlib.sha256(json.dumps(case["files"], ensure_ascii=False, sort_keys=Tr
 assert _pin == 'ed103a33f6c1c09a6ab5e22236f43b349833c954635ec28bfc5f8e73e9ee8d51', "fixture changed"
 exp = case["expect"]["files"]
 assert all(r.get("unchanged") and p in case["files"] for p, r in exp.items())
-assert all("bash" in t["expect"]["required_tools"] for t in case["turns"])
+assert "bash" in case["turns"][0]["expect"]["required_tools"]
+assert all(set(t["expect"]["required_tools"]) <= set(case["tool_policy"]["must_offer"]) for t in case["turns"])
 print(json.dumps({"files": {p: case["files"][p] for p in exp}}, ensure_ascii=False))
