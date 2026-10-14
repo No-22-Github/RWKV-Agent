@@ -128,7 +128,8 @@ func TestCostReportRanksRecordedCasesAndMergesRuns(t *testing.T) {
 }
 
 // A run written before cost was recorded is recomputed from its steps; its
-// zero usage reads as missing, and --recount fills it from the trace.
+// zero usage reads as missing with --no-recount, and is counted from the
+// trace by default.
 func TestCostReportRecomputesLegacyRunsAndRecountsFromTrace(t *testing.T) {
 	step := func(start, duration, toolStart, toolDuration int64, finish string) map[string]any {
 		return map[string]any{
@@ -170,7 +171,7 @@ func TestCostReportRecomputesLegacyRunsAndRecountsFromTrace(t *testing.T) {
 		},
 	)
 
-	report, err := BuildCostReport(CostArgs{Runs: []string{dir}})
+	report, err := BuildCostReport(CostArgs{Runs: []string{dir}, NoRecount: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +193,7 @@ func TestCostReportRecomputesLegacyRunsAndRecountsFromTrace(t *testing.T) {
 	}
 
 	recounted, err := BuildCostReport(CostArgs{
-		Runs: []string{dir}, Recount: true,
+		Runs:    []string{dir},
 		counter: func(text string) int { return len(text) },
 	})
 	if err != nil {

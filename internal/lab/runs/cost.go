@@ -23,17 +23,20 @@ import (
 // the step timestamps (or, for runs older than those, from the trace record
 // timestamps), model and tool time from the step durations, tokens from the
 // step usage. rwkv_lightning runs from before the counts were recorded carry
-// zero usage; those show as missing unless --recount re-encodes the prompts
-// and outputs in trace.jsonl with the local World vocabulary.
+// zero usage; for those the prompts and outputs in trace.jsonl are counted
+// with the local World vocabulary (cheap, in-process), unless --no-recount
+// asks to show them as missing.
 
 // CostArgs are the `run cost` flags.
 type CostArgs struct {
-	Runs    []string
-	Top     int
-	JSON    bool
-	Recount bool
-	Vocab   string
-	// counter replaces the World vocabulary for --recount in tests.
+	Runs []string
+	Top  int
+	JSON bool
+	// NoRecount leaves tokens missing from the summary as missing instead of
+	// counting them from trace.jsonl.
+	NoRecount bool
+	Vocab     string
+	// counter replaces the World vocabulary in tests.
 	counter func(string) int
 }
 
@@ -277,10 +280,10 @@ func BuildCostReport(args CostArgs) (CostReport, error) {
 		args.Top = 15
 	}
 	var count func(string) int
-	if args.Recount {
+	if !args.NoRecount {
 		count = args.counter
 	}
-	if args.Recount && count == nil {
+	if !args.NoRecount && count == nil {
 		var world *tokenizer.World
 		var err error
 		if args.Vocab != "" {
@@ -288,10 +291,16 @@ func BuildCostReport(args CostArgs) (CostReport, error) {
 		} else {
 			world, err = lab.OpenWorld()
 		}
-		if err != nil {
-			return CostReport{}, fmt.Errorf("--recount needs the World vocabulary: %v", err)
+		switch {
+		case err == nil:
+			count = world.Count
+		case args.Vocab != "":
+			return CostReport{}, fmt.Errorf("--vocab: %v", err)
+		default:
+			// Without the vocabulary the report still works; missing
+			// counts stay missing.
+			fmt.Fprintf(stderr, "warning: no World vocabulary (%v); tokens missing from the summary stay missing\n", err)
 		}
-		count = world.Count
 	}
 	report := CostReport{Top: args.Top, Rankings: map[string][]string{}, Groups: map[string][]GroupCost{}}
 	for _, dir := range args.Runs {

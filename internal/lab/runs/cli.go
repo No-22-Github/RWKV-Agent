@@ -237,15 +237,15 @@ func runCostCmd(argv []string) int {
 		"Per-case time and token cost of one or more runs (same case across runs: mean and max).")
 	fs.IntVar(&args.Top, "top", 15, "cases per ranking")
 	fs.BoolVar(&args.JSON, "json", false, "emit the report as JSON")
-	fs.BoolVar(&args.Recount, "recount", false,
-		"count tokens missing from the summary by encoding trace.jsonl with the local World vocabulary")
-	fs.StringVar(&args.Vocab, "vocab", "", "World vocabulary for --recount (default: the bundled third_party copy)")
-	if err := ParseInterspersed(fs, argv, map[string]bool{"json": true, "recount": true}); err != nil {
+	fs.BoolVar(&args.NoRecount, "no-recount", false,
+		"show tokens missing from the summary as missing instead of counting trace.jsonl with the local World vocabulary")
+	fs.StringVar(&args.Vocab, "vocab", "", "World vocabulary for counting (default: the bundled third_party copy)")
+	if err := ParseInterspersed(fs, argv, map[string]bool{"json": true, "no-recount": true}); err != nil {
 		return 2
 	}
 	args.Runs = fs.Args()
 	if len(args.Runs) == 0 {
-		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab run cost RUN... [--top N] [--json] [--recount]")
+		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab run cost RUN... [--top N] [--json] [--no-recount]")
 		return 2
 	}
 	return RunCost(args)
