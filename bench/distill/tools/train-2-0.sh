@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # v2.0 MiSS (thinking) adapter training: segments-2-0.jsonl (train 2142 rows),
-# an 8-run sweep scheduled on 4 GPUs: each GPU works through its own lane of
+# a 7-run sweep scheduled on 4 GPUs: each GPU works through its own lane of
 # runs one after another, the four lanes run in parallel.
 #
 #   ./train-2-0.sh              start the four lanes in the background (nohup)
@@ -46,18 +46,19 @@ COMMON=(--model "$MODEL" --data "$DATA" --vocab "$VOCAB"
 # lane name rank alpha lr lr-final epochs
 # Base point: rank 16, lr 1e-4 (the MiSS README example), 2 epochs; the
 # 1/4-epoch checkpoints include the end of epoch 1. Two one-knob axes around
-# it (lr x4, rank x4) and one long run. lr-final is always lr/10.
+# it (lr: 3e-5 / 3e-4 / 1e-3; rank: 4 / 64) and one 4-epoch run. lr-final is
+# always lr/10. No rank 256: ~280k trained tokens do not need it, and it runs
+# at ~310 tok/s (~9 h for 2 epochs).
 # Lanes are balanced on the smoke-test speed (one step, GPU0 of
-# rwkv-pro6000x8): rank 4/16 ~2300 tok/s, rank 64 ~860, rank 256 ~310 (the
-# MiSS kernels do not use tensor cores yet). Hours: r256 e2 ~9.2, r64 e2
-# ~3.3, r16 e4 ~2.6, r16/r4 e2 ~1.3. The lanes come to ~9.2 / 5.9 / 3.8 / 2.5.
+# rwkv-pro6000x8): rank 4/16 ~2300 tok/s, rank 64 ~860 (the MiSS kernels do
+# not use tensor cores yet). Hours: r64 e2 ~3.3, r16 e4 ~2.6, r16/r4 e2 ~1.3.
+# The lanes come to ~3.3 / 3.9 / 2.6 / 2.6.
 RUNS=(
-  "0 r256-lr1e-4-e2 256 256 0.0001 0.00001  2"
+  "0 r64-lr1e-4-e2   64  64 0.0001 0.00001  2"
   "1 r16-lr1e-4-e4   16  16 0.0001 0.00001  4"
-  "1 r64-lr1e-4-e2   64  64 0.0001 0.00001  2"
+  "1 r4-lr1e-4-e2     4   4 0.0001 0.00001  2"
   "2 r16-lr1e-4-e2   16  16 0.0001 0.00001  2"
   "2 r16-lr3e-5-e2   16  16 0.00003 0.000003 2"
-  "2 r4-lr1e-4-e2     4   4 0.0001 0.00001  2"
   "3 r16-lr3e-4-e2   16  16 0.0003 0.00003  2"
   "3 r16-lr1e-3-e2   16  16 0.001  0.0001   2"
 )
