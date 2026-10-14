@@ -59,6 +59,10 @@ bash 使用率从 trace 里统计，作为诊断指标。所有题 `status: draf
 ./local/bin/rwkv-cli agent-eval ... --cases bench/bashprobe/cases-b14 --tool-catalog work-v2 --file-tools lines --include-draft ...
 ```
 
+### 已知问题（待定）：终答字数上限是隐性要求
+
+第二部分每一轮都带 `max_output_chars`（600 / 700 / 900 字），但正式系统提示里没有「简短作答」的要求，模型事先不知道这条判据。RWKV 按简短风格训练，影响不大；API 模型（如 DeepSeek）不带 b12 老师附加指令时常写长 Markdown，答案对了也因超字数判错。2026-10-14 决定先记录不改：真要拿这套题和其他模型对比时，再决定是放宽上限，还是给所有被测模型同样的格式说明。
+
 ## 备选区：reserve/（140 题）
 
 b14 其余 bash 题，保留 b14 原题号，同样换成本探针 canary。不参与跑分，用于以后轮换或补充；**同样是测试数据，不得进训练集或当出题种子**。
