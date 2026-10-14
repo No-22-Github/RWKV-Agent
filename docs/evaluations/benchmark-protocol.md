@@ -124,7 +124,7 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 - 预注册：选择型实验（采样档、格式候选）在跑前把"主指标 + 决胜规则 + 平局处理"写进该轮 PLAN.md。
 - 耗时与 token：`rwkv-lab run cost <run_dir...> [--top N] [--json] [--no-recount]` 按墙钟耗时、整题累计生成 token、
   最大上下文、收尾时间各列 top N，并按 scenario / probe_axis 汇总；多个 run 同题取均值与最大值。
-  - 字段来源：`summary.json` 的 `cases[].cost` 与 `turns[].cost`（墙钟 `wall_ms`、模型合计 `model_ms`、工具合计 `tool_ms`、
+  - 字段来源：`summary.json` 的 `cases[].cost` 与 `turns[].cost`（墙钟 `wall_ms`、模型合计 `model_ms`、首 token 等待合计 `wait_ms`、工具合计 `tool_ms`、
     `steps`、`prompt_tokens`、`completion_tokens`、`max_prompt_tokens`、`token_source`、`hit_max_tokens` / `hit_max_steps` / `hit_timeout`）；
     每步 `usage` 带 `prompt_source` / `completion_source`。
   - RWKV（rwkv_lightning）端点不回 usage：completion 取流式 delta 数（chunk_size=1，一块一个 token，`server_stream`），
@@ -132,6 +132,11 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
     预算逻辑只信端点自报的数，补上的计数不改变生成。
   - 旧产物没有 `cost`：从步骤时间戳回算耗时；缺的 token 数默认用本地词表从 `trace.jsonl` 回算（217 MB trace 约 3 秒；
     含路由调用，不含被客户端截掉的停止串，`token_source = local_vocab_trace`），`--no-recount` 则显示为 `—`。
+  - `wait_ms` 是每步从发请求到首 token 的时间之和（合批窗口 + 端点排队 + prefill）。并发跑分时 `model_ms` 里大半可能是排队：
+    `model_ms` 高而 `wait_ms` 低 = 题本身生成得长；`wait_ms` 高 = 端点堵。
+  - rwkv_lightning 跑满 `max_tokens` 时也回 `finish_reason: stop`，所以 `hit_max_tokens` 不看 finish，
+    而看单次调用生成数是否 ≥ 该次请求上限的 98%（流式计数会漏掉半个多字节字符的 token，留 2% 余量）；回算旧产物时同样按 trace 判定。
+    长尾题基本都是复读到上限，先看这一列。
 
 ## 8. 目录与落库
 

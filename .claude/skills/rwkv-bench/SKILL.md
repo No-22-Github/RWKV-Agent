@@ -129,6 +129,7 @@ local/bin/rwkv-lab run cost <run 目录…> --top 20 [--json]
 
 - `run cost` 看哪些题最费时间、最费 token、上下文最长、最后收尾（长尾题拖整轮时先看这个）；
   旧产物没有 token 数时自动用本地词表从 trace 回算（`--no-recount` 关闭）。
+  `limits` 列的 max_tokens = 复读到上限（端点此时也报 stop，按生成数判定）；`wait s` 高说明是端点排队，不是题慢。
 
 - 比较只用同一天、同端点、同 bank_version 的成对 run；报翻转 +a/−b 与符号检验 p。
 - 差距小于同配置 k 次极差 → 写"无法区分"。

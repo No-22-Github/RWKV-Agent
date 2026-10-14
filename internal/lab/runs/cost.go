@@ -47,6 +47,7 @@ type costRecord struct {
 	WallMS             int64  `json:"wall_ms"`
 	ModelMS            int64  `json:"model_ms"`
 	ToolMS             int64  `json:"tool_ms"`
+	WaitMS             int64  `json:"wait_ms"`
 	Steps              int    `json:"steps"`
 	MaxSteps           int    `json:"max_steps"`
 	PromptTokens       int    `json:"prompt_tokens"`
@@ -63,6 +64,7 @@ type costRecord struct {
 type costStepFile struct {
 	ModelStartedAtMS int64  `json:"model_started_at_ms"`
 	ModelDurationMS  int64  `json:"model_duration_ms"`
+	FirstTokenAtMS   int64  `json:"model_first_token_at_ms"`
 	ToolStartedAtMS  int64  `json:"tool_started_at_ms"`
 	ToolDurationMS   int64  `json:"tool_duration_ms"`
 	FinishReason     string `json:"finish_reason"`
@@ -132,11 +134,14 @@ type CaseCost struct {
 	ProbeAxis string `json:"probe_axis,omitempty"`
 	// StartOffsetMS and EndOffsetMS place the case on the run's clock; 0 when
 	// the artifacts carry no timestamps.
-	StartOffsetMS    int64  `json:"start_offset_ms"`
-	EndOffsetMS      int64  `json:"end_offset_ms"`
-	WallMS           int64  `json:"wall_ms"`
-	ModelMS          int64  `json:"model_ms"`
-	ToolMS           int64  `json:"tool_ms"`
+	StartOffsetMS int64 `json:"start_offset_ms"`
+	EndOffsetMS   int64 `json:"end_offset_ms"`
+	WallMS        int64 `json:"wall_ms"`
+	ModelMS       int64 `json:"model_ms"`
+	ToolMS        int64 `json:"tool_ms"`
+	// WaitMS is the summed time to first token over the model steps (queue,
+	// batching window and prefill); 0 when the steps carry no first-token time.
+	WaitMS           int64  `json:"wait_ms"`
 	Steps            int    `json:"steps"`
 	MaxSteps         int    `json:"max_steps,omitempty"`
 	PromptTokens     int    `json:"prompt_tokens"`
@@ -191,6 +196,7 @@ type MergedCost struct {
 	WallMS           Stat   `json:"wall_ms"`
 	ModelMS          Stat   `json:"model_ms"`
 	ToolMS           Stat   `json:"tool_ms"`
+	WaitMS           Stat   `json:"wait_ms"`
 	Steps            Stat   `json:"steps"`
 	EndOffsetMS      Stat   `json:"end_offset_ms"`
 	PromptTokens     Stat   `json:"prompt_tokens"`
@@ -210,6 +216,7 @@ type GroupCost struct {
 	PassRate         float64 `json:"pass_rate"`
 	WallMS           Stat    `json:"wall_ms"`
 	ModelMS          Stat    `json:"model_ms"`
+	WaitMS           Stat    `json:"wait_ms"`
 	Steps            Stat    `json:"steps"`
 	CompletionTokens Stat    `json:"completion_tokens"`
 	MaxPromptTokens  Stat    `json:"max_prompt_tokens"`
@@ -402,6 +409,7 @@ func caseCostOf(file costCaseFile, maxSteps int) CaseCost {
 		cost := file.Cost
 		item.start, item.end = cost.StartedAtMS, cost.EndedAtMS
 		item.WallMS, item.ModelMS, item.ToolMS = cost.WallMS, cost.ModelMS, cost.ToolMS
+		item.WaitMS = cost.WaitMS
 		item.Steps, item.MaxSteps = cost.Steps, cost.MaxSteps
 		item.PromptTokens, item.CompletionTokens = cost.PromptTokens, cost.CompletionTokens
 		item.MaxPromptTokens, item.TokenSource = cost.MaxPromptTokens, cost.TokenSource
@@ -432,6 +440,9 @@ func caseCostOf(file costCaseFile, maxSteps int) CaseCost {
 		for _, step := range result.Steps {
 			item.ModelMS += step.ModelDurationMS
 			item.ToolMS += step.ToolDurationMS
+			if step.ModelStartedAtMS > 0 && step.FirstTokenAtMS >= step.ModelStartedAtMS {
+				item.WaitMS += step.FirstTokenAtMS - step.ModelStartedAtMS
+			}
 			stretch(step.ModelStartedAtMS, step.ModelDurationMS)
 			stretch(step.ToolStartedAtMS, step.ToolDurationMS)
 			usage := step.Usage
@@ -476,12 +487,19 @@ type traceLine struct {
 	CaseID    string    `json:"case_id"`
 	ModelCall *struct {
 		Request struct {
-			Prompt string `json:"prompt"`
+			Prompt          string `json:"prompt"`
+			MaxOutputTokens int    `json:"max_output_tokens"`
 		} `json:"request"`
 		Response struct {
 			Text string `json:"text"`
 		} `json:"response"`
 	} `json:"model_call"`
+}
+
+// atTokenBudget mirrors eval.atTokenBudget: a call whose generated count
+// reached 98% of its output budget ran to max_tokens.
+func atTokenBudget(completion int, budget int) bool {
+	return budget > 0 && completion*50 >= budget*49
 }
 
 // applyTrace fills what the summary lacks from trace.jsonl: the case clock
@@ -505,6 +523,7 @@ func applyTrace(path string, cases []CaseCost, count func(string) int) (int, err
 		first, last        int64
 		prompt, completion int
 		maxPrompt, calls   int
+		budgetHits         int
 	}
 	tallies := map[string]*tally{}
 	reader := bufio.NewReaderSize(file, 1<<20)
@@ -529,7 +548,11 @@ func applyTrace(path string, cases []CaseCost, count func(string) int) (int, err
 					if record.ModelCall != nil && count != nil {
 						prompt := count(record.ModelCall.Request.Prompt)
 						current.prompt += prompt
-						current.completion += count(record.ModelCall.Response.Text)
+						completion := count(record.ModelCall.Response.Text)
+						current.completion += completion
+						if atTokenBudget(completion, record.ModelCall.Request.MaxOutputTokens) {
+							current.budgetHits++
+						}
 						current.maxPrompt = max(current.maxPrompt, prompt)
 						current.calls++
 					}
@@ -550,6 +573,11 @@ func applyTrace(path string, cases []CaseCost, count func(string) int) (int, err
 			item.start, item.end = current.first, current.last
 			item.WallMS = current.last - current.first
 			item.TimeSource = "trace"
+		}
+		// rwkv_lightning finishes a call that ran to max_tokens with "stop",
+		// so the step finish reasons never flagged it.
+		if current.budgetHits > 0 {
+			item.HitMaxTokens = true
 		}
 		if !item.TokensKnown() && current.calls > 0 {
 			item.PromptTokens = current.prompt
@@ -575,7 +603,7 @@ func mergeCaseCosts(perRun []CaseCost) []MergedCost {
 	for _, id := range order {
 		items := groups[id]
 		out := MergedCost{ID: id, Scenario: items[0].Scenario, ProbeAxis: items[0].ProbeAxis, Runs: len(items)}
-		var wall, model, tool, steps, end, prompt, completion, maxPrompt []float64
+		var wall, model, tool, wait, steps, end, prompt, completion, maxPrompt []float64
 		sources := map[string]bool{}
 		for _, item := range items {
 			if item.Passed {
@@ -599,6 +627,9 @@ func mergeCaseCosts(perRun []CaseCost) []MergedCost {
 			if item.TimeSource == "recorded" || item.TimeSource == "steps" {
 				model = append(model, float64(item.ModelMS))
 				tool = append(tool, float64(item.ToolMS))
+				if item.WaitMS > 0 {
+					wait = append(wait, float64(item.WaitMS))
+				}
 			}
 			if item.TimeSource != "" {
 				wall = append(wall, float64(item.WallMS))
@@ -616,6 +647,7 @@ func mergeCaseCosts(perRun []CaseCost) []MergedCost {
 			}
 		}
 		out.WallMS, out.ModelMS, out.ToolMS = statOf(wall), statOf(model), statOf(tool)
+		out.WaitMS = statOf(wait)
 		out.Steps, out.EndOffsetMS = statOf(steps), statOf(end)
 		out.PromptTokens, out.CompletionTokens = statOf(prompt), statOf(completion)
 		out.MaxPromptTokens = statOf(maxPrompt)
@@ -657,7 +689,7 @@ func groupCosts(cases []MergedCost, key func(MergedCost) string) []GroupCost {
 	for _, name := range order {
 		items := groups[name]
 		group := GroupCost{Key: name, Cases: len(items)}
-		var wall, model, steps, completion, maxPrompt []float64
+		var wall, model, wait, steps, completion, maxPrompt []float64
 		passes, groupWall := 0, 0.0
 		for _, item := range items {
 			group.CaseRuns += item.Runs
@@ -672,6 +704,9 @@ func groupCosts(cases []MergedCost, key func(MergedCost) string) []GroupCost {
 			if item.ModelMS.N > 0 {
 				model = append(model, item.ModelMS.Mean)
 			}
+			if item.WaitMS.N > 0 {
+				wait = append(wait, item.WaitMS.Mean)
+			}
 			steps = append(steps, item.Steps.Mean)
 			if item.CompletionTokens.N > 0 {
 				completion = append(completion, item.CompletionTokens.Mean)
@@ -685,6 +720,7 @@ func groupCosts(cases []MergedCost, key func(MergedCost) string) []GroupCost {
 			group.WallShare = groupWall / totalWall
 		}
 		group.WallMS, group.ModelMS, group.Steps = statOf(wall), statOf(model), statOf(steps)
+		group.WaitMS = statOf(wait)
 		group.CompletionTokens, group.MaxPromptTokens = statOf(completion), statOf(maxPrompt)
 		out = append(out, group)
 	}
@@ -716,7 +752,8 @@ func RenderCostMarkdown(report CostReport) string {
 		b.WriteString("Cells with two numbers are mean / max over the runs that contain the case.\n\n")
 	}
 	b.WriteString("Wall is elapsed time on the case (includes waiting on the shared endpoint); " +
-		"model is the sum of model-call durations; gen tok is the whole case's generated tokens; " +
+		"model is the sum of model-call durations; wait is the part of it before each step's first token " +
+		"(queue, batching window, prefill); gen tok is the whole case's generated tokens; " +
 		"max ctx is the longest single step prompt. `—` means the artifacts carry no value.\n\n")
 	byID := map[string]MergedCost{}
 	for _, item := range report.Cases {
@@ -729,14 +766,14 @@ func RenderCostMarkdown(report CostReport) string {
 			b.WriteString("No case carries this metric.\n\n")
 			continue
 		}
-		b.WriteString("| # | case | pass | steps | wall s | model s | tool s | gen tok | max ctx | finish s | limits | scenario / axis |\n")
-		b.WriteString("|---:|---|:---:|---:|---:|---:|---:|---:|---:|---:|---|---|\n")
+		b.WriteString("| # | case | pass | steps | wall s | model s | wait s | tool s | gen tok | max ctx | finish s | limits | scenario / axis |\n")
+		b.WriteString("|---:|---|:---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|\n")
 		for rank, id := range ids {
 			item := byID[id]
-			fmt.Fprintf(&b, "| %d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			fmt.Fprintf(&b, "| %d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 				rank+1, item.ID, passCell(item), statCell(item.Steps, 1, false),
 				statCell(item.WallMS, 1000, true), statCell(item.ModelMS, 1000, true),
-				statCell(item.ToolMS, 1000, true), statCell(item.CompletionTokens, 1, false),
+				statCell(item.WaitMS, 1000, true), statCell(item.ToolMS, 1000, true), statCell(item.CompletionTokens, 1, false),
 				statCell(item.MaxPromptTokens, 1, false), statCell(item.EndOffsetMS, 1000, true),
 				limitsCell(item), axisCell(item))
 		}
@@ -748,12 +785,12 @@ func RenderCostMarkdown(report CostReport) string {
 			continue
 		}
 		fmt.Fprintf(&b, "## By %s\n\n", key)
-		b.WriteString("| " + key + " | cases | pass | wall s mean / max | wall share | model s | steps | gen tok mean / max | max ctx mean / max | max_tokens | max_steps | timeout |\n")
-		b.WriteString("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
+		b.WriteString("| " + key + " | cases | pass | wall s mean / max | wall share | model s | wait s | steps | gen tok mean / max | max ctx mean / max | max_tokens | max_steps | timeout |\n")
+		b.WriteString("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
 		for _, group := range groups {
-			fmt.Fprintf(&b, "| %s | %d | %.0f%% | %s | %.1f%% | %s | %s | %s | %s | %d | %d | %d |\n",
+			fmt.Fprintf(&b, "| %s | %d | %.0f%% | %s | %.1f%% | %s | %s | %s | %s | %s | %d | %d | %d |\n",
 				group.Key, group.Cases, group.PassRate*100, statPair(group.WallMS, 1000, true),
-				group.WallShare*100, meanCell(group.ModelMS, 1000, "%.1f"),
+				group.WallShare*100, meanCell(group.ModelMS, 1000, "%.1f"), meanCell(group.WaitMS, 1000, "%.1f"),
 				meanCell(group.Steps, 1, "%.1f"),
 				statPair(group.CompletionTokens, 1, false), statPair(group.MaxPromptTokens, 1, false),
 				group.MaxTokensHits, group.MaxStepsHits, group.TimeoutHits)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
@@ -82,6 +83,9 @@ type recordingGenerator struct {
 	// empty (rwkv_lightning reports none) with the local World vocabulary.
 	// Nil leaves them empty.
 	tokenCount func(string) int
+	// budgetHits counts calls that generated up to their token budget; see
+	// atTokenBudget.
+	budgetHits atomic.Int64
 }
 
 func (g *recordingGenerator) Continue(
@@ -92,6 +96,9 @@ func (g *recordingGenerator) Continue(
 	started := time.Now()
 	result, err := g.generator.Continue(ctx, request, sink)
 	result.Usage = countUsage(result.Usage, request.Prompt, result.Text+result.Stop, g.tokenCount)
+	if atTokenBudget(result.Usage.CompletionTokens, request.MaxOutputTokens) {
+		g.budgetHits.Add(1)
+	}
 	value := ModelCallTrace{
 		Stage:          requestStage(request),
 		Request:        requestSnapshot(request),

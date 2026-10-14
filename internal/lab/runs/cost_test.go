@@ -209,6 +209,40 @@ func TestCostReportRecomputesLegacyRunsAndRecountsFromTrace(t *testing.T) {
 	}
 }
 
+func TestCostReportFlagsBudgetRunsFromTheTraceAndSumsWait(t *testing.T) {
+	base := costRunStartMS
+	dir := writeCostRun(t,
+		map[string]any{"run_id": "rwkv", "started_at": costRunStart, "harness": map[string]any{"max_steps": 16}},
+		map[string]any{"run_id": "rwkv", "cases": []any{
+			map[string]any{"id": "runaway", "turns": []any{map[string]any{
+				"result": map[string]any{"started_at_ms": base, "steps": []any{map[string]any{
+					"model_started_at_ms": base, "model_first_token_at_ms": base + 700,
+					"model_duration_ms": 5000, "finish_reason": "stop",
+					"usage": map[string]any{"prompt_tokens": 0, "completion_tokens": 0},
+				}}},
+			}}},
+		}},
+		[]map[string]any{
+			{"case_id": "runaway", "kind": "model_call", "timestamp": costRunStart,
+				"model_call": map[string]any{
+					"request":  map[string]any{"prompt": "p", "max_output_tokens": 8},
+					"response": map[string]any{"text": "xxxxxxxx"},
+				}},
+		},
+	)
+	report, err := BuildCostReport(CostArgs{Runs: []string{dir}, counter: func(text string) int { return len(text) }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	runaway := report.PerRun[0]
+	if !runaway.HitMaxTokens || runaway.WaitMS != 700 {
+		t.Fatalf("runaway = %+v", runaway)
+	}
+	if markdown := RenderCostMarkdown(report); !strings.Contains(markdown, "max_tokens") {
+		t.Fatalf("budget run not shown:\n%s", markdown)
+	}
+}
+
 func TestCostCommandEmitsJSON(t *testing.T) {
 	run := map[string]any{"run_id": "r", "started_at": costRunStart}
 	dir := writeCostRun(t, run, map[string]any{"cases": []any{

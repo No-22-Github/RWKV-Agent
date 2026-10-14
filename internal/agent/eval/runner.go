@@ -437,6 +437,7 @@ func runCase(
 		turnNumber := index + 1
 		recorder.setContext(testCase.ID, turnNumber)
 		turnStarted := time.Now()
+		budgetHitsBefore := recording.budgetHits.Load()
 		runResult, runErr := runner.RunWithObserver(
 			caseContext,
 			turn.Prompt,
@@ -451,6 +452,7 @@ func runCase(
 			Outcome: classifyTurnOutcome(runResult),
 			Cost:    turnCost(runResult, runErr, options.MaxSteps, turnStarted, time.Now()),
 		}
+		turnResult.Cost.addBudgetHits(int(recording.budgetHits.Load() - budgetHitsBefore))
 		if errors.Is(context.Cause(caseContext), context.DeadlineExceeded) {
 			turnResult.Cost.HitTimeout = true
 			caseTimedOut = true

@@ -254,3 +254,40 @@ func TestRunRecordsCostAndLocalTokenCounts(t *testing.T) {
 		t.Fatalf("metrics prompt tokens = %d, trace %d", report.Summary.Metrics.PromptTokens, tracePrompt)
 	}
 }
+
+func TestBudgetHitsFlagAStopThatRanToTheBudget(t *testing.T) {
+	for _, tc := range []struct {
+		completion, budget int
+		want               bool
+	}{{4096, 4096, true}, {4020, 4096, true}, {3900, 4096, false}, {10, 0, false}} {
+		if got := atTokenBudget(tc.completion, tc.budget); got != tc.want {
+			t.Fatalf("atTokenBudget(%d, %d) = %v", tc.completion, tc.budget, got)
+		}
+	}
+	cost := &Cost{}
+	cost.addBudgetHits(0)
+	if cost.HitMaxTokens {
+		t.Fatal("no hits flagged max tokens")
+	}
+	cost.addBudgetHits(2)
+	if cost.LengthSteps != 2 || !cost.HitMaxTokens {
+		t.Fatalf("hits = %+v", cost)
+	}
+	counted := &Cost{LengthSteps: 1, HitMaxTokens: true}
+	counted.addBudgetHits(1)
+	if counted.LengthSteps != 1 {
+		t.Fatalf("a length finish was counted twice: %+v", counted)
+	}
+}
+
+func TestTurnCostSumsTimeToFirstToken(t *testing.T) {
+	result := agent.Result{Steps: []agent.Step{
+		{StartedAtMS: 1_000, FirstTokenAtMS: 1_400, ModelDurationMS: 900},
+		{StartedAtMS: 2_000, FirstTokenAtMS: 2_100, ModelDurationMS: 300},
+		{StartedAtMS: 3_000, ModelDurationMS: 50},
+	}}
+	started := time.UnixMilli(1_000)
+	if cost := turnCost(result, nil, 16, started, started); cost.WaitMS != 500 {
+		t.Fatalf("wait = %d", cost.WaitMS)
+	}
+}
