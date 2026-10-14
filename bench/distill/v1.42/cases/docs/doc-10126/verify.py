@@ -2,7 +2,7 @@
 import hashlib, json
 case = json.load(open("case.json"))
 _pin = hashlib.sha256(json.dumps(case["files"], ensure_ascii=False, sort_keys=True).encode()).hexdigest()
-assert _pin == '483937574632c79411e1ecbc414fdf76b41da8982d01d72da7535579d77cb06d', "fixture changed"
+assert _pin == '7f57121dc5cd8d92486ee79d9da62b4efa6b561ee1d6a74521804b670fe5d178', "fixture changed"
 import re
 
 

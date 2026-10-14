@@ -48,9 +48,6 @@
     {
       "prompt": "那后天去青海湖那边呢？还按西宁看。",
       "expect": {
-        "required_tools": [
-          "get_weather"
-        ],
         "max_output_chars": 700,
         "forbidden_tools": [
           "web_search",

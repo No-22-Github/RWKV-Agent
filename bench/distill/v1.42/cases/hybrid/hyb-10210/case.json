@@ -40,7 +40,7 @@
           "web_fetch"
         ],
         "output_contains": [
-          "Drizzle"
+          "rizzle"
         ]
       }
     }

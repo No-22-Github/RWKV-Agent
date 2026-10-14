@@ -48,9 +48,6 @@
     {
       "prompt": "What about tomorrow?",
       "expect": {
-        "required_tools": [
-          "get_weather"
-        ],
         "max_output_chars": 700,
         "forbidden_tools": [
           "web_search",

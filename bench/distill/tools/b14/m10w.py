@@ -84,9 +84,11 @@ def fact_verify(files, facts, extra=""):
 
 
 def wexpect(value, field, en, *, extra=None, forbid_web=True, required=("get_weather",)):
-    e = {"required_tools": list(required), "max_output_chars": 700}
+    e = {"required_tools": list(required), "max_output_chars": 700} if required else {"max_output_chars": 700}
     if forbid_web:
         e["forbidden_tools"] = list(NOWEB)
+    if en and field == "cond" and value[:1].isupper():
+        value = value[1:]  # output_contains is case-sensitive; "hunderstorms" matches Thunderstorms and thunderstorms mid-sentence
     e["output_contains"] = [value]
     if field in ("low", "high") and en:
         e["output_contains_token"] = True
@@ -96,14 +98,16 @@ def wexpect(value, field, en, *, extra=None, forbid_web=True, required=("get_wea
 
 
 def weather_case(cid, *, sub, fxs, turns, facts, desc, family, notes_traps, reply, alts, files=None, spec=None, traps=(), decoys=None,
-                 ref_calls=None, task_type="special_tool", axes=("OBS",), extra_verify=""):
+                 ref_calls=None, task_type="special_tool", axes=("OBS",), extra_verify="", reuse_later_turns=False):
     """turns: prompts; facts: per-turn (city, day index, field) the answer must contain."""
     files = files or {}
     tl = []
-    for p, (city, i, field) in zip(turns, facts):
+    for k, (p, (city, i, field)) in enumerate(zip(turns, facts)):
         fx = [f for f in fxs if f["location"] == city][0]
         en = fx["location"].isascii()
-        tl.append({"prompt": p, "expect": wexpect(day(fx, i)[field], field, en)})
+        # a later turn about the same city may answer from the earlier report when it already covers the day
+        required = () if reuse_later_turns and k else ("get_weather",)
+        tl.append({"prompt": p, "expect": wexpect(day(fx, i)[field], field, en, required=required)})
     ref = "\n".join("%s. get_weather {\"location\": \"%s\", \"days\": %d}%s" % (
         "Turn %d:" % (k + 1) if len(turns) > 1 else "1", c, max(3, i + 1), " -> %s" % day([f for f in fxs if f["location"] == c][0], i)[fd])
         for k, (c, i, fd) in enumerate(facts))
@@ -271,7 +275,8 @@ def _implicit(entry, seed):
         return weather_case(cid, sub="M10d", fxs=[fx], turns=prompts, facts=facts, files=files,
                             desc=("Two turns: " if len(prompts) > 1 else "") + ("Applies a local rule file to a forecast" if rule else "Implicit weather need: the decision rests on one forecast value"),
                             family="fam-hyb-b14-implicit-%s" % cid.split("-")[1], notes_traps=[trap], reply=reply.format(v=v), alts=alts, spec=spec,
-                            traps=traps, decoys={traps[0]: decoy}, axes=("DEC", "OBS"), ref_calls=len(prompts) + (1 if rule else 0))
+                            traps=traps, decoys={traps[0]: decoy}, axes=("DEC", "OBS"), ref_calls=len(prompts) + (1 if rule else 0),
+                            reuse_later_turns=len(prompts) > 1)
     build.__name__ = cid.replace("-", "_")
     return build
 
@@ -504,8 +509,10 @@ for _i, _e in enumerate(SWITCH):
 
 # ------------------------------------------------------------------ M10g place the fixture does not know (10267-10275)
 
-NOTFOUND = ["查不到", "没有查到", "未查到", "查询不到", "找不到", "没找到", "未找到", "无法获取", "获取不到", "无法查询", "没有这个地方", "没有收录",
-            "not found", "couldn't find", "could not find", "can't find", "cannot find", "unable to find", "no forecast", "not available", "isn't available"]
+NOTFOUND = ["查不到", "没有查到", "未查到", "没查到", "没能查到", "未能查到", "查询不到", "找不到", "没找到", "未找到", "无法获取", "获取不到", "无法查询",
+            "没有这个地方", "没有收录", "无法识别", "不识别",
+            "not found", "couldn't find", "could not find", "can't find", "cannot find", "unable to find", "no forecast", "not available", "isn't available",
+            "couldn't get", "could not get", "couldn't retrieve", "could not retrieve", "could not be resolved", "no match"]
 
 UNKNOWN = [
     # cid, missing, known (city, en, aliases) or None, prompts, known fact or None, en

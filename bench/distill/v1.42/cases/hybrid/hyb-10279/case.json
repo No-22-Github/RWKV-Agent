@@ -48,7 +48,7 @@
         ],
         "max_output_chars": 700,
         "output_contains": [
-          "Partly cloudy"
+          "artly cloudy"
         ],
         "output_contains_any": [
           "20:00",

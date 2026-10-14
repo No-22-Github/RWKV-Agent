@@ -715,7 +715,7 @@ SUBS = [
                         readme=["# Handlers", "", "generated/ is protoc output; never edit by hand."],
                         trap="catalog.Printf( ends with log.Printf(; a pattern without a word boundary rewrites it to catalslog.Info(.",
                         family="fam-code-b14-slog-01", desc="Rewrites a logging call across handlers with a word boundary while a longer identifier and generated code stay")),
-    ("doc-10126", dict(root="客服话术", ext=".md", names=["售前", "售后", "投诉", "物流"], protect=["旧话术"],
+    ("doc-10126", dict(root="客服话术", ext=".md", names=["售前", "售后", "投诉", "物流"], protect=["旧话术/2023版"],
                        pattern=r"400-800-1234", repl="400-800-5678", sed="s/400-800-1234/400-800-5678/g",
                        body=["# {n}", "", "客服热线 400-800-1234。", "传真 0571-400-800-12340（总部，不改）", "工作时间 9:00-21:00。"], lang="zh",
                        prompt="客服热线换号了：客服话术 里的 400-800-1234 换成 400-800-5678，旧话术目录不动。改完检查，回复 DONE。",

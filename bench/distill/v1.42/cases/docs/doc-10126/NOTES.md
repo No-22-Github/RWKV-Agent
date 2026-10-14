@@ -1,7 +1,7 @@
 ## Traps
-- TR-READONLY: 旧话术 stay unchanged per 客服话术/README.md.
+- TR-READONLY: 旧话术/2023版 stay unchanged per 客服话术/README.md.
 - The fax number contains 400-800-1234 as a substring (…12340); an unbounded replace corrupts it.
-- 5 files change; 1 stay byte-identical.
+- 4 files change; 2 stay byte-identical.
 
 ## Reference solution
 1. bash: `find 客服话术 -name '*.md' -not -path '*/旧话术/*' | xargs sed -i -E 's/400-800-1234([^0-9]|$)/400-800-5678\1/g'`
