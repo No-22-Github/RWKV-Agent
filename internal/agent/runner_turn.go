@@ -819,6 +819,12 @@ func (turn *runnerTurn) retryProtocolAction(
 			retryMessage.ToolCalls = []toolchat.ToolCall{*modelStep.nativeCall}
 		}
 		turn.appendAssistantReceipt(retryMessage)
+		if modelStep.nativeCall != nil {
+			// Chat Completions requires every assistant tool_call to be answered
+			// by a tool message before the next user turn; the rejected call
+			// gets an explicit not-executed result.
+			turn.appendAssistantReceipt(rejectedNativeCallResult(turn.r.protocol, *modelStep.nativeCall, err))
+		}
 	}
 	correction := turn.r.protocol.Correction(err)
 	if errors.Is(err, ErrStageViolation) {
@@ -896,4 +902,20 @@ func (turn *runnerTurn) retryRespondRoute(step int, modelAction string) error {
 
 func (turn *runnerTurn) currentStep() *Step {
 	return &turn.result.Steps[len(turn.result.Steps)-1]
+}
+
+// rejectedNativeCallResult is the tool message that answers a native
+// tool_call the runner rejected without executing it.
+func rejectedNativeCallResult(protocol ActionProtocol, call toolchat.ToolCall, err error) Message {
+	encoded, _ := json.Marshal(toolResult{
+		OK:    false,
+		Tool:  call.Name,
+		Error: "tool call rejected and not executed: " + err.Error(),
+	})
+	return Message{
+		Role:       RoleTool,
+		Name:       call.Name,
+		ToolCallID: call.ID,
+		Content:    protocol.FormatToolResult(call.Name, call.ID, string(encoded)),
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -203,7 +204,19 @@ func (r *Runner) nativeTracePrompt(
 
 func nativeMessages(messages []Message) []toolchat.Message {
 	result := make([]toolchat.Message, 0, len(messages))
+	// pending holds the assistant tool_calls not yet answered by a tool
+	// message, in call order.
+	var pending []toolchat.ToolCall
+	closePending := func() {
+		for _, call := range pending {
+			result = append(result, unansweredNativeCallResult(call))
+		}
+		pending = nil
+	}
 	for _, message := range messages {
+		if message.Role != RoleTool {
+			closePending()
+		}
 		converted := toolchat.Message{
 			Content:          message.Content,
 			ReasoningContent: message.ReasoningContent,
@@ -220,15 +233,36 @@ func nativeMessages(messages []Message) []toolchat.Message {
 			if len(converted.ToolCalls) > 0 {
 				converted.Content = ""
 			}
+			pending = append(pending, converted.ToolCalls...)
 		case RoleTool:
 			converted.Role = toolchat.RoleTool
 			converted.Content = unwrapToolResult(message.Content)
+			pending = slices.DeleteFunc(pending, func(call toolchat.ToolCall) bool {
+				return call.ID == message.ToolCallID
+			})
 		default:
 			continue
 		}
 		result = append(result, converted)
 	}
+	closePending()
 	return result
+}
+
+// unansweredNativeCallResult answers an assistant tool_call that reached the
+// native transcript without a tool message. Chat Completions rejects such a
+// history, so the call is closed as not executed instead of failing the run.
+func unansweredNativeCallResult(call toolchat.ToolCall) toolchat.Message {
+	encoded, _ := json.Marshal(toolResult{
+		OK:    false,
+		Tool:  call.Name,
+		Error: "tool call was not executed",
+	})
+	return toolchat.Message{
+		Role:       toolchat.RoleTool,
+		ToolCallID: call.ID,
+		Content:    string(encoded),
+	}
 }
 
 func unwrapToolResult(content string) string {
