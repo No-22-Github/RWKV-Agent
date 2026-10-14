@@ -97,7 +97,11 @@ func RunSegcheck(args SegcheckArgs) int {
 
 		for i, seg := range row.Segments {
 			if seg.Train {
-				if i == 0 || !strings.HasSuffix(row.Segments[i-1].Text, "Assistant:") {
+				// g1k-think (2.x) prompts withhold "<think" and the model's
+				// first token completes the tag, so a train segment may also
+				// follow "Assistant: <think" — exactly where inference stops.
+				if i == 0 || (!strings.HasSuffix(row.Segments[i-1].Text, "Assistant:") &&
+					!strings.HasSuffix(row.Segments[i-1].Text, "Assistant: <think")) {
 					prefixOK = false
 				}
 			}

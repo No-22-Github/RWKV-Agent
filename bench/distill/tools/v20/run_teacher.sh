@@ -23,11 +23,16 @@ echo "cases: $(find "$T/cases" -name case.json | wc -l)"
 for t in bench/workbank/cases bench/workbank/cases-shelved bench/holdout/p13 bench/distill/v1/cases-shelved \
          bench/bashprobe/cases bench/bashprobe/cases-b14 bench/bashprobe/reserve \
          bench/weatherprobe/cases bench/weatherprobe/cases-b14 bench/weatherprobe/reserve; do
-  printf '%s ' "$t" >> "$T/decontam.txt"
-  local/bin/rwkv-lab-v20 corpus decontam --test "$t" --candidates "$T/cases" 2>&1 | grep -E "files|names" | tr '\n' ' ' >> "$T/decontam.txt"
-  echo >> "$T/decontam.txt"
+  echo "== $t" >> "$T/decontam.txt"
+  local/bin/rwkv-lab-v20 corpus decontam --test "$t" --candidates "$T/cases" 2>&1 | grep -E "flagged|~" >> "$T/decontam.txt" || true
 done
 cat "$T/decontam.txt"
+# Anything flagged against any test bank is dropped before the teacher sees it
+# (1.x rule: when in doubt, the test bank wins).
+for id in $(grep "~" "$T/decontam.txt" | awk '{print $1}' | sort -u); do
+  rm -rf "$T"/cases/*/"$id"; echo "$id" >> "$T/decontam-dropped.txt"
+done
+echo "cases after decontam: $(find "$T/cases" -name case.json | wc -l)"
 source "$HOME/.llm_api_key.sh"
 for i in $(seq 0 $((k - 1))); do
   local/bin/rwkv-cli-chat-v20 agent-eval --completion chat-completions --api-url "$API_BASE" --model "$MODEL_NAME" \

@@ -2,7 +2,7 @@
 """Picks the v2.0 (b20s) cases out of the 1.x distill banks and copies them
 into bench/distill/v2.0/cases with a tool_policy.
 
-    python3 bench/distill/tools/v20/select.py [--n 600] [--report PATH]
+    python3 bench/distill/tools/v20/pick_cases.py [--n 600] [--report PATH]
 
 Pool: every case that has a passing teacher path in the v1.41 training pack
 (local/runs/distill/v141/final-20261013/{train,validation}-rows.jsonl), minus

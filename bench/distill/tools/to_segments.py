@@ -21,6 +21,7 @@ import argparse
 import json
 
 OPENING = "Assistant:"
+THINK_OPENING = "<think"
 
 
 def segments(text, spans):
@@ -31,6 +32,11 @@ def segments(text, spans):
             raise ValueError("loss spans must be ordered, non-empty and inside the text")
         if text[start - 1] == " " and text[: start - 1].endswith(OPENING):
             start -= 1
+        elif text[:start].endswith(OPENING + " " + THINK_OPENING):
+            # v2.0 g1k-think: the prompt withholds "<think" and the model's
+            # first token completes it (">..."), so the boundary stays where
+            # the inference prompt ends.
+            pass
         else:
             raise ValueError("loss span does not start after %r" % (OPENING + " "))
         if start > at:
