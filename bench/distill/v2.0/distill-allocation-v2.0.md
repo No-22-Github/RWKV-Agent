@@ -16,7 +16,7 @@
 | harness | — | `offered_tools_ordered` 让文本目录和原生 tools 数组都按列出顺序呈现（`agent.Options.PreserveToolOrder`）；加载时与建目录时都校验 `tool_policy` |
 | wire | `g1k`（不思考） | `g1k-think` = g1k + 真思考 + nudge=think（10-10 think-full 复测的 T 组，现注册为预设，可 `--strict-spec`），决策预算 4096 |
 | 训练行 | 一轮一行 | **一步一行**：真思考 wire 的历史只保留动作、剥掉思考，所以第 k 步的思考不会出现在第 k+1 步的提示里。每个监督步单独成行 = 该步看到的完整提示 + 该步输出（思考 + `</think>` + 动作），loss 只在这一步（`eval.BuildCorpusSteps`，rows 检测到 `thinking=full` 自动启用；行的 meta 多一个 `step`） |
-| 老师 | DeepSeek flash，带 suffix，自动思考 | DeepSeek flash，**无 suffix**，`--chat-thinking enabled`，work-v2 全目录随机子集 |
+| 老师 | DeepSeek flash，带 suffix，自动思考 | **Qwen3.7-Flash**（Command Code），**无 suffix**，常开思考，work-v2 随机目录（选型见 §8） |
 
 上下文与训练量：冒烟 16 题，单步提示中位 2903 / 最长 5453 token；按步切出的行中位 1405 / 最长 2498 token。代价是前缀在同一条轨迹的多行里重复：每条轨迹约 3900 训练 token，800 条轨迹一个 epoch 约 300 万 token。
 
@@ -56,9 +56,27 @@ work-v2 共 14 个工具。每题：45% 全目录、35% 删 1–4 个可选工�
 - 60 步里 45 步有思考；耗时 26 秒（并发 16）；每题提示合计约 1.1 万 token（每步重发历史，大部分是缓存前缀），生成约 700 token。
 - 过滤后 9/10 条保留（1 条思考里谈"system prompt"），按步渲染出 21 行，0 拒绝；训练行里的目录确实是打乱后的顺序。
 
-## 8. 待办
+## 8. 老师选型（2026-10-14，用户定 Qwen3.7-Flash）
 
-1. 全量老师：`run_teacher.sh` 每批 k=2，`render.sh` 抽每题 1 条路径 → 过滤 → 按步渲染。
+DeepSeek 后续步不思考是模型行为：中转站如实透传 `thinking`（关 0/3、开 3/3），缺思考的步推理 token 也是 0；强制思考下重放后续步仍约两成不想。`reasoning_effort=max` 能把覆盖率提到 90–98%，但思考长尾到上万字、大量复述老师原生系统提示，过滤后可用条数反而减半。
+
+同一批 40 题、无 suffix 横比（Command Code 通用 key，`TEACHER_ENV_FILE=~/.commandcode_key.sh`）：
+
+| 老师 | 单价 入/出（$/M） | 通过 | 带思考的步 | 思考 p50/p90 字符 | 过滤后可用 |
+|---|---|---:|---:|---|---:|
+| DeepSeek flash | ≈0.15/0.60 | 36 | 71% | 158/866 | 27 |
+| DeepSeek flash + max | 同上 | 32 | 98% | 352/3715 | 14 |
+| **Qwen3.7-Flash** | **0.03/0.13** | 34 | **100%** | 178/848 | 25 |
+| Qwen3.8-Flash | 0.16/0.47 | 33 | 100% | 161/966 | 21 |
+| GLM-5.3-Flash | 0.15/0.50 | 30 | 85% | 272/1220 | 22 |
+| MiMo-V2.5 | 0.14/0.28（折后） | 21 | 100% | 152/426 | 17（很少调工具） |
+| DeepSeek v4-pro | — | 34 | 88% | 230/882 | 29（只作对照，用户不混用 pro 的思维链） |
+
+选 Qwen3.7-Flash：全步有思考、最便宜、思考形状像基模（先复述需求、后续步先总结上一步结果）。约 25% 的思考是中文（中文题用中文想），暂保留。整批只用一个老师，不混链；DeepSeek flash 第 1 遍（`local/runs/distill/v20/pilot`）作废。跑法：`run_teacher.sh qwen '*' 1` 后 `retry_failed.sh qwen`（只重跑失败题一次，代替全量 k=2），并发 6（套餐制，文档只写 5 小时/每周额度上限）。
+
+## 9. 待办
+
+1. 全量老师（进行中）：Qwen3.7-Flash，见 §8；`render.sh qwen` 抽每题 1 条路径 → 过滤 → 按步渲染。
 2. 收尾打包（待写 `finalize_v20.py`）：终答步的行在末尾加 `\n\nUser:` 并纳入 loss（1.x 终答无 EOS 的教训）；按题族哈希切验证集；`corpus pack`。
 3. 目标：Agent 约 600 条轨迹 + 日常问答 100–200 条；MiSS 微调后对照"基模 + 真思考"（workbank 11.3/148），看 workbank、bfcl、bashprobe/weatherprobe。有效再扩量。
 4. 已知不足：老师原生模式的系统提示与学生的 g1k-think 文本不完全相同（原生模式有自己的工具说明段），过滤器的 reasoning_meta 规则兜底；一部分步 API 不返回 reasoning。
