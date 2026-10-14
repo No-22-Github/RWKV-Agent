@@ -1,6 +1,9 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import ToolActivity from './ToolActivity'
+import AnimatedToolIcon, { animatedToolIcon } from './AnimatedToolIcon'
+import { SearchIcon } from './icons/animated/search'
+import { FileFetchIcon } from './icons/animated/file-fetch'
 
 afterEach(cleanup)
 
@@ -44,4 +47,36 @@ describe('tool row icons', () => {
     expect(screen.queryByLabelText('Agent 运行中')).toBeNull()
     expect(document.querySelector('[aria-label="Agent 已完成"]')).not.toBeNull()
   })
+})
+
+const toolNames = ['list_files', 'read_file', 'read_lines', 'search_text', 'write_file', 'append_file', 'replace_lines', 'web_search', 'web_fetch', 'spawn_agents', 'calculator', 'data_query', 'get_weather', 'bash', 'datetime', 'load_tools', 'custom_tool']
+
+it.each(toolNames)('supports running and settled icons for %s', (tool) => {
+  const { container, rerender } = render(<AnimatedToolIcon tool={tool} running />)
+  expect(container.querySelector('[data-running="true"] svg')).not.toBeNull()
+  rerender(<AnimatedToolIcon tool={tool} running={false} />)
+  expect(container.querySelector('[data-running="true"]')).toBeNull()
+  expect(container.querySelector('svg')).not.toBeNull()
+})
+
+it('shows animated icons for running tools inside a subagent and settles them when the agent ends', () => {
+  const calls = [{ id: 'a', tool: 'spawn_agents', status: 'running' as const, subagents: [{
+    index: 1, task: 'inspect files', status: 'running' as const, steps: [
+      { step: 1, tool: 'read_file', status: 'completed' as const },
+      { step: 2, tool: 'bash', status: 'running' as const },
+    ],
+  }] }]
+  const { container, rerender } = render(<ToolActivity running calls={calls} />)
+  fireEvent.click(screen.getByRole('button', { expanded: false }))
+  fireEvent.click(screen.getByRole('button', { expanded: false }))
+  const command = screen.getByText('bash').closest('span')!
+  expect(command.querySelector('[data-running="true"]')).not.toBeNull()
+  expect(screen.getByText('read_file').closest('span')!.querySelector('[data-running="true"]')).toBeNull()
+  rerender(<ToolActivity calls={[{ ...calls[0], status: 'completed', subagents: [{ ...calls[0].subagents[0], status: 'completed' }] }]} />)
+  expect(container.querySelector('[data-running="true"]')).toBeNull()
+})
+
+it('distinguishes web search from fetching a page', () => {
+  expect(animatedToolIcon('web_search')).toBe(SearchIcon)
+  expect(animatedToolIcon('web_fetch')).toBe(FileFetchIcon)
 })

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronDown, Folder, Globe, Layers, Loader2, Network } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { Check, ChevronDown, Folder, Globe, Layers, Loader2, Network, Search } from 'lucide-react'
 import { ModelState, Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { StateEntry } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
@@ -77,6 +78,9 @@ function StateChip({ config, current, busy, onSelect, onManage }: { config: Conf
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [states, setStates] = useState<StateEntry[] | null>(null)
+  const [query, setQuery] = useState('')
+  const [placement, setPlacement] = useState({ left: 16, bottom: 0, width: 300, maxHeight: 440 })
+  const menuRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState('')
   const [applying, setApplying] = useState('')
   const ref = useRef<HTMLDivElement>(null)
@@ -92,13 +96,28 @@ function StateChip({ config, current, busy, onSelect, onManage }: { config: Conf
   useEffect(() => {
     if (!open) return
     let alive = true
+    setQuery('')
+    function positionMenu() {
+      const rect = ref.current?.getBoundingClientRect()
+      if (!rect) return
+      const width = Math.min(300, window.innerWidth - 32)
+      setPlacement({
+        left: Math.max(16, Math.min(rect.left, window.innerWidth - width - 16)),
+        bottom: window.innerHeight - rect.top + 8,
+        width,
+        maxHeight: Math.max(0, Math.min(440, rect.top - 24)),
+      })
+    }
+    positionMenu()
+    window.addEventListener('resize', positionMenu)
+    window.addEventListener('scroll', positionMenu, true)
     setError('')
     Backend.ListStates(config).then((value) => { if (alive) setStates(value.states || []) }).catch((reason: unknown) => { if (alive) setError(reason instanceof Error ? reason.message : String(reason)) })
-    function onPointerDown(event: MouseEvent) { if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false) }
+    function onPointerDown(event: MouseEvent) { if (ref.current && !ref.current.contains(event.target as Node) && !menuRef.current?.contains(event.target as Node)) setOpen(false) }
     function onKeyDown(event: KeyboardEvent) { if (event.key === 'Escape') setOpen(false) }
     document.addEventListener('mousedown', onPointerDown)
     window.addEventListener('keydown', onKeyDown)
-    return () => { alive = false; document.removeEventListener('mousedown', onPointerDown); window.removeEventListener('keydown', onKeyDown) }
+    return () => { alive = false; window.removeEventListener('resize', positionMenu); window.removeEventListener('scroll', positionMenu, true); document.removeEventListener('mousedown', onPointerDown); window.removeEventListener('keydown', onKeyDown) }
     // 每次打开重新拉一次：State 存在部署的临时目录，重启就没了。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -109,21 +128,31 @@ function StateChip({ config, current, busy, onSelect, onManage }: { config: Conf
     try { await onSelect(stateId); setOpen(false) } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)) } finally { setApplying('') }
   }
 
+  const search = query.trim().toLocaleLowerCase()
+  const filteredStates = states?.filter((entry) => `${entry.filename || ''} ${entry.id}`.toLocaleLowerCase().includes(search))
+
   return <div ref={ref} className="relative min-w-0">
     <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `State：${current}` : '未使用 State'} className={`${chipClass} max-w-[220px]`}>
       <Layers size={13} className="flex-none" />
       <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current || '无 State'}</span>
       <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
     </button>
-    {mounted && <div inert={!open} role="listbox" aria-label="选择 State" className={`absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[300px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash py-[4px] shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
+    {mounted && createPortal(<div ref={menuRef} inert={!open} style={placement} className={`fixed z-[60] flex origin-bottom-left flex-col overflow-hidden rounded-xl border border-line bg-paper-wash py-[4px] shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
       <div className="px-[12px] pb-[4px] pt-[6px] text-2xs text-ink-muted">State · 对之后的消息生效</div>
+      <div role="listbox" aria-label="选择 State" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <StateOption label="不使用 State" plain selected={!current} pending={applying === 'none'} onClick={() => void choose('')} />
       {states === null && !error && <div className="flex items-center gap-2 px-[12px] py-[8px] text-xs text-ink-muted"><Loader2 size={12} className="animate-spin-fast motion-reduce:animate-none" />正在读取部署上的 State…</div>}
-      {states?.map((entry) => <StateOption key={entry.id} label={entry.filename && entry.filename !== entry.id ? entry.filename : entry.id} hint={entry.filename && entry.filename !== entry.id ? entry.id : undefined} selected={entry.id === current} pending={applying === entry.id} onClick={() => void choose(entry.id)} />)}
+      {filteredStates?.map((entry) => <StateOption key={entry.id} label={entry.filename && entry.filename !== entry.id ? entry.filename : entry.id} hint={entry.filename && entry.filename !== entry.id ? entry.id : undefined} selected={entry.id === current} pending={applying === entry.id} onClick={() => void choose(entry.id)} />)}
       {states?.length === 0 && <div className="px-[12px] py-[8px] text-xs text-ink-muted">部署上还没有 State</div>}
+      {Boolean(states?.length) && filteredStates?.length === 0 && <div className="px-[12px] py-[8px] text-xs text-ink-muted">没有匹配的 State</div>}
       {error && <div className="px-[12px] py-[8px] text-xs text-danger">{error}</div>}
-      <button type="button" onClick={() => { setOpen(false); onManage() }} className="mt-[4px] border-0 border-t border-line bg-transparent px-[12px] pb-[6px] pt-[9px] text-left text-xs text-ink-soft hover:text-ink">上传或管理 State…</button>
-    </div>}
+      </div>
+      <label className="mx-[8px] mt-[6px] flex shrink-0 items-center gap-[6px] rounded-lg border border-line px-[8px] py-[6px]">
+        <Search size={13} className="flex-none text-ink-muted" />
+        <input autoFocus aria-label="搜索 State" placeholder="搜索名称或 State ID…" value={query} onChange={(event) => setQuery(event.target.value)} className="min-w-0 flex-1 border-0 bg-transparent text-xs text-ink outline-none" />
+      </label>
+      <button type="button" onClick={() => { setOpen(false); onManage() }} className="mt-[4px] shrink-0 border-0 border-t border-line bg-transparent px-[12px] pb-[6px] pt-[9px] text-left text-xs text-ink-soft hover:text-ink">上传或管理 State…</button>
+    </div>, document.body)}
   </div>
 }
 

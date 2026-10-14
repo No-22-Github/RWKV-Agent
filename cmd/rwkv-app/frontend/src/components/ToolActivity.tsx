@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChevronRight, Loader2, X } from 'lucide-react'
+import { ChevronRight, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import AnimatedToolIcon from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
@@ -236,11 +236,11 @@ function SubagentDetail({ agent }: { agent: SubagentTrace }) {
     <div className="flex items-center gap-2 text-xs">
       <span className="font-mono text-2xs text-ink-muted">Agent {agent.index}</span>
       <span className="min-w-0 flex-1 truncate text-ink">{agent.task}</span>
-      {agent.status === 'running' ? <Loader2 size={12} className="animate-spin-fast motion-reduce:animate-none text-ink-muted" /> : agent.status === 'failed' ? <X size={12} className="text-danger" /> : null}
+      {agent.status === 'running' ? <AnimatedToolIcon tool="spawn_agents" running size={12} className="text-ink-muted" /> : agent.status === 'failed' ? <X size={12} className="text-danger" /> : null}
       {agent.durationMs != null && <span className="font-mono text-2xs text-ink-ghost">{formatDuration(agent.durationMs)}</span>}
     </div>
     {agent.steps?.length ? <div className="mt-[6px] flex flex-wrap gap-x-3 gap-y-1 font-mono text-2xs text-ink-muted">
-      {agent.steps.map((step, index) => <span key={`${step.step}-${index}`} className={step.status === 'failed' ? 'text-danger' : ''}>{step.tool}</span>)}
+      {agent.steps.map((step, index) => <span key={`${step.step}-${index}`} className={`inline-flex items-center gap-1 ${step.status === 'failed' ? 'text-danger' : ''}`}><AnimatedToolIcon tool={step.tool} running={agent.status === 'running' && step.status === 'running'} size={12} />{step.tool}</span>)}
     </div> : null}
     {(agent.error || agent.output) && <div className={`mt-[6px] text-xs leading-[1.6] ${agent.error ? 'text-danger' : 'text-ink-soft'}`}>{agent.error || agent.output}</div>}
   </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ForwardRefExoticComponent, type HTMLAttributes, type RefAttributes } from 'react'
 import { CloudSunIcon } from './icons/animated/cloud-sun'
+import { FileFetchIcon } from './icons/animated/file-fetch'
 import { EarthIcon } from './icons/animated/earth'
 import { FilePenLineIcon } from './icons/animated/file-pen-line'
 import { FileTextIcon } from './icons/animated/file-text'
@@ -7,6 +8,7 @@ import { FolderTreeIcon } from './icons/animated/folder-tree'
 import { SearchIcon } from './icons/animated/search'
 import { TerminalIcon } from './icons/animated/terminal'
 import { UsersIcon } from './icons/animated/users'
+import { CalculatorIcon, ClockIcon, DatabaseIcon, PackageOpenIcon } from './icons/animated/compute'
 import { WrenchIcon } from './icons/animated/wrench'
 
 type IconHandle = { startAnimation: () => void; stopAnimation: () => void }
@@ -20,9 +22,14 @@ const REPLAY_MS = 2000
 export function animatedToolIcon(tool: string): AnimatedIcon {
   const name = tool.toLowerCase()
   if (name === 'spawn_agents') return UsersIcon
+  if (name === 'load_tools') return PackageOpenIcon
+  if (/calculator|calculate/.test(name)) return CalculatorIcon
+  if (/(?:^|_)(?:datetime|time|date)(?:_|$)/.test(name)) return ClockIcon
+  if (/data_query|json_query|database|sql/.test(name)) return DatabaseIcon
   if (/weather|forecast/.test(name)) return CloudSunIcon
-  if (/web|fetch|url|browse/.test(name)) return EarthIcon
   if (/search|grep|find/.test(name)) return SearchIcon
+  if (/fetch/.test(name)) return FileFetchIcon
+  if (/web|url|browse/.test(name)) return EarthIcon
   if (/list|tree|dir/.test(name)) return FolderTreeIcon
   if (/write|edit|create|patch|replace|append/.test(name)) return FilePenLineIcon
   if (/read|open|cat|view/.test(name)) return FileTextIcon
