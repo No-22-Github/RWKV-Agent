@@ -25,6 +25,15 @@ bench/distill/tools/v20/run_teacher.sh qwen '*' 1                # 老师一遍
 bench/distill/tools/v20/retry_failed.sh qwen                     # 失败题重跑一次
 bench/distill/tools/v20/render.sh qwen                           # 路径 → 过滤 → 按步渲染
 python3 bench/distill/tools/v20/finalize.py --batch qwen --out local/runs/distill/v20/final-<日期>
+
+# 部分题修好后单独重跑（如 calculator 的 precision 修复 f3d46b45）：新批次只跑这些题，
+# 原批次渲染时用第二个参数把它们标成 superseded，finalize 时两批一起打包
+bench/distill/tools/v20/run_teacher.sh qwen-calc '*' 1 local/runs/distill/v20/calc-ids.txt
+bench/distill/tools/v20/render.sh qwen local/runs/distill/v20/calc-ids.txt
+bench/distill/tools/v20/render.sh qwen-calc
+python3 bench/distill/tools/v20/finalize.py --batch qwen --batch qwen-calc --out local/runs/distill/v20/final-<日期>
 ```
+
+`filter.py` 会把工具调用里写成字符串的整数/布尔参数（千问的 `"max_results":"10"`、`"case_sensitive":"False"`）按 work-v2 的类型声明改回 JSON 字面量；这是唯一的改写，其余检查只丢不改。
 
 产物都在 `local/runs/distill/v20/<批次>/`，不入库。

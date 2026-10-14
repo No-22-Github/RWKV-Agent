@@ -6,7 +6,18 @@
 
 The teacher ran without the 1.x suffix, so its known habits come back: long
 Markdown answers, answering in the wrong language, very long deliberation. A
-path is kept only when every check passes; nothing is patched. Checks:
+path is kept only when every check passes; nothing is patched except one normalization:
+
+  scalar_args        Qwen spells every integer and boolean argument as a
+                     string ("max_results":"10", "case_sensitive":"False").
+                     The harness coerces them, so the paths passed, but the
+                     student would learn quoted scalars. Fields the work-v2
+                     schemas declare integer/boolean are rewritten to JSON
+                     literals inside the tool call text (top-level arguments
+                     of the named tool only; anything that does not parse
+                     exactly stays as it is and is counted).
+
+Checks:
 
   final_too_long     agent cases: a final answer > 600 chars
                      daily-QA (b20d): > 2500 chars
@@ -25,6 +36,8 @@ path is kept only when every check passes; nothing is patched. Checks:
                      "the example says", "test case", "verify") — the student
                      must not learn to recite rules it is never shown
   leaked_markup      a final answer carries <think>, </think> or <tool_call>
+  reasoning_markup   a step's reasoning carries tool or think markup
+                     (<tool_call>, <tool_code>, </function_code>, </think>...)
 Steps without reasoning are counted (render replays them as an empty think
 block) but do not drop the path.
 """
@@ -42,6 +55,39 @@ META = re.compile(
     r"|my (rules|instructions)|the rules? (say|says|require)|according to the (rules|instructions)"
     r"|the example (says|shows)|\btest case\b|\bverify\.py\b|\bthe grader\b|\bevaluat(or|ion) (expects|checks)",
     re.I)
+
+
+# work-v2 schema: tool -> {argument: "int" | "bool"}
+SCALAR_ARGS = {
+    "list_files": {"max_depth": "int", "max_results": "int"},
+    "search_text": {"max_results": "int", "case_sensitive": "bool"},
+    "web_search": {"max_results": "int"},
+    "get_weather": {"days": "int"},
+    "calculator": {"precision": "int"},
+    "read_lines": {"start_line": "int", "end_line": "int"},
+    "replace_lines": {"start_line": "int", "end_line": "int"},
+}
+CALL_NAME = re.compile(r'^\s*<tool_call>\{"name":"(\w+)"')
+REASONING_MARKUP = re.compile(r"</?(think|tool_call|tool_code|tool_response|function_code|function_call)>")
+
+
+def normalize_scalars(text, counts):
+    """Rewrite string-spelled integer/boolean arguments to JSON literals."""
+    m = CALL_NAME.match(text)
+    fields = SCALAR_ARGS.get(m.group(1), {}) if m else {}
+    for field, kind in fields.items():
+        def literal(v):
+            if kind == "int" and re.fullmatch(r"-?\d+", v.strip()):
+                counts["scalar_args_fixed"] += 1
+                return '"%s":%d' % (field, int(v.strip()))
+            if kind == "bool" and v.strip().lower() in ("true", "false"):
+                counts["scalar_args_fixed"] += 1
+                return '"%s":%s' % (field, v.strip().lower())
+            counts["scalar_args_left"] += 1
+            return None
+        text = re.sub(r'"%s":"([^"\\]*)"' % field,
+                      lambda mm: literal(mm.group(1)) or mm.group(0), text)
+    return text
 
 
 def is_call(text):
@@ -77,6 +123,8 @@ def check(entry, case):
             reasons.append("reasoning_too_long")
         if META.search(reasoning):
             reasons.append("reasoning_meta")
+        if REASONING_MARKUP.search(reasoning):
+            reasons.append("reasoning_markup")
         text = out["text"]
         if is_call(text):
             continue
@@ -102,14 +150,17 @@ def main():
     ap.add_argument("--cases", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", required=True)
+    ap.add_argument("--exclude-ids", help="file of case ids rerun in another batch; their paths here are dropped as superseded")
     args = ap.parse_args()
+    excluded = {l.strip() for l in open(args.exclude_ids) if l.strip()} if args.exclude_ids else set()
     cases = load_cases(args.cases)
     kept, drops, empty_steps, steps = [], collections.Counter(), 0, 0
+    scalars = collections.Counter()
     per_case = []
     for line in open(args.script, encoding="utf-8"):
         entry = json.loads(line)
         base = re.sub(r"--p\d+$", "", entry["case_id"])
-        reasons = check(entry, cases[base])
+        reasons = ["superseded"] if base in excluded else check(entry, cases[base])
         for out in entry["outputs"]:
             if out.get("supervised", True):
                 steps += 1
@@ -118,11 +169,13 @@ def main():
         if reasons:
             drops.update(reasons)
         else:
-            kept.append(line)
+            for out in entry["outputs"]:
+                out["text"] = normalize_scalars(out["text"], scalars)
+            kept.append(json.dumps(entry, ensure_ascii=False) + "\n")
     with open(args.out, "x", encoding="utf-8") as f:
         f.writelines(kept)
     report = {"paths": len(per_case), "kept": len(kept), "drop_reasons": dict(drops.most_common()),
-              "steps": steps, "steps_without_reasoning": empty_steps, "cases": per_case}
+              "steps": steps, "steps_without_reasoning": empty_steps, **scalars, "cases": per_case}
     with open(args.report, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=1)
         f.write("\n")
