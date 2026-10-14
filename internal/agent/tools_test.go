@@ -322,6 +322,31 @@ func TestDecodeToolArgumentsCoercesNumericStrings(t *testing.T) {
 	}
 }
 
+// TestDecodeToolArgumentsCoercesOptionalNumericStrings locks the v2.0 teacher
+// finding: Qwen sends calculator's precision as "1", and precision is *int so
+// it can be null; the pointer field must coerce like a plain int.
+func TestDecodeToolArgumentsCoercesOptionalNumericStrings(t *testing.T) {
+	var args struct {
+		Expression string `json:"expression"`
+		Precision  *int   `json:"precision"`
+	}
+	raw := json.RawMessage(`{"expression":"1/3","precision":"1"}`)
+	if err := DecodeToolArguments(raw, &args); err != nil {
+		t.Fatalf("coercing decode failed: %v", err)
+	}
+	if args.Precision == nil || *args.Precision != 1 {
+		t.Fatalf("coerced precision wrong: %+v", args.Precision)
+	}
+	raw = json.RawMessage(`{"expression":"1/3","precision":null}`)
+	if err := DecodeToolArguments(raw, &args); err != nil || args.Precision != nil {
+		t.Fatalf("null precision: err=%v precision=%v", err, args.Precision)
+	}
+	raw = json.RawMessage(`{"expression":"1/3","precision":"two"}`)
+	if err := DecodeToolArguments(raw, &args); err == nil {
+		t.Fatal("non-numeric string must stay rejected for an optional integer field")
+	}
+}
+
 // TestDecodeToolArgumentsCoercesBoolStrings locks the g1j finding: the model
 // spells search_text's case_sensitive as "true", and rejecting that spelling
 // turned one bad call into a duplicate-blocked dead end with no evidence.

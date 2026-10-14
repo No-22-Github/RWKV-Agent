@@ -726,10 +726,16 @@ func coerceScalarArgumentStrings(raw json.RawMessage, target any) (json.RawMessa
 		if jsonName == "" {
 			jsonName = field.Name
 		}
+		// Optional fields are pointers (calculator's precision is *int so it
+		// can be null); judge them by the pointed-to kind.
+		kind := field.Type.Kind()
+		if kind == reflect.Pointer {
+			kind = field.Type.Elem().Kind()
+		}
 		switch {
-		case numericKinds[field.Type.Kind()]:
+		case numericKinds[kind]:
 			numericFields[jsonName] = field
-		case field.Type.Kind() == reflect.Bool:
+		case kind == reflect.Bool:
 			boolFields[jsonName] = struct{}{}
 		}
 	}
