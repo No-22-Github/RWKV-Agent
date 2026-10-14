@@ -143,7 +143,11 @@ func TestClientBatchBufferedTransportDeliversPerChoiceResults(t *testing.T) {
 	if len(received.Contents) != count {
 		t.Fatalf("contents = %v", received.Contents)
 	}
-	wantUsage := continuation.Usage{PromptTokens: 7, CompletionTokens: 3}
+	wantUsage := continuation.Usage{
+		PromptTokens: 7, CompletionTokens: 3,
+		PromptSource:     continuation.UsageSourceServer,
+		CompletionSource: continuation.UsageSourceServer,
+	}
 	for prompt, result := range results {
 		if result.err != nil {
 			t.Fatalf("call %q failed: %v", prompt, result.err)

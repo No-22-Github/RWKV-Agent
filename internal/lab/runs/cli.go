@@ -20,6 +20,7 @@ usage: rwkv-lab run <command> [flags]
   compare    compare two runs or two ledger configs case by case
   ledger     append-only scoring ledger: ingest | matrix
   replicate  summarize an explicit set of comparable repeated runs
+  cost       per-case time and token cost: slowest, most tokens, largest context
 `
 
 // Run dispatches a run subcommand.
@@ -43,6 +44,8 @@ func Run(args []string) int {
 		return runLedgerCmd(args[1:])
 	case "replicate":
 		return runReplicateCmd(args[1:])
+	case "cost":
+		return runCostCmd(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0
@@ -226,4 +229,24 @@ func runReplicateCmd(argv []string) int {
 		return 2
 	}
 	return RunReplicate(args)
+}
+
+func runCostCmd(argv []string) int {
+	args := CostArgs{Top: 15}
+	fs := lab.NewFlagSet("run cost",
+		"Per-case time and token cost of one or more runs (same case across runs: mean and max).")
+	fs.IntVar(&args.Top, "top", 15, "cases per ranking")
+	fs.BoolVar(&args.JSON, "json", false, "emit the report as JSON")
+	fs.BoolVar(&args.Recount, "recount", false,
+		"count tokens missing from the summary by encoding trace.jsonl with the local World vocabulary")
+	fs.StringVar(&args.Vocab, "vocab", "", "World vocabulary for --recount (default: the bundled third_party copy)")
+	if err := ParseInterspersed(fs, argv, map[string]bool{"json": true, "recount": true}); err != nil {
+		return 2
+	}
+	args.Runs = fs.Args()
+	if len(args.Runs) == 0 {
+		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab run cost RUN... [--top N] [--json] [--recount]")
+		return 2
+	}
+	return RunCost(args)
 }

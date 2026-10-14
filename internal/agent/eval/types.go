@@ -387,6 +387,9 @@ type TurnResult struct {
 	RunnerError string       `json:"runner_error,omitempty"`
 	Failures    []string     `json:"failures,omitempty"`
 	Passed      bool         `json:"passed"`
+	// Cost is the turn's time and token spend; absent in artifacts written
+	// before it was recorded.
+	Cost *Cost `json:"cost,omitempty"`
 }
 
 type CaseResult struct {
@@ -417,6 +420,9 @@ type CaseResult struct {
 	RescueSubmits    int `json:"rescue_submits,omitempty"`
 	ForcedAnswers    int `json:"forced_answers,omitempty"`
 	ProtocolRepairs  int `json:"protocol_repairs,omitempty"`
+	// Cost adds up the turn costs and brackets the whole case on the wall
+	// clock; absent in artifacts written before it was recorded.
+	Cost *Cost `json:"cost,omitempty"`
 }
 
 type Summary struct {
@@ -444,8 +450,10 @@ type RequestSnapshot struct {
 }
 
 type UsageSnapshot struct {
-	PromptTokens     int `json:"prompt_tokens"`
-	CompletionTokens int `json:"completion_tokens"`
+	PromptTokens     int    `json:"prompt_tokens"`
+	CompletionTokens int    `json:"completion_tokens"`
+	PromptSource     string `json:"prompt_source,omitempty"`
+	CompletionSource string `json:"completion_source,omitempty"`
 }
 
 type ResponseSnapshot struct {

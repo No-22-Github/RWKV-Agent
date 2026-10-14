@@ -134,3 +134,29 @@ func TestThinkStopRespectsBudgetAndResumeCap(t *testing.T) {
 		t.Fatalf("calls = %d, want %d", len(generator.requests), maxThinkStopResumes+1)
 	}
 }
+
+// A count the harness derived (stream chunks, local vocabulary) must not move
+// the resume budget: only a backend report replaces the byte estimate.
+func TestSpentTokensTrustsOnlyReportedCounts(t *testing.T) {
+	text := "abcdefghi"
+	estimate := len(text)/3 + 1
+	for _, source := range []string{
+		continuation.UsageSourceServerStream,
+		continuation.UsageSourceLocalVocab,
+	} {
+		result := continuation.Result{Text: text, Usage: continuation.Usage{
+			CompletionTokens: 9, CompletionSource: source,
+		}}
+		if got := spentTokens(result); got != estimate {
+			t.Fatalf("%s: spent = %d, want estimate %d", source, got, estimate)
+		}
+	}
+	for _, source := range []string{"", continuation.UsageSourceServer} {
+		result := continuation.Result{Text: text, Usage: continuation.Usage{
+			CompletionTokens: 9, CompletionSource: source,
+		}}
+		if got := spentTokens(result); got != 9 {
+			t.Fatalf("%q: spent = %d, want the reported 9", source, got)
+		}
+	}
+}

@@ -122,6 +122,16 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
   （protocol / closeout / toolchoice / format / capability）——只有落到 capability 层的失败才算"模型不会"。
 - 差距小于同配置 k 次极差的，结论写"无法区分"，不写"更好"。
 - 预注册：选择型实验（采样档、格式候选）在跑前把"主指标 + 决胜规则 + 平局处理"写进该轮 PLAN.md。
+- 耗时与 token：`rwkv-lab run cost <run_dir...> [--top N] [--json] [--recount]` 按墙钟耗时、整题累计生成 token、
+  最大上下文、收尾时间各列 top N，并按 scenario / probe_axis 汇总；多个 run 同题取均值与最大值。
+  - 字段来源：`summary.json` 的 `cases[].cost` 与 `turns[].cost`（墙钟 `wall_ms`、模型合计 `model_ms`、工具合计 `tool_ms`、
+    `steps`、`prompt_tokens`、`completion_tokens`、`max_prompt_tokens`、`token_source`、`hit_max_tokens` / `hit_max_steps` / `hit_timeout`）；
+    每步 `usage` 带 `prompt_source` / `completion_source`。
+  - RWKV（rwkv_lightning）端点不回 usage：completion 取流式 delta 数（chunk_size=1，一块一个 token，`server_stream`），
+    prompt 用本地 World 词表计数（`local_vocab`，需要 `third_party/rwkv-mobile` 子模块）。
+    预算逻辑只信端点自报的数，补上的计数不改变生成。
+  - 旧产物没有 `cost`：从步骤时间戳回算耗时，token 显示为 `—`；加 `--recount` 用本地词表从 `trace.jsonl` 回算（含路由调用，
+    不含被客户端截掉的停止串，`token_source = local_vocab_trace`）。
 
 ## 8. 目录与落库
 

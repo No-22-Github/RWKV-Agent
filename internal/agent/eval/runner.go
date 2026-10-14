@@ -368,6 +368,13 @@ func runCase(
 	testCase Case,
 	recorder *traceRecorder,
 ) (result CaseResult) {
+	caseStarted := time.Now()
+	caseTimedOut := false
+	defer func() {
+		if len(result.Turns) > 0 {
+			result.Cost = caseCost(result.Turns, caseStarted, time.Now(), caseTimedOut)
+		}
+	}()
 	result = CaseResult{
 		ID:          testCase.ID,
 		Description: testCase.Description,
@@ -401,7 +408,11 @@ func runCase(
 			}
 		}()
 	}
-	recording := &recordingGenerator{generator: generator, recorder: recorder}
+	recording := &recordingGenerator{
+		generator:  generator,
+		recorder:   recorder,
+		tokenCount: config.TokenCount,
+	}
 	options, err := resolveCaseOptions(config, testCase)
 	if err != nil {
 		result.Error = fmt.Sprintf("resolve case options: %v", err)
@@ -425,6 +436,7 @@ func runCase(
 	for index, turn := range testCase.Turns {
 		turnNumber := index + 1
 		recorder.setContext(testCase.ID, turnNumber)
+		turnStarted := time.Now()
 		runResult, runErr := runner.RunWithObserver(
 			caseContext,
 			turn.Prompt,
@@ -437,6 +449,11 @@ func runCase(
 			Prompt:  turn.Prompt,
 			Result:  runResult,
 			Outcome: classifyTurnOutcome(runResult),
+			Cost:    turnCost(runResult, runErr, options.MaxSteps, turnStarted, time.Now()),
+		}
+		if errors.Is(context.Cause(caseContext), context.DeadlineExceeded) {
+			turnResult.Cost.HitTimeout = true
+			caseTimedOut = true
 		}
 		if runErr != nil {
 			turnResult.RunnerError = runErr.Error()

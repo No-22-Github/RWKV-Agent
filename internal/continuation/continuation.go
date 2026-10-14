@@ -59,6 +59,32 @@ type Usage struct {
 	PromptCacheReadTokens  int `json:"prompt_cache_read_tokens,omitempty"`
 	PromptCacheWriteTokens int `json:"prompt_cache_write_tokens,omitempty"`
 	ReasoningTokens        int `json:"reasoning_tokens,omitempty"`
+	// PromptSource and CompletionSource name where each count came from:
+	// UsageSourceServer (the backend reported it), UsageSourceServerStream
+	// (counted from the streamed chunks, one token each at chunk_size=1) or
+	// UsageSourceLocalVocab (counted in-process with the RWKV World
+	// vocabulary). Empty is a count the backend reported before sources were
+	// recorded, or no count at all. Budget logic trusts only server counts.
+	PromptSource     string `json:"prompt_source,omitempty"`
+	CompletionSource string `json:"completion_source,omitempty"`
+}
+
+const (
+	UsageSourceServer       = "server"
+	UsageSourceServerStream = "server_stream"
+	UsageSourceLocalVocab   = "local_vocab"
+)
+
+// ReportedCompletionTokens is the completion count a backend reported itself,
+// or 0 when the count was derived (stream chunks, local vocabulary). Budget
+// arithmetic uses it so filling in a derived count never changes generation.
+func (u Usage) ReportedCompletionTokens() int {
+	switch u.CompletionSource {
+	case "", UsageSourceServer:
+		return u.CompletionTokens
+	default:
+		return 0
+	}
 }
 
 type Result struct {

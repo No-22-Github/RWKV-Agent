@@ -405,7 +405,7 @@ func readBufferedResponse(
 		// Only usage can indicate a length finish here; character count is not a
 		// token count, so pass 0 rather than inventing a token estimate.
 		FinishReason: inferFinishReason(finish, buffered.Usage, 0, maxOutputTokens),
-		Usage:        buffered.Usage,
+		Usage:        streamUsage(buffered.Usage, 0),
 		Stop:         matchedStop,
 	}, nil
 }
@@ -499,7 +499,7 @@ func readStreamResponse(
 				return continuation.Result{
 					Text:         result.String(),
 					FinishReason: continuation.FinishStop,
-					Usage:        usage,
+					Usage:        streamUsage(usage, deltas),
 					Stop:         stop,
 				}, nil
 			}
@@ -531,8 +531,30 @@ func readStreamResponse(
 	return continuation.Result{
 		Text:         result.String(),
 		FinishReason: inferFinishReason(finish, usage, deltas, maxOutputTokens),
-		Usage:        usage,
+		Usage:        streamUsage(usage, deltas),
 	}, nil
+}
+
+// streamUsage labels the counts the server reported and, when it reported no
+// completion count, fills one from the stream: chunk_size is 1, so one content
+// delta is one generated token (a token that decodes to no text yet, such as
+// half of a multi-byte character, sends no content and is not counted). The
+// prompt count stays empty here; the eval harness counts it with the local
+// vocabulary when it has one.
+func streamUsage(usage continuation.Usage, deltas int) continuation.Usage {
+	if usage.PromptTokens > 0 && usage.PromptSource == "" {
+		usage.PromptSource = continuation.UsageSourceServer
+	}
+	switch {
+	case usage.CompletionTokens > 0:
+		if usage.CompletionSource == "" {
+			usage.CompletionSource = continuation.UsageSourceServer
+		}
+	case deltas > 0:
+		usage.CompletionTokens = deltas
+		usage.CompletionSource = continuation.UsageSourceServerStream
+	}
+	return usage
 }
 
 // inferFinishReason recovers a finish reason for deployments that stream none at

@@ -266,6 +266,11 @@ func readBatchStreamResponse(
 	responseBytes := 0
 	limit := batchResponseLimit(len(calls))
 	var streamErr error
+	// A server usage block is passed to every call as before; without one,
+	// each call gets the count of its own streamed chunks.
+	callUsage := func(index int) continuation.Usage {
+		return streamUsage(usage, states[index].deltas)
+	}
 	// A choice that hit a stop sequence is finished for its caller: hand its
 	// result over right away instead of after [DONE]. A checkpoint that writes
 	// the next "User:" turn instead of EOS keeps the server generating up to
@@ -276,7 +281,7 @@ func readBatchStreamResponse(
 		state := &states[index]
 		state.delivered = true
 		calls[index].deliver(batchOutcome{result: continuation.Result{
-			Text: state.result.String(), FinishReason: state.finish, Usage: usage, Stop: state.stop,
+			Text: state.result.String(), FinishReason: state.finish, Usage: callUsage(index), Stop: state.stop,
 		}, err: state.err})
 	}
 	allFinished := func() bool {
@@ -403,7 +408,7 @@ func readBatchStreamResponse(
 					state.deltas,
 					calls[index].request.MaxOutputTokens,
 				),
-				Usage: usage,
+				Usage: callUsage(index),
 				Stop:  state.stop,
 			},
 			err: state.err,
@@ -460,6 +465,7 @@ func readBatchBufferedResponse(
 			httputil.SafeResponseMessage(buffered.Error, secret),
 		))
 	}
+	shared := streamUsage(buffered.Usage, 0)
 	found := make([]bool, len(calls))
 	for _, choice := range buffered.Choices {
 		if choice.Index < 0 || choice.Index >= len(calls) {
@@ -498,7 +504,7 @@ func readBatchBufferedResponse(
 				0,
 				calls[choice.Index].request.MaxOutputTokens,
 			),
-			Usage: buffered.Usage,
+			Usage: shared,
 			Stop:  matchedStop,
 		}}
 	}

@@ -124,7 +124,11 @@ local/bin/rwkv-lab run replicate <k 个 run 目录> --k 3 --out <out.json>
 local/bin/rwkv-lab run compare <run A> <run B>
 local/bin/rwkv-lab run gate <run 目录…> --label <名字>
 local/bin/rwkv-lab run ledger ingest --config-name <model>-<arm> --k-index <i> <run_dir>
+local/bin/rwkv-lab run cost <run 目录…> --top 20 [--json] [--recount]
 ```
+
+- `run cost` 看哪些题最费时间、最费 token、上下文最长、最后收尾（长尾题拖整轮时先看这个）；
+  旧产物没有 token 数，加 `--recount` 用本地词表从 trace 回算。
 
 - 比较只用同一天、同端点、同 bank_version 的成对 run；报翻转 +a/−b 与符号检验 p。
 - 差距小于同配置 k 次极差 → 写"无法区分"。

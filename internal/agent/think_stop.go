@@ -107,10 +107,12 @@ func endsWithCompleteCall(text string) bool {
 // spentTokens is the generation's token count, estimated from the text when
 // the provider reports no usage (rwkv_lightning cuda streams report none).
 // Three bytes per token overestimates both English and Chinese RWKV output, so
-// a resume never runs past the original budget.
+// a resume never runs past the original budget. A count the harness derived
+// (stream chunks, local vocabulary) is not a report, so it leaves the estimate,
+// and the resume budget, unchanged.
 func spentTokens(result continuation.Result) int {
-	if result.Usage.CompletionTokens > 0 {
-		return result.Usage.CompletionTokens
+	if reported := result.Usage.ReportedCompletionTokens(); reported > 0 {
+		return reported
 	}
 	return len(result.Text)/3 + 1
 }

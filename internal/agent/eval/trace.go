@@ -78,6 +78,10 @@ func (r *traceRecorder) records() []TraceRecord {
 type recordingGenerator struct {
 	generator continuation.Generator
 	recorder  *traceRecorder
+	// tokenCount fills the token counts a text continuation backend left
+	// empty (rwkv_lightning reports none) with the local World vocabulary.
+	// Nil leaves them empty.
+	tokenCount func(string) int
 }
 
 func (g *recordingGenerator) Continue(
@@ -87,6 +91,7 @@ func (g *recordingGenerator) Continue(
 ) (continuation.Result, error) {
 	started := time.Now()
 	result, err := g.generator.Continue(ctx, request, sink)
+	result.Usage = countUsage(result.Usage, request.Prompt, result.Text+result.Stop, g.tokenCount)
 	value := ModelCallTrace{
 		Stage:          requestStage(request),
 		Request:        requestSnapshot(request),
@@ -119,6 +124,9 @@ func (g *recordingGenerator) Complete(
 	}
 	started := time.Now()
 	result, err := completer.Complete(ctx, request, sink)
+	// A native request is a provider message list, not text the World
+	// vocabulary can stand in for, so only the reported counts are labeled.
+	result.Usage = countUsage(result.Usage, "", "", nil)
 	value := ModelCallTrace{
 		Stage:          toolChatRequestStage(request),
 		Request:        toolChatRequestSnapshot(request),
@@ -173,10 +181,7 @@ func toolChatResponseSnapshot(result toolchat.Result) ResponseSnapshot {
 	return ResponseSnapshot{
 		Text:         text,
 		FinishReason: result.FinishReason,
-		Usage: UsageSnapshot{
-			PromptTokens:     result.Usage.PromptTokens,
-			CompletionTokens: result.Usage.CompletionTokens,
-		},
+		Usage:        usageSnapshot(result.Usage),
 	}
 }
 
@@ -249,11 +254,49 @@ func responseSnapshot(result continuation.Result) ResponseSnapshot {
 	return ResponseSnapshot{
 		Text:         result.Text,
 		FinishReason: result.FinishReason,
-		Usage: UsageSnapshot{
-			PromptTokens:     result.Usage.PromptTokens,
-			CompletionTokens: result.Usage.CompletionTokens,
-		},
+		Usage:        usageSnapshot(result.Usage),
 	}
+}
+
+func usageSnapshot(usage continuation.Usage) UsageSnapshot {
+	return UsageSnapshot{
+		PromptTokens:     usage.PromptTokens,
+		CompletionTokens: usage.CompletionTokens,
+		PromptSource:     usage.PromptSource,
+		CompletionSource: usage.CompletionSource,
+	}
+}
+
+// countUsage labels the counts the backend reported as server counts and fills
+// an empty count by encoding the text with count: the prompt is the whole
+// context of the step, the output is the generated text including any stop
+// sequence the client cut. A count stays 0 when there is no counter or no
+// text. Budget logic reads only server counts (Usage.ReportedCompletionTokens),
+// so filling one in does not change what the runner generates.
+func countUsage(
+	usage continuation.Usage,
+	prompt string,
+	output string,
+	count func(string) int,
+) continuation.Usage {
+	if usage.PromptTokens > 0 && usage.PromptSource == "" {
+		usage.PromptSource = continuation.UsageSourceServer
+	}
+	if usage.CompletionTokens > 0 && usage.CompletionSource == "" {
+		usage.CompletionSource = continuation.UsageSourceServer
+	}
+	if count == nil {
+		return usage
+	}
+	if usage.PromptTokens == 0 && prompt != "" {
+		usage.PromptTokens = count(prompt)
+		usage.PromptSource = continuation.UsageSourceLocalVocab
+	}
+	if usage.CompletionTokens == 0 && output != "" {
+		usage.CompletionTokens = count(output)
+		usage.CompletionSource = continuation.UsageSourceLocalVocab
+	}
+	return usage
 }
 
 var _ continuation.Generator = (*recordingGenerator)(nil)
