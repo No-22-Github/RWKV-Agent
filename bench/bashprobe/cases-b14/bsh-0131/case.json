@@ -20,14 +20,15 @@
     "ref_calls": 3,
     "fixture_bytes": 1394,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
     "tool_catalog": "work-v2",
     "probe_axis": "edit",
     "probe_part": "b14",
-    "source_id": "cfg-10096"
+    "source_id": "cfg-10096",
+    "legacy_prompt": "Scale every service deployment under k8s/ from 1 to 2 replicas. Leave anything the README says to leave. Verify, then reply DONE."
   },
   "web_fixture": [],
   "files": {
@@ -41,20 +42,12 @@
   },
   "turns": [
     {
-      "prompt": "Scale every service deployment under k8s/ from 1 to 2 replicas. Leave anything the README says to leave. Verify, then reply DONE.",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "Scale every service deployment under k8s/ from 1 to 2 replicas. Leave anything the README says to leave. Verify, then let me know when it's done.",
+      "expect": {}
     },
     {
-      "prompt": "Also raise their memory limit from 256Mi to 512Mi. Same scope. Check and reply DONE.",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "Also raise their memory limit from 256Mi to 512Mi. Same scope. Check it and let me know when it's done.",
+      "expect": {}
     }
   ],
   "expect": {

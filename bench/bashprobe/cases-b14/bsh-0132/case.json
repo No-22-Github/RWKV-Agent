@@ -20,14 +20,15 @@
     "ref_calls": 3,
     "fixture_bytes": 411,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
     "tool_catalog": "work-v2",
     "probe_axis": "edit",
     "probe_part": "b14",
-    "source_id": "cfg-10116"
+    "source_id": "cfg-10116",
+    "legacy_prompt": "监控/规则 下的告警阈值 80 统一调到 90，按 README 的范围改。改完检查，回复 DONE。"
   },
   "web_fixture": [],
   "files": {
@@ -40,20 +41,12 @@
   },
   "turns": [
     {
-      "prompt": "监控/规则 下的告警阈值 80 统一调到 90，按 README 的范围改。改完检查，回复 DONE。",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "监控/规则 下的告警阈值 80 统一调到 90，按 README 的范围改。改完检查。",
+      "expect": {}
     },
     {
-      "prompt": "通知渠道也一起从 邮件 改成 企业微信，范围同上。改完再检查一遍，回复 DONE。",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "通知渠道也一起从 邮件 改成 企业微信，范围同上。改完再检查一遍。",
+      "expect": {}
     }
   ],
   "expect": {

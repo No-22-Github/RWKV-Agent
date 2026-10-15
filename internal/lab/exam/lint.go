@@ -17,6 +17,9 @@ var legacyContracts = []string{
 	"Reply with only the final answer",
 	"reply exactly UNKNOWN",
 	"When finished, reply DONE",
+	"reply DONE",
+	"回复 DONE",
+	"回复DONE",
 }
 
 func runLint(args []string) int {
@@ -96,6 +99,9 @@ func (exam *Exam) Lint(paths Paths) []string {
 				if strings.Contains(turn.Prompt, contract) {
 					add(row.ID, "natural-prompt", fmt.Sprintf("turn %d keeps the legacy contract %q", i+1, contract))
 				}
+			}
+			if slices.Contains(turn.Expect.OutputContains, "DONE") {
+				add(row.ID, "natural-prompt", fmt.Sprintf("turn %d still requires the legacy DONE reply", i+1))
 			}
 			if turn.Expect.MaxOutputChars > 0 {
 				add(row.ID, "no-length-cap", fmt.Sprintf("turn %d caps the answer at %d chars", i+1, turn.Expect.MaxOutputChars))

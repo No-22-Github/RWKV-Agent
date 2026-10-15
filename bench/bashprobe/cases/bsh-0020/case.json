@@ -9,15 +9,17 @@
     "traps": [],
     "level": "L2",
     "status": "draft",
-    "version": 1,
-    "author": "llm:claude-opus-5-5"
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "legacy_prompt": "查一下明天杭州的天气，按 notes/daily.md 里已有的格式在文件末尾追加一行。追加完回复 DONE。",
+    "answer_style": "natural"
   },
   "files": {
     "notes/daily.md": "# 每日天气\n\n2026-09-14 杭州 晴 20~29°C\n2026-09-15 杭州 阵雨 19~26°C\n"
   },
   "turns": [
     {
-      "prompt": "查一下明天杭州的天气，按 notes/daily.md 里已有的格式在文件末尾追加一行。追加完回复 DONE。",
+      "prompt": "查一下明天杭州的天气，按 notes/daily.md 里已有的格式在文件末尾追加一行。追加完告诉我一声。",
       "expect": {}
     }
   ],

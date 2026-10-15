@@ -1,5 +1,11 @@
 # weatherprobe：get_weather 能力探针
 
+> **2026-10-15 起不要再运行 `gen.py` 重新生成 `cases/`。** 这些题已并入新考卷（`bench/exam/`），并按 App 用户的口吻改写过：
+> 「回复 DONE」改成了自然说法，数字题改为在回答里找数字（`expected_number_in_text`），取消了字数上限，原题面保存在 `tags.legacy_prompt`。
+> 生成器不知道这些改动，重新生成会把题改回旧版，并让考卷清单的哈希失配（`rwkv-lab exam lint` 会报 stale）。
+> 改动记录：`docs/evaluations/bench-composition-20261015/REPORT.md` §8、`naturalize.py`。
+
+
 14 道题，测模型在 `work-v2` 工具目录下会不会用 `get_weather`、用得对不对。题目由 [`gen.py`](gen.py) 生成，答案全部来自每道题自带的 `weather_fixture`，固定时钟是 2026-09-16（周三），所以"明天"是 09-17，"后天"是 09-18。
 **改题只改生成器，不手改 `cases/`。**
 

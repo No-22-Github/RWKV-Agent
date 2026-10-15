@@ -20,14 +20,15 @@
     "ref_calls": 2,
     "fixture_bytes": 988,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
     "tool_catalog": "work-v2",
     "probe_axis": "edit",
     "probe_part": "b14",
-    "source_id": "doc-10097"
+    "source_id": "doc-10097",
+    "legacy_prompt": "Our wiki moved: replace https://wiki.old-corp.io/ links with https://docs.newcorp.dev/ across docs/, but keep the history files as they are. The .io.cn mirror is a different site. Check your work and reply DONE."
   },
   "web_fixture": [],
   "files": {
@@ -43,12 +44,8 @@
   },
   "turns": [
     {
-      "prompt": "Our wiki moved: replace https://wiki.old-corp.io/ links with https://docs.newcorp.dev/ across docs/, but keep the history files as they are. The .io.cn mirror is a different site. Check your work and reply DONE.",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "Our wiki moved: replace https://wiki.old-corp.io/ links with https://docs.newcorp.dev/ across docs/, but keep the history files as they are. The .io.cn mirror is a different site. Check your work and let me know when it's done.",
+      "expect": {}
     }
   ],
   "expect": {

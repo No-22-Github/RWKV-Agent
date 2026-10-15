@@ -20,14 +20,15 @@
     "ref_calls": 2,
     "fixture_bytes": 126,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
     "tool_catalog": "work-v2",
     "probe_axis": "edit",
     "probe_part": "b14",
-    "source_id": "fs-10106"
+    "source_id": "fs-10106",
+    "legacy_prompt": "合同 目录下文件名里的空格都换成下划线，方便脚本处理（模板目录别动）。改完列出来看一下，回复 DONE。"
   },
   "web_fixture": [],
   "files": {
@@ -48,12 +49,8 @@
   },
   "turns": [
     {
-      "prompt": "合同 目录下文件名里的空格都换成下划线，方便脚本处理（模板目录别动）。改完列出来看一下，回复 DONE。",
-      "expect": {
-        "output_contains": [
-          "DONE"
-        ]
-      }
+      "prompt": "合同 目录下文件名里的空格都换成下划线，方便脚本处理（模板目录别动）。改完列出来看一下。",
+      "expect": {}
     }
   ],
   "expect": {
