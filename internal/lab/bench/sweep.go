@@ -137,6 +137,15 @@ func (args *SweepArgs) profile() string {
 	return args.Profile
 }
 
+// decisionBudget matches the corpus render budget (lab/corpus decisionBudget):
+// g1k-think withholds "<think" and real thinking needs room before the action.
+func (args *SweepArgs) decisionBudget() int {
+	if strings.HasPrefix(args.profile(), "g1k-think") {
+		return 4096
+	}
+	return 2048
+}
+
 // RunSweep is the `bench sweep` command.
 func RunSweep(args SweepArgs) int {
 	replicas, err := parseK(args.K)
@@ -177,9 +186,10 @@ func RunSweep(args SweepArgs) int {
 	}
 
 	// Credentials come from the environment only, by name; they never reach a
-	// file (P11).
-	if os.Getenv("RWKV_CF_ID") == "" || os.Getenv("RWKV_CF_SECRET") == "" {
-		fmt.Fprintln(os.Stderr, "RWKV_CF_ID and RWKV_CF_SECRET must be set")
+	// file (P11). Only the Cloudflare (https) deployment needs them; a direct
+	// http endpoint takes none.
+	if strings.HasPrefix(args.APIURL, "https://") && (os.Getenv("RWKV_CF_ID") == "" || os.Getenv("RWKV_CF_SECRET") == "") {
+		fmt.Fprintln(os.Stderr, "RWKV_CF_ID and RWKV_CF_SECRET must be set for an https endpoint")
 		return 1
 	}
 	if _, err := os.Stat(binaryPath()); err != nil {
@@ -291,8 +301,6 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 	spec := suites[suite]
 	cmd := []string{binaryPath(), "agent-eval", "--completion", "rwkv-lightning-cuda",
 		"--model", args.Model, "--api-url", args.APIURL,
-		"--api-header-env", "CF-Access-Client-Id=RWKV_CF_ID",
-		"--api-header-env", "CF-Access-Client-Secret=RWKV_CF_SECRET",
 		"--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", strconv.Itoa(args.parallelFor(suite)),
 		// The CLI default is 2m; with ~150 cases sharing the backend a 16-step
 		// case needs far longer, and the 2m clock cut 56/148 greedy cases on
@@ -300,11 +308,17 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		"--case-timeout", "30m",
 		// Without this the decision step falls back to the protocol default
 		// (512). g1k thinks spontaneously on 142/148 first steps.
-		"--decision-max-tokens", "2048",
+		"--decision-max-tokens", strconv.Itoa(args.decisionBudget()),
 		// Client-side coalescing hands every call its result only when the
 		// whole merged response ends, so one looping member stalls the short
 		// replies batched with it.
 		"--remote-batch-wait", "0s"}
+	// Cloudflare Access headers only when credentials are set; a direct
+	// endpoint (Tailscale, a training box) takes none.
+	if os.Getenv("RWKV_CF_ID") != "" {
+		cmd = append(cmd, "--api-header-env", "CF-Access-Client-Id=RWKV_CF_ID",
+			"--api-header-env", "CF-Access-Client-Secret=RWKV_CF_SECRET")
+	}
 	if args.StateID != "" {
 		cmd = append(cmd, "--state-id", args.StateID)
 	}
@@ -509,7 +523,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		HasCases:           true,
 		MaxSteps:           16,
 		MaxTokens:          4096,
-		DecisionMaxTokens:  2048,
+		DecisionMaxTokens:  args.decisionBudget(),
 		CaseTimeoutSeconds: 1800,
 		Profile:            args.profile(),
 	})
@@ -624,8 +638,10 @@ func endpointJSON(base, path string) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("CF-Access-Client-Id", os.Getenv("RWKV_CF_ID"))
-	request.Header.Set("CF-Access-Client-Secret", os.Getenv("RWKV_CF_SECRET"))
+	if os.Getenv("RWKV_CF_ID") != "" {
+		request.Header.Set("CF-Access-Client-Id", os.Getenv("RWKV_CF_ID"))
+		request.Header.Set("CF-Access-Client-Secret", os.Getenv("RWKV_CF_SECRET"))
+	}
 	// Cloudflare answers python-urllib's default User-Agent with a bare 403.
 	request.Header.Set("User-Agent", "curl/8.7.1")
 	client := &http.Client{Timeout: 30 * time.Second}
