@@ -15,6 +15,7 @@ import (
 	"strings"
 	"unicode"
 
+	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
@@ -41,24 +42,11 @@ func statPath(path string) (bool, error) {
 // Exported because three tools share the rule (wire, audit, replicate): a run
 // whose failures are infrastructure is not a reading of the model, and all
 // three have to agree on which strings count.
+//
+// The rule itself lives in the eval package, which also needs it to decide
+// which checkpointed cases a resumed run executes again.
 func InfrastructureFailure(failure string) bool {
-	if !strings.HasPrefix(failure, "runner error:") {
-		return false
-	}
-	text := strings.ToLower(failure)
-	if strings.Contains(text, "agent protocol error:") {
-		return false
-	}
-	for _, marker := range []string{
-		"rwkv_lightning continuation error:", "http 4", "http 5",
-		"connection refused", "context deadline exceeded", "no such host",
-		"timeout", "connection reset", "unexpected eof", "broken pipe",
-	} {
-		if strings.Contains(text, marker) {
-			return true
-		}
-	}
-	return false
+	return agenteval.InfrastructureFailure(failure)
 }
 
 // LoadJSONFile reads a JSON object, returning nil when the file is absent and

@@ -109,10 +109,25 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 3. `harness.max_steps == 16`，token 预算一致。
 4. `len(case_ids)` 等于预期题数；跑前跑后 `/v1/models` 一致。
 5. 作废题（`invalid_cases`）与传输错误（HTTP 5xx、`unexpected EOF`、TLS）单独列出：
-   - 有基础设施错误的 run **整轮重跑**，不做逐题拼接（拼出来的 summary 不是 harness 产物，`replicate_summary.py` 也会拒收）。
+   - 有基础设施错误的 run 用 `agent-eval --resume` **只重跑作废题与基础设施错误题**：合并由 harness 自己完成，
+     续跑前核对运行配置签名（模型、wire、采样、adapter/state、预算、case 内容哈希等，见下方"断点续跑"），
+     产物格式与一次跑完相同。仍然**不做手工逐题拼接**（拼出来的 summary 不是 harness 产物，`run replicate` 也会拒收）。
    - 最后一次尝试仍有错误（可复现的上游故障，或上下文超长之类非传输作废）：保留该 run，**作废计为失败**，
      不从分母剔除，并在报告里标出。剔除会让"选错取数方式"的题从测量里消失。
-   - 以上由 `.claude/skills/rwkv-bench/sweep.py` 自动执行（`--max-attempts`，默认 2）。
+   - 以上由 `rwkv-lab bench sweep` 自动执行（`--max-attempts`，默认 2）。
+
+**断点续跑**（`rwkv-cli agent-eval --resume`）：
+- 运行中每题结束立刻追加到 `<output>.partial/cases.jsonl`（一行一题：`index`、`case_id`、`status`、`elapsed_ms`、
+  `finished_at`、`result` = summary.json 里该题的 CaseResult、`trace` = 该题的 trace 记录；每行写完 fsync）；
+  `progress.json` 记 `total/done/pass/fail/invalid/resumed` 与开始时间；`signature.json` 记 run_id、开始时间与配置签名。
+  stderr 每题一行 `[done/total] case_id pass|fail|invalid 用时`。
+- `--resume`：partial 存在且签名一致时，跳过已完成且非作废、非基础设施错误的题，只跑其余题，合并后写最终
+  run.json / trace.jsonl / summary.json（run_id 与 started_at 沿用第一次尝试，`wall_time_millis` 含中断时间）。
+  签名不一致即拒绝并逐项列出差异；只有 `case_parallelism` 允许改（OOM 后降并发是续跑的主要场景）。
+  partial 不存在时 `--resume` 等同正常开跑。
+- 不带 `--resume` 而 partial 已存在 → 拒绝运行，避免静默覆盖或混入旧结果。
+- 被中断（SIGINT/SIGTERM）时不写最终产物（被切断的题不应计为失败），只保留 partial。
+- 最终产物写完后：没有作废/基础设施错误题就删掉 partial；有则保留，供挪开成品目录后 `--resume` 只重跑这些题。
 
 ## 7. 统计与比较
 

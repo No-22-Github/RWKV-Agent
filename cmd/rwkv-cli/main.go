@@ -94,6 +94,7 @@ type runOptions struct {
 	evalCasesPath            string
 	evalScript               string
 	evalOutput               string
+	evalResume               bool
 	evalCaseIDs              stringListFlag
 	evalCaseTimeout          time.Duration
 	evalCaseParallelism      int
@@ -656,6 +657,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 					"renders corpus material through the eval harness (see rwkv-lab corpus rows), no endpoint needed",
 			)
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
+			fs.BoolVar(&options.evalResume, "resume", false, "continue an interrupted run from <output>.partial: keep its finished cases and run the rest, rerunning invalid and infrastructure-error cases; refused when the run configuration differs (starts fresh when no partial exists)")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
@@ -1865,7 +1867,7 @@ func runAgentEval(args []string) error {
 	if err != nil {
 		return err
 	}
-	report, runErr := agenteval.Run(ctx, agenteval.Config{
+	evalConfig := agenteval.Config{
 		Cases:                 cases,
 		Suite:                 suite,
 		Model:                 model,
@@ -1889,13 +1891,44 @@ func runAgentEval(args []string) error {
 		) (continuation.Generator, io.Closer, error) {
 			return source.newGenerator(caseContext)
 		},
-	})
+	}
+	// Refuse an existing output before any case runs rather than after the
+	// whole suite.
+	if _, statErr := os.Stat(options.evalOutput); statErr == nil {
+		return fmt.Errorf("eval output already exists: %s", options.evalOutput)
+	}
+	checkpoint, err := agenteval.OpenCheckpoint(options.evalOutput, evalConfig, options.evalResume, os.Stderr)
+	if err != nil {
+		return err
+	}
+	defer checkpoint.Close()
+	evalConfig.Checkpoint = checkpoint
+	report, runErr := agenteval.Run(ctx, evalConfig)
 	if report.Manifest.RunID == "" {
+		return runErr
+	}
+	if ctx.Err() != nil {
+		// Interrupted: the finished cases are in the checkpoint; final
+		// artifacts would score the cut-off cases as failures.
+		progress := checkpoint.Progress()
+		fmt.Fprintf(os.Stderr, "interrupted: %d/%d cases saved in %s; rerun with --resume to continue\n",
+			progress.Done-progress.Invalid, progress.Total, checkpoint.Dir())
 		return runErr
 	}
 	paths, writeErr := agenteval.WriteArtifacts(options.evalOutput, report)
 	if writeErr != nil {
 		return fmt.Errorf("write Agent eval artifacts: %w", writeErr)
+	}
+	// The checkpoint stays while invalid or infrastructure-broken cases
+	// remain, so a --resume after moving the output aside reruns only those.
+	keepCheckpoint := false
+	for _, result := range report.Summary.Cases {
+		keepCheckpoint = keepCheckpoint || agenteval.NeedsRerun(result)
+	}
+	if !keepCheckpoint {
+		if err := checkpoint.Remove(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: remove %s: %v\n", checkpoint.Dir(), err)
+		}
 	}
 	metrics := report.Summary.Metrics
 	fmt.Fprintf(

@@ -1,9 +1,12 @@
 package bench
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 )
 
 func sumOf(m map[string]int) int {
@@ -80,5 +83,67 @@ func TestBinaryPathHonorsRWKVCLI(t *testing.T) {
 	t.Setenv("RWKV_CLI", pinned)
 	if got := binaryPath(); got != pinned {
 		t.Fatalf("binaryPath = %q, want %q", got, pinned)
+	}
+}
+
+func TestSweepResumesThroughPartialCheckpoint(t *testing.T) {
+	args := SweepArgs{Model: "m", APIURL: "http://endpoint", Arms: []string{"greedy"}}
+	cmd := sweepCommand(args, "workbank", "greedy", "out/run-k0")
+	if cmd[len(cmd)-1] != "--resume" {
+		t.Fatalf("sweep command does not resume: %v", cmd)
+	}
+
+	dir := t.TempDir()
+	args.Out = dir
+	output := filepath.Join(dir, "bench-workbank-greedy-k0")
+	partial := agenteval.PartialDir(output)
+	if err := os.MkdirAll(partial, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	progress := `{"done": 40, "invalid": 3, "total": 148}`
+	if err := os.WriteFile(filepath.Join(partial, "progress.json"), []byte(progress), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got := partialProgress(output); got != "resume 37/148" {
+		t.Fatalf("partialProgress = %q", got)
+	}
+	if err := os.MkdirAll(output, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(output+".log", []byte("x\nresume refused: run configuration differs\n  harness.adapter_id: a -> b\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if reason, refused := resumeRefused(output); !refused || !strings.Contains(reason, "harness.adapter_id") {
+		t.Fatalf("resumeRefused = %q, %v", reason, refused)
+	}
+
+	// A retry sets the final artifacts and log aside but keeps the checkpoint.
+	if err := setAside(&args, output); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(output); !os.IsNotExist(err) {
+		t.Fatalf("final output not set aside: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(partial, "progress.json")); err != nil {
+		t.Fatalf("checkpoint was moved: %v", err)
+	}
+}
+
+func TestSupportsResumeDetectsOldBuilds(t *testing.T) {
+	dir := t.TempDir()
+	for name, help := range map[string]string{
+		"new": "  -output string\n  -resume\n",
+		"old": "  -output string\n",
+	} {
+		script := "#!/bin/sh\nprintf '" + strings.ReplaceAll(help, "\n", "\\n") + "' >&2\nexit 0\n"
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(script), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !supportsResume(filepath.Join(dir, "new")) {
+		t.Fatal("new build not detected")
+	}
+	if supportsResume(filepath.Join(dir, "old")) {
+		t.Fatal("old build accepted")
 	}
 }

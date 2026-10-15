@@ -571,6 +571,10 @@ type Config struct {
 	StateSHA256 string
 	// AdapterID records the MiSS adapter bound to every generation.
 	AdapterID string
+	// Checkpoint, when set, persists every finished case as it ends and
+	// supplies the cases an interrupted attempt already finished (see
+	// OpenCheckpoint). Nil keeps the all-in-memory behaviour.
+	Checkpoint *Checkpoint
 }
 
 type SubagentFixtureEntry struct {

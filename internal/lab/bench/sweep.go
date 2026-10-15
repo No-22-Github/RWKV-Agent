@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
@@ -177,6 +178,8 @@ func RunSweep(args SweepArgs) int {
 					prefix := "TODO  "
 					if runDone(output) {
 						prefix = "DONE  "
+					} else if note := partialProgress(output); note != "" {
+						prefix = "TODO  (" + note + ") "
 					}
 					fmt.Println(prefix + strings.Join(sweepCommand(args, suite, arm, output), " "))
 				}
@@ -194,6 +197,11 @@ func RunSweep(args SweepArgs) int {
 	}
 	if _, err := os.Stat(binaryPath()); err != nil {
 		fmt.Fprintf(os.Stderr, "missing %s; run: go build -o local/bin/rwkv-cli ./cmd/rwkv-cli\n", binaryPath())
+		return 1
+	}
+	if !supportsResume(binaryPath()) {
+		fmt.Fprintf(os.Stderr, "%s predates agent-eval --resume; rebuild it (go build -o local/bin/rwkv-cli ./cmd/rwkv-cli) "+
+			"or point RWKV_CLI at a build that has it\n", binaryPath())
 		return 1
 	}
 	if err := os.MkdirAll(args.Out, 0o755); err != nil {
@@ -335,7 +343,17 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 	}
 	cmd = append(cmd, spec.args...)
 	cmd = append(cmd, armFlags(arm)...)
-	return append(cmd, "--output", output)
+	// --resume continues <output>.partial when an earlier attempt left one
+	// (interrupted, or retried for infrastructure errors) and starts fresh
+	// otherwise; agent-eval refuses it when the configuration changed.
+	return append(cmd, "--output", output, "--resume")
+}
+
+// supportsResume reports whether the rwkv-cli build knows agent-eval
+// --resume; a pinned older build would fail every attempt on the flag.
+func supportsResume(binary string) bool {
+	output, _ := exec.Command(binary, "agent-eval", "--help").CombinedOutput()
+	return strings.Contains(string(output), "-resume")
 }
 
 func runDone(path string) bool {
@@ -352,6 +370,10 @@ func runDone(path string) bool {
 	return passed
 }
 
+// setAside moves an unaccepted run's final artifacts and log into aborted/
+// before the next attempt. The <output>.partial checkpoint stays in place:
+// the next attempt resumes it, rerunning only unfinished, invalid and
+// infrastructure-broken cases.
 func setAside(args *SweepArgs, path string) error {
 	logPath := path + ".log"
 	if !lab.Exists(path) && !lab.Exists(logPath) {
@@ -370,6 +392,34 @@ func setAside(args *SweepArgs, path string) error {
 		}
 	}
 	return nil
+}
+
+// partialProgress describes the checkpoint an interrupted attempt left, for
+// the START and dry-run lines ("" when there is none).
+func partialProgress(output string) string {
+	progress, err := runs.LoadJSONFile(filepath.Join(agenteval.PartialDir(output), "progress.json"), false)
+	if err != nil || progress == nil {
+		return ""
+	}
+	done, _ := lab.IntOf(progress["done"])
+	invalid, _ := lab.IntOf(progress["invalid"])
+	total, _ := lab.IntOf(progress["total"])
+	return fmt.Sprintf("resume %d/%d", done-invalid, total)
+}
+
+// resumeRefused reports an attempt that agent-eval refused to start because
+// the checkpoint was written under a different configuration.
+func resumeRefused(output string) (string, bool) {
+	data, err := os.ReadFile(output + ".log")
+	if err != nil {
+		return "", false
+	}
+	text := string(data)
+	index := strings.Index(text, "resume refused")
+	if index < 0 {
+		return "", false
+	}
+	return strings.TrimSpace(text[index:]), true
 }
 
 func runArm(args *SweepArgs, arm string, k int) bool {
@@ -422,7 +472,11 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 					return false
 				}
 				cmd := sweepCommand(*args, item.suite, arm, item.output)
-				fmt.Printf("START %s attempt %d  %s\n", filepath.Base(item.output), attempt, time.Now().Format("15:04:05"))
+				resume := ""
+				if note := partialProgress(item.output); note != "" {
+					resume = "  (" + note + ")"
+				}
+				fmt.Printf("START %s attempt %d  %s%s\n", filepath.Base(item.output), attempt, time.Now().Format("15:04:05"), resume)
 				logFile, err := os.Create(item.output + ".log")
 				if err != nil {
 					fmt.Fprintln(os.Stderr, err)
@@ -446,6 +500,16 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 				if err != nil {
 					fmt.Fprintln(os.Stderr, err)
 					return false
+				}
+				if provenance == nil {
+					if reason, refused := resumeRefused(p.output); refused {
+						// The checkpoint belongs to another configuration;
+						// retrying cannot help and deleting it is the
+						// operator's call.
+						fmt.Fprintf(os.Stderr, "RESUME REFUSED %s\n%s\nremove %s to start over, or fix the configuration\n",
+							filepath.Base(p.output), reason, agenteval.PartialDir(p.output))
+						os.Exit(1)
+					}
 				}
 				if !gateOK {
 					// The run was configured wrongly; repeating it cannot help.
@@ -474,6 +538,9 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 					} else {
 						tag = "KEEP"
 					}
+					// Accepted: the final artifacts hold every case, so the
+					// checkpoint kept for an infra retry is no longer needed.
+					_ = os.RemoveAll(agenteval.PartialDir(p.output))
 				} else {
 					retry = append(retry, pendingRun{p.suite, p.output})
 				}

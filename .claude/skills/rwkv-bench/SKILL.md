@@ -97,9 +97,14 @@ local/bin/rwkv-lab bench rank local/runs/bench-YYYYMMDD --save <rank.md>
 
 `bench sweep` 做的事：端点前后快照、每档开跑前核对模型 id、同档多套件在 bsz 预算内并行、每个 run 自动过闸门、
 写 `experiment.json`（二进制 sha、git HEAD、diff sha、case 源 sha，供 `run replicate` 使用）。
-- 只有写了 `experiment.json` 且 `gate_passed: true` 的 run 才算完成；中断留下的半成品下次自动挪进 `aborted/` 重跑，可随时断点续跑。
-- 闸门 FAIL（参数配错）→ 立即中止，不重试。
-- 基础设施错误 → 整轮重跑（默认最多 2 次）；最后一次仍有错就保留、作废计失败、标 `accepted_with_infra_errors`。
+- 只有写了 `experiment.json` 且 `gate_passed: true` 的 run 才算完成。
+- 逐题断点：agent-eval 每题结束立刻把结果追加进 `<run>.partial/cases.jsonl`（fsync），日志里每题一行
+  `[done/total] case_id pass|fail|invalid 用时`，`<run>.partial/progress.json` 是实时计数。
+  进程被杀/节点 OOM 后重开同一条 sweep 命令即可：sweep 一律带 `--resume`，已完成的题不重跑，旧日志挪进 `aborted/`。
+- 闸门 FAIL（参数配错）→ 立即中止，不重试。`RESUME REFUSED`（partial 是另一套配置留下的）同样中止，
+  按提示修配置或删掉 `<run>.partial` 重来。
+- 基础设施错误（invalid、5xx、超时等）→ 只重跑这些题（`--resume`，默认最多 2 次尝试）；最后一次仍有错就保留、
+  作废计失败、标 `accepted_with_infra_errors`。
 
 `bench rank` 按 PLAN 的预注册规则出排名（阶段 1 综合分、阶段 2 workbank 均值与极差平局规则、地板规则），并给出对照 greedy 的逐题翻转与符号检验。
 新增采样档：只改 `internal/lab/runs/check.go` 的 `Arms` 表，sweep 与 rank 自动跟随。
@@ -114,7 +119,9 @@ local/bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --case
 步数、终答与决策 token 预算、单题超时、请求合并窗口（RWKV 须为 0）、题数，并给出 strict 分（作废计失败）。
 
 `invalid` 不为 0 时，分清两类：
-- 传输错误（5xx、`unexpected EOF`、TLS）：同配置只重跑这些题（`--case <id>` 可重复）到新目录，合并后再判分。
+- 传输错误（5xx、`unexpected EOF`、TLS）：`bench sweep` 已自动用 `--resume` 重跑这些题；手动跑时把成品目录挪开，
+  用原命令加 `--resume` 重跑（partial 目录在有作废/基础设施错误时会保留），由 agent-eval 自己合并出新产物。
+  不要手工拼接 summary。
 - 非传输作废（如上下文超长 400）：计为失败，保留。
 
 ## 5. 汇总与比较

@@ -25,44 +25,9 @@ import (
 const defaultCaseTimeout = 2 * time.Minute
 
 func Run(ctx context.Context, config Config) (Report, error) {
-	if err := ValidateCases(config.Cases); err != nil {
+	config, err := normalizeConfig(config)
+	if err != nil {
 		return Report{}, err
-	}
-	if config.GeneratorFactory == nil {
-		return Report{}, fmt.Errorf("eval generator factory is required")
-	}
-	if config.CaseTimeout <= 0 {
-		config.CaseTimeout = defaultCaseTimeout
-	}
-	if config.CaseParallelism <= 0 {
-		config.CaseParallelism = 1
-	}
-	if config.CaseParallelism > len(config.Cases) {
-		config.CaseParallelism = len(config.Cases)
-	}
-	if SuiteFor(config.Suite).Primitive {
-		if config.PrimitiveProfile == "" {
-			config.PrimitiveProfile = PrimitiveProfileUpstream
-		}
-		if config.PrimitiveProfile != PrimitiveProfileUpstream &&
-			config.PrimitiveProfile != PrimitiveProfileGoNative {
-			return Report{}, fmt.Errorf("unsupported Primitive tool profile %q", config.PrimitiveProfile)
-		}
-		// The primitive transcript, terminal tool and step budget are resolved
-		// per case by resolveCaseOptions; Run no longer rewrites the shared
-		// Runner options, so the manifest and the executed configuration come
-		// from the same resolver.
-	}
-	if config.Suite == SuiteBFCLProduct {
-		// Both product-facing transcripts may run this suite: comparing them on
-		// the same cases is the point. Benchmark profiles (Primitive, BFCL
-		// wrapped) still cannot, because their termination semantics differ.
-		_, xmlProfile := config.Runner.Protocol.(agent.G1Protocol)
-		if !agent.OptionsProductProfile(config.Runner).Complete() && !xmlProfile {
-			return Report{}, fmt.Errorf(
-				"bfcl-product requires a product-facing Harness profile (markdown or xml)",
-			)
-		}
 	}
 	now := config.Now
 	if now == nil {
@@ -70,6 +35,12 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	}
 	started := now().UTC()
 	runID := started.Format("20060102T150405.000000000Z")
+	checkpoint := config.Checkpoint
+	if checkpoint != nil {
+		// A resumed run keeps the identity of the attempt that created the
+		// checkpoint, so the merged artifacts read as one run.
+		runID, started = checkpoint.runID, checkpoint.startedAt
+	}
 	report := Report{
 		Manifest: runManifest(config, runID, started),
 	}
@@ -81,7 +52,11 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	}
 	runs := make([]caseRun, len(config.Cases))
 	jobs := make(chan int, len(config.Cases))
-	for index := range config.Cases {
+	for index, testCase := range config.Cases {
+		if done, ok := checkpoint.reusable(testCase.ID); ok {
+			runs[index] = caseRun{result: done.Result, trace: done.Trace}
+			continue
+		}
 		jobs <- index
 	}
 	close(jobs)
@@ -94,10 +69,16 @@ func Run(ctx context.Context, config Config) (Report, error) {
 				if ctx.Err() != nil {
 					return
 				}
+				caseStarted := time.Now()
 				recorder := newTraceRecorder(now)
-				runs[index] = caseRun{
-					result: runCase(ctx, config, config.Cases[index], recorder),
-					trace:  recorder.records(),
+				result := runCase(ctx, config, config.Cases[index], recorder)
+				trace := recorder.records()
+				runs[index] = caseRun{result: result, trace: trace}
+				// A case that ends after the run was cancelled may have been
+				// cut short by the cancellation itself; it is not
+				// checkpointed and runs again on resume.
+				if ctx.Err() == nil {
+					checkpoint.record(index, result, trace, time.Since(caseStarted))
 				}
 			}
 		}()
@@ -123,6 +104,52 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	report.Summary.Metrics.WallTimeMillis =
 		report.Manifest.CompletedAt.Sub(report.Manifest.StartedAt).Milliseconds()
 	return report, ctx.Err()
+}
+
+// normalizeConfig validates config and fills the defaults Run executes with.
+// The checkpoint signature is computed from the same normalized config, so a
+// resumed run compares like with like.
+func normalizeConfig(config Config) (Config, error) {
+	if err := ValidateCases(config.Cases); err != nil {
+		return Config{}, err
+	}
+	if config.GeneratorFactory == nil {
+		return Config{}, fmt.Errorf("eval generator factory is required")
+	}
+	if config.CaseTimeout <= 0 {
+		config.CaseTimeout = defaultCaseTimeout
+	}
+	if config.CaseParallelism <= 0 {
+		config.CaseParallelism = 1
+	}
+	if config.CaseParallelism > len(config.Cases) {
+		config.CaseParallelism = len(config.Cases)
+	}
+	if SuiteFor(config.Suite).Primitive {
+		if config.PrimitiveProfile == "" {
+			config.PrimitiveProfile = PrimitiveProfileUpstream
+		}
+		if config.PrimitiveProfile != PrimitiveProfileUpstream &&
+			config.PrimitiveProfile != PrimitiveProfileGoNative {
+			return Config{}, fmt.Errorf("unsupported Primitive tool profile %q", config.PrimitiveProfile)
+		}
+		// The primitive transcript, terminal tool and step budget are resolved
+		// per case by resolveCaseOptions; Run no longer rewrites the shared
+		// Runner options, so the manifest and the executed configuration come
+		// from the same resolver.
+	}
+	if config.Suite == SuiteBFCLProduct {
+		// Both product-facing transcripts may run this suite: comparing them on
+		// the same cases is the point. Benchmark profiles (Primitive, BFCL
+		// wrapped) still cannot, because their termination semantics differ.
+		_, xmlProfile := config.Runner.Protocol.(agent.G1Protocol)
+		if !agent.OptionsProductProfile(config.Runner).Complete() && !xmlProfile {
+			return Config{}, fmt.Errorf(
+				"bfcl-product requires a product-facing Harness profile (markdown or xml)",
+			)
+		}
+	}
+	return config, nil
 }
 
 func runManifest(config Config, runID string, started time.Time) RunManifest {
