@@ -26,7 +26,7 @@ usage: rwkv-lab <group> <command> [flags]
 
   bank    lint | dedup | build | coverage | calibrate | hitcheck | verify
   corpus  paths | render | rows | decontam
-  exam    build | lint | import-builtin | select-quick
+  exam    build | lint | import-builtin | select-quick | panel
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
   state   run | probe | sanity

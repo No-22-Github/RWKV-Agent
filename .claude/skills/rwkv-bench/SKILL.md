@@ -1,6 +1,6 @@
 ---
 name: rwkv-bench
-description: 在 RWKV-Agent 仓库里做正式跑分的检查单——RWKV 模型（rwkv_lightning 端点）或 API 模型（Qwen/DeepSeek 等）跑 workbank、bfcl-product、boundary、primitive 或 BFCL 时使用。用户说"跑分""测一下 g1k""基准测试""横测""A/B""换个温度试试""和 Qwen 比一下"，或要比较两个模型/state/采样/格式配置时，一定要用。只是调试单道题、看 trace 时不用。
+description: 在 RWKV-Agent 仓库里做正式跑分的检查单——RWKV 模型（rwkv_lightning 端点）或 API 模型（Qwen/DeepSeek 等）跑 exam（新主考卷）、workbank、bfcl-product、boundary、primitive 或 BFCL 时使用。用户说"跑分""测一下 g1k""基准测试""横测""A/B""换个温度试试""和 Qwen 比一下"，或要比较两个模型/state/采样/格式配置时，一定要用。只是调试单道题、看 trace 时不用。
 ---
 
 # rwkv-bench：正式跑分检查单
@@ -41,7 +41,17 @@ state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api
 
 ## 3. 命令模板
 
-RWKV（workbank）：
+**主考卷（2026-10-15 起）**：`--cases bench/exam/full.json`（或 `quick.json`）。清单自带 `--harness app`，按 App 默认配置跑，预算参数不用给；
+`bench sweep --suites exam-full,exam-quick` 已注册，闸门自动按 App 预算和清单题数核对。API 模型加 `--chat-thinking disabled`、不传 `--profile`。
+跑前 `local/bin/rwkv-lab exam lint` 必须 0 违规；需要 `RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar`（暂存文件靠它）。
+
+```bash
+./local/bin/rwkv-cli agent-eval --completion rwkv-lightning-cuda --model <模型id> --api-url http://100.64.0.4:8018/v1 \
+  --profile g1k --strict-spec --cases bench/exam/quick.json --case-parallelism 48 --sampling g1k-agent \
+  --state-id <state> --output local/runs/<日期>/<名字>-examquick-k0
+```
+
+历史口径 RWKV（workbank）：
 
 ```bash
 ./local/bin/rwkv-cli agent-eval \

@@ -24,11 +24,11 @@ import (
 // below a floor. Ties break on a hash of the id, so the draw is reproducible
 // from the same history.
 var quickShare = map[string]int{
-	TaskAnswerDirect: 14,
-	TaskFindRead:     16,
-	TaskCompute:      18,
+	TaskAnswerDirect: 12,
+	TaskFindRead:     14,
+	TaskCompute:      16,
 	TaskWrite:        14,
-	TaskExternal:     18,
+	TaskExternal:     14,
 }
 
 const quickDifficultyFloor = 6
@@ -209,6 +209,39 @@ func selectQuick(full []eval.ExamCase, history map[string]caseHistory) []pick {
 				}
 				take(cell[i], reason)
 			}
+		}
+	}
+	// Source floor: a source with little run history (the holdout, the b14
+	// probe halves) would otherwise lose every cell to history-rich workbank
+	// cases; each keeps at least 8% of its cases (at least 3).
+	for _, source := range Sources {
+		var pool []candidate
+		count := 0
+		for _, task := range TaskOrder {
+			for _, c := range byTask[task] {
+				if c.row.Suite != source.Name {
+					continue
+				}
+				if _, done := chosen[c.row.ID]; done {
+					count++
+				} else {
+					pool = append(pool, c)
+				}
+			}
+		}
+		floor := max(3, (len(pool)+count)*8/100)
+		if len(pool)+count == 0 {
+			continue
+		}
+		sort.Slice(pool, func(i, j int) bool {
+			if pi, pj := pool[i].priority(), pool[j].priority(); pi != pj {
+				return pi < pj
+			}
+			return pool[i].key < pool[j].key
+		})
+		for i := 0; count < floor && i < len(pool); i++ {
+			take(pool[i], "source:"+source.Name)
+			count++
 		}
 	}
 	// Difficulty floor: add the best-priority case carrying each thin factor.

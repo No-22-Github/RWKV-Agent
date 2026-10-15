@@ -17,6 +17,7 @@ usage: rwkv-lab exam <command> [flags]
   lint            check the manifests against the case files and the exam rules
   import-builtin  export the built-in bfcl-product and boundary suites to case.json files
   select-quick    pick the quick exam from the full one and local run history
+  panel           score runs by task kind, difficulty, language and source
 `
 
 // Run dispatches an exam subcommand.
@@ -34,6 +35,8 @@ func Run(args []string) int {
 		return runImportBuiltin(args[1:])
 	case "select-quick":
 		return runSelectQuick(args[1:])
+	case "panel":
+		return runPanel(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

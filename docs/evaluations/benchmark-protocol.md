@@ -74,17 +74,23 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 ## 5. 题库、预算与重复
 
-**题库**：workbank 是主考卷（真 Agent 任务）；其余套件是辅助读数。
+**题库**：2026-10-15 起，主考卷是 **exam-full（380 题）/ exam-quick（87 题）**，按 App 默认配置考（`--harness app`，清单自带）。
+构成、名词和覆盖缺口见 `bench/exam/SUITES.md`，来由见 `docs/evaluations/bench-composition-20261015/REPORT.md` §8～§10。
 
 | 套件 | 调用 | 备注 |
 |---|---|---|
-| workbank 148 | `--cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
+| **exam-full 380** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=work-v2、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
+| **exam-quick 87** | `--cases bench/exam/quick.json` | 快速比较；回测与完整版排名 Spearman 0.90～0.99 |
+| 裸能力诊断 | 同上加 `--harness raw` | 兜底关闭，看模型自己会不会收尾；作为训练信号另报，不当主分 |
+| 历史口径 workbank 148 | `--cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
 | bfcl-product 60 | `--suite bfcl-product` | 工具时机 |
 | boundary 18 / assistant 6 / smoke 10 | `--suite …` | 在 `g1k` 下 boundary 历史为 0/18，是真实读数，不为它换格式 |
 | primitive-orig30 / feedback30 | `--suite …`（不传 `--profile`） | 自带协议 |
 | BFCL v4 抽样 491 | `scripts/bfcl.sh`（`configs/bfcl-sample-v2.json`） | 抽样对 live_multiple 高估约 12pp，只作同口径纵向比较 |
 
 记录 `bank_version`（workbank cases 的 sha256）；题库改过的跑分不与旧分直接比。
+exam 跑分记录 `harness.exam_hash`：哈希不同的两次跑分不直接比。2026-10-15 的自然问法改写同时改了 workbank 题面，workbank 的新分数也不能与之前的分数直接比。
+API 模型按 App 新建 chat 连接的口径跑：`--chat-thinking disabled`，不传 `--profile`（chat-completions 后端不套文本续写的 wire 预设）。
 
 **预算（所有模型统一）**：`--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`。
 `--max-tokens` 只管最终回答；决策步若落到协议默认 512，g1k 自发的 `<think>`（2026-09-23：142/148 题首步）会被截断一半成协议无效。
@@ -150,7 +156,7 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 ## 7. 统计与比较
 
-- 主指标：workbank `task_success`，分母 = 全部题数（作废计失败）。同时报按 scenario / level 的拆分。
+- 主指标：exam-full 的 `task_success`，分母 = 全部题数（作废计失败）。同时按 `bench/exam/full.json` 里每题的 `task`（任务类型）、`difficulties`（难点）、`language` 出分能力面板；不要只报总分（总分曾被 web、notool 两类题左右，见 bench-composition 报告 §4.3）。
 - 两个配置比较：只用**同一天、同一端点、同一 bank_version** 的成对 run；逐题配对，报翻转数（+a/−b）与符号检验 p 值。
   `bench/workbank/tools/compare.py` 做配对，`replicate_summary.py` 汇总 k 次，`capability_gate.py` 做失败分层
   （protocol / closeout / toolchoice / format / capability）——只有落到 capability 层的失败才算"模型不会"。

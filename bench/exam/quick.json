@@ -4,68 +4,70 @@
   "description": "快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较",
   "tool_catalog": "work-v2",
   "harness": "app",
-  "hash": "7d4f6bd81be39c861351d8457bb94bea4c0f1bcb0a71c29b46167ce122b2baf8",
+  "hash": "fd88662aacb010e0e0a3c5c6edd491f4804e895a18eee46c9063e93969742067",
   "summary": {
-    "total": 87,
+    "total": 79,
     "by_suite": {
-      "bashprobe": 16,
-      "bfcl-product": 20,
+      "bashprobe": 15,
+      "bashprobe-b14": 4,
+      "bfcl-product": 15,
       "boundary": 7,
       "p13": 4,
-      "weatherprobe": 9,
-      "workbank": 31
+      "weatherprobe": 7,
+      "weatherprobe-b14": 3,
+      "workbank": 24
     },
     "by_task": {
-      "answer-direct": 14,
-      "compute": 19,
-      "external": 19,
-      "find-read": 21,
-      "write": 14
+      "answer-direct": 13,
+      "compute": 18,
+      "external": 17,
+      "find-read": 16,
+      "write": 15
     },
     "by_difficulty": {
-      "check": 8,
-      "decoy": 15,
-      "follow-up": 6,
+      "check": 9,
+      "decoy": 14,
+      "follow-up": 8,
       "long-input": 6,
-      "multi-source": 7,
-      "none": 48,
-      "recovery": 11
+      "multi-source": 9,
+      "none": 42,
+      "recovery": 7
     },
     "by_language": {
-      "en": 44,
-      "zh": 43
+      "en": 39,
+      "zh": 40
     },
     "by_answer_form": {
-      "contains": 52,
-      "file": 13,
+      "contains": 49,
+      "file": 12,
       "no-call": 4,
-      "number": 18
+      "number": 14
     },
     "by_level": {
-      "L0": 39,
-      "L1": 36,
-      "L2": 11,
+      "L0": 32,
+      "L1": 38,
+      "L2": 8,
       "L3": 1
     },
     "task_by_language": {
       "answer-direct": {
-        "en": 7,
+        "en": 6,
         "zh": 7
       },
       "compute": {
-        "en": 10,
+        "en": 9,
         "zh": 9
       },
       "external": {
-        "en": 10,
-        "zh": 9
+        "en": 7,
+        "zh": 10
       },
       "find-read": {
-        "en": 10,
-        "zh": 11
+        "en": 9,
+        "zh": 7
       },
       "write": {
-        "en": 7,
+        "en": 8,
         "zh": 7
       }
     }
@@ -168,23 +170,6 @@
       "status": "draft"
     },
     {
-      "id": "code-0005",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/code/code-0005",
-      "sha256": "8aca39a808635eda4c21b72c6aceee3f71f617ac54d64ac215d7c4f44d7b68e2",
-      "scenario": "code",
-      "task_type": "report_test_result",
-      "level": "L0",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 2,
-      "answer_form": "contains",
-      "task": "find-read",
-      "difficulties": [],
-      "author": "llm:glm-drafter",
-      "status": "draft"
-    },
-    {
       "id": "code-0011",
       "suite": "workbank",
       "path": "bench/workbank/cases/code/code-0011",
@@ -235,26 +220,6 @@
       "task": "write",
       "difficulties": [],
       "author": "llm:deepseek-drafter",
-      "status": "draft"
-    },
-    {
-      "id": "fs-0008",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/filesystem/fs-0008",
-      "sha256": "233e71ee7476b8d6e498e9d405b8a0abe33632321b286293a5635392ef346d41",
-      "scenario": "filesystem",
-      "task_type": "largest",
-      "level": "L2",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 5,
-      "answer_form": "number",
-      "task": "compute",
-      "difficulties": [
-        "long-input",
-        "decoy"
-      ],
-      "author": "llm:glm-drafter",
       "status": "draft"
     },
     {
@@ -384,23 +349,6 @@
       "status": "reviewed"
     },
     {
-      "id": "nt-0004",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/notool/nt-0004",
-      "sha256": "2800c53af0cc23358d1f1ab09d0d4837a17b5f61f67cacc5a62e2e25c43f499e",
-      "scenario": "notool",
-      "task_type": "beyond_capability",
-      "level": "L2",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 0,
-      "answer_form": "contains",
-      "task": "answer-direct",
-      "difficulties": [],
-      "author": "llm:glm-drafter",
-      "status": "reviewed"
-    },
-    {
       "id": "scr-0010",
       "suite": "workbank",
       "path": "bench/workbank/cases/script/scr-0010",
@@ -475,23 +423,6 @@
       "status": "draft"
     },
     {
-      "id": "tab-0018",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/tabular/tab-0018",
-      "sha256": "8019d4d74cf3622d2a2a8fee0ed554c6b3fb6b1da4c0ece080bcab0603ab3607",
-      "scenario": "tabular",
-      "task_type": "reconcile",
-      "level": "L1",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 4,
-      "answer_form": "number",
-      "task": "compute",
-      "difficulties": [],
-      "author": "llm:glm-drafter",
-      "status": "draft"
-    },
-    {
       "id": "web-0005",
       "suite": "workbank",
       "path": "bench/workbank/cases/web/web-0005",
@@ -505,25 +436,6 @@
       "answer_form": "contains",
       "task": "external",
       "difficulties": [],
-      "author": "llm:glm-drafter",
-      "status": "draft"
-    },
-    {
-      "id": "web-0006",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/web/web-0006",
-      "sha256": "5d93a5baf7a948d8995213d72d3edf3173d4fbe4f164a5e9ba510cff94d2d45a",
-      "scenario": "web",
-      "task_type": "deprecation",
-      "level": "L1",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 4,
-      "answer_form": "contains",
-      "task": "external",
-      "difficulties": [
-        "check"
-      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -581,26 +493,6 @@
       "status": "draft"
     },
     {
-      "id": "web-0012",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/web/web-0012",
-      "sha256": "4a0fe9ac05ddc99ac21f58f230f20e42299aded9ccb1b4c93d1aae02579bb8b8",
-      "scenario": "web",
-      "task_type": "error_meaning",
-      "level": "L2",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 5,
-      "answer_form": "contains",
-      "task": "external",
-      "difficulties": [
-        "recovery",
-        "decoy"
-      ],
-      "author": "llm:glm-drafter",
-      "status": "draft"
-    },
-    {
       "id": "web-0014",
       "suite": "workbank",
       "path": "bench/workbank/cases/web/web-0014",
@@ -618,39 +510,20 @@
       "status": "draft"
     },
     {
-      "id": "web-0015",
-      "suite": "workbank",
-      "path": "bench/workbank/cases/web/web-0015",
-      "sha256": "24b299539651062cb0ede60559a69f88d8b600e4b96b2bd511fb60628ca0f761",
-      "scenario": "web",
-      "task_type": "lookup_value",
-      "level": "L1",
-      "language": "en",
-      "user_turns": 1,
-      "ref_calls": 3,
-      "answer_form": "contains",
-      "task": "external",
-      "difficulties": [
-        "long-input"
-      ],
-      "author": "llm:glm-drafter",
-      "status": "draft"
-    },
-    {
-      "id": "cfg-8005",
+      "id": "cfg-8006",
       "suite": "p13",
-      "path": "bench/holdout/p13/config/cfg-8005",
-      "sha256": "b5c6cd21ee6f8fe16243c2375949210c6252212089af6b0af07687cc841fc2ca",
+      "path": "bench/holdout/p13/config/cfg-8006",
+      "sha256": "38b34662248c02d360fdb3a1fb509fad3fa19c6d715f0db80a920b7c55fb54e2",
       "scenario": "config",
-      "task_type": "edit_value",
+      "task_type": "merge",
       "level": "L1",
       "language": "zh",
       "user_turns": 1,
-      "ref_calls": 2,
+      "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
       "difficulties": [
-        "decoy"
+        "multi-source"
       ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
@@ -675,16 +548,16 @@
       "status": "draft"
     },
     {
-      "id": "fs-8003",
+      "id": "doc-8005",
       "suite": "p13",
-      "path": "bench/holdout/p13/filesystem/fs-8003",
-      "sha256": "6d0bc133ecced34c22268188e985dc8a55cff15ceee9d6f4fabaacb888190571",
-      "scenario": "filesystem",
-      "task_type": "presence",
+      "path": "bench/holdout/p13/docs/doc-8005",
+      "sha256": "e62aa0b0ef042465cd99d151c50df34956b4f56b8ddff8efa190586f872a74e8",
+      "scenario": "docs",
+      "task_type": "write_structured",
       "level": "L1",
       "language": "zh",
       "user_turns": 1,
-      "ref_calls": 4,
+      "ref_calls": 2,
       "answer_form": "file",
       "task": "write",
       "difficulties": [
@@ -694,21 +567,19 @@
       "status": "draft"
     },
     {
-      "id": "scr-8004",
+      "id": "nt-8001",
       "suite": "p13",
-      "path": "bench/holdout/p13/script/scr-8004",
-      "sha256": "60258467d59cd9b9c75dbe6463e607278a30d6a4478562c427a66922de4c1536",
-      "scenario": "script",
-      "task_type": "write_new",
+      "path": "bench/holdout/p13/notool/nt-8001",
+      "sha256": "9c5f1bc053966d3ccaaba3ad5f00260a8dee56d9196a5a656119473a725169c5",
+      "scenario": "notool",
+      "task_type": "beyond_capability",
       "level": "L1",
       "language": "zh",
       "user_turns": 1,
-      "ref_calls": 4,
-      "answer_form": "file",
-      "task": "write",
-      "difficulties": [
-        "decoy"
-      ],
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -771,22 +642,6 @@
       "language": "en",
       "user_turns": 1,
       "answer_form": "no-call",
-      "task": "answer-direct",
-      "difficulties": [],
-      "author": "import:bfcl-v4",
-      "status": "draft"
-    },
-    {
-      "id": "bfcl_missing_simple_python_14",
-      "suite": "bfcl-product",
-      "path": "bench/exam/imported/bfcl-product/bfcl_missing_simple_python_14",
-      "sha256": "d8e8dba03a3cc4dc1224729d72347c485ba90fb1d4c1f10973fd9d564f6b1af1",
-      "scenario": "notool",
-      "task_type": "ambiguous_request",
-      "level": "L0",
-      "language": "zh",
-      "user_turns": 1,
-      "answer_form": "contains",
       "task": "answer-direct",
       "difficulties": [],
       "author": "import:bfcl-v4",
@@ -873,44 +728,6 @@
       "status": "draft"
     },
     {
-      "id": "bfcl_recovery_multi_turn_base_0",
-      "suite": "bfcl-product",
-      "path": "bench/exam/imported/bfcl-product/bfcl_recovery_multi_turn_base_0",
-      "sha256": "f458e730e708e187198375d71052c1d6673705be96f3ed8962a43c18485dc05f",
-      "scenario": "hybrid",
-      "task_type": "multi_turn",
-      "level": "L0",
-      "language": "zh",
-      "user_turns": 2,
-      "answer_form": "contains",
-      "task": "find-read",
-      "difficulties": [
-        "recovery",
-        "follow-up"
-      ],
-      "author": "import:bfcl-v4",
-      "status": "draft"
-    },
-    {
-      "id": "bfcl_recovery_multi_turn_base_1",
-      "suite": "bfcl-product",
-      "path": "bench/exam/imported/bfcl-product/bfcl_recovery_multi_turn_base_1",
-      "sha256": "4d619c7d2edc1d780ddca035013bb92f712c7b40140b54da9ec5b474f3278c36",
-      "scenario": "hybrid",
-      "task_type": "multi_turn",
-      "level": "L0",
-      "language": "zh",
-      "user_turns": 2,
-      "answer_form": "contains",
-      "task": "find-read",
-      "difficulties": [
-        "recovery",
-        "follow-up"
-      ],
-      "author": "import:bfcl-v4",
-      "status": "draft"
-    },
-    {
       "id": "bfcl_recovery_multi_turn_base_3",
       "suite": "bfcl-product",
       "path": "bench/exam/imported/bfcl-product/bfcl_recovery_multi_turn_base_3",
@@ -930,45 +747,10 @@
       "status": "draft"
     },
     {
-      "id": "bfcl_recovery_multi_turn_base_8",
-      "suite": "bfcl-product",
-      "path": "bench/exam/imported/bfcl-product/bfcl_recovery_multi_turn_base_8",
-      "sha256": "17f465df52f1fa907d8b727f894d94f5a672c223b045bf03ef32f965abeab55d",
-      "scenario": "hybrid",
-      "task_type": "multi_turn",
-      "level": "L0",
-      "language": "zh",
-      "user_turns": 2,
-      "answer_form": "contains",
-      "task": "find-read",
-      "difficulties": [
-        "recovery",
-        "follow-up"
-      ],
-      "author": "import:bfcl-v4",
-      "status": "draft"
-    },
-    {
       "id": "bfcl_supplied_simple_python_14",
       "suite": "bfcl-product",
       "path": "bench/exam/imported/bfcl-product/bfcl_supplied_simple_python_14",
       "sha256": "edc9a7a7aa4a3d90436e8d67efc7b70ddbce2fa48c9afcd490973d5bcc383873",
-      "scenario": "filesystem",
-      "task_type": "find_file",
-      "level": "L0",
-      "language": "zh",
-      "user_turns": 1,
-      "answer_form": "contains",
-      "task": "find-read",
-      "difficulties": [],
-      "author": "import:bfcl-v4",
-      "status": "draft"
-    },
-    {
-      "id": "bfcl_supplied_simple_python_44",
-      "suite": "bfcl-product",
-      "path": "bench/exam/imported/bfcl-product/bfcl_supplied_simple_python_44",
-      "sha256": "77731d0bda18f125d0896e4d1487a13a8b76e3a8d38693508b0025ec68a2735c",
       "scenario": "filesystem",
       "task_type": "find_file",
       "level": "L0",
@@ -1175,25 +957,6 @@
       "answer_form": "number",
       "task": "compute",
       "difficulties": [],
-      "author": "llm:claude-opus-5-5",
-      "status": "draft"
-    },
-    {
-      "id": "bsh-0002",
-      "suite": "bashprobe",
-      "path": "bench/bashprobe/cases/bsh-0002",
-      "sha256": "0dbd3a71ed83d2a145bd7a5ea2dd6987a44202e21a32737fb2279f5b6bfb05ae",
-      "scenario": "bashprobe",
-      "task_type": "filter_count",
-      "level": "L2",
-      "language": "zh",
-      "user_turns": 1,
-      "answer_form": "number",
-      "task": "compute",
-      "difficulties": [
-        "multi-source",
-        "decoy"
-      ],
       "author": "llm:claude-opus-5-5",
       "status": "draft"
     },
@@ -1445,19 +1208,84 @@
       "status": "draft"
     },
     {
-      "id": "wth-0001",
-      "suite": "weatherprobe",
-      "path": "bench/weatherprobe/cases/wth-0001",
-      "sha256": "8333d572563c7f3a1fa78c74caadcb65ed944f219a0e50ac05349caef50d8c9f",
-      "scenario": "weatherprobe",
-      "task_type": "today_high",
-      "level": "L0",
+      "id": "bsh-0103",
+      "suite": "bashprobe-b14",
+      "path": "bench/bashprobe/cases-b14/bsh-0103",
+      "sha256": "695cccba850164b0ec392f0dcc54c252f2cfd9d8db4051277924a49038802bcc",
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "multi-source",
+        "long-input",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0108",
+      "suite": "bashprobe-b14",
+      "path": "bench/bashprobe/cases-b14/bsh-0108",
+      "sha256": "a89e53923c1cd8a5c5660256540849102aca29c7c921e0d503a70f61458488b5",
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "level": "L2",
       "language": "zh",
       "user_turns": 1,
-      "answer_form": "number",
-      "task": "external",
-      "difficulties": [],
-      "author": "llm:claude-opus-5-5",
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "multi-source",
+        "long-input",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0131",
+      "suite": "bashprobe-b14",
+      "path": "bench/bashprobe/cases-b14/bsh-0131",
+      "sha256": "711299bc3890977c89d30495500693aac401880b9b6afa35619db012f4d0ef3e",
+      "scenario": "config",
+      "task_type": "edit_value",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 2,
+      "ref_calls": 3,
+      "answer_form": "contains",
+      "task": "write",
+      "difficulties": [
+        "check",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0138",
+      "suite": "bashprobe-b14",
+      "path": "bench/bashprobe/cases-b14/bsh-0138",
+      "sha256": "889c7aeca3fcfe6676394de35eca7871a7b8c5bcd89d778a1518af84319aac54",
+      "scenario": "docs",
+      "task_type": "write_structured",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "write",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-b14",
       "status": "draft"
     },
     {
@@ -1559,22 +1387,6 @@
       "status": "draft"
     },
     {
-      "id": "wth-0012",
-      "suite": "weatherprobe",
-      "path": "bench/weatherprobe/cases/wth-0012",
-      "sha256": "9e0f43c277bc0eaa9117d48a6ce08393c8cfa09c32245115be9de6bdc705f023",
-      "scenario": "weatherprobe",
-      "task_type": "city_missing",
-      "level": "L1",
-      "language": "zh",
-      "user_turns": 1,
-      "answer_form": "contains",
-      "task": "external",
-      "difficulties": [],
-      "author": "llm:claude-opus-5-5",
-      "status": "draft"
-    },
-    {
       "id": "wth-0013",
       "suite": "weatherprobe",
       "path": "bench/weatherprobe/cases/wth-0013",
@@ -1588,6 +1400,66 @@
       "task": "external",
       "difficulties": [],
       "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0108",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0108",
+      "sha256": "caa3d63ac0c95dcd2807435313b0643bf89d78c12b14fd09837b7f5f3cdee278",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0117",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0117",
+      "sha256": "832b5c804a5817355f235c3e0099b7b6bf224d5e868e269a20208e387c512769",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0118",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0118",
+      "sha256": "d0a5d77518299470aad8e47ecdea6802d54e2c4d94eb7913d0d55d2710e83062",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
       "status": "draft"
     }
   ]

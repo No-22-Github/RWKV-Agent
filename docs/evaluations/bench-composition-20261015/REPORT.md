@@ -196,7 +196,7 @@ workbank 由 GLM 和 DeepSeek 起草，DeepSeek 又是蒸馏老师，在 workban
 
 ---
 
-## 6. 整理建议（待拍板，未实施）
+## 6. 整理建议（2026-10-15 已拍板并实施，结果见 §8～§10）
 
 按改动从小到大排列。
 
@@ -257,3 +257,46 @@ workbank 由 GLM 和 DeepSeek 起草，DeepSeek 又是蒸馏老师，在 workban
 - 两份第二部分只有 v141b-s1224 的一次跑分（k0）。
 - 跑分原始数据在 `local/runs/`，不入库；`analyze.py` 在别的机器上会得到不同的通过率，但构成部分（第 2、3 节）只读 `bench/`，结果一致。
 - bfcl-product、boundary、primitive 的题目在 Go 代码和 `internal/agent/eval/` 里，只做了人工统计，没纳入 `analyze.py`。
+
+---
+
+## 8. 新考卷（已实施）
+
+用户拍板的原则：**考卷题目 = 用户在 App 里会做的事；考卷跑的配置 = App 的默认配置。** 实现如下：
+
+| 部分 | 做了什么 | 位置 |
+|---|---|---|
+| 总表 + 清单 | 每套考卷一份 JSON 清单（每题一行：路径、内容哈希、任务类型、难点、语言、用户轮数、判分方式），配一份由它生成的 `SUITES.md` | `bench/exam/`，生成命令 `rwkv-lab exam build` |
+| 完整考卷 | 380 题 = workbank 干净 112 + p13 60 + bfcl-product 60 + boundary 18 + bash 探针 86 + 天气探针 44；36 道泄漏题不进 | `bench/exam/full.json` |
+| 快测版 | 87 题，按「任务类型 × 语言」分层抽，优先有区分度的题，每类留送分和难题各一 | `bench/exam/quick.json`，`rwkv-lab exam select-quick` |
+| 内置题导出 | bfcl-product、boundary 从 Go 代码导出成普通题目；去掉「必须用某工具、传某参数」的过程约束，只按结果判分 | `bench/exam/imported/` |
+| 自然问法 | 去掉「Reply with only the final answer… UNKNOWN」「reply DONE」，换成 4 种用户口吻的说法（按题目 ID 固定挑选，避免考卷本身变成固定模板）；原题面存在 `tags.legacy_prompt` | `naturalize.py` |
+| 判分 | 数字题改为「回答里出现正确数字」（`expected_number_in_text`）；短串改为按词边界包含；应弃权的题改为「点名缺什么 + 说明没有」；取消字数上限 | `internal/agent/eval/scoring.go` |
+| 跑分 | `agent-eval --cases bench/exam/<x>.json`，清单自带 `--harness app`：工具和 harness 选项全部由 App 的同一份代码生成，文件改动走暂存、跑完自动确认再判分 | `internal/agent/eval/productharness.go`，`api/eval_harness.go` |
+
+任务类型和难点的定义见 `bench/exam/SUITES.md`「名词」一节。
+
+### 8.1 改写时发现并修掉的判分问题
+
+- **中文答案按词边界匹配一律判错**：旧的按词匹配把汉字当成单词字符，「共33条」里找不到「33」。改为汉字一律视为边界。
+- **结尾句暗示只查本地**：最初的两种结尾（「from what's here」「if the data doesn't say」）让模型在 web 题里看了一眼空工作区就放弃。已换成不限定来源的说法。
+
+## 9. App 与评测对齐（已实施）
+
+App 和评测现在共用 `internal/agent/product` 这一份组装逻辑，`api/parity_test.go` 保证两边的系统提示词、工具清单（名字、顺序、schema 哈希）、wire 和兜底参数逐字一致。顺带修掉的 App 问题：
+
+| 问题 | 之前 | 现在 |
+|---|---|---|
+| 格式 | App 新建连接跑 xml-v1，训练和评测用 g1k | 新建连接默认 g1k（已保存的旧配置不改） |
+| 工具 | web、天气、bash 默认关 | 默认全开；没填搜索 key 时工具仍列出，调用时提示去设置里填；缺 bash sidecar 时自动不挂 bash |
+| token 预算 | 回答 1024、决策 512（g1k 第一步的思考会被截断） | 4096 / 2048，与跑分规程一致 |
+| chat-completions 后端（DeepSeek 等） | 套上 g1k 后 runner 直接报错，会话起不来 | 这类后端不套文本续写的 wire 预设 |
+| chat-completions 第一步 | 强制必须调工具（问「六边形几条边」也要先列目录） | 由模型自己决定 |
+
+### 9.1 留给用户决定的一点
+
+App 新建 chat 连接默认**关闭上游思考**（`chatThinking: disabled`）。在 7 道 web 题上，DeepSeek 关思考时只做对 1 道，开思考时 4 道，旧评测配置（开思考）7 道。关思考时它查完本地就放弃，不去上网搜索。要不要把 App 的默认改成开思考，需要你拍板。注意：DeepSeek 开思考时不接受 `tool_choice=required`，而上面已经把第一步改成由模型自己决定，所以现在开思考不会再报 400。
+
+## 10. 验收跑分（2026-10-15，k0，`--harness app`）
+
+**待完整版跑完后填写。**
