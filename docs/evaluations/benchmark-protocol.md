@@ -87,27 +87,32 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 记录 `bank_version`（workbank cases 的 sha256）；题库改过的跑分不与旧分直接比。
 
 **预算（所有模型统一）**：`--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`。
-`--max-tokens` 只管最终回答；决策步不另给就落到协议默认 512。g1k 会无视格式自发 `<think>`（2026-09-23：142/148 题首步），
-512 把一半思考截断成协议无效。自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
-单题超时默认只有 2 分钟：2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断。
+`--max-tokens` 只管最终回答；决策步若落到协议默认 512，g1k 自发的 `<think>`（2026-09-23：142/148 题首步）会被截断一半成协议无效。
+自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
+2026-10-15 起这两项是 agent-eval 的默认值：`--profile g1k*` 未给 `--decision-max-tokens` 时取 2048（`g1k-think` 取 4096，与语料渲染一致），
+`--case-timeout` 默认 30m（原 2 分钟，2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断）。显式传值仍然有效。
 超时值记在 `run.json` 的 `harness.case_timeout_seconds`（2026-09-23 起），闸门检查。
 
-**客户端请求合并（2026-10-15 起默认开启）**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 32`，
-`bench sweep` 显式传这两个值；记入 `harness.remote_batch_wait_ms` 与 `harness.remote_batch_max`，闸门检查。
+**客户端请求合并（2026-10-15 起默认开启）**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 64 --remote-batch-inflight 4`，
+`bench sweep` 显式传这三个值（`--remote-batch-inflight` 可在 sweep 上改）；记入 `harness.remote_batch_wait_ms` / `remote_batch_max` /
+`remote_batch_inflight`，闸门检查。
 - 为什么开：rwkv_lightning **不做跨请求的连续批处理**。每个 HTTP 请求只把自己 `contents[]` 里的 prompt 组成一个 batch 跑到底
-  （上游 `/v1/batch/completions` → `batch_generate_stream_with_state`），还各自分配 CUDA 流与 cuBLASLt workspace（每路约 260 MB）。
-  每请求 1 条 prompt 时，N 路并发 = N 个 bsz=1 解码循环，每步都重读全部权重：7.2B fp16 约 14.4 GB / 1.8 TB/s ≈ 每卡约 125 次前向/秒，
-  所有循环分这一份带宽。2026-10 实测每节点每分钟约 50 次调用，并发从 78 加到 256 吞吐不变，只是排队变长、触发 30 分钟单题超时。
-  合批后一次前向服务一整批；解码受带宽限制，bsz=32 的单步耗时理论上与 bsz=1 接近（实测见下方对照方法）。
-- 当初为什么关（2026-09-23，85e137bd）：合并后的 batch 整批结束才交付，一条复读到上限的生成拖住同批所有短回复
-  （每次调用约 4 分钟，25/148 题撞满 30 分钟）。已修：83e4cac9 / cbae5d56 起按 index 流式累积、本地逐条检测文本停止串，
-  命中即交付该条；全部交付或调用方全部取消后断开连接，服务端随之停止该 batch。
-- 仍然存在的限制：引擎在某行采到 EOS 时只是停止该行，不发信号；各行 `finish_reason` 在整个请求结束时一次性发出。
-  所以以 EOS 结束的调用要等同批最长的一条，`--remote-batch-max 32` 就是为了限制这条尾巴。以 `\nUser:` 结束的调用不受影响。
-- **开/关合批的 run 不能混比**：批维度不同，fp16 数值可能有微小差异。`run check` 对记为 0 的旧 run 仍判 PASS，但标出
-  "unbatched run … do not pair it directly"；`run compare` 两边合批设置不同时在 stderr 警告。比较前用相同设置重跑一侧。
-- 合批窗口与上限改动时，同时改 `internal/continuation/rwkvlightning`（`DefaultBatchWait` / `DefaultBatchMax`），sweep 与闸门自动跟随。
-- 吞吐对照方法见 `docs/evaluations/remote-batch-throughput/PLAN.md`。
+  （上游 `/v1/batch/completions` → `batch_generate_stream_with_state`），同一张卡上多个请求的解码循环轮流执行、不共享前向。
+  2026-10-15 实测（7.2B fp16，详见 `remote-batch-throughput/REPORT.md`）：单卡一步 bsz=1 约 8–12 ms、bsz=64 约 15–23 ms，
+  所以每卡吞吐只看**单个请求里有几行**：bsz=1 约 85–125 tok/s，bsz=64 约 2,700–4,100 tok/s；48 个单行请求并发总共只有约 280 tok/s。
+- 怎么合：同时在跑的合并请求最多 `--remote-batch-inflight` 个（设成端点背后的卡数；8018 网关 3 卡，默认 4）。
+  名额占满时新到的调用排队，等有请求结束就把队列整个作为一个更宽的请求发出；排队超过 2 秒则不等名额直接发
+  （防止某个请求只剩一行在复读到上限、堵住队列）。20ms 窗口只负责把同一时刻到达的调用收齐。
+  只有 20ms 窗口、不设在途上限时，稳态下调用到达率每秒不到 1 次，窗口里几乎凑不到第二条，合批名存实亡。
+- 每行何时交付：命中文本停止串（`</tool_call>`、`\nUser:` 等）即刻交付；以 EOS 结束的行，服务端只是不再输出它
+  （新旧引擎都到整批结束才发各行 `finish_reason`，跑满 max_tokens 也报 `stop`），客户端在同批其他行又走了 64 步、
+  这一行仍无输出时判定它已结束并交付。所有行都交付后断开连接，服务端随之停止这个 batch。
+- 决策、终答、压缩调用的 token 预算不同也合在一个请求里：请求按最宽的预算发，较窄的行在客户端按自己的预算截断（报 `length`）。
+- **开/关合批的 run 不能混比**：批维度不同，fp16 数值有差异（2026-10-15 greedy 对照：第一次调用约 20% 文本不同，此后整题分叉）。
+  `run check` 对记为 0 的旧 run 仍判 PASS，但标出 "unbatched run … do not pair it directly"；`run compare` 两边合批设置不同时在 stderr 警告。
+- 合批参数改动时，同时改 `internal/continuation/rwkvlightning`（`DefaultBatchWait` / `DefaultBatchMax` / `DefaultBatchInflight`），sweep 与闸门自动跟随。
+- 合批之后的瓶颈是**预填充**：agent 每步都把整段上下文重新预填充，workbank prompt 与生成 token 之比约 17–20 : 1。
+  要再快，需要服务端做前缀状态复用（见 REPORT 的服务端建议），客户端无能为力。
 历史上 g1k 用过 10 或 16 步、1024 token，Qwen 用 16 步、4096 token——预算不同的分数不可比。
 
 **重复次数**：
@@ -191,7 +196,7 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`local/runs/wire-check-20260918/api-contract-audit.json` |
 | 关闭合并后 168 路同时预填充打挂共享端点 | 2026-09-23 greedy 102/148 作废 | 本文 §3；总并发 ≤ 64 |
 | 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 已修（逐条按停止串提前交付）；EOS 行仍等整批，见 §5 |
-| 关闭合并后吞吐被 bsz=1 带宽卡死（服务端无连续批处理） | 2026-10 每节点约 50 次调用/分，并发 78→256 不增 | 本文 §5；默认 20ms / 32 合批 |
+| 关闭合并后吞吐被 bsz=1 带宽卡死（服务端无连续批处理） | 2026-10 每节点约 50 次调用/分，并发 78→256 不增；只有 20ms 窗口时稳态凑不到批 | 本文 §5；默认在途 4 / 单批 64 / 窗口 20ms |
 | 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |
 | `/v1/models` 的 `created` 是请求时刻 | 2026-09-23 | 不能据此判断后端重启 |
 | 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |

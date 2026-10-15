@@ -41,10 +41,10 @@ func runSweepCmd(argv []string) int {
 	args := SweepArgs{
 		Suites:         []string{"workbank", "bfcl-product"},
 		K:              "0",
-		Model:          "rwkv-g1k-7b-temp-3601",
 		APIURL:         "https://api-7b.rwkvos.com/v1",
 		Prefix:         "g1k",
 		MaxConcurrency: 64,
+		BatchInflight:  runs.BenchRemoteBatchInflight,
 		MaxAttempts:    2,
 	}
 	var arms, suites string
@@ -54,7 +54,7 @@ func runSweepCmd(argv []string) int {
 	fs.StringVar(&arms, "arms", "", "comma-separated arm names: "+strings.Join(runs.ArmNames(), ", "))
 	fs.StringVar(&suites, "suites", "workbank,bfcl-product", "comma-separated suite names")
 	fs.StringVar(&args.K, "k", "0", "replica indices: 0 | 0-2 | 1,2")
-	fs.StringVar(&args.Model, "model", "rwkv-g1k-7b-temp-3601", "model id")
+	fs.StringVar(&args.Model, "model", "", "model id (default: the endpoint's only model)")
 	fs.StringVar(&args.APIURL, "api-url", "https://api-7b.rwkvos.com/v1", "endpoint base URL")
 	fs.StringVar(&args.Prefix, "prefix", "g1k", "run directory prefix")
 	fs.StringVar(&args.StateID, "state-id", "",
@@ -65,6 +65,8 @@ func runSweepCmd(argv []string) int {
 		"wire profile for the g1k-wire suites (format ablations: g1k+think-fast, ...)")
 	fs.IntVar(&args.MaxConcurrency, "max-concurrency", 64,
 		"total in-flight cases across concurrently running suites")
+	fs.IntVar(&args.BatchInflight, "remote-batch-inflight", runs.BenchRemoteBatchInflight,
+		"coalesced requests each run keeps in flight (set to the endpoint's card count)")
 	fs.IntVar(&args.MaxAttempts, "max-attempts", 2,
 		"whole-run attempts on infra errors; the last attempt is kept")
 	fs.BoolVar(&args.DryRun, "dry-run", false, "print the commands only")

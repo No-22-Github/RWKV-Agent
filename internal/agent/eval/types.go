@@ -239,6 +239,7 @@ type HarnessMetadata struct {
 	CaseTimeoutSeconds       int      `json:"case_timeout_seconds"`
 	RemoteBatchWaitMillis    int      `json:"remote_batch_wait_ms"`
 	RemoteBatchMax           int      `json:"remote_batch_max,omitempty"`
+	RemoteBatchInflight      int      `json:"remote_batch_inflight,omitempty"`
 	ToolProfile              string   `json:"tool_profile,omitempty"`
 	DuplicateReplayLimit     int      `json:"duplicate_replay_limit"`
 	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
@@ -533,11 +534,12 @@ type Config struct {
 	CaseParallelism  int
 	// RemoteBatchWait is the client-side request coalescing window, recorded
 	// in the harness manifest; the runner itself does not coalesce.
-	RemoteBatchWait  time.Duration
-	RemoteBatchMax   int
-	Now              func() time.Time
-	TempDir          string
-	PrimitiveProfile string
+	RemoteBatchWait     time.Duration
+	RemoteBatchMax      int
+	RemoteBatchInflight int
+	Now                 func() time.Time
+	TempDir             string
+	PrimitiveProfile    string
 	// FileToolForm optionally appends the file-editing toolset ("lines" or
 	// "whole", see tools.FileEditForm) to non-primitive suites.
 	FileToolForm string

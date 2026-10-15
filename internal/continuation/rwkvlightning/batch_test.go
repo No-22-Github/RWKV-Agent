@@ -598,7 +598,7 @@ func TestCancelledBatchChoiceDoesNotEmitWhilePeerContinues(t *testing.T) {
 	if shared.Err() != nil {
 		t.Fatal("cancelled a live peer")
 	}
-	outcomes := readBatchStreamResponse(shared, strings.NewReader("data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stale\"}},{\"index\":1,\"delta\":{\"content\":\"fresh\"}}]}\n\ndata: [DONE]\n\n"), calls, "")
+	outcomes := readBatchStreamResponse(shared, strings.NewReader("data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stale\"}},{\"index\":1,\"delta\":{\"content\":\"fresh\"}}]}\n\ndata: [DONE]\n\n"), calls, "", 0)
 	if cancelledText.Len() != 0 || peerText.String() != "fresh" || outcomes[1].err != nil {
 		t.Fatalf("cancelled=%q peer=%q outcomes=%+v", cancelledText.String(), peerText.String(), outcomes)
 	}

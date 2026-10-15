@@ -121,9 +121,12 @@ type SweepArgs struct {
 	AdapterID      string
 	Profile        string
 	MaxConcurrency int
-	MaxAttempts    int
-	DryRun         bool
-	bsz            int
+	// BatchInflight is each agent-eval's --remote-batch-inflight: the
+	// endpoint's card count is the useful value.
+	BatchInflight int
+	MaxAttempts   int
+	DryRun        bool
+	bsz           int
 	// parallel carries the per-suite in-flight case cap (scaledParallelism);
 	// nil falls back to the suiteSpec values.
 	parallel map[string]int
@@ -171,6 +174,9 @@ func RunSweep(args SweepArgs) int {
 	// would derive from the same budget (the snapshot can only lower it).
 	args.parallel = scaledParallelism(args.Suites, args.MaxConcurrency)
 	if args.DryRun {
+		if args.Model == "" {
+			args.Model = "<endpoint-model>"
+		}
 		for _, k := range replicas {
 			for _, arm := range args.Arms {
 				for _, suite := range args.Suites {
@@ -215,6 +221,15 @@ func RunSweep(args SweepArgs) int {
 		return 1
 	}
 	fmt.Printf("ENDPOINT %v %v hard_max_bsz=%v\n", ids, engine, bsz)
+	if args.Model == "" {
+		// No --model: an endpoint serving exactly one model names it.
+		if len(ids) != 1 {
+			fmt.Fprintf(os.Stderr, "endpoint serves %v; pass --model\n", ids)
+			return 1
+		}
+		args.Model = ids[0]
+		fmt.Printf("MODEL %s (from the endpoint)\n", args.Model)
+	}
 	found := false
 	for _, id := range ids {
 		if id == args.Model {
@@ -322,7 +337,8 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		// run check pins these values: batched and unbatched runs are not
 		// paired against each other.
 		"--remote-batch-wait", runs.BenchRemoteBatchWait.String(),
-		"--remote-batch-max", strconv.Itoa(runs.BenchRemoteBatchMax)}
+		"--remote-batch-max", strconv.Itoa(runs.BenchRemoteBatchMax),
+		"--remote-batch-inflight", strconv.Itoa(args.BatchInflight)}
 	// Cloudflare Access headers only when credentials are set; a direct
 	// endpoint (Tailscale, a training box) takes none.
 	if os.Getenv("RWKV_CF_ID") != "" {
@@ -584,19 +600,20 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 
 	// The gate runs in-process now; check_run.py is gone (M5).
 	gateOut, gateCode := runs.RunCheckCaptured(runs.CheckArgs{
-		RunDir:             output,
-		Arm:                arm,
-		RWKV:               true,
-		Primitive:          !spec.g1k,
-		Cases:              spec.count,
-		HasCases:           true,
-		MaxSteps:           16,
-		MaxTokens:          4096,
-		DecisionMaxTokens:  args.decisionBudget(),
-		CaseTimeoutSeconds: 1800,
-		Profile:            args.profile(),
-		RemoteBatchWaitMS:  int(runs.BenchRemoteBatchWait / time.Millisecond),
-		RemoteBatchMax:     runs.BenchRemoteBatchMax,
+		RunDir:              output,
+		Arm:                 arm,
+		RWKV:                true,
+		Primitive:           !spec.g1k,
+		Cases:               spec.count,
+		HasCases:            true,
+		MaxSteps:            16,
+		MaxTokens:           4096,
+		DecisionMaxTokens:   args.decisionBudget(),
+		CaseTimeoutSeconds:  1800,
+		Profile:             args.profile(),
+		RemoteBatchWaitMS:   int(runs.BenchRemoteBatchWait / time.Millisecond),
+		RemoteBatchMax:      runs.BenchRemoteBatchMax,
+		RemoteBatchInflight: args.BatchInflight,
 	})
 
 	task := mapOfAny(summary, "metrics", "task_success")

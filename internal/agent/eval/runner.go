@@ -339,6 +339,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			CaseTimeoutSeconds:       int(config.CaseTimeout / time.Second),
 			RemoteBatchWaitMillis:    int(config.RemoteBatchWait / time.Millisecond),
 			RemoteBatchMax:           config.RemoteBatchMax,
+			RemoteBatchInflight:      config.RemoteBatchInflight,
 			ToolProfile:              config.PrimitiveProfile,
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,

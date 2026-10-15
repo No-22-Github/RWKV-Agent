@@ -50,7 +50,7 @@ RWKV（workbank）：
   --api-header-env 'CF-Access-Client-Id=RWKV_CF_ID' --api-header-env 'CF-Access-Client-Secret=RWKV_CF_SECRET' \
   --profile g1k --strict-spec \
   --cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft \
-  --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 48 --case-timeout 30m \
+  --max-steps 16 --max-tokens 4096 --case-parallelism 48 \
   <采样档参数> \
   --output local/runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>
 ```
@@ -63,14 +63,15 @@ cuda 后端：`--api-url` 只写到 `/v1`，**不传** `--api-stop-tokens`（客
 
 API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-tokens`；对话模板由推理端负责。
 
-**`--decision-max-tokens 2048` 必须给**：不给就落到协议默认 512，g1k 自发思考会被截断成协议无效。
-**合批用默认值，不要再给 `--remote-batch-wait 0s`**（2026-10-15 起）：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 32`，
-把同一时刻到达的调用合进一个 `/v1/batch/completions` 的 `contents[]`。rwkv_lightning **没有跨请求连续批处理**，
-每个请求只跑自己的 contents[]；关掉合批时 N 路并发 = N 个 bsz=1 循环，被显存带宽卡在约 125 次前向/秒/卡
-（7.2B fp16 约 14.4 GB 权重 / 1.8 TB/s），并发加到 256 也只是排队变长。命中 `\nUser:` 等文本停止串的调用本地即刻交付；
-以 EOS 结束的调用要等同批最长的一条（服务端整批结束才报 finish_reason），所以单批设上限 32。
+**决策预算与单题超时已是默认值**（2026-10-15 起）：`--profile g1k` 不给 `--decision-max-tokens` 时取 2048（`g1k-think` 取 4096），
+`--case-timeout` 默认 30m。模板里照写也无妨；旧二进制（2026-10-15 之前）必须显式给，否则落到 512 / 2 分钟。
+**合批用默认值，不要再给 `--remote-batch-wait 0s`**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 64 --remote-batch-inflight 4`。
+rwkv_lightning **没有跨请求连续批处理**，同卡上多个请求轮流解码，每卡吞吐只看单个请求有几行（bsz=1 约 100 tok/s，bsz=64 约 3,000+）。
+客户端最多同时挂 `--remote-batch-inflight` 个请求（**设成端点背后的卡数**：8018 网关 3 卡用默认 4，单卡端点给 1 或 2），
+其余调用排队、在有请求结束时合成一个更宽的请求发出，排队超 2 秒不等名额直接发。
+命中文本停止串的调用即刻交付；EOS 结束的行在同批其他行又走 64 步仍无输出时交付，不再等整批结束。
 **开/关合批的 run 不能混比**：批维度不同，fp16 数值可能有微小差异；`run compare` 遇到两边合批设置不同会警告。
-**`--case-timeout 30m` 必须给**：默认 2 分钟，高并发下大批题被计时器掐断（报 `context deadline exceeded`）。
+合批后剩下的瓶颈是预填充（workbank prompt:生成 ≈ 20:1），客户端已无可压。
 
 采样用命名预设 `--sampling <名字>`，不要手拼六个数（**`--top-k 1` 会让温度失效**）：
 
@@ -121,8 +122,8 @@ local/bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --case
 ```
 
 任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == g1k`、采样逐项、
-步数、终答与决策 token 预算、单题超时、请求合并窗口（RWKV 须为 20ms + 单批上限 32；旧 run 记为 0 也判 PASS，
-但会提示"不可与合批 run 直接配对"）、题数，并给出 strict 分（作废计失败）。
+步数、终答与决策 token 预算、单题超时、请求合并窗口（RWKV 须为 20ms + 单批上限 64 + 在途 4；旧 run 记为 0 也判 PASS，
+但会提示"不可与合批 run 直接配对"）、题数，并给出 strict 分（作废计失败）。sweep 改过 `--remote-batch-inflight` 时，check 也要传同一个值。
 
 `invalid` 不为 0 时，分清两类：
 - 传输错误（5xx、`unexpected EOF`、TLS）：`bench sweep` 已自动用 `--resume` 重跑这些题；手动跑时把成品目录挪开，

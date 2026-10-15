@@ -143,6 +143,7 @@ type runOptions struct {
 	maxActiveBatch           int
 	remoteBatchWait          time.Duration
 	remoteBatchMax           int
+	remoteBatchInflight      int
 	subagentMaxParallel      int
 	subagentMaxSteps         int
 	subagentTimeout          time.Duration
@@ -660,10 +661,11 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.BoolVar(&options.evalResume, "resume", false, "continue an interrupted run from <output>.partial: keep its finished cases and run the rest, rerunning invalid and infrastructure-error cases; refused when the run configuration differs (starts fresh when no partial exists)")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
-			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
+			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 30*time.Minute, "timeout for each isolated eval case (a case waits behind its peers' calls at high parallelism, so short timeouts cut healthy cases)")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
 			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", rwkvlightning.DefaultBatchWait, "RWKV Lightning coalescing window for concurrent eval cases: calls arriving within it share one contents[] request (the server does no cross-request batching, so single-prompt requests are bandwidth-bound bsz=1 loops). A call that hits a text stop returns at once; one that ends on EOS waits for its batch, because the server reports EOS only when the request ends. 0 sends one request per call")
 			fs.IntVar(&options.remoteBatchMax, "remote-batch-max", rwkvlightning.DefaultBatchMax, "maximum calls in one coalesced RWKV Lightning request; a full window is sent at once (0 = no cap)")
+			fs.IntVar(&options.remoteBatchInflight, "remote-batch-inflight", rwkvlightning.DefaultBatchInflight, "maximum coalesced RWKV Lightning requests running at once; calls arriving meanwhile queue and leave together as one wider request when one finishes (or after 2s). Set it to the endpoint's card count (0 = no cap)")
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
 			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
@@ -743,6 +745,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	if name == "agent-eval" {
 		options.evalSuite = agenteval.CanonicalBuiltinSuiteName(options.evalSuite)
+		if !samplingExplicit["decision-max-tokens"] {
+			options.decisionMaxTokens = g1kDecisionBudget(options.profile, options.decisionMaxTokens)
+		}
 		if options.evalSuite == agenteval.SuiteBFCLProduct {
 			if !options.progressiveToolsExplicit {
 				options.progressiveTools = true
@@ -940,6 +945,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" && (options.remoteBatchWait < 0 || options.remoteBatchWait > time.Second) {
 			return options, errors.New("--remote-batch-wait must be between 0 and 1s")
+		}
+		if name == "agent-eval" && (options.remoteBatchInflight < 0 || options.remoteBatchInflight > 1024) {
+			return options, errors.New("--remote-batch-inflight must be between 0 and 1024")
 		}
 		if name == "agent-eval" && (options.remoteBatchMax < 0 || options.remoteBatchMax > 1024) {
 			return options, errors.New("--remote-batch-max must be between 0 and 1024")
@@ -1266,9 +1274,9 @@ func newAgentGeneratorSource(
 		if options.evalCaseParallelism > 1 {
 			batchWait = options.remoteBatchWait
 		}
-		batchMax := 0
+		batchMax, batchInflight := 0, 0
 		if batchWait > 0 {
-			batchMax = options.remoteBatchMax
+			batchMax, batchInflight = options.remoteBatchMax, options.remoteBatchInflight
 		}
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
@@ -1280,7 +1288,7 @@ func newAgentGeneratorSource(
 			ChatSystemSuffix:    options.chatSystemSuffix,
 			StopTokens:          options.apiStopTokens, StateID: options.stateID,
 			AdapterID: options.adapterID,
-			Stream:    &options.apiStream, BatchWait: batchWait, BatchMax: batchMax,
+			Stream:    &options.apiStream, BatchWait: batchWait, BatchMax: batchMax, BatchInflight: batchInflight,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -1887,6 +1895,7 @@ func runAgentEval(args []string) error {
 		CaseParallelism:       options.evalCaseParallelism,
 		RemoteBatchWait:       evalRemoteBatchWait(options),
 		RemoteBatchMax:        evalRemoteBatchMax(options),
+		RemoteBatchInflight:   evalRemoteBatchInflight(options),
 		PrimitiveProfile:      options.primitiveProfile,
 		FileToolForm:          options.evalFileToolForm,
 		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
@@ -2673,6 +2682,29 @@ func evalRemoteBatchMax(options runOptions) int {
 		return 0
 	}
 	return options.remoteBatchMax
+}
+
+// g1kDecisionBudget is the decision budget a g1k-profile eval uses when
+// --decision-max-tokens is not given; it matches the corpus render budget
+// (bench sweep decisionBudget). The protocol default (512) cut g1k's own
+// thinking into invalid actions, so every bench command had to pass it.
+func g1kDecisionBudget(profile string, fallback int) int {
+	switch {
+	case strings.HasPrefix(profile, "g1k-think"):
+		return 4096
+	case profile == "g1k" || strings.HasPrefix(profile, "g1k+"):
+		return 2048
+	}
+	return fallback
+}
+
+// evalRemoteBatchInflight is the in-flight request cap recorded next to the
+// window; it is 0 whenever no coalescing happens.
+func evalRemoteBatchInflight(options runOptions) int {
+	if evalRemoteBatchWait(options) <= 0 {
+		return 0
+	}
+	return options.remoteBatchInflight
 }
 
 // applySamplingPreset fills the sampling fields the user did not set explicitly

@@ -91,6 +91,8 @@ type Config struct {
 	BatchWait        time.Duration
 	// BatchMax caps one coalesced RWKV Lightning request; zero is no cap.
 	BatchMax int
+	// BatchInflight caps concurrently running coalesced requests; zero is no cap.
+	BatchInflight int
 }
 
 func DefaultStopTokens(kind string) string {
@@ -143,6 +145,7 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			Headers: config.Headers, HTTPClient: config.HTTPClient,
 			StopTokenMode: mode, StopTokenIDs: ids, StateID: config.StateID, AdapterID: config.AdapterID,
 			Stream: config.Stream, BatchWait: config.BatchWait, BatchMax: config.BatchMax,
+			BatchInflight: config.BatchInflight,
 		})
 		if err != nil {
 			return nil, err

@@ -20,16 +20,24 @@ const maxResponseBytes = 4 * 1024 * 1024
 
 // Default coalescing for concurrent eval traffic. rwkv_lightning has no
 // cross-request continuous batching: every HTTP request decodes only its own
-// contents[] on its own CUDA stream, so N single-prompt requests are N
-// batch-size-1 loops that each re-read the full weights per token and share
-// one memory bus (a 7.2B fp16 model is ~14.4 GB, ~125 forwards/s on a
-// 1.8 TB/s card in total). Merging calls that arrive within DefaultBatchWait
-// into one contents[] turns them into one batched forward per token.
-// DefaultBatchMax keeps one request from growing so wide that every step, and
-// so the slowest member's tail, gets slower.
+// contents[], and the decode loops of concurrent requests on one card take
+// turns rather than sharing a forward. Measured on the 3-card 8018 gateway
+// (7.2B fp16, 2026-10-15) one step costs ~12 ms at 1 row and ~23 ms at 64
+// rows, so a card yields ~85 tok/s per single-prompt request but ~2,700 tok/s
+// for one 64-row request; 48 single-prompt requests together reached only
+// 280 tok/s across all three cards.
+//
+// So the client keeps few requests in flight and makes each one wide:
+// calls that arrive while DefaultBatchInflight requests are running queue up
+// and leave together as the next request when one finishes. DefaultBatchWait
+// gathers simultaneous arrivals; DefaultBatchHold bounds how long a queued
+// call waits behind requests that are still decoding one runaway row.
+// DefaultBatchMax caps one request (the server's admission limit was 169 rows).
 const (
-	DefaultBatchWait = 20 * time.Millisecond
-	DefaultBatchMax  = 32
+	DefaultBatchWait     = 20 * time.Millisecond
+	DefaultBatchMax      = 64
+	DefaultBatchInflight = 4
+	DefaultBatchHold     = 2 * time.Second
 )
 
 var ErrRemote = fmt.Errorf(
@@ -37,7 +45,6 @@ var ErrRemote = fmt.Errorf(
 	continuation.ErrUpstream,
 )
 
-// StopTokenMode selects how the request populates rwkv_lightning's stop_tokens.
 type StopTokenMode string
 
 const (
@@ -72,6 +79,13 @@ type Config struct {
 	// that fills up is sent at once and an oversized group is split. Zero
 	// means no cap.
 	BatchMax int
+	// BatchInflight caps how many coalesced requests run at once; calls that
+	// arrive while the cap is reached queue and leave together when a request
+	// finishes (or after BatchHold). Zero sends every window as it closes.
+	BatchInflight int
+	// BatchHold is the longest a queued call waits for a free slot before it
+	// is sent anyway. Zero means DefaultBatchHold.
+	BatchHold time.Duration
 	// StateID is the default uploaded-state identifier applied to every
 	// generation that does not carry one of its own. Empty leaves the server's
 	// zero-initialized state in charge.
@@ -94,11 +108,18 @@ type Client struct {
 	stream        bool
 	batchWait     time.Duration
 	batchMax      int
+	batchInflight int
+	batchHold     time.Duration
 	headers       http.Header
 	httpClient    *http.Client
 	batchMu       sync.Mutex
 	batchPending  []*pendingCall
 	batchTimer    *time.Timer
+	// holdTimer forces a dispatch when queued calls waited batchHold for a
+	// free slot; inflight counts coalesced requests not yet finished.
+	holdTimer    *time.Timer
+	pendingSince time.Time
+	inflight     int
 }
 
 func New(config Config) (*Client, error) {
@@ -126,6 +147,10 @@ func New(config Config) (*Client, error) {
 	if stopTokenIDs == nil {
 		stopTokenIDs = []int{0}
 	}
+	batchHold := config.BatchHold
+	if batchHold <= 0 {
+		batchHold = DefaultBatchHold
+	}
 	stream := true
 	if config.Stream != nil {
 		stream = *config.Stream
@@ -141,6 +166,8 @@ func New(config Config) (*Client, error) {
 		stream:        stream,
 		batchWait:     config.BatchWait,
 		batchMax:      config.BatchMax,
+		batchInflight: config.BatchInflight,
+		batchHold:     batchHold,
 		headers:       config.Headers.Clone(),
 		httpClient:    httpClient,
 	}, nil

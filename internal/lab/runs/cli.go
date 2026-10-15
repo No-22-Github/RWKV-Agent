@@ -116,6 +116,7 @@ func runCheckCmd(argv []string) int {
 	fs.IntVar(&args.CaseTimeoutSeconds, "case-timeout-seconds", 1800, "expected case_timeout_seconds")
 	fs.IntVar(&args.RemoteBatchWaitMS, "remote-batch-wait-ms", defaultWaitMS, "expected RWKV remote_batch_wait_ms (0 also passes as a legacy unbatched run)")
 	fs.IntVar(&args.RemoteBatchMax, "remote-batch-max", BenchRemoteBatchMax, "expected RWKV remote_batch_max when coalescing is on")
+	fs.IntVar(&args.RemoteBatchInflight, "remote-batch-inflight", BenchRemoteBatchInflight, "expected RWKV remote_batch_inflight when coalescing is on")
 	boolFlags := map[string]bool{"rwkv": true, "primitive": true}
 	if err := ParseInterspersed(fs, argv, boolFlags); err != nil {
 		return 2

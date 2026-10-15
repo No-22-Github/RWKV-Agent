@@ -359,7 +359,8 @@ func remoteBatchSetting(runDir string) (setting string, ok bool) {
 		return "unbatched (remote_batch_wait_ms=0)", true
 	}
 	batchMax, _ := lab.IntOf(harness["remote_batch_max"])
-	return fmt.Sprintf("remote_batch_wait_ms=%d remote_batch_max=%d", wait, batchMax), true
+	inflight, _ := lab.IntOf(harness["remote_batch_inflight"])
+	return fmt.Sprintf("remote_batch_wait_ms=%d remote_batch_max=%d remote_batch_inflight=%d", wait, batchMax, inflight), true
 }
 
 // remoteBatchWarning is non-empty when both sides are RWKV runs whose

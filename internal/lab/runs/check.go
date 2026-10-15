@@ -22,6 +22,9 @@ import (
 const (
 	BenchRemoteBatchWait = rwkvlightning.DefaultBatchWait
 	BenchRemoteBatchMax  = rwkvlightning.DefaultBatchMax
+	// BenchRemoteBatchInflight matches the 3-card 8018 gateway plus one; pass
+	// the endpoint's card count to sweep and check when it differs.
+	BenchRemoteBatchInflight = rwkvlightning.DefaultBatchInflight
 )
 
 // Validity gate for one agent-eval run (docs/evaluations/benchmark-protocol.md
@@ -128,6 +131,8 @@ type CheckArgs struct {
 	// note that it does not pair with batched runs.
 	RemoteBatchWaitMS int
 	RemoteBatchMax    int
+	// RemoteBatchInflight is the expected harness.remote_batch_inflight.
+	RemoteBatchInflight int
 }
 
 // RunCheck is the `run check` command.
@@ -238,7 +243,7 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 		intEquals(harness["case_timeout_seconds"], args.CaseTimeoutSeconds),
 		fmt.Sprintf("got %s (absent before 2026-09-23 binaries)", pyRepr(harness["case_timeout_seconds"])))
 	if args.RWKV {
-		checkRemoteBatch(gate, harness, args.RemoteBatchWaitMS, args.RemoteBatchMax)
+		checkRemoteBatch(gate, harness, args.RemoteBatchWaitMS, args.RemoteBatchMax, args.RemoteBatchInflight)
 	}
 
 	caseIDs := sliceOf(run, "case_ids")
@@ -301,7 +306,7 @@ func closeEnough(got, want any) bool {
 // window passes, and so does 0: runs from before coalescing became the bench
 // default recorded 0 and stay valid on their own, but are flagged as not
 // pairable with batched runs.
-func checkRemoteBatch(gate func(string, bool, string), harness map[string]any, wantWaitMS, wantMax int) {
+func checkRemoteBatch(gate func(string, bool, string), harness map[string]any, wantWaitMS, wantMax, wantInflight int) {
 	gotWait := harness["remote_batch_wait_ms"]
 	gotMax, _ := lab.IntOf(harness["remote_batch_max"]) // absent before 2026-10-15
 	if wantWaitMS == 0 || !intEquals(gotWait, 0) {
@@ -310,6 +315,9 @@ func checkRemoteBatch(gate func(string, bool, string), harness map[string]any, w
 		if wantWaitMS != 0 && intEquals(gotWait, wantWaitMS) {
 			gate(fmt.Sprintf("remote_batch_max == %d", wantMax), gotMax == wantMax,
 				fmt.Sprintf("got %d", gotMax))
+			gotInflight, _ := lab.IntOf(harness["remote_batch_inflight"])
+			gate(fmt.Sprintf("remote_batch_inflight == %d", wantInflight), gotInflight == wantInflight,
+				fmt.Sprintf("got %d", gotInflight))
 		}
 		return
 	}

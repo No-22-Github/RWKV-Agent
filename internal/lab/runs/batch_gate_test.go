@@ -14,11 +14,11 @@ type gateLine struct {
 	detail string
 }
 
-func runBatchGate(harness map[string]any, wantWaitMS, wantMax int) []gateLine {
+func runBatchGate(harness map[string]any, wantWaitMS, wantMax, wantInflight int) []gateLine {
 	var lines []gateLine
 	checkRemoteBatch(func(name string, ok bool, detail string) {
 		lines = append(lines, gateLine{name, ok, detail})
-	}, harness, wantWaitMS, wantMax)
+	}, harness, wantWaitMS, wantMax, wantInflight)
 	return lines
 }
 
@@ -30,14 +30,16 @@ func TestCheckRemoteBatchGate(t *testing.T) {
 		pass    bool
 		note    string
 	}{
-		{"matching batched run", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 32.0}, true, ""},
+		{"matching batched run", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 32.0, "remote_batch_inflight": 4.0}, true, ""},
+		{"wrong in-flight cap", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 32.0, "remote_batch_inflight": 0.0}, false, ""},
+		{"window run without in-flight cap", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 32.0}, false, ""},
 		{"legacy unbatched run", map[string]any{"remote_batch_wait_ms": 0.0}, true, "not pair it directly"},
 		{"wrong window", map[string]any{"remote_batch_wait_ms": 10.0, "remote_batch_max": 32.0}, false, ""},
-		{"wrong cap", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 64.0}, false, ""},
+		{"wrong cap", map[string]any{"remote_batch_wait_ms": 20.0, "remote_batch_max": 64.0, "remote_batch_inflight": 4.0}, false, ""},
 		{"window without recorded cap", map[string]any{"remote_batch_wait_ms": 20.0}, false, ""},
 		{"window missing", map[string]any{}, false, ""},
 	} {
-		lines := runBatchGate(test.harness, 20, 32)
+		lines := runBatchGate(test.harness, 20, 32, 4)
 		pass := true
 		details := ""
 		for _, line := range lines {
@@ -52,7 +54,7 @@ func TestCheckRemoteBatchGate(t *testing.T) {
 		}
 	}
 	// An explicit 0 expectation is an exact match, not the legacy allowance.
-	if lines := runBatchGate(map[string]any{"remote_batch_wait_ms": 20.0}, 0, 0); len(lines) != 1 || lines[0].ok {
+	if lines := runBatchGate(map[string]any{"remote_batch_wait_ms": 20.0}, 0, 0, 0); len(lines) != 1 || lines[0].ok {
 		t.Fatalf("wait 0 expectation accepted a batched run: %+v", lines)
 	}
 }

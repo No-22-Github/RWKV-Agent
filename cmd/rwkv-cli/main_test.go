@@ -709,8 +709,31 @@ func TestAgentEvalAcceptsRemoteContinuation(t *testing.T) {
 	if options.completion != "rwkv-lightning-python" ||
 		options.apiURL == "" ||
 		options.tokenizer != "" ||
-		options.evalCaseTimeout != 2*time.Minute {
+		options.evalCaseTimeout != 30*time.Minute {
 		t.Fatalf("remote agent eval options = %+v", options)
+	}
+}
+
+func TestAgentEvalDefaultsG1KDecisionBudget(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		args []string
+		want int
+	}{
+		{[]string{"--profile", "g1k"}, 2048},
+		{[]string{"--profile", "g1k+think-fast"}, 2048},
+		{[]string{"--profile", "g1k-think"}, 4096},
+		{[]string{"--profile", "g1k", "--decision-max-tokens", "512"}, 512},
+		{[]string{"--profile", "xml-v1"}, 0},
+	} {
+		args := append([]string{"--model", "m", "--completion", "rwkv-lightning-cuda", "--api-url", "http://example.test/v1"}, test.args...)
+		options, err := parseRunOptions("agent-eval", args)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if options.decisionMaxTokens != test.want {
+			t.Errorf("%v: decision budget = %d, want %d", test.args, options.decisionMaxTokens, test.want)
+		}
 	}
 }
 

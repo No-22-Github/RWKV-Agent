@@ -149,8 +149,8 @@ func TestSupportsResumeDetectsOldBuilds(t *testing.T) {
 }
 
 func TestSweepCoalescesRemoteCalls(t *testing.T) {
-	cmd := strings.Join(sweepCommand(SweepArgs{Model: "m", APIURL: "http://endpoint"}, "workbank", "greedy", "out"), " ")
-	if !strings.Contains(cmd, "--remote-batch-wait 20ms --remote-batch-max 32") {
+	cmd := strings.Join(sweepCommand(SweepArgs{Model: "m", APIURL: "http://endpoint", BatchInflight: 4}, "workbank", "greedy", "out"), " ")
+	if !strings.Contains(cmd, "--remote-batch-wait 20ms --remote-batch-max 64 --remote-batch-inflight 4") {
 		t.Fatalf("sweep command does not pass the bench coalescing settings: %s", cmd)
 	}
 }

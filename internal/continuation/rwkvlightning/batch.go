@@ -51,17 +51,20 @@ func (c *Client) continueBatched(
 		call.sinkMu.Unlock()
 	}()
 	c.batchMu.Lock()
+	if len(c.batchPending) == 0 {
+		c.pendingSince = time.Now()
+	}
 	c.batchPending = append(c.batchPending, call)
-	full := c.batchMax > 0 && len(c.batchPending) >= c.batchMax
-	if c.batchTimer == nil && !full {
-		c.batchTimer = time.AfterFunc(c.batchWait, c.flushBatch)
+	var batches [][]*pendingCall
+	if c.batchMax > 0 && len(c.batchPending) >= c.batchMax {
+		// A full window goes out now, slot or not: it is as wide as a
+		// request gets, which is what the in-flight cap is waiting for.
+		batches = c.takeBatchesLocked()
+	} else if c.batchTimer == nil && c.holdTimer == nil {
+		c.batchTimer = time.AfterFunc(c.batchWait, c.windowClosed)
 	}
 	c.batchMu.Unlock()
-	if full {
-		// A full window goes out now rather than waiting for the timer; the
-		// pending timer then finds nothing (or a later window) to flush.
-		c.flushBatch()
-	}
+	c.launch(batches)
 
 	select {
 	case outcome := <-call.response:
@@ -71,17 +74,66 @@ func (c *Client) continueBatched(
 	}
 }
 
-func (c *Client) flushBatch() {
+// windowClosed sends the gathered calls when a request slot is free, and
+// otherwise leaves them queued until a running request finishes or the hold
+// expires.
+func (c *Client) windowClosed() {
 	c.batchMu.Lock()
-	calls := c.batchPending
-	c.batchPending = nil
-	if c.batchTimer != nil {
-		c.batchTimer.Stop()
-		c.batchTimer = nil
+	c.batchTimer = nil
+	var batches [][]*pendingCall
+	if c.batchInflight <= 0 || c.inflight < c.batchInflight {
+		batches = c.takeBatchesLocked()
+	} else if len(c.batchPending) > 0 && c.holdTimer == nil {
+		c.holdTimer = time.AfterFunc(time.Until(c.pendingSince.Add(c.batchHold)), c.holdExpired)
 	}
 	c.batchMu.Unlock()
+	c.launch(batches)
+}
+
+// holdExpired sends calls that waited batchHold for a slot: a request whose
+// last live row repeats up to max_tokens would otherwise stall the queue.
+func (c *Client) holdExpired() {
+	c.batchMu.Lock()
+	c.holdTimer = nil
+	batches := c.takeBatchesLocked()
+	c.batchMu.Unlock()
+	c.launch(batches)
+}
+
+// requestFinished frees a slot and sends whatever queued behind it, unless
+// the gathering window of a fresh arrival is still open.
+func (c *Client) requestFinished() {
+	c.batchMu.Lock()
+	c.inflight--
+	var batches [][]*pendingCall
+	if c.batchTimer == nil {
+		batches = c.takeBatchesLocked()
+	}
+	c.batchMu.Unlock()
+	c.launch(batches)
+}
+
+// flushBatch sends everything pending at once, ignoring the in-flight cap.
+func (c *Client) flushBatch() {
+	c.batchMu.Lock()
+	batches := c.takeBatchesLocked()
+	c.batchMu.Unlock()
+	c.launch(batches)
+}
+
+// takeBatchesLocked empties the queue into requests: one per compatibility
+// group, split at batchMax. Each counts as in flight until requestFinished.
+func (c *Client) takeBatchesLocked() [][]*pendingCall {
+	calls := c.batchPending
+	c.batchPending = nil
+	for _, timer := range []**time.Timer{&c.batchTimer, &c.holdTimer} {
+		if *timer != nil {
+			(*timer).Stop()
+			*timer = nil
+		}
+	}
 	if len(calls) == 0 {
-		return
+		return nil
 	}
 
 	groups := make(map[string][]*pendingCall)
@@ -93,19 +145,28 @@ func (c *Client) flushBatch() {
 		}
 		groups[key] = append(groups[key], call)
 	}
+	var batches [][]*pendingCall
 	for _, key := range order {
 		group := groups[key]
-		// BatchMax caps one request's contents[]: a larger batch only adds
-		// rows to every decoding step and lengthens the tail of the slowest
-		// member, so an oversized group is split into several requests.
 		for len(group) > 0 {
 			size := len(group)
 			if c.batchMax > 0 && size > c.batchMax {
 				size = c.batchMax
 			}
-			go c.executeBatch(group[:size:size])
+			batches = append(batches, group[:size:size])
 			group = group[size:]
 		}
+	}
+	c.inflight += len(batches)
+	return batches
+}
+
+func (c *Client) launch(batches [][]*pendingCall) {
+	for _, batch := range batches {
+		go func() {
+			defer c.requestFinished()
+			c.executeBatch(batch)
+		}()
 	}
 }
 
@@ -126,7 +187,7 @@ func (c *Client) batchCompatibilityKey(request continuation.Request) string {
 		AdapterID string
 	}{
 		Model:      model,
-		MaxTokens:  request.MaxOutputTokens,
+		MaxTokens:  c.groupMaxTokens(request),
 		StopTokens: c.serverStopTokens(request.Stops),
 		Sampling:   request.Sampling,
 		Stream:     c.stream,
@@ -134,6 +195,18 @@ func (c *Client) batchCompatibilityKey(request continuation.Request) string {
 		AdapterID:  c.adapterID,
 	})
 	return string(encoded)
+}
+
+// groupMaxTokens is the token budget that splits calls into separate
+// requests. A streamed batch is sent with its widest member's budget and cuts
+// each narrower member locally (one delta per token at chunk_size 1), so
+// decision, answer and compression calls share a request. A buffered response
+// cannot be cut per token, so there the budget stays part of the key.
+func (c *Client) groupMaxTokens(request continuation.Request) int {
+	if c.stream {
+		return 0
+	}
+	return request.MaxOutputTokens
 }
 
 func (c *Client) executeBatch(calls []*pendingCall) {
@@ -160,6 +233,7 @@ func (c *Client) executeBatch(calls []*pendingCall) {
 	contents := make([]string, len(active))
 	for index, call := range active {
 		contents[index] = call.request.Prompt
+		request.MaxOutputTokens = max(request.MaxOutputTokens, call.request.MaxOutputTokens)
 	}
 	encoded, err := c.encodeRequestBody(model, contents, request)
 	if err != nil {
@@ -186,7 +260,7 @@ func (c *Client) executeBatch(calls []*pendingCall) {
 
 	var outcomes []batchOutcome
 	if c.stream {
-		outcomes = readBatchStreamResponse(requestContext, response.Body, active, c.password)
+		outcomes = readBatchStreamResponse(requestContext, response.Body, active, c.password, request.MaxOutputTokens)
 	} else {
 		outcomes = readBatchBufferedResponse(response.Body, active, c.password)
 	}
@@ -274,15 +348,30 @@ type batchStreamState struct {
 	stop      string
 	err       error
 	delivered bool
+	// lastTick is the batch clock when this choice last streamed content.
+	lastTick int
 }
+
+// batchSilentSteps is how many decode steps a choice may stream nothing
+// while its peers keep streaming before it counts as ended by the server.
+// rwkv_lightning stops a row on EOS without saying so until the whole request
+// ends; a live row streams one delta per token, and only a split multi-byte
+// character (at most three tokens) holds a delta back.
+const batchSilentSteps = 64
 
 func readBatchStreamResponse(
 	ctx context.Context,
 	body io.Reader,
 	calls []*pendingCall,
 	secret string,
+	requestMaxTokens int,
 ) []batchOutcome {
 	states := make([]batchStreamState, len(calls))
+	// clock counts decode steps: the most content chunks any choice of this
+	// request has streamed, including choices already handed back, which the
+	// server keeps decoding.
+	clock := 0
+	ticks := make([]int, len(calls))
 	scanner := bufio.NewScanner(body)
 	scanner.Buffer(make([]byte, 64*1024), maxResponseBytes)
 	usage := continuation.Usage{}
@@ -319,6 +408,19 @@ func readBatchStreamResponse(
 		calls[index].deliver(batchOutcome{result: continuation.Result{
 			Text: state.result.String(), FinishReason: finish, Usage: callUsage(index), Stop: state.stop,
 		}, err: state.err})
+	}
+	// finishChoice hands back a choice that ended without a stop sequence:
+	// what is still held back as a possible stop prefix is final text now.
+	finishChoice := func(index int, finish continuation.FinishReason) {
+		state := &states[index]
+		state.finish = finish
+		if err := emitBatchText(state, calls[index].emit, state.pending); err != nil {
+			state.err = err
+			state.finish = continuation.FinishCancelled
+		}
+		state.pending = ""
+		state.stopped = true
+		deliverEarly(index)
 	}
 	allFinished := func() bool {
 		for index := range states {
@@ -368,6 +470,11 @@ func readBatchStreamResponse(
 				continue
 			}
 			state := &states[choice.Index]
+			if choice.Delta.Content != "" {
+				ticks[choice.Index]++
+				clock = max(clock, ticks[choice.Index])
+				state.lastTick = clock
+			}
 			if err := calls[choice.Index].ctx.Err(); err != nil && !state.delivered {
 				state.err = err
 				state.finish = continuation.FinishCancelled
@@ -399,16 +506,25 @@ func readBatchStreamResponse(
 				deliverEarly(choice.Index)
 				continue
 			}
+			if budget := calls[choice.Index].request.MaxOutputTokens; budget > 0 &&
+				budget < requestMaxTokens && state.deltas >= budget {
+				// The request runs to its widest member's budget; this call's
+				// own budget ends here.
+				finishChoice(choice.Index, continuation.FinishLength)
+				continue
+			}
 			if choice.FinishReason != "" {
-				// The server ended this choice; what is still held back as a
-				// possible stop prefix is final text now.
-				if err := emitBatchText(state, calls[choice.Index].emit, state.pending); err != nil {
-					state.err = err
-					state.finish = continuation.FinishCancelled
-				}
-				state.pending = ""
-				state.stopped = true
-				deliverEarly(choice.Index)
+				finishChoice(choice.Index, state.finish)
+			}
+		}
+		for index := range states {
+			state := &states[index]
+			if !state.delivered && !state.stopped && state.err == nil && ticks[index] > 0 &&
+				clock-state.lastTick >= batchSilentSteps {
+				// The server ended this choice (EOS or a stop token) some
+				// steps ago; its text is complete. A choice that never
+				// streamed is left for the request's end.
+				finishChoice(index, continuation.FinishUnknown)
 			}
 		}
 		if allFinished() {
