@@ -75,6 +75,9 @@ export const NEW_CONFIG_DEFAULTS = {
   enableBash: true,
   weatherBackend: 'open-meteo',
   sampling: presetById(NEW_CONFIG_SAMPLING_ID) ?? DEFAULT_SAMPLING,
+  /* g1k 第一步几乎都会先思考：决策 512 会截断思考，规程定的是 2048 / 4096（docs/evaluations/benchmark-protocol.md）。 */
+  maxTokens: 4096,
+  decisionMaxTokens: 2048,
 }
 
 /* 思考模式选择器落到 wire 覆盖上的那一种写法；识别它是为了不误删用户自己写的 wire。 */
@@ -130,8 +133,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [subagentMaxSteps, setSubagentMaxSteps] = useState(DEFAULT_AGENT_LIMITS.subagentMaxSteps)
   const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
   const [maxSteps, setMaxSteps] = useState(DEFAULT_AGENT_LIMITS.maxSteps)
-  const [maxTokens, setMaxTokens] = useState(DEFAULT_AGENT_LIMITS.maxTokens)
-  const [decisionMaxTokens, setDecisionMaxTokens] = useState(DECISION_MAX_TOKENS_AUTO)
+  const [maxTokens, setMaxTokens] = useState(NEW_CONFIG_DEFAULTS.maxTokens)
+  const [decisionMaxTokens, setDecisionMaxTokens] = useState(NEW_CONFIG_DEFAULTS.decisionMaxTokens)
   const [sampleTemperature, setSampleTemperature] = useState(NEW_CONFIG_DEFAULTS.sampling.temperature)
   const [sampleTopK, setSampleTopK] = useState(NEW_CONFIG_DEFAULTS.sampling.topK)
   const [sampleTopP, setSampleTopP] = useState(NEW_CONFIG_DEFAULTS.sampling.topP)
@@ -434,14 +437,15 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setAvailableModels([])
     applyConfig(config)
   }
-  /* 新建连接：Agent 的行为开关回到新档案默认值，其余（key、预算）沿用当前表单。 */
+  /* 新建连接：Agent 的行为开关和 token 预算回到新档案默认值（预算跟 g1k 绑定），其余（key、步数）沿用当前表单。 */
   function newConnectionAgentDefaults() {
     const sampling = NEW_CONFIG_DEFAULTS.sampling
     return {
       profile: NEW_CONFIG_DEFAULTS.profile, wire: undefined,
       agentProtocol: AgentProtocol.AgentProtocolXML, thinking: 'off',
       enableWeb: NEW_CONFIG_DEFAULTS.enableWeb, weatherBackend: NEW_CONFIG_DEFAULTS.weatherBackend,
-      enableBash: NEW_CONFIG_DEFAULTS.enableBash, decisionMaxTokens: DECISION_MAX_TOKENS_AUTO,
+      enableBash: NEW_CONFIG_DEFAULTS.enableBash,
+      maxTokens: NEW_CONFIG_DEFAULTS.maxTokens, decisionMaxTokens: NEW_CONFIG_DEFAULTS.decisionMaxTokens,
       temperature: sampling.temperature, topK: sampling.topK, topP: sampling.topP,
       presencePenalty: sampling.presencePenalty, frequencyPenalty: sampling.frequencyPenalty,
       penaltyDecay: sampling.penaltyDecay,

@@ -13,6 +13,13 @@ import (
 // the legacy per-protocol behavior until the user changes them.
 const NewConfigProfile = "g1k"
 
+// NewConfigMaxTokens and NewConfigDecisionMaxTokens are a new connection's
+// answer and decision budgets.
+const (
+	NewConfigMaxTokens         = 4096
+	NewConfigDecisionMaxTokens = 2048
+)
+
 // NewConfigSampling is the sampling preset a new App connection starts on.
 const NewConfigSampling = "g1k-agent"
 
@@ -28,18 +35,23 @@ func NewConfigDefaults() Config {
 	set := product.AppDefaultToolSet()
 	sampling, _ := samplingpreset.Lookup(NewConfigSampling)
 	config := Config{
-		AgentProtocol:    AgentProtocolXML,
-		Profile:          NewConfigProfile,
-		Thinking:         "off",
-		EnableWeb:        set.Web,
-		EnableBash:       set.Bash,
-		EnableSubagents:  set.Subagents,
-		Temperature:      sampling.Temperature,
-		TopK:             sampling.TopK,
-		TopP:             sampling.TopP,
-		PresencePenalty:  sampling.PresencePenalty,
-		FrequencyPenalty: sampling.FrequencyPenalty,
-		PenaltyDecay:     sampling.PenaltyDecay,
+		AgentProtocol: AgentProtocolXML,
+		Profile:       NewConfigProfile,
+		Thinking:      "off",
+		// g1k thinks before nearly every first step; a 512-token decision
+		// budget cuts the thought off. These are the benchmark protocol's
+		// budgets (docs/evaluations/benchmark-protocol.md).
+		MaxTokens:         NewConfigMaxTokens,
+		DecisionMaxTokens: NewConfigDecisionMaxTokens,
+		EnableWeb:         set.Web,
+		EnableBash:        set.Bash,
+		EnableSubagents:   set.Subagents,
+		Temperature:       sampling.Temperature,
+		TopK:              sampling.TopK,
+		TopP:              sampling.TopP,
+		PresencePenalty:   sampling.PresencePenalty,
+		FrequencyPenalty:  sampling.FrequencyPenalty,
+		PenaltyDecay:      sampling.PenaltyDecay,
 	}
 	if set.Weather {
 		config.WeatherBackend = NewConfigWeatherBackend

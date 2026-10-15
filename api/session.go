@@ -232,6 +232,18 @@ func sessionRunnerOptions(
 	return product.HarnessOptions(harnessConfig(config, status, workspace, tools, markdownProtocol, staged))
 }
 
+// textWireProfile returns value (a wire profile or override) for providers
+// that continue raw text, and "" for chat-completions providers: those apply
+// their own chat template and call tools natively, so the text-continuation
+// wire presets (g1k's no_tool exit, fake-think prefills) do not apply and the
+// runner would reject them.
+func textWireProfile(config Config, value string) string {
+	if config.Provider == ProviderChatCompletions {
+		return ""
+	}
+	return value
+}
+
 // harnessConfig converts the App configuration into the api-independent shape
 // the shared assembly takes.
 func harnessConfig(
@@ -244,8 +256,8 @@ func harnessConfig(
 ) product.HarnessConfig {
 	return product.HarnessConfig{
 		Markdown:          markdownProtocol,
-		Profile:           config.Profile,
-		Wire:              config.Wire,
+		Profile:           textWireProfile(config, config.Profile),
+		Wire:              textWireProfile(config, config.Wire),
 		Thinking:          config.Thinking,
 		Model:             status.Model,
 		StateID:           config.StateID,

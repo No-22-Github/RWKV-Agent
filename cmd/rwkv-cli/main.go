@@ -2044,6 +2044,9 @@ func agentEvalProductRunnerOptions(options runOptions, cli agent.Options, tokenC
 		Wire:       options.wireOverrides,
 		Staged:     true,
 		TokenCount: tokenCount,
+		// An API model is evaluated the way the App drives one: native tool
+		// calls and no text-continuation wire profile.
+		ChatCompletions: options.completion == "chat-completions",
 	})
 	if err != nil {
 		return agent.Options{}, fmt.Errorf("App harness options: %w", err)
@@ -2056,7 +2059,7 @@ func agentEvalProductRunnerOptions(options runOptions, cli agent.Options, tokenC
 		app.SameToolRescueLimit = 0
 	}
 	app = reconcileWireLoop(app)
-	if options.strictSpec {
+	if options.strictSpec && options.completion != "chat-completions" {
 		spec, specErr := agent.WireSpecOf(app)
 		if specErr != nil {
 			return agent.Options{}, fmt.Errorf("--strict-spec: %w", specErr)

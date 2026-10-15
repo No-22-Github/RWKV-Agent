@@ -644,7 +644,8 @@ describe('App', () => {
       enableWeb: true, enableBash: true, enableSubagents: false, weatherBackend: 'open-meteo',
       temperature: 0.3, topK: 65536, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
     })
-    expect(config.decisionMaxTokens).toBe(0)
+    expect(config.decisionMaxTokens).toBe(2048)
+    expect(config.maxTokens).toBe(4096)
   })
 
   it('keeps a saved connection without a profile on its legacy settings', async () => {

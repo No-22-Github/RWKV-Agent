@@ -20,6 +20,9 @@ type EvalConnection struct {
 	// control is part of the prompt exactly when the session is staged.
 	Staged     bool
 	TokenCount func(string) int
+	// ChatCompletions marks an API model behind a chat-completions endpoint;
+	// the App then ignores the wire profile (see textWireProfile).
+	ChatCompletions bool
 }
 
 // EvalHarnessOptions returns the runner options a new App connection with an
@@ -34,6 +37,9 @@ func EvalHarnessOptions(conn EvalConnection) (agent.Options, error) {
 		config.Profile = conn.Profile
 	}
 	config.Wire = conn.Wire
+	if conn.ChatCompletions {
+		config.Provider = ProviderChatCompletions
+	}
 	if err := applyConfigDefaults(&config); err != nil {
 		return agent.Options{}, err
 	}
