@@ -338,6 +338,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			CaseParallelism:          config.CaseParallelism,
 			CaseTimeoutSeconds:       int(config.CaseTimeout / time.Second),
 			RemoteBatchWaitMillis:    int(config.RemoteBatchWait / time.Millisecond),
+			RemoteBatchMax:           config.RemoteBatchMax,
 			ToolProfile:              config.PrimitiveProfile,
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,

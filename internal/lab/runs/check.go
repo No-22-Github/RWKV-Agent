@@ -8,7 +8,20 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/lab"
+)
+
+// Client-side coalescing for RWKV bench runs: what bench sweep passes to
+// agent-eval and what run check expects in harness.remote_batch_wait_ms and
+// harness.remote_batch_max. rwkv_lightning has no cross-request batching, so
+// unmerged calls are bsz=1 loops bound by memory bandwidth. Runs from before
+// 2026-10-15 used 0 (no coalescing); they still pass, but a batched and an
+// unbatched run differ in batch shape (fp16 results can differ slightly), so
+// they are not paired directly.
+const (
+	BenchRemoteBatchWait = rwkvlightning.DefaultBatchWait
+	BenchRemoteBatchMax  = rwkvlightning.DefaultBatchMax
 )
 
 // Validity gate for one agent-eval run (docs/evaluations/benchmark-protocol.md
@@ -110,6 +123,11 @@ type CheckArgs struct {
 	// preset; anything else (format ablations such as g1k+think-fast) is
 	// matched against harness.wire_profile verbatim.
 	Profile string
+	// RemoteBatchWaitMS and RemoteBatchMax are the expected RWKV coalescing
+	// settings. A run recorded with no coalescing (0) also passes, with a
+	// note that it does not pair with batched runs.
+	RemoteBatchWaitMS int
+	RemoteBatchMax    int
 }
 
 // RunCheck is the `run check` command.
@@ -220,9 +238,7 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 		intEquals(harness["case_timeout_seconds"], args.CaseTimeoutSeconds),
 		fmt.Sprintf("got %s (absent before 2026-09-23 binaries)", pyRepr(harness["case_timeout_seconds"])))
 	if args.RWKV {
-		// A coalesced batch releases results only when its slowest member ends.
-		gate("remote_batch_wait_ms == 0", intEquals(harness["remote_batch_wait_ms"], 0),
-			fmt.Sprintf("got %s", pyRepr(harness["remote_batch_wait_ms"])))
+		checkRemoteBatch(gate, harness, args.RemoteBatchWaitMS, args.RemoteBatchMax)
 	}
 
 	caseIDs := sliceOf(run, "case_ids")
@@ -279,6 +295,26 @@ func closeEnough(got, want any) bool {
 		diff = -diff
 	}
 	return diff < 1e-4
+}
+
+// checkRemoteBatch gates the client-side coalescing settings. The expected
+// window passes, and so does 0: runs from before coalescing became the bench
+// default recorded 0 and stay valid on their own, but are flagged as not
+// pairable with batched runs.
+func checkRemoteBatch(gate func(string, bool, string), harness map[string]any, wantWaitMS, wantMax int) {
+	gotWait := harness["remote_batch_wait_ms"]
+	gotMax, _ := lab.IntOf(harness["remote_batch_max"]) // absent before 2026-10-15
+	if wantWaitMS == 0 || !intEquals(gotWait, 0) {
+		gate(fmt.Sprintf("remote_batch_wait_ms == %d", wantWaitMS), intEquals(gotWait, wantWaitMS),
+			fmt.Sprintf("got %s", pyRepr(gotWait)))
+		if wantWaitMS != 0 && intEquals(gotWait, wantWaitMS) {
+			gate(fmt.Sprintf("remote_batch_max == %d", wantMax), gotMax == wantMax,
+				fmt.Sprintf("got %d", gotMax))
+		}
+		return
+	}
+	gate(fmt.Sprintf("remote_batch_wait_ms == %d (or 0, unbatched)", wantWaitMS), true,
+		"got 0: unbatched run; batch settings differ from the current protocol, do not pair it directly with batched runs")
 }
 
 func intEquals(got any, want int) bool {

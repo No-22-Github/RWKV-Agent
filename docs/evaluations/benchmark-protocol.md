@@ -92,9 +92,22 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 单题超时默认只有 2 分钟：2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断。
 超时值记在 `run.json` 的 `harness.case_timeout_seconds`（2026-09-23 起），闸门检查。
 
-**关闭客户端请求合并**：`--remote-batch-wait 0s`。默认 10ms 窗口把并发请求合成一个 batch，且整批响应结束才把结果交给各调用；
-一条复读到上限的生成会拖住同批所有短回复（2026-09-23 实测每次调用约 4 分钟，25/148 题撞满 30 分钟）。CUDA 后端自己做并发批处理。
-agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-wait` 并记入 `harness.remote_batch_wait_ms`，闸门检查。
+**客户端请求合并（2026-10-15 起默认开启）**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 32`，
+`bench sweep` 显式传这两个值；记入 `harness.remote_batch_wait_ms` 与 `harness.remote_batch_max`，闸门检查。
+- 为什么开：rwkv_lightning **不做跨请求的连续批处理**。每个 HTTP 请求只把自己 `contents[]` 里的 prompt 组成一个 batch 跑到底
+  （上游 `/v1/batch/completions` → `batch_generate_stream_with_state`），还各自分配 CUDA 流与 cuBLASLt workspace（每路约 260 MB）。
+  每请求 1 条 prompt 时，N 路并发 = N 个 bsz=1 解码循环，每步都重读全部权重：7.2B fp16 约 14.4 GB / 1.8 TB/s ≈ 每卡约 125 次前向/秒，
+  所有循环分这一份带宽。2026-10 实测每节点每分钟约 50 次调用，并发从 78 加到 256 吞吐不变，只是排队变长、触发 30 分钟单题超时。
+  合批后一次前向服务一整批；解码受带宽限制，bsz=32 的单步耗时理论上与 bsz=1 接近（实测见下方对照方法）。
+- 当初为什么关（2026-09-23，85e137bd）：合并后的 batch 整批结束才交付，一条复读到上限的生成拖住同批所有短回复
+  （每次调用约 4 分钟，25/148 题撞满 30 分钟）。已修：83e4cac9 / cbae5d56 起按 index 流式累积、本地逐条检测文本停止串，
+  命中即交付该条；全部交付或调用方全部取消后断开连接，服务端随之停止该 batch。
+- 仍然存在的限制：引擎在某行采到 EOS 时只是停止该行，不发信号；各行 `finish_reason` 在整个请求结束时一次性发出。
+  所以以 EOS 结束的调用要等同批最长的一条，`--remote-batch-max 32` 就是为了限制这条尾巴。以 `\nUser:` 结束的调用不受影响。
+- **开/关合批的 run 不能混比**：批维度不同，fp16 数值可能有微小差异。`run check` 对记为 0 的旧 run 仍判 PASS，但标出
+  "unbatched run … do not pair it directly"；`run compare` 两边合批设置不同时在 stderr 警告。比较前用相同设置重跑一侧。
+- 合批窗口与上限改动时，同时改 `internal/continuation/rwkvlightning`（`DefaultBatchWait` / `DefaultBatchMax`），sweep 与闸门自动跟随。
+- 吞吐对照方法见 `docs/evaluations/remote-batch-throughput/PLAN.md`。
 历史上 g1k 用过 10 或 16 步、1024 token，Qwen 用 16 步、4096 token——预算不同的分数不可比。
 
 **重复次数**：
@@ -177,7 +190,8 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 | `local/dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`local/runs/wire-check-20260918/api-contract-audit.json` |
 | 关闭合并后 168 路同时预填充打挂共享端点 | 2026-09-23 greedy 102/148 作废 | 本文 §3；总并发 ≤ 64 |
-| 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 本文 §5；`--remote-batch-wait 0s` |
+| 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 已修（逐条按停止串提前交付）；EOS 行仍等整批，见 §5 |
+| 关闭合并后吞吐被 bsz=1 带宽卡死（服务端无连续批处理） | 2026-10 每节点约 50 次调用/分，并发 78→256 不增 | 本文 §5；默认 20ms / 32 合批 |
 | 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |
 | `/v1/models` 的 `created` 是请求时刻 | 2026-09-23 | 不能据此判断后端重启 |
 | 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |

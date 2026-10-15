@@ -67,12 +67,14 @@ func runBatchedCalls(
 				mutate(job.index, &request)
 			}
 			var streamed strings.Builder
+			started := time.Now()
 			result, callErr := client.Continue(ctx, request, func(event continuation.Event) error {
 				streamed.WriteString(event.Text)
 				return nil
 			})
 			results <- batchCallResult{
 				prompt: job.prompt, result: result, err: callErr, streamed: streamed.String(),
+				elapsed: time.Since(started),
 			}
 		}()
 	}
@@ -90,6 +92,7 @@ type batchCallResult struct {
 	result   continuation.Result
 	err      error
 	streamed string
+	elapsed  time.Duration
 }
 
 func TestClientBatchBufferedTransportDeliversPerChoiceResults(t *testing.T) {

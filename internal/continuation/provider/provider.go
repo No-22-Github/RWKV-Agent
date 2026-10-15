@@ -89,6 +89,8 @@ type Config struct {
 	AdapterID        string
 	Stream           *bool
 	BatchWait        time.Duration
+	// BatchMax caps one coalesced RWKV Lightning request; zero is no cap.
+	BatchMax int
 }
 
 func DefaultStopTokens(kind string) string {
@@ -140,7 +142,7 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			Endpoint: endpoint, Model: config.Model, Password: config.Credential,
 			Headers: config.Headers, HTTPClient: config.HTTPClient,
 			StopTokenMode: mode, StopTokenIDs: ids, StateID: config.StateID, AdapterID: config.AdapterID,
-			Stream: config.Stream, BatchWait: config.BatchWait,
+			Stream: config.Stream, BatchWait: config.BatchWait, BatchMax: config.BatchMax,
 		})
 		if err != nil {
 			return nil, err

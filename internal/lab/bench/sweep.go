@@ -317,10 +317,12 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		// Without this the decision step falls back to the protocol default
 		// (512). g1k thinks spontaneously on 142/148 first steps.
 		"--decision-max-tokens", strconv.Itoa(args.decisionBudget()),
-		// Client-side coalescing hands every call its result only when the
-		// whole merged response ends, so one looping member stalls the short
-		// replies batched with it.
-		"--remote-batch-wait", "0s"}
+		// rwkv_lightning batches only within one request's contents[], so
+		// unmerged calls run as bandwidth-bound bsz=1 loops; coalesce them.
+		// run check pins these values: batched and unbatched runs are not
+		// paired against each other.
+		"--remote-batch-wait", runs.BenchRemoteBatchWait.String(),
+		"--remote-batch-max", strconv.Itoa(runs.BenchRemoteBatchMax)}
 	// Cloudflare Access headers only when credentials are set; a direct
 	// endpoint (Tailscale, a training box) takes none.
 	if os.Getenv("RWKV_CF_ID") != "" {
@@ -593,6 +595,8 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		DecisionMaxTokens:  args.decisionBudget(),
 		CaseTimeoutSeconds: 1800,
 		Profile:            args.profile(),
+		RemoteBatchWaitMS:  int(runs.BenchRemoteBatchWait / time.Millisecond),
+		RemoteBatchMax:     runs.BenchRemoteBatchMax,
 	})
 
 	task := mapOfAny(summary, "metrics", "task_success")

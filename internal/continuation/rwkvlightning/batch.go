@@ -52,10 +52,16 @@ func (c *Client) continueBatched(
 	}()
 	c.batchMu.Lock()
 	c.batchPending = append(c.batchPending, call)
-	if c.batchTimer == nil {
+	full := c.batchMax > 0 && len(c.batchPending) >= c.batchMax
+	if c.batchTimer == nil && !full {
 		c.batchTimer = time.AfterFunc(c.batchWait, c.flushBatch)
 	}
 	c.batchMu.Unlock()
+	if full {
+		// A full window goes out now rather than waiting for the timer; the
+		// pending timer then finds nothing (or a later window) to flush.
+		c.flushBatch()
+	}
 
 	select {
 	case outcome := <-call.response:
@@ -69,7 +75,10 @@ func (c *Client) flushBatch() {
 	c.batchMu.Lock()
 	calls := c.batchPending
 	c.batchPending = nil
-	c.batchTimer = nil
+	if c.batchTimer != nil {
+		c.batchTimer.Stop()
+		c.batchTimer = nil
+	}
 	c.batchMu.Unlock()
 	if len(calls) == 0 {
 		return
@@ -85,7 +94,18 @@ func (c *Client) flushBatch() {
 		groups[key] = append(groups[key], call)
 	}
 	for _, key := range order {
-		go c.executeBatch(groups[key])
+		group := groups[key]
+		// BatchMax caps one request's contents[]: a larger batch only adds
+		// rows to every decoding step and lengthens the tail of the slowest
+		// member, so an oversized group is split into several requests.
+		for len(group) > 0 {
+			size := len(group)
+			if c.batchMax > 0 && size > c.batchMax {
+				size = c.batchMax
+			}
+			go c.executeBatch(group[:size:size])
+			group = group[size:]
+		}
 	}
 }
 
@@ -101,6 +121,9 @@ func (c *Client) batchCompatibilityKey(request continuation.Request) string {
 		Sampling   continuation.Sampling
 		Stream     bool
 		StateID    string
+		// rwkv_lightning binds one MiSS adapter per request, so calls on
+		// different adapters can never share contents[].
+		AdapterID string
 	}{
 		Model:      model,
 		MaxTokens:  request.MaxOutputTokens,
@@ -108,6 +131,7 @@ func (c *Client) batchCompatibilityKey(request continuation.Request) string {
 		Sampling:   request.Sampling,
 		Stream:     c.stream,
 		StateID:    c.effectiveStateID(request),
+		AdapterID:  c.adapterID,
 	})
 	return string(encoded)
 }
@@ -271,17 +295,29 @@ func readBatchStreamResponse(
 	callUsage := func(index int) continuation.Usage {
 		return streamUsage(usage, states[index].deltas)
 	}
-	// A choice that hit a stop sequence is finished for its caller: hand its
-	// result over right away instead of after [DONE]. A checkpoint that writes
-	// the next "User:" turn instead of EOS keeps the server generating up to
-	// max_tokens, which made a two-character reply wait seconds for the whole
-	// batch. Once every choice is finished, stop reading; executeBatch then
-	// closes the body, which also lets the server drop the generation.
+	// A choice that hit a stop sequence, or that the server marked finished
+	// with a finish_reason (EOS, a server-side stop token, max_tokens), is done
+	// for its caller: hand its result over right away instead of after [DONE].
+	// A checkpoint that writes the next "User:" turn instead of EOS keeps the
+	// server generating up to max_tokens, which made a two-character reply wait
+	// seconds for the whole batch. Once every choice is finished, stop reading;
+	// executeBatch then closes the body, which also lets the server drop the
+	// generation.
+	//
+	// rwkv_lightning_cuda (2026-10) sends every choice's finish_reason in one
+	// closing chunk after the whole request ends, and a row that samples EOS
+	// just stops producing chunks. Such a call is therefore only released when
+	// the batch ends; the finish_reason path covers servers that report each
+	// choice as it ends, and text stops are always caught here.
 	deliverEarly := func(index int) {
 		state := &states[index]
 		state.delivered = true
+		finish := state.finish
+		if state.err == nil {
+			finish = inferFinishReason(finish, continuation.Usage{}, state.deltas, calls[index].request.MaxOutputTokens)
+		}
 		calls[index].deliver(batchOutcome{result: continuation.Result{
-			Text: state.result.String(), FinishReason: state.finish, Usage: callUsage(index), Stop: state.stop,
+			Text: state.result.String(), FinishReason: finish, Usage: callUsage(index), Stop: state.stop,
 		}, err: state.err})
 	}
 	allFinished := func() bool {
@@ -360,6 +396,18 @@ func readBatchStreamResponse(
 				state.stopped = true
 				state.stop = stop
 				state.finish = continuation.FinishStop
+				deliverEarly(choice.Index)
+				continue
+			}
+			if choice.FinishReason != "" {
+				// The server ended this choice; what is still held back as a
+				// possible stop prefix is final text now.
+				if err := emitBatchText(state, calls[choice.Index].emit, state.pending); err != nil {
+					state.err = err
+					state.finish = continuation.FinishCancelled
+				}
+				state.pending = ""
+				state.stopped = true
 				deliverEarly(choice.Index)
 			}
 		}

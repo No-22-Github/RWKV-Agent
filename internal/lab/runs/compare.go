@@ -52,6 +52,9 @@ func RunCompare(args CompareArgs) int {
 		fmt.Fprintf(stderr, "error: %s\n", err)
 		return 1
 	}
+	if warning := remoteBatchWarning(args.A, args.B); warning != "" {
+		fmt.Fprintln(stderr, warning)
+	}
 
 	excludedCount := 0
 	if args.ExcludeCases != "" {
@@ -334,6 +337,42 @@ func loadRunDir(runDir string) (map[string]compareCase, error) {
 		}
 	}
 	return cases, nil
+}
+
+// remoteBatchSetting reads an RWKV run's client-side coalescing settings.
+// ok is false for anything else (a ledger config, an API run), where
+// coalescing does not apply or is not recorded.
+func remoteBatchSetting(runDir string) (setting string, ok bool) {
+	if isDir, err := statPath(runDir); err != nil || !isDir {
+		return "", false
+	}
+	manifest, err := LoadJSONFile(filepath.Join(runDir, "run.json"), false)
+	if err != nil || manifest == nil {
+		return "", false
+	}
+	if !strings.HasPrefix(lab.StringOf(lab.MapOf(manifest, "model"), "completion"), "rwkv-lightning") {
+		return "", false
+	}
+	harness := lab.MapOf(manifest, "harness")
+	wait, _ := lab.IntOf(harness["remote_batch_wait_ms"])
+	if wait == 0 {
+		return "unbatched (remote_batch_wait_ms=0)", true
+	}
+	batchMax, _ := lab.IntOf(harness["remote_batch_max"])
+	return fmt.Sprintf("remote_batch_wait_ms=%d remote_batch_max=%d", wait, batchMax), true
+}
+
+// remoteBatchWarning is non-empty when both sides are RWKV runs whose
+// coalescing settings differ. The batch shape changes the fp16 kernels' row
+// layout, so results can drift slightly and the pair is not like for like.
+func remoteBatchWarning(a, b string) string {
+	aSetting, aOK := remoteBatchSetting(a)
+	bSetting, bOK := remoteBatchSetting(b)
+	if !aOK || !bOK || aSetting == bSetting {
+		return ""
+	}
+	return fmt.Sprintf("warning: batch settings differ (A: %s; B: %s); the runs are not directly pairable, "+
+		"rerun one side with matching --remote-batch-wait/--remote-batch-max", aSetting, bSetting)
 }
 
 func loadConfig(configName string) (map[string]compareCase, error) {

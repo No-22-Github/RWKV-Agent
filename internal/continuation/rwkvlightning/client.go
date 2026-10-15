@@ -18,6 +18,20 @@ import (
 
 const maxResponseBytes = 4 * 1024 * 1024
 
+// Default coalescing for concurrent eval traffic. rwkv_lightning has no
+// cross-request continuous batching: every HTTP request decodes only its own
+// contents[] on its own CUDA stream, so N single-prompt requests are N
+// batch-size-1 loops that each re-read the full weights per token and share
+// one memory bus (a 7.2B fp16 model is ~14.4 GB, ~125 forwards/s on a
+// 1.8 TB/s card in total). Merging calls that arrive within DefaultBatchWait
+// into one contents[] turns them into one batched forward per token.
+// DefaultBatchMax keeps one request from growing so wide that every step, and
+// so the slowest member's tail, gets slower.
+const (
+	DefaultBatchWait = 20 * time.Millisecond
+	DefaultBatchMax  = 32
+)
+
 var ErrRemote = fmt.Errorf(
 	"%w: rwkv_lightning continuation error",
 	continuation.ErrUpstream,
@@ -54,6 +68,10 @@ type Config struct {
 	// generation settings into one rwkv_lightning contents[] request. A zero
 	// duration preserves the one-request-per-call behavior.
 	BatchWait time.Duration
+	// BatchMax caps how many calls one coalesced request carries; a window
+	// that fills up is sent at once and an oversized group is split. Zero
+	// means no cap.
+	BatchMax int
 	// StateID is the default uploaded-state identifier applied to every
 	// generation that does not carry one of its own. Empty leaves the server's
 	// zero-initialized state in charge.
@@ -75,6 +93,7 @@ type Client struct {
 	stopTokenIDs  []int
 	stream        bool
 	batchWait     time.Duration
+	batchMax      int
 	headers       http.Header
 	httpClient    *http.Client
 	batchMu       sync.Mutex
@@ -121,6 +140,7 @@ func New(config Config) (*Client, error) {
 		stopTokenIDs:  stopTokenIDs,
 		stream:        stream,
 		batchWait:     config.BatchWait,
+		batchMax:      config.BatchMax,
 		headers:       config.Headers.Clone(),
 		httpClient:    httpClient,
 	}, nil

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
@@ -102,6 +103,7 @@ func runWireCmd(argv []string) int {
 
 func runCheckCmd(argv []string) int {
 	args := CheckArgs{MaxSteps: 16, MaxTokens: 4096, DecisionMaxTokens: 2048, CaseTimeoutSeconds: 1800}
+	defaultWaitMS := int(BenchRemoteBatchWait / time.Millisecond)
 	fs := lab.NewFlagSet("run check", "Validity gate for one agent-eval run.")
 	fs.StringVar(&args.Arm, "arm", "", "sampling arm (required)")
 	fs.BoolVar(&args.RWKV, "rwkv", false, "RWKV run: require wire_preset g1k")
@@ -112,6 +114,8 @@ func runCheckCmd(argv []string) int {
 	fs.IntVar(&args.MaxTokens, "max-tokens", 4096, "expected answer_max_output_tokens")
 	fs.IntVar(&args.DecisionMaxTokens, "decision-max-tokens", 2048, "expected decision_max_output_tokens")
 	fs.IntVar(&args.CaseTimeoutSeconds, "case-timeout-seconds", 1800, "expected case_timeout_seconds")
+	fs.IntVar(&args.RemoteBatchWaitMS, "remote-batch-wait-ms", defaultWaitMS, "expected RWKV remote_batch_wait_ms (0 also passes as a legacy unbatched run)")
+	fs.IntVar(&args.RemoteBatchMax, "remote-batch-max", BenchRemoteBatchMax, "expected RWKV remote_batch_max when coalescing is on")
 	boolFlags := map[string]bool{"rwkv": true, "primitive": true}
 	if err := ParseInterspersed(fs, argv, boolFlags); err != nil {
 		return 2

@@ -147,3 +147,10 @@ func TestSupportsResumeDetectsOldBuilds(t *testing.T) {
 		t.Fatal("old build accepted")
 	}
 }
+
+func TestSweepCoalescesRemoteCalls(t *testing.T) {
+	cmd := strings.Join(sweepCommand(SweepArgs{Model: "m", APIURL: "http://endpoint"}, "workbank", "greedy", "out"), " ")
+	if !strings.Contains(cmd, "--remote-batch-wait 20ms --remote-batch-max 32") {
+		t.Fatalf("sweep command does not pass the bench coalescing settings: %s", cmd)
+	}
+}

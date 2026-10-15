@@ -238,6 +238,7 @@ type HarnessMetadata struct {
 	CaseParallelism          int      `json:"case_parallelism"`
 	CaseTimeoutSeconds       int      `json:"case_timeout_seconds"`
 	RemoteBatchWaitMillis    int      `json:"remote_batch_wait_ms"`
+	RemoteBatchMax           int      `json:"remote_batch_max,omitempty"`
 	ToolProfile              string   `json:"tool_profile,omitempty"`
 	DuplicateReplayLimit     int      `json:"duplicate_replay_limit"`
 	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
@@ -533,6 +534,7 @@ type Config struct {
 	// RemoteBatchWait is the client-side request coalescing window, recorded
 	// in the harness manifest; the runner itself does not coalesce.
 	RemoteBatchWait  time.Duration
+	RemoteBatchMax   int
 	Now              func() time.Time
 	TempDir          string
 	PrimitiveProfile string

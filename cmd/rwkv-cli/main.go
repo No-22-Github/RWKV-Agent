@@ -142,6 +142,7 @@ type runOptions struct {
 	enableSubagents          bool
 	maxActiveBatch           int
 	remoteBatchWait          time.Duration
+	remoteBatchMax           int
 	subagentMaxParallel      int
 	subagentMaxSteps         int
 	subagentTimeout          time.Duration
@@ -661,7 +662,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
-			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent eval cases; 0 sends one request per call. A coalesced batch hands every call its result only when the whole response ends, so one long generation stalls the rest")
+			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", rwkvlightning.DefaultBatchWait, "RWKV Lightning coalescing window for concurrent eval cases: calls arriving within it share one contents[] request (the server does no cross-request batching, so single-prompt requests are bandwidth-bound bsz=1 loops). A call that hits a text stop returns at once; one that ends on EOS waits for its batch, because the server reports EOS only when the request ends. 0 sends one request per call")
+			fs.IntVar(&options.remoteBatchMax, "remote-batch-max", rwkvlightning.DefaultBatchMax, "maximum calls in one coalesced RWKV Lightning request; a full window is sent at once (0 = no cap)")
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
 			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
@@ -938,6 +940,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" && (options.remoteBatchWait < 0 || options.remoteBatchWait > time.Second) {
 			return options, errors.New("--remote-batch-wait must be between 0 and 1s")
+		}
+		if name == "agent-eval" && (options.remoteBatchMax < 0 || options.remoteBatchMax > 1024) {
+			return options, errors.New("--remote-batch-max must be between 0 and 1024")
 		}
 		if name == "agent-eval" && options.primitiveProfile != agenteval.PrimitiveProfileUpstream &&
 			options.primitiveProfile != agenteval.PrimitiveProfileGoNative {
@@ -1261,6 +1266,10 @@ func newAgentGeneratorSource(
 		if options.evalCaseParallelism > 1 {
 			batchWait = options.remoteBatchWait
 		}
+		batchMax := 0
+		if batchWait > 0 {
+			batchMax = options.remoteBatchMax
+		}
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
 			Credential: credential, Headers: headers,
@@ -1271,7 +1280,7 @@ func newAgentGeneratorSource(
 			ChatSystemSuffix:    options.chatSystemSuffix,
 			StopTokens:          options.apiStopTokens, StateID: options.stateID,
 			AdapterID: options.adapterID,
-			Stream:    &options.apiStream, BatchWait: batchWait,
+			Stream:    &options.apiStream, BatchWait: batchWait, BatchMax: batchMax,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -1877,6 +1886,7 @@ func runAgentEval(args []string) error {
 		CaseTimeout:           options.evalCaseTimeout,
 		CaseParallelism:       options.evalCaseParallelism,
 		RemoteBatchWait:       evalRemoteBatchWait(options),
+		RemoteBatchMax:        evalRemoteBatchMax(options),
 		PrimitiveProfile:      options.primitiveProfile,
 		FileToolForm:          options.evalFileToolForm,
 		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
@@ -2654,6 +2664,15 @@ func evalRemoteBatchWait(options runOptions) time.Duration {
 		return 0
 	}
 	return options.remoteBatchWait
+}
+
+// evalRemoteBatchMax is the per-request cap recorded next to the window; it is
+// 0 whenever no coalescing happens.
+func evalRemoteBatchMax(options runOptions) int {
+	if evalRemoteBatchWait(options) <= 0 {
+		return 0
+	}
+	return options.remoteBatchMax
 }
 
 // applySamplingPreset fills the sampling fields the user did not set explicitly
