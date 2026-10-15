@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1003,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:deepseek-drafter",
     "reviewer": null,
     "legacy_prompt": "Support keeps quoting a preview build of the anvil-relay connector. Which version of anvil-relay is the newest one that customers can actually receive? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -38,7 +38,10 @@
         "output_contains": [
           "4.8.1"
         ],
-        "output_contains_token": true
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "4.8.1"
+        ]
       }
     }
   ]

@@ -161,11 +161,17 @@ type Expectation struct {
 	// natural-language answer instead of requiring the whole reply to be one
 	// number: "共 33 条成功的删除请求" passes for 33. The exam asks the way an
 	// App user does, so the reply is prose and the figure sits inside it.
-	ExpectedNumberInText bool             `json:"expected_number_in_text,omitempty"`
-	Plan                 *PlanExpectation `json:"plan,omitempty"`
-	MustStateUnverified  []string         `json:"must_state_unverified,omitempty"`
-	RequireActiveNoCall  bool             `json:"require_active_no_call,omitempty"`
-	ForbidRouteFallback  bool             `json:"forbid_route_fallback,omitempty"`
+	ExpectedNumberInText bool `json:"expected_number_in_text,omitempty"`
+	// OutputFirstLineContainsAny requires the reply's first non-empty line to
+	// contain one of these values as a whole token: the conclusion leads. It
+	// catches the hedge that lists the right value among others ("can't tell —
+	// 4.6.0, 4.5.2, 4.4.0") and the reply that heads with the decoy and only
+	// mentions the answer later.
+	OutputFirstLineContainsAny []string         `json:"output_first_line_contains_any,omitempty"`
+	Plan                       *PlanExpectation `json:"plan,omitempty"`
+	MustStateUnverified        []string         `json:"must_state_unverified,omitempty"`
+	RequireActiveNoCall        bool             `json:"require_active_no_call,omitempty"`
+	ForbidRouteFallback        bool             `json:"forbid_route_fallback,omitempty"`
 
 	// OutputContainsAnyToken applies the whole-token match of
 	// OutputContainsToken to the OutputContainsAny alternatives, for a number

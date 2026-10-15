@@ -24,7 +24,7 @@ import (
 // below a floor. Ties break on a hash of the id, so the draw is reproducible
 // from the same history.
 var quickShare = map[string]int{
-	TaskAnswerDirect: 12,
+	TaskAnswerDirect: 14,
 	TaskFindRead:     14,
 	TaskCompute:      16,
 	TaskWrite:        14,
@@ -213,7 +213,7 @@ func selectQuick(full []eval.ExamCase, history map[string]caseHistory) []pick {
 	}
 	// Source floor: a source with little run history (the holdout, the b14
 	// probe halves) would otherwise lose every cell to history-rich workbank
-	// cases; each keeps at least 8% of its cases (at least 3).
+	// cases; each keeps at least 12% of its cases (at least 3).
 	for _, source := range Sources {
 		var pool []candidate
 		count := 0
@@ -229,7 +229,7 @@ func selectQuick(full []eval.ExamCase, history map[string]caseHistory) []pick {
 				}
 			}
 		}
-		floor := max(3, (len(pool)+count)*8/100)
+		floor := max(3, (len(pool)+count)*12/100)
 		if len(pool)+count == 0 {
 			continue
 		}

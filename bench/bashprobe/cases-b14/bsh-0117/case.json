@@ -20,7 +20,7 @@
     "ref_calls": 2,
     "fixture_bytes": 131975,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
@@ -45,12 +45,15 @@
       }
     },
     {
-      "prompt": "21 号以后的呢？",
+      "prompt": "21 号以后（含 21 号）的呢？",
       "expect": {
         "output_contains": [
           "121"
         ],
-        "output_contains_token": true
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "121"
+        ]
       }
     }
   ]

@@ -19,7 +19,7 @@
     "ref_calls": 2,
     "fixture_bytes": 3540,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -40,7 +40,11 @@
           "01-hero.json",
           "icons/01-hero.json"
         ],
-        "output_contains_any_token": true
+        "output_contains_any_token": true,
+        "output_first_line_contains_any": [
+          "01-hero.json",
+          "icons/01-hero.json"
+        ]
       }
     }
   ]

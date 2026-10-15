@@ -64,12 +64,12 @@ const (
 )
 
 var FormLabel = map[string]string{
-	FormNumber:   "数字（允许误差）",
-	FormExact:    "整句精确相等",
-	FormContains: "回答里包含正确值",
-	FormAbstain:  "应说明查不到",
-	FormNoCall:   "不调工具直接答",
-	FormFile:     "只看文件最后的样子",
+	FormNumber:   "回答里出现正确数字就算对（允许误差），不检查有没有同时提到干扰值",
+	FormExact:    "整句精确相等（旧判法，考卷里应为 0）",
+	FormContains: "回答里按词边界出现正确值就算对；部分题还要求结论写在第一行",
+	FormAbstain:  "应点名缺的是什么，并说明没有 / 做不到",
+	FormNoCall:   "这一轮不许调工具，直接回答",
+	FormFile:     "只看文件最后的样子（评测跑完自动确认暂存改动后检查）",
 }
 
 var cjk = regexp.MustCompile(`[\p{Han}]`)
@@ -127,7 +127,7 @@ func AnswerForm(c eval.Case) string {
 	case e.ExpectedNumber != nil:
 		return FormNumber
 	case e.OutputEquals != nil && *e.OutputEquals == "UNKNOWN", slices.Contains(e.OutputEqualsAny, "UNKNOWN"),
-		len(e.MustStateUnverified) > 0:
+		len(e.MustStateUnverified) > 0, saysItCannot(e.OutputContainsAny):
 		return FormAbstain
 	case e.OutputEquals != nil || len(e.OutputEqualsAny) > 0:
 		return FormExact
@@ -175,20 +175,49 @@ func Task(c eval.Case, suite string) string {
 	if scenario == "notool" || (len(c.Turns) > 0 && noCallTurn(c.Turns[0].Expect)) {
 		return TaskAnswerDirect
 	}
+	// A weather probe's negative case is the question that must not reach for
+	// get_weather (a concept, a local config value), not an external lookup.
+	if probe == "negative" {
+		if taskType == "concept" || taskType == "concept_question" {
+			return TaskAnswerDirect
+		}
+		return TaskFindRead
+	}
 	if scenario == "web" || strings.HasPrefix(taskType, "web_") || taskType == "special_tool" ||
 		strings.HasPrefix(suite, "weatherprobe") || len(c.WeatherFixture) > 0 ||
 		requiredTool(c, "web_search", "web_fetch", "get_weather") {
 		return TaskExternal
 	}
-	if writeTaskTypes[taskType] || scenario == "script" || probe == "edit" || probe == "artifact" ||
-		probe == "closure" || AnswerForm(c) == FormFile {
+	// Write means the case scores what lands on disk; a merge or script case
+	// that only asks a question is not a write.
+	if writesFiles(c) {
 		return TaskWrite
+	}
+	// Looking a value up stays find-read even when the value is a number.
+	if lookupTaskTypes[taskType] {
+		return TaskFindRead
 	}
 	if computeTaskTypes[taskType] || scenario == "tabular" || probe == "aggregate" ||
 		AnswerForm(c) == FormNumber {
 		return TaskCompute
 	}
 	return TaskFindRead
+}
+
+// writesFiles reports a case scored on the final workspace.
+func writesFiles(c eval.Case) bool {
+	if c.Expect != nil && (len(c.Expect.Files) > 0 || c.Expect.Run != nil) {
+		return true
+	}
+	return AnswerForm(c) == FormFile
+}
+
+var lookupTaskTypes = map[string]bool{
+	"policy_lookup": true, "read_effective": true, "precedence": true, "grep_exact": true,
+	"locate_definition": true, "find_callers": true, "latest_version": true, "lookup_value": true,
+	"find_file": true, "presence": true, "extract_items": true, "missing_keys": true,
+	"locate_error": true, "root_cause": true, "config_lookup": true, "deprecation": true,
+	"error_meaning": true, "explain_readonly": true, "report_test_result": true,
 }
 
 // Difficulties returns the case's difficulty factors in DifficultyOrder.
@@ -212,7 +241,8 @@ func Difficulties(c eval.Case) []string {
 	if has(axes, "CHN") || has(traps, "TR-MULTISRC", "TR-RULEFILE", "TR-PRECEDENCE") {
 		set[DiffMultiSource] = true
 	}
-	if has(axes, "VER", "CON") || has(traps, "TR-INJECT", "TR-READONLY", "TR-SUPERSEDE", "TR-CLAIM", "TR-WEBSTALE") ||
+	if has(axes, "VER", "CON") || has(traps, "TR-INJECT", "TR-READONLY", "TR-SUPERSEDE", "TR-CLAIM", "TR-WEBSTALE",
+		"TR-ABSENT", "TR-DEFN") ||
 		probe == "safety" {
 		set[DiffCheck] = true
 	}
@@ -273,4 +303,17 @@ func Row(c eval.Case, suite, relPath, sha string) eval.ExamCase {
 		row.RefCalls = &calls
 	}
 	return row
+}
+
+// refusalWords are the alternatives a "say it is not possible / not there"
+// expectation lists; a case scored on them is an abstention, not a value.
+var refusalWords = []string{"无法", "做不到", "不能", "找不到", "没有", "cannot", "Cannot", "can't", "unable", "not "}
+
+func saysItCannot(alternatives []string) bool {
+	for _, word := range refusalWords {
+		if slices.Contains(alternatives, word) {
+			return true
+		}
+	}
+	return false
 }

@@ -271,6 +271,20 @@ func answerFailures(expect Expectation, output string) []string {
 			)
 		}
 	}
+	if len(expect.OutputFirstLineContainsAny) > 0 {
+		head := firstContentLine(output)
+		matched := false
+		for _, want := range expect.OutputFirstLineContainsAny {
+			if containsToken(head, want) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			failures = append(failures,
+				fmt.Sprintf("first line %q does not lead with any of %q", head, expect.OutputFirstLineContainsAny))
+		}
+	}
 	for _, forbidden := range expect.OutputExcludes {
 		if strings.Contains(output, forbidden) {
 			failures = append(
@@ -534,10 +548,16 @@ func stepsWithTools(steps []agent.Step) []agent.Step {
 // investigated rather than guessed, so any of them satisfies that requirement.
 // Forcing a specific one would penalise the cheaper path: search_text can find a
 // file and its value in a single call where list_files plus read_file needs two.
+//
+// read_lines and the sandboxed bash (work-v2 and the App directory: cat, grep,
+// find, ls) do the same investigation, so they belong to the class too; a model
+// that answered from `grep -r` was failed for "not calling read_file".
 var discoveryTools = map[string]struct{}{
 	"list_files":  {},
 	"search_text": {},
 	"read_file":   {},
+	"read_lines":  {},
+	"bash":        {},
 }
 
 // toolRequirementMet reports whether a required tool was satisfied, treating the
@@ -721,6 +741,7 @@ func hasAnswerExpectation(expect Expectation) bool {
 		len(expect.OutputEqualsAny) > 0 ||
 		len(expect.OutputContains) > 0 ||
 		len(expect.OutputContainsAny) > 0 ||
+		len(expect.OutputFirstLineContainsAny) > 0 ||
 		len(expect.OutputExcludes) > 0 ||
 		expect.ExpectedNumber != nil
 }
@@ -1132,6 +1153,12 @@ func containsToken(output, want string) bool {
 			if n > 1 && (after[0] == '.' || after[0] == ',') && unicode.IsDigit(after[1]) {
 				ok = false
 			}
+			// A dot followed by a Latin letter extends the token: "01-hero.json"
+			// is not found inside "01-hero.json.bak" (a sentence-ending dot is
+			// followed by space, a newline or Chinese text instead).
+			if n > 1 && after[0] == '.' && after[1] < unicode.MaxASCII && unicode.IsLetter(after[1]) {
+				ok = false
+			}
 		}
 		if ok {
 			return true
@@ -1166,4 +1193,18 @@ func numberInText(output string, want, tolerance float64) bool {
 		}
 	}
 	return false
+}
+
+// firstContentLine is the reply's first non-empty line with Markdown emphasis
+// and heading markers stripped, so "**121**" and "## 121 rows" both lead with
+// 121.
+func firstContentLine(output string) string {
+	for _, line := range strings.Split(output, "\n") {
+		line = strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(line), "#>-* "))
+		line = strings.ReplaceAll(line, "**", "")
+		if line != "" {
+			return line
+		}
+	}
+	return ""
 }

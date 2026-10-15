@@ -4,7 +4,7 @@
   "description": "原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查）",
   "tool_catalog": "work-v1",
   "harness": "legacy",
-  "hash": "c0952ec36fd371026f698cdcce4cd252371a189c554870f21827c205f630e3d5",
+  "hash": "01b502c0de0f6efc2d14c7b800f92bb52d2dbe3f56cb08782c3afea081fd0768",
   "summary": {
     "total": 148,
     "by_suite": {
@@ -12,26 +12,26 @@
     },
     "by_task": {
       "answer-direct": 12,
-      "compute": 52,
+      "compute": 40,
       "external": 25,
-      "find-read": 24,
-      "write": 35
+      "find-read": 35,
+      "write": 36
     },
     "by_difficulty": {
-      "check": 24,
+      "check": 36,
       "decoy": 16,
       "follow-up": 3,
       "long-input": 6,
       "multi-source": 27,
-      "none": 76,
+      "none": 66,
       "recovery": 9
     },
     "by_language": {
       "en": 148
     },
     "by_answer_form": {
-      "abstain": 4,
-      "contains": 41,
+      "abstain": 7,
+      "contains": 38,
       "exact": 9,
       "file": 38,
       "number": 56
@@ -46,16 +46,16 @@
         "en": 12
       },
       "compute": {
-        "en": 52
+        "en": 40
       },
       "external": {
         "en": 25
       },
       "find-read": {
-        "en": 24
+        "en": 35
       },
       "write": {
-        "en": 35
+        "en": 36
       }
     },
     "leaked": 36
@@ -73,7 +73,7 @@
       "user_turns": 1,
       "ref_calls": 2,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [],
       "author": "llm:glm-drafter",
       "status": "reviewed",
@@ -91,7 +91,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source"
       ],
@@ -111,7 +111,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "exact",
-      "task": "write",
+      "task": "find-read",
       "difficulties": [
         "multi-source"
       ],
@@ -152,7 +152,7 @@
       "user_turns": 1,
       "ref_calls": 3,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [],
       "author": "llm:glm-drafter",
       "status": "reviewed"
@@ -169,7 +169,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source"
       ],
@@ -188,7 +188,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "recovery"
       ],
@@ -207,7 +207,7 @@
       "user_turns": 1,
       "ref_calls": 5,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source",
         "decoy"
@@ -264,7 +264,9 @@
       "ref_calls": 4,
       "answer_form": "abstain",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -282,7 +284,8 @@
       "answer_form": "abstain",
       "task": "find-read",
       "difficulties": [
-        "multi-source"
+        "multi-source",
+        "check"
       ],
       "author": "llm:glm-drafter",
       "status": "draft"
@@ -411,7 +414,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "decoy"
       ],
@@ -469,7 +472,7 @@
       "user_turns": 1,
       "ref_calls": 3,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "check"
       ],
@@ -488,7 +491,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "contains",
-      "task": "find-read",
+      "task": "write",
       "difficulties": [
         "check"
       ],
@@ -507,7 +510,7 @@
       "user_turns": 1,
       "ref_calls": 5,
       "answer_form": "contains",
-      "task": "find-read",
+      "task": "write",
       "difficulties": [
         "check"
       ],
@@ -544,7 +547,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -637,7 +642,9 @@
       "ref_calls": 4,
       "answer_form": "abstain",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "reviewed",
       "leaked": true
@@ -667,7 +674,7 @@
       "id": "doc-0005",
       "suite": "workbank",
       "path": "bench/workbank/cases/docs/doc-0005",
-      "sha256": "fb9bfe350da899cef675888292959d86ebd203aa3f02dc482f2c2b48e8a06ea7",
+      "sha256": "3d5e93d8fe7eeee6cbfab6c50a70e822e53c91a182e4d73de4cbc6d94862a844",
       "scenario": "docs",
       "task_type": "latest_version",
       "level": "L0",
@@ -684,7 +691,7 @@
       "id": "doc-0006",
       "suite": "workbank",
       "path": "bench/workbank/cases/docs/doc-0006",
-      "sha256": "7c212c16a9ea075be1d69fbfe8f4be37ce8270682a73fa96efd2990766b6b199",
+      "sha256": "d19ae6f758913ae6bcea588bcfb01be8b15db66d9cf8f491ec61997a4564e9b7",
       "scenario": "docs",
       "task_type": "latest_version",
       "level": "L1",
@@ -750,7 +757,7 @@
       "user_turns": 1,
       "ref_calls": 3,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [],
       "author": "llm:deepseek-drafter",
       "status": "draft"
@@ -767,7 +774,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source"
       ],
@@ -787,7 +794,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:deepseek-drafter",
       "status": "draft"
     },
@@ -861,7 +870,7 @@
       "user_turns": 1,
       "ref_calls": 4,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "decoy"
       ],
@@ -995,7 +1004,9 @@
       "ref_calls": 4,
       "answer_form": "abstain",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -1314,7 +1325,7 @@
       "user_turns": 1,
       "ref_calls": 5,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source",
         "decoy"
@@ -1597,7 +1608,7 @@
       "language": "en",
       "user_turns": 1,
       "ref_calls": 0,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "answer-direct",
       "difficulties": [],
       "author": "llm:glm-drafter",
@@ -1737,7 +1748,7 @@
       "language": "en",
       "user_turns": 1,
       "ref_calls": 0,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "answer-direct",
       "difficulties": [],
       "author": "llm:glm-drafter",
@@ -1747,14 +1758,14 @@
       "id": "nt-0012",
       "suite": "workbank",
       "path": "bench/workbank/cases/notool/nt-0012",
-      "sha256": "42e810ab63111fac4e3721d2d054f42c320acfe4df59d6fc36d539cdcbbfd772",
+      "sha256": "e16ddb53a772f22998450751fb3f553cdc995e79276e02f767463b4cb49342ef",
       "scenario": "notool",
       "task_type": "beyond_capability",
       "level": "L2",
       "language": "en",
       "user_turns": 2,
       "ref_calls": 0,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "answer-direct",
       "difficulties": [
         "follow-up"
@@ -1813,7 +1824,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "reviewed",
       "leaked": true
@@ -1887,7 +1900,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -1959,7 +1974,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -1976,7 +1993,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -2382,7 +2401,9 @@
       "ref_calls": 4,
       "answer_form": "file",
       "task": "write",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-drafter",
       "status": "draft"
     },
@@ -2400,7 +2421,8 @@
       "answer_form": "file",
       "task": "write",
       "difficulties": [
-        "multi-source"
+        "multi-source",
+        "check"
       ],
       "author": "llm:glm-drafter",
       "status": "draft"

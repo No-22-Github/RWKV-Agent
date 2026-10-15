@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 ：具体位置是 config/flags.txt。",
+      "prompt": "在工作区里搜一下「FEATURE_X=on」，告诉我它在哪个文件里、那一行写的是什么。",
       "expect": {
         "tools": null,
         "required_tools": [

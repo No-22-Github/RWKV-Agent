@@ -165,6 +165,7 @@ func runImportBuiltin(args []string) int {
 	}
 	var bfclOut []eval.Case
 	for _, c := range bfcl {
+		c = bfclSearchPrompts(c)
 		keep := strings.HasPrefix(c.ID, "bfcl_supplied_") || strings.HasPrefix(c.ID, "bfcl_state_") ||
 			strings.HasPrefix(c.ID, "bfcl_recovery_")
 		bfclOut = append(bfclOut, exportCase(c, "bfcl-product", "import:bfcl-v4", bfclTags(c), keep))
@@ -191,4 +192,36 @@ func runImportBuiltin(args []string) int {
 		fmt.Printf("exported %d %s case(s)\n", len(cases), suite)
 	}
 	return 0
+}
+
+// bfclSearchPrompts rewrites the "search" pair prompts. The built-in generator
+// fills them from a label the search pairs never set, so they read
+// "我需要你处理 ，但没有提供具体关键词" and "请处理 ：具体位置是 …" — an empty
+// placeholder no App user would type. The keyword comes from the pair's own
+// expected search_text call.
+func bfclSearchPrompts(c eval.Case) eval.Case {
+	if len(c.Turns) != 1 {
+		return c
+	}
+	turn := c.Turns[0]
+	switch {
+	case strings.HasPrefix(turn.Prompt, "我需要你处理 ，"):
+		turn.Prompt = "帮我在工作区里找一样东西，不过要搜的关键词我还没告诉你。先问我关键词是什么，不要调用工具。"
+	case strings.HasPrefix(turn.Prompt, "请处理 ："):
+		query := ""
+		for _, call := range turn.Expect.RequiredCalls {
+			if q, ok := call.Arguments["query"].(string); ok {
+				query = q
+			}
+		}
+		if query == "" {
+			return c
+		}
+		turn.Prompt = "在工作区里搜一下「" + query + "」，告诉我它在哪个文件里、那一行写的是什么。"
+	default:
+		return c
+	}
+	out := c
+	out.Turns = []eval.Turn{turn}
+	return out
 }

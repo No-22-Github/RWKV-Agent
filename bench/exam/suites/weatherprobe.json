@@ -11,7 +11,9 @@
       "weatherprobe": 14
     },
     "by_task": {
-      "external": 14
+      "answer-direct": 1,
+      "external": 12,
+      "find-read": 1
     },
     "by_difficulty": {
       "follow-up": 1,
@@ -22,7 +24,8 @@
       "zh": 13
     },
     "by_answer_form": {
-      "contains": 8,
+      "abstain": 1,
+      "contains": 7,
       "file": 3,
       "number": 3
     },
@@ -32,9 +35,15 @@
       "L2": 1
     },
     "task_by_language": {
+      "answer-direct": {
+        "zh": 1
+      },
       "external": {
         "en": 1,
-        "zh": 13
+        "zh": 11
+      },
+      "find-read": {
+        "zh": 1
       }
     }
   },
@@ -227,7 +236,7 @@
       "level": "L1",
       "language": "zh",
       "user_turns": 1,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "external",
       "difficulties": [],
       "author": "llm:claude-opus-5-5",
@@ -244,7 +253,7 @@
       "language": "zh",
       "user_turns": 1,
       "answer_form": "contains",
-      "task": "external",
+      "task": "answer-direct",
       "difficulties": [],
       "author": "llm:claude-opus-5-5",
       "status": "draft"
@@ -260,7 +269,7 @@
       "language": "zh",
       "user_turns": 1,
       "answer_form": "number",
-      "task": "external",
+      "task": "find-read",
       "difficulties": [],
       "author": "llm:claude-opus-5-5",
       "status": "draft"

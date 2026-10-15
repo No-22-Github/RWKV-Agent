@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 ：具体位置是 docs/guide.md。",
+      "prompt": "在工作区里搜一下「ROUTE-SENTINEL-4821」，告诉我它在哪个文件里、那一行写的是什么。",
       "expect": {
         "tools": null,
         "required_tools": [

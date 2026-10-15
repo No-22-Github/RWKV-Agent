@@ -4,7 +4,7 @@
   "description": "会不会用 bash 做聚合、批量编辑、出错恢复",
   "tool_catalog": "work-v2",
   "harness": "legacy",
-  "hash": "9f972747a34e2308bc8022017dfae57fd4d65a534276bbcda70ad4d61ae08594",
+  "hash": "5998aadfc5613b1d61a7c7fe8cdb086401802ae3309d12269df57655767d3bce",
   "summary": {
     "total": 26,
     "by_suite": {
@@ -12,18 +12,18 @@
     },
     "by_task": {
       "answer-direct": 1,
-      "compute": 15,
+      "compute": 13,
       "external": 2,
-      "find-read": 3,
-      "write": 5
+      "find-read": 4,
+      "write": 6
     },
     "by_difficulty": {
-      "check": 3,
+      "check": 4,
       "decoy": 9,
       "follow-up": 1,
       "long-input": 2,
       "multi-source": 2,
-      "none": 12,
+      "none": 11,
       "recovery": 3
     },
     "by_language": {
@@ -46,17 +46,18 @@
         "zh": 1
       },
       "compute": {
-        "en": 2,
-        "zh": 13
+        "en": 1,
+        "zh": 12
       },
       "external": {
         "zh": 2
       },
       "find-read": {
+        "en": 1,
         "zh": 3
       },
       "write": {
-        "zh": 5
+        "zh": 6
       }
     }
   },
@@ -142,7 +143,9 @@
       "user_turns": 1,
       "answer_form": "number",
       "task": "compute",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:claude-opus-5-5",
       "status": "draft"
     },
@@ -252,7 +255,7 @@
       "id": "bsh-0012",
       "suite": "bashprobe",
       "path": "bench/bashprobe/cases/bsh-0012",
-      "sha256": "57468eb5e806a3b7b2a35a37c6ef09b22f01f0f83dcd3e5dce1801552bf2f9c0",
+      "sha256": "f65a51496a36d4b65be713db07c666ed088ff20e98c103addc72394450284ed1",
       "scenario": "bashprobe",
       "task_type": "diff_keys",
       "level": "L1",
@@ -383,7 +386,7 @@
       "language": "zh",
       "user_turns": 1,
       "answer_form": "number",
-      "task": "compute",
+      "task": "write",
       "difficulties": [
         "check",
         "decoy"
@@ -443,7 +446,7 @@
       "id": "bsh-0023",
       "suite": "bashprobe",
       "path": "bench/bashprobe/cases/bsh-0023",
-      "sha256": "04ff84c29072c6b7dfad24e7bcae67de818b9a2ff46396a65cbf34ccac2f677b",
+      "sha256": "a77c1aa6342db82e23d6b7ffd165fa51863005cfe02769e7a99045d9c54b679b",
       "scenario": "bashprobe",
       "task_type": "duplicates",
       "level": "L1",
@@ -468,7 +471,7 @@
       "language": "en",
       "user_turns": 1,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "decoy"
       ],

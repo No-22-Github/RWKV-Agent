@@ -20,7 +20,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1733,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -62,10 +62,10 @@
           "共 5"
         ],
         "output_excludes": [
-          "11 次",
-          "11次",
-          "是 11",
-          "失败 11"
+          "是 11 次",
+          "共 11 次",
+          "失败了 11 次",
+          "失败 11 次"
         ]
       }
     }

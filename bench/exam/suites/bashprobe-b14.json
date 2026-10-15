@@ -4,7 +4,7 @@
   "description": "第 14 批题转来的 bash 场景题，中英各半",
   "tool_catalog": "work-v2",
   "harness": "legacy",
-  "hash": "b811e69647a2cf83c08feb75f4d3f4b0489bf7441b6a1af26edb0ff261f83d31",
+  "hash": "3266f669a9a7ec5b216a307249b6665fdaaa2920296422e8fdc9ad3c32f61111",
   "summary": {
     "total": 60,
     "by_suite": {
@@ -12,13 +12,13 @@
     },
     "by_task": {
       "answer-direct": 8,
-      "compute": 29,
+      "compute": 24,
       "external": 2,
-      "find-read": 5,
-      "write": 16
+      "find-read": 12,
+      "write": 14
     },
     "by_difficulty": {
-      "check": 22,
+      "check": 26,
       "decoy": 20,
       "follow-up": 14,
       "long-input": 24,
@@ -45,20 +45,20 @@
         "zh": 5
       },
       "compute": {
-        "en": 14,
-        "zh": 15
+        "en": 11,
+        "zh": 13
       },
       "external": {
         "en": 1,
         "zh": 1
       },
       "find-read": {
-        "en": 2,
-        "zh": 3
+        "en": 6,
+        "zh": 6
       },
       "write": {
-        "en": 8,
-        "zh": 8
+        "en": 7,
+        "zh": 7
       }
     }
   },
@@ -363,7 +363,7 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "long-input"
       ],
@@ -382,7 +382,7 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "long-input"
       ],
@@ -393,7 +393,7 @@
       "id": "bsh-0117",
       "suite": "bashprobe-b14",
       "path": "bench/bashprobe/cases-b14/bsh-0117",
-      "sha256": "8bb01e24c05a44f6ee96e5eb7b9591d1517fce962024cccb16158ef1c31634f3",
+      "sha256": "70396a54bfe3967cb4201c7267e2a68b05eeefd194e5af2dbdf9fb43d55f49ec",
       "scenario": "logs",
       "task_type": "count_events",
       "level": "L1",
@@ -433,7 +433,7 @@
       "id": "bsh-0119",
       "suite": "bashprobe-b14",
       "path": "bench/bashprobe/cases-b14/bsh-0119",
-      "sha256": "30bd4e411c31931adc417d29a54f11673cde75534a377d8149d9308df03a84e6",
+      "sha256": "e8ea572767234d87d06bca52445910f3eb7a98f08ccde15d18fa32eb9e8ef1e7",
       "scenario": "logs",
       "task_type": "locate_error",
       "level": "L1",
@@ -441,7 +441,7 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "long-input"
       ],
@@ -862,9 +862,10 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "write",
+      "task": "find-read",
       "difficulties": [
         "multi-source",
+        "check",
         "recovery"
       ],
       "author": "llm:claude-b14",
@@ -920,9 +921,10 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "write",
+      "task": "find-read",
       "difficulties": [
         "multi-source",
+        "check",
         "recovery"
       ],
       "author": "llm:claude-b14",
@@ -940,8 +942,9 @@
       "user_turns": 2,
       "ref_calls": 2,
       "answer_form": "contains",
-      "task": "write",
+      "task": "find-read",
       "difficulties": [
+        "check",
         "recovery",
         "follow-up"
       ],
@@ -960,9 +963,10 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "write",
+      "task": "find-read",
       "difficulties": [
         "multi-source",
+        "check",
         "recovery"
       ],
       "author": "llm:claude-b14",
@@ -1221,7 +1225,7 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "compute",
+      "task": "write",
       "difficulties": [
         "multi-source",
         "check"
@@ -1241,7 +1245,7 @@
       "user_turns": 1,
       "ref_calls": 1,
       "answer_form": "contains",
-      "task": "compute",
+      "task": "write",
       "difficulties": [
         "multi-source",
         "check"

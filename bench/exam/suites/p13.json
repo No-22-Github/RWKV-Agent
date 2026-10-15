@@ -4,7 +4,7 @@
   "description": "从未进过训练的留存题，中文为主",
   "tool_catalog": "work-v1",
   "harness": "legacy",
-  "hash": "9f282d53183bd98aed1e41b38dbb41a6875a14cc003842eda23615e91199cc49",
+  "hash": "10c2229d5278cd92c0040f4b19cfe2ea7fe5fba52a565c139eaad5186aa60a53",
   "summary": {
     "total": 60,
     "by_suite": {
@@ -12,17 +12,17 @@
     },
     "by_task": {
       "answer-direct": 2,
-      "compute": 26,
+      "compute": 24,
       "external": 2,
-      "find-read": 19,
-      "write": 11
+      "find-read": 22,
+      "write": 10
     },
     "by_difficulty": {
-      "check": 6,
+      "check": 13,
       "decoy": 18,
       "follow-up": 10,
       "multi-source": 6,
-      "none": 22,
+      "none": 15,
       "recovery": 4
     },
     "by_language": {
@@ -30,8 +30,8 @@
       "zh": 40
     },
     "by_answer_form": {
-      "abstain": 2,
-      "contains": 29,
+      "abstain": 5,
+      "contains": 26,
       "file": 10,
       "number": 19
     },
@@ -47,7 +47,7 @@
       },
       "compute": {
         "en": 6,
-        "zh": 20
+        "zh": 18
       },
       "external": {
         "en": 1,
@@ -55,11 +55,11 @@
       },
       "find-read": {
         "en": 7,
-        "zh": 12
+        "zh": 15
       },
       "write": {
         "en": 5,
-        "zh": 6
+        "zh": 5
       }
     }
   },
@@ -77,7 +77,9 @@
       "ref_calls": 3,
       "answer_form": "abstain",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -184,7 +186,7 @@
       "user_turns": 1,
       "ref_calls": 3,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "multi-source"
       ],
@@ -222,7 +224,7 @@
       "user_turns": 1,
       "ref_calls": 3,
       "answer_form": "number",
-      "task": "write",
+      "task": "compute",
       "difficulties": [
         "multi-source"
       ],
@@ -295,7 +297,9 @@
       "ref_calls": 2,
       "answer_form": "contains",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -402,7 +406,7 @@
       "user_turns": 1,
       "ref_calls": 2,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [
         "check"
       ],
@@ -440,7 +444,7 @@
       "user_turns": 1,
       "ref_calls": 2,
       "answer_form": "number",
-      "task": "compute",
+      "task": "find-read",
       "difficulties": [],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
@@ -456,7 +460,7 @@
       "language": "zh",
       "user_turns": 1,
       "ref_calls": 3,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "find-read",
       "difficulties": [
         "decoy"
@@ -477,7 +481,9 @@
       "ref_calls": 3,
       "answer_form": "contains",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -578,7 +584,7 @@
       "id": "fs-8013",
       "suite": "p13",
       "path": "bench/holdout/p13/filesystem/fs-8013",
-      "sha256": "02d8ae2b200cf6fcc9142cea748b7f744bf549d7a9dde3479cb33c4393485ee7",
+      "sha256": "4bf661e9d9ce93b3376988ddecc903eb73b4b816f6505970d39216a7b49218bf",
       "scenario": "filesystem",
       "task_type": "largest",
       "level": "L1",
@@ -673,7 +679,7 @@
       "id": "hyb-8004",
       "suite": "p13",
       "path": "bench/holdout/p13/hybrid/hyb-8004",
-      "sha256": "092769d45dcaf6726e437c60b8bbf471ebd461efafad7a7ba5ba08ce843a4ba1",
+      "sha256": "e6be68023a7dbe2b0a5ef9a0921426a5491ad72f073270a48cf7e557e9401566",
       "scenario": "hybrid",
       "task_type": "multi_turn",
       "level": "L1",
@@ -821,7 +827,9 @@
       "ref_calls": 3,
       "answer_form": "abstain",
       "task": "find-read",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -946,7 +954,7 @@
       "language": "zh",
       "user_turns": 1,
       "ref_calls": 2,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "answer-direct",
       "difficulties": [],
       "author": "llm:glm-5.3-flash-p13",
@@ -963,7 +971,7 @@
       "language": "en",
       "user_turns": 1,
       "ref_calls": 2,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "answer-direct",
       "difficulties": [],
       "author": "llm:glm-5.3-flash-p13",
@@ -1020,7 +1028,9 @@
       "ref_calls": 3,
       "answer_form": "contains",
       "task": "compute",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -1037,7 +1047,9 @@
       "ref_calls": 2,
       "answer_form": "contains",
       "task": "compute",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },
@@ -1124,7 +1136,9 @@
       "ref_calls": 3,
       "answer_form": "contains",
       "task": "compute",
-      "difficulties": [],
+      "difficulties": [
+        "check"
+      ],
       "author": "llm:glm-5.3-flash-p13",
       "status": "draft"
     },

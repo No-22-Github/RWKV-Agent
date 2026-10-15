@@ -4,7 +4,7 @@
   "description": "第 14 批题转来的天气场景题",
   "tool_catalog": "work-v2",
   "harness": "legacy",
-  "hash": "64aecfb6f9e437bfa0f0c0b75ce78273249305f1719df21e62e98541259449ea",
+  "hash": "ea7be6f748d38338c544d12238fbab549f0a0f3c57d607baac974eca6f99f2bf",
   "summary": {
     "total": 30,
     "by_suite": {
@@ -15,7 +15,7 @@
       "external": 25
     },
     "by_difficulty": {
-      "check": 7,
+      "check": 10,
       "decoy": 9,
       "follow-up": 11,
       "multi-source": 4,
@@ -27,7 +27,8 @@
       "zh": 23
     },
     "by_answer_form": {
-      "contains": 23,
+      "abstain": 3,
+      "contains": 20,
       "file": 7
     },
     "by_level": {
@@ -126,7 +127,7 @@
       "id": "wth-0105",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0105",
-      "sha256": "022628f63203b3a27f612c63aba72a2b3d5c43324246caa2c6794609477ba563",
+      "sha256": "a876e5dc9aa5db2befe4efdabac66e2a0f15bab28f8902f6a9483b8d14dcc4d2",
       "scenario": "hybrid",
       "task_type": "special_tool",
       "level": "L1",
@@ -145,7 +146,7 @@
       "id": "wth-0106",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0106",
-      "sha256": "8b2692e1594718b0baa2867ae18f6ddd6f7afc096cf43b6c3a141bba40bbd352",
+      "sha256": "1090495cbaed6a1a3155e2bde8850845f2f92d519a75d8948ac2bfe533b2d6d2",
       "scenario": "hybrid",
       "task_type": "special_tool",
       "level": "L1",
@@ -164,7 +165,7 @@
       "id": "wth-0107",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0107",
-      "sha256": "88b181a9f3b5c67d3e94bdc999f0ab3d8927a3e79c6bbd0269d364a5d4ac1e30",
+      "sha256": "43ce4b8d063b0bae06959e9a7a8c7ae0ad1fab9cf0f93e6caa158bb60d5f552b",
       "scenario": "hybrid",
       "task_type": "special_tool",
       "level": "L1",
@@ -358,7 +359,7 @@
       "id": "wth-0117",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0117",
-      "sha256": "832b5c804a5817355f235c3e0099b7b6bf224d5e868e269a20208e387c512769",
+      "sha256": "c8cfd1e786cd95e573b5da6cb547aca05a99dbf012a00a5a36bfb210f9061bc4",
       "scenario": "hybrid",
       "task_type": "special_tool",
       "level": "L1",
@@ -425,9 +426,10 @@
       "language": "zh",
       "user_turns": 1,
       "ref_calls": 1,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "external",
       "difficulties": [
+        "check",
         "recovery"
       ],
       "author": "llm:claude-b14",
@@ -444,9 +446,10 @@
       "language": "zh",
       "user_turns": 1,
       "ref_calls": 2,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "external",
       "difficulties": [
+        "check",
         "recovery"
       ],
       "author": "llm:claude-b14",
@@ -463,9 +466,10 @@
       "language": "zh",
       "user_turns": 2,
       "ref_calls": 2,
-      "answer_form": "contains",
+      "answer_form": "abstain",
       "task": "external",
       "difficulties": [
+        "check",
         "recovery",
         "follow-up"
       ],
@@ -514,7 +518,7 @@
       "id": "wth-0125",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0125",
-      "sha256": "325f952a6e560282e91fbd57be6b278b4fa14888d53450548355c95f3cd3eac7",
+      "sha256": "22e6673c12ba066dada65e9ca3faf11069327074d6b627e674a380d1dc9e1ae1",
       "scenario": "hybrid",
       "task_type": "special_tool",
       "level": "L1",
@@ -604,7 +608,7 @@
       "id": "wth-0130",
       "suite": "weatherprobe-b14",
       "path": "bench/weatherprobe/cases-b14/wth-0130",
-      "sha256": "7a891f3928dfbc921f34f6a1afc840d11177147aed3bf354fbdb38a83694af41",
+      "sha256": "0bdcfa92224cb253e6bfdde6cccb0d026d2729cd02bde5ecca3611fa7a58423b",
       "scenario": "notool",
       "task_type": "concept",
       "level": "L1",

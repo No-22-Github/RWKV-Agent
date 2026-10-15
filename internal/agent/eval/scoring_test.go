@@ -513,9 +513,23 @@ func TestContainsTokenHanBoundary(t *testing.T) {
 		{"版本是v4.2。", "v4.2", true},
 		{"共133条", "33", false},
 		{"2026-05", "5", false},
+		{"最大的是 icons/01-hero.json.bak", "01-hero.json", false},
+		{"最大的是 01-hero.json。", "01-hero.json", true},
+		{"It is 01-hero.json. Done.", "01-hero.json", true},
+		{"降水概率 15%", "5%", false},
 	} {
 		if got := containsToken(c.output, c.want); got != c.pass {
 			t.Errorf("containsToken(%q, %q) = %v, want %v", c.output, c.want, got, c.pass)
 		}
+	}
+}
+
+func TestFirstLineLeads(t *testing.T) {
+	expect := Expectation{OutputFirstLineContainsAny: []string{"121"}}
+	if f := answerFailures(expect, "**121** 行（含 21 号）\n明细见下"); len(f) != 0 {
+		t.Errorf("leading answer failed: %v", f)
+	}
+	if f := answerFailures(expect, "110 行。\n如果含 21 号则为 121。"); len(f) == 0 {
+		t.Error("answer led by the decoy passed")
 	}
 }

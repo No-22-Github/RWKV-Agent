@@ -512,6 +512,14 @@ func runCase(
 			}
 		}
 		turnResult.Failures = validateTurn(turn.Expect, runResult, runErr)
+		if IsProductHarness(config.ProductHarness) && runResult.AnswerContractRepaired &&
+			hasAnswerExpectation(turn.Expect) {
+			// The App shows the user the fallback text, not the raw output the
+			// legacy scoring reads (modelAnswer); a value buried in a repaired
+			// reply never reached the user.
+			turnResult.Failures = append(turnResult.Failures,
+				"answer contract repaired: the App showed the fallback reply, not the model's answer")
+		}
 		turnResult.Failures = append(
 			turnResult.Failures,
 			primitiveFailures(testCase.primitive, primitiveRun, runResult)...,
