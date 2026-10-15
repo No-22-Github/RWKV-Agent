@@ -99,7 +99,8 @@ local/bin/rwkv-lab bench rank local/runs/bench-YYYYMMDD --save <rank.md>
 写 `experiment.json`（二进制 sha、git HEAD、diff sha、case 源 sha，供 `run replicate` 使用）。
 - 只有写了 `experiment.json` 且 `gate_passed: true` 的 run 才算完成。
 - 逐题断点：agent-eval 每题结束立刻把结果追加进 `<run>.partial/cases.jsonl`（fsync），日志里每题一行
-  `[done/total] case_id pass|fail|invalid 用时`，`<run>.partial/progress.json` 是实时计数。
+  `[done/total] case_id pass|fail|invalid 用时 eta 剩余`，`<run>.partial/progress.json` 是实时计数和 `eta_at`
+  （按本次吞吐外推，开头和收尾偏乐观）。
   进程被杀/节点 OOM 后重开同一条 sweep 命令即可：sweep 一律带 `--resume`，已完成的题不重跑，旧日志挪进 `aborted/`。
 - 闸门 FAIL（参数配错）→ 立即中止，不重试。`RESUME REFUSED`（partial 是另一套配置留下的）同样中止，
   按提示修配置或删掉 `<run>.partial` 重来。

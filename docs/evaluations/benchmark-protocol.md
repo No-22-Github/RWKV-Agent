@@ -119,8 +119,9 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 **断点续跑**（`rwkv-cli agent-eval --resume`）：
 - 运行中每题结束立刻追加到 `<output>.partial/cases.jsonl`（一行一题：`index`、`case_id`、`status`、`elapsed_ms`、
   `finished_at`、`result` = summary.json 里该题的 CaseResult、`trace` = 该题的 trace 记录；每行写完 fsync）；
-  `progress.json` 记 `total/done/pass/fail/invalid/resumed` 与开始时间；`signature.json` 记 run_id、开始时间与配置签名。
-  stderr 每题一行 `[done/total] case_id pass|fail|invalid 用时`。
+  `progress.json` 记 `total/done/pass/fail/invalid/resumed`、开始时间与 `eta_seconds`/`eta_at`；`signature.json` 记 run_id、开始时间与配置签名。
+  stderr 每题一行 `[done/total] case_id pass|fail|invalid 用时 eta 剩余`。ETA = 本次尝试已完成题数的吞吐外推剩余题数，
+  本次完成不足 5 题时显示 `eta ?`；开头（先完成的是短题）和收尾（剩下的是慢题）会偏乐观。
 - `--resume`：partial 存在且签名一致时，跳过已完成且非作废、非基础设施错误的题，只跑其余题，合并后写最终
   run.json / trace.jsonl / summary.json（run_id 与 started_at 沿用第一次尝试，`wall_time_millis` 含中断时间）。
   签名不一致即拒绝并逐项列出差异；只有 `case_parallelism` 允许改（OOM 后降并发是续跑的主要场景）。

@@ -61,6 +61,11 @@ type CheckpointProgress struct {
 	StartedAt        time.Time `json:"started_at"`
 	AttemptStartedAt time.Time `json:"attempt_started_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
+	// ETASeconds and ETAAt estimate when the remaining cases finish, from this
+	// attempt's throughput (see estimateETA); absent until enough cases of
+	// this attempt have finished.
+	ETASeconds *int64     `json:"eta_seconds,omitempty"`
+	ETAAt      *time.Time `json:"eta_at,omitempty"`
 }
 
 // checkpointHeader is signature.json: the run identity and the configuration
@@ -370,12 +375,52 @@ func (c *Checkpoint) record(index int, result CaseResult, trace []TraceRecord, e
 		c.progress.Fail++
 	}
 	c.progress.UpdatedAt = entry.FinishedAt
+	etaText := "?"
+	c.progress.ETASeconds, c.progress.ETAAt = nil, nil
+	if eta, ok := estimateETA(
+		c.progress.Done-c.progress.Resumed,
+		c.progress.Total-c.progress.Done,
+		entry.FinishedAt.Sub(c.progress.AttemptStartedAt),
+	); ok {
+		seconds := int64(eta / time.Second)
+		at := entry.FinishedAt.Add(eta)
+		c.progress.ETASeconds, c.progress.ETAAt = &seconds, &at
+		etaText = formatETA(eta)
+	}
 	if err := c.writeProgress(); err != nil && !c.warned {
 		c.warned = true
 		fmt.Fprintf(c.log, "warning: progress write to %s failed: %v\n", c.dir, err)
 	}
-	fmt.Fprintf(c.log, "[%d/%d] %s %s %s\n", c.progress.Done, c.progress.Total, result.ID, status,
-		elapsed.Round(time.Second))
+	fmt.Fprintf(c.log, "[%d/%d] %s %s %s eta %s\n", c.progress.Done, c.progress.Total, result.ID, status,
+		elapsed.Round(time.Second), etaText)
+}
+
+// etaMinSamples is how many cases of the current attempt must finish before
+// an ETA is shown; the first completions are the shortest cases and would
+// promise far too early a finish.
+const etaMinSamples = 5
+
+// estimateETA extrapolates this attempt's throughput (finished cases per
+// wall-clock second since the attempt started) over the remaining cases.
+// Measuring whole-attempt throughput rather than per-case time keeps the
+// estimate right under case parallelism. It reads optimistic early on and
+// near the end, when the slow cases still in flight dominate.
+func estimateETA(finished, remaining int, elapsed time.Duration) (time.Duration, bool) {
+	if remaining <= 0 {
+		return 0, true
+	}
+	if finished < etaMinSamples || elapsed <= 0 {
+		return 0, false
+	}
+	return time.Duration(float64(elapsed) / float64(finished) * float64(remaining)), true
+}
+
+// formatETA rounds to seconds below ten minutes and to minutes above.
+func formatETA(eta time.Duration) string {
+	if eta < 10*time.Minute {
+		return eta.Round(time.Second).String()
+	}
+	return strings.TrimSuffix(eta.Round(time.Minute).String(), "0s")
 }
 
 // NeedsRerun reports a finished case whose result is not a reading of the

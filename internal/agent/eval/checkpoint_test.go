@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -318,5 +319,61 @@ func TestCheckpointDropsTornFinalLine(t *testing.T) {
 	}
 	if len(records) != 2 || records[1].CaseID != "resume-1" || records[1].Status != CaseStatusFail {
 		t.Fatalf("records after repair = %+v", records)
+	}
+}
+
+func TestEstimateETA(t *testing.T) {
+	t.Parallel()
+	if _, ok := estimateETA(etaMinSamples-1, 10, time.Minute); ok {
+		t.Fatal("ETA shown before enough cases finished")
+	}
+	// 10 cases in 20 minutes, 30 left: 60 minutes.
+	if eta, ok := estimateETA(10, 30, 20*time.Minute); !ok || eta != time.Hour {
+		t.Fatalf("eta = %v, %v", eta, ok)
+	}
+	if eta, ok := estimateETA(0, 0, 0); !ok || eta != 0 {
+		t.Fatalf("finished run eta = %v, %v", eta, ok)
+	}
+	for eta, want := range map[time.Duration]string{
+		90 * time.Second:                "1m30s",
+		41*time.Minute + 20*time.Second: "41m",
+		72 * time.Minute:                "1h12m",
+	} {
+		if got := formatETA(eta); got != want {
+			t.Fatalf("formatETA(%v) = %q, want %q", eta, got, want)
+		}
+	}
+}
+
+func TestCheckpointProgressReportsETA(t *testing.T) {
+	t.Parallel()
+	clock := time.Date(2026, 10, 15, 8, 0, 0, 0, time.UTC)
+	var mu sync.Mutex
+	config := checkpointConfig(t, &fakeBackend{})
+	config.Now = func() time.Time {
+		mu.Lock()
+		defer mu.Unlock()
+		return clock
+	}
+	var log strings.Builder
+	checkpoint, err := OpenCheckpoint(filepath.Join(t.TempDir(), "run"), config, false, &log)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer checkpoint.Close()
+	for index := range etaMinSamples {
+		mu.Lock()
+		clock = clock.Add(time.Minute)
+		mu.Unlock()
+		checkpoint.record(index, CaseResult{ID: fmt.Sprintf("resume-%d", index), Passed: true}, nil, time.Minute)
+	}
+	// 5 of 6 cases in 5 minutes: one minute left.
+	progress := checkpoint.Progress()
+	if progress.ETASeconds == nil || *progress.ETASeconds != 60 {
+		t.Fatalf("eta_seconds = %v", progress.ETASeconds)
+	}
+	lines := strings.Split(strings.TrimSpace(log.String()), "\n")
+	if lines[0] != "[1/6] resume-0 pass 1m0s eta ?" || lines[4] != "[5/6] resume-4 pass 1m0s eta 1m0s" {
+		t.Fatalf("progress lines = %q", lines)
 	}
 }
