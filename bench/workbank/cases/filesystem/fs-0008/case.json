@@ -590,7 +590,7 @@
   },
   "turns": [
     {
-      "prompt": "The Halcyon transect programme is closing its field season and the survey archive goes to the national data centre next week. How many bytes does the single biggest file in the Halcyon transect archive occupy? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The Halcyon transect programme is closing its field season and the survey archive goes to the national data centre next week. How many bytes does the single biggest file in the Halcyon transect archive occupy? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 3618,
         "tolerance": 0.01,

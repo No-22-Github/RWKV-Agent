@@ -35,7 +35,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "During yesterday's storefront launch the telemetry stream ran at a steady 0.5 GB per minute. For the incident review, express that rate as a per-day volume in GB, and message the figure to Priya. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "During yesterday's storefront launch the telemetry stream ran at a steady 0.5 GB per minute. For the incident review, express that rate as a per-day volume in GB, and message the figure to Priya. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "tools": [],
         "output_contains_any": [

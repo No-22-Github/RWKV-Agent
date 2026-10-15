@@ -25,27 +25,31 @@ type Source struct {
 	Label       string
 	Purpose     string
 	ToolCatalog string // catalog the collection was authored and historically run under
+	// Optional sources may be absent (the gap-filling batches land later).
+	Optional bool
 }
 
 // Sources is the exam's draw order. The probe reserves are deliberately
 // absent: they are the pool new cases are promoted from, not exam members.
 var Sources = []Source{
 	{"workbank", "bench/workbank/cases", "workbank",
-		"原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查）", "work-v1"},
+		"原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查）", "work-v1", false},
 	{"p13", "bench/holdout/p13", "p13 留存题",
-		"从未进过训练的留存题，中文为主", "work-v1"},
+		"从未进过训练的留存题，中文为主", "work-v1", false},
 	{"bfcl-product", "bench/exam/imported/bfcl-product", "bfcl-product",
-		"工具时机：该不该调工具、缺信息先反问、两轮对话（改写自 BFCL v4）", ""},
+		"工具时机：该不该调工具、缺信息先反问、两轮对话（改写自 BFCL v4）", "", false},
 	{"boundary", "bench/exam/imported/boundary", "boundary",
-		"早期边界题：多步工具、金融算术、注入（改写自 primitive-bench）", ""},
+		"早期边界题：多步工具、金融算术、注入（改写自 primitive-bench）", "", false},
 	{"bashprobe", "bench/bashprobe/cases", "bash 探针·老题",
-		"会不会用 bash 做聚合、批量编辑、出错恢复", "work-v2"},
+		"会不会用 bash 做聚合、批量编辑、出错恢复", "work-v2", false},
 	{"bashprobe-b14", "bench/bashprobe/cases-b14", "bash 探针·第二部分",
-		"第 14 批题转来的 bash 场景题，中英各半", "work-v2"},
+		"第 14 批题转来的 bash 场景题，中英各半", "work-v2", false},
 	{"weatherprobe", "bench/weatherprobe/cases", "天气探针·老题",
-		"会不会用 get_weather、查完写产物", "work-v2"},
+		"会不会用 get_weather、查完写产物", "work-v2", false},
 	{"weatherprobe-b14", "bench/weatherprobe/cases-b14", "天气探针·第二部分",
-		"第 14 批题转来的天气场景题", "work-v2"},
+		"第 14 批题转来的天气场景题", "work-v2", false},
+	{"exam-new", "bench/exam/cases", "考卷补题",
+		"按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md）", "work-v2", true},
 }
 
 const (
@@ -114,6 +118,9 @@ func readIDList(path string) ([]string, map[string]string, error) {
 func scanSource(paths Paths, source Source, leaked map[string]string) ([]loaded, error) {
 	dir := filepath.Join(paths.Root, filepath.FromSlash(source.Dir))
 	if _, err := os.Stat(dir); err != nil {
+		if source.Optional && errors.Is(err, fs.ErrNotExist) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("source %s: %w", source.Name, err)
 	}
 	var out []loaded

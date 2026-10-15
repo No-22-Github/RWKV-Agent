@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Harborlight Retail's inventory service answers storefront and warehouse traffic, and it records every request it serves. Of the requests in the service access trail, how many were POST calls to /v1/stock/reservations that answered with status 409? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Harborlight Retail's inventory service answers storefront and warehouse traffic, and it records every request it serves. Of the requests in the service access trail, how many were POST calls to /v1/stock/reservations that answered with status 409? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 27,
         "tolerance": 0.01,

@@ -34,7 +34,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "pulsegate-billing records every authorization attempt it handles in logs/pulsegate-billing.log. The finance team needs the number of attempts whose authorization did not go through. Report that number. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "pulsegate-billing records every authorization attempt it handles in logs/pulsegate-billing.log. The finance team needs the number of attempts whose authorization did not go through. Report that number. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "expected_number": 11,
         "tolerance": 0.01,

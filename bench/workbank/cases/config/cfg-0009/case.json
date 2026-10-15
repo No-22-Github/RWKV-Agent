@@ -28,7 +28,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "retry_backoff_ms"

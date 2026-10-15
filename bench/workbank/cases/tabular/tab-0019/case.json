@@ -33,7 +33,7 @@
   },
   "turns": [
     {
-      "prompt": "Ostervale Instruments is preparing its March billing summary. The sales desk's contract event export is in the workspace; it lists each recorded signing or renewal with the date it was recorded. Ostervale's March billing window runs from 1 March to 15 March 2026 inclusive. How many events in the export fall inside that window? Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Ostervale Instruments is preparing its March billing summary. The sales desk's contract event export is in the workspace; it lists each recorded signing or renewal with the date it was recorded. Ostervale's March billing window runs from 1 March to 15 March 2026 inclusive. How many events in the export fall inside that window? Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "expected_number": 8,
         "tolerance": 0.01,

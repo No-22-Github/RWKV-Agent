@@ -63,7 +63,7 @@
   },
   "turns": [
     {
-      "prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 34,
         "tolerance": 0.01,

@@ -1,0 +1,19 @@
+{
+  "schema": "rwkv-exam/v1",
+  "name": "exam-new",
+  "description": "按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md）",
+  "tool_catalog": "work-v2",
+  "harness": "legacy",
+  "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "summary": {
+    "total": 0,
+    "by_suite": {},
+    "by_task": {},
+    "by_difficulty": {},
+    "by_language": {},
+    "by_answer_form": {},
+    "by_level": {},
+    "task_by_language": {}
+  },
+  "cases": []
+}

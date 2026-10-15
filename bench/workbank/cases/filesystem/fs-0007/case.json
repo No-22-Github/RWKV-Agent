@@ -42,7 +42,7 @@
   },
   "turns": [
     {
-      "prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "titles/nettlewick/typeset/body_flow.csv"

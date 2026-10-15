@@ -57,7 +57,7 @@
   ],
   "turns": [
     {
-      "prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. We keep nothing of tidalforge's here. media_priority: what tidalforge version deprecated it? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. We keep nothing of tidalforge's here. media_priority: what tidalforge version deprecated it? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "required_tools": [
           "web_search"

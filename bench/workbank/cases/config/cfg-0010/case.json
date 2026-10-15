@@ -34,7 +34,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The catalog-sync service reaches onboarding sign-off on Friday. For sign-off the settings file has to declare every key the platform requires of it, and I need the list of keys the settings file does not declare yet. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The catalog-sync service reaches onboarding sign-off on Friday. For sign-off the settings file has to declare every key the platform requires of it, and I need the list of keys the settings file does not declare yet. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "output_contains": [
           "snapshot_retention_days",

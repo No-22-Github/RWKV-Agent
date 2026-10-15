@@ -37,7 +37,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "An outage hit session lookups yesterday. For the incident report, give the instant the outage first showed a failure, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "An outage hit session lookups yesterday. For the incident report, give the instant the outage first showed a failure, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "2026-09-28 17:30:58"

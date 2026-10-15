@@ -59,7 +59,7 @@
   ],
   "turns": [
     {
-      "prompt": "A compliance note about marrowgate has to name the release in which session_ttl_minutes was retired. We hold no marrowgate material of our own. Which version deprecated it? Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "A compliance note about marrowgate has to name the release in which session_ttl_minutes was retired. We hold no marrowgate material of our own. Which version deprecated it? Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "required_tools": [
           "web_search"

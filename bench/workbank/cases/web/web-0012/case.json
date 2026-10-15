@@ -59,7 +59,7 @@
   ],
   "turns": [
     {
-      "prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. Nothing on our side spells it out. State the condition name harborlight's reference assigns to HL-3312. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. Nothing on our side spells it out. State the condition name harborlight's reference assigns to HL-3312. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains_any": [
           "moatleak",

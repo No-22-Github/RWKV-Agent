@@ -199,6 +199,12 @@ func HarnessOptions(config HarnessConfig) agent.Options {
 			AnswerStageLead:          AnswerStageLead,
 		})
 	}
+	// A native-tool model (chat-completions) decides for itself whether the
+	// first step calls a tool. The runner's "required" default forced a tool
+	// call on every first reply, so "how many sides does a hexagon have?"
+	// listed the workspace first. A wire profile below may still pin it; on
+	// text continuation the setting is inert.
+	options.NativeFirstCall = "auto"
 	if strings.TrimSpace(config.Profile) != "" {
 		// The profile was validated upstream, so a failure here would mean the
 		// base profile and the wire profile disagree; in that case the base

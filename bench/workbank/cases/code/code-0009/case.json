@@ -31,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "output_contains": [
           "dispatch/handoff.py:12"

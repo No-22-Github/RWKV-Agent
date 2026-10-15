@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "ClaimDesk's API writes one plain-text application log per day at logs/claimdesk-api.log. Yesterday a single entry reached FATAL level. For the reliability review, report the module that emitted that FATAL entry. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "ClaimDesk's API writes one plain-text application log per day at logs/claimdesk-api.log. Yesterday a single entry reached FATAL level. For the reliability review, report the module that emitted that FATAL entry. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "output_contains": [
           "policy-renderer"

@@ -33,7 +33,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Cobalt Peak's billing gateway answers invoice, dunning and account traffic, and it writes one line per request into its access trail. For the day the trail covers, how many requests did ledgerline-api answer in total? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Cobalt Peak's billing gateway answers invoice, dunning and account traffic, and it writes one line per request into its access trail. For the day the trail covers, how many requests did ledgerline-api answer in total? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 70,
         "tolerance": 0.01,

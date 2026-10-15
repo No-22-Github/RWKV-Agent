@@ -62,7 +62,7 @@
   ],
   "turns": [
     {
-      "prompt": "A tiderail worker logged TRD-1094 this morning and the triage note needs the platform's own term. Our triage sheets have never listed that code. Report the condition name tiderail's documentation gives for that error code. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "A tiderail worker logged TRD-1094 this morning and the triage note needs the platform's own term. Our triage sheets have never listed that code. Report the condition name tiderail's documentation gives for that error code. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains_any": [
           "coldshard",

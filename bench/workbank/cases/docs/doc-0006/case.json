@@ -33,7 +33,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Support keeps quoting a preview build of the anvil-relay connector. Which version of anvil-relay is the newest one that customers can actually receive? Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Support keeps quoting a preview build of the anvil-relay connector. Which version of anvil-relay is the newest one that customers can actually receive? Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "4.8.1"

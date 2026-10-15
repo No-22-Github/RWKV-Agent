@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Overnight a new build, media-ingest-2.14.0, was rolled out to the media-ingest service. For the change review, report the timestamp of the first ERROR the service logged at or after that rollout, as YYYY-MM-DD HH:MM:SS. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Overnight a new build, media-ingest-2.14.0, was rolled out to the media-ingest service. For the change review, report the timestamp of the first ERROR the service logged at or after that rollout, as YYYY-MM-DD HH:MM:SS. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "2026-08-06 13:52:10"

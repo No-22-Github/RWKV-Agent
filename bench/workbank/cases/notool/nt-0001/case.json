@@ -25,7 +25,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "A monitoring dashboard reports an ingest rate of 2.5 MiB per second. Express that same rate in MiB per hour. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "A monitoring dashboard reports an ingest rate of 2.5 MiB per second. Express that same rate in MiB per hour. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "expected_number": 9000.0,
         "tolerance": 0.01,

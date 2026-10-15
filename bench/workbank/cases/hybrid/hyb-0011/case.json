@@ -67,7 +67,7 @@
       }
     },
     {
-      "prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 58745.4,
         "tolerance": 0.01,

@@ -34,7 +34,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 240,
         "tolerance": 0.01,

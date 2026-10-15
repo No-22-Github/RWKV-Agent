@@ -29,7 +29,7 @@
   },
   "turns": [
     {
-      "prompt": "Marlowe Ridge Analytics is assembling its board pack from the current subscription book. The contract ledger in the workspace lists every customer account with its annualized contract value. Which account holds the third-largest annual contract value in the book? Give the account code. Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Marlowe Ridge Analytics is assembling its board pack from the current subscription book. The contract ledger in the workspace lists every customer account with its annualized contract value. Which account holds the third-largest annual contract value in the book? Give the account code. Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "output_contains": [
           "MRA-2160"

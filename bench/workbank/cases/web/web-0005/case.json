@@ -51,7 +51,7 @@
   ],
   "turns": [
     {
-      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "required_tools": [
           "web_search"

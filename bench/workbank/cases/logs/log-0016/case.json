@@ -35,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "The Northgate on-call review for 5 August 2026 needs the number of edge requests that fell outside the one-second reliability objective. That day's export is available. How many requests exceeded the objective? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The Northgate on-call review for 5 August 2026 needs the number of edge requests that fell outside the one-second reliability objective. That day's export is available. How many requests exceeded the objective? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 11,
         "tolerance": 0.01,

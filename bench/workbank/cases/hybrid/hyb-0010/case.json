@@ -44,7 +44,7 @@
   ],
   "turns": [
     {
-      "prompt": "Kestrel Solar's rooftop sites deliver surplus electricity into Northgate Grid's network, and the network settles those deliveries under the tariffs it publishes. Sales needs the total value of the portfolio's deliveries. What is that total in pounds sterling? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Kestrel Solar's rooftop sites deliver surplus electricity into Northgate Grid's network, and the network settles those deliveries under the tariffs it publishes. Sales needs the total value of the portfolio's deliveries. What is that total in pounds sterling? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 4302.87,
         "tolerance": 0.01,

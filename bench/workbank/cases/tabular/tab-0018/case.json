@@ -34,7 +34,7 @@
   },
   "turns": [
     {
-      "prompt": "Tidewater Learning is closing its May 2026 billing run. The month's subscription charges and the credits raised against them are both in the workspace. What amount, in US dollars, was billed for May 2026 once the credits are applied? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Tidewater Learning is closing its May 2026 billing run. The month's subscription charges and the credits raised against them are both in the workspace. What amount, in US dollars, was billed for May 2026 once the credits are applied? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 45341.05,
         "tolerance": 0.01,

@@ -39,7 +39,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "output_contains": [
           "rollback-checklist.md"

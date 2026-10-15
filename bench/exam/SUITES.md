@@ -16,8 +16,8 @@
 
 | 考卷 | 题数 | 哈希 | 用途 | 清单 |
 |---|---|---|---|---|
-| exam-full | 380 | `ff4002dcf56a` | 完整考卷：按 App 默认配置（g1k、工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
-| exam-quick | 87 | `e4f5c295c97a` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
+| exam-full | 380 | `d4ac11e7e880` | 完整考卷：按 App 默认配置（g1k、工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
+| exam-quick | 87 | `7d4f6bd81be3` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
 
 ## 名词
 
@@ -140,6 +140,7 @@
 | bash 探针·第二部分 | `bench/bashprobe/cases-b14` | 第 14 批题转来的 bash 场景题，中英各半 | work-v2 | 60 | 0 | 0 | 60 |
 | 天气探针·老题 | `bench/weatherprobe/cases` | 会不会用 get_weather、查完写产物 | work-v2 | 14 | 0 | 0 | 14 |
 | 天气探针·第二部分 | `bench/weatherprobe/cases-b14` | 第 14 批题转来的天气场景题 | work-v2 | 30 | 0 | 0 | 30 |
+| 考卷补题 | `bench/exam/cases` | 按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md） | work-v2 | 0 | 0 | 0 | 0 |
 
 - **泄漏**：题目内容进过训练集（`bench/workbank/seeded-base700.txt`），不进考卷，只保留在来源清单里供历史对照。
 - **排除**：`bench/exam/exclude.txt` 里登记的题，原因如下。

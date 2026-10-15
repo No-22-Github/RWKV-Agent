@@ -57,7 +57,7 @@
   ],
   "turns": [
     {
-      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain. Just tell me the result; if the data doesn't say, tell me that instead.",
+      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain. Just tell me the result; if you can't find it, tell me that instead.",
       "expect": {
         "required_tools": [
           "web_search"

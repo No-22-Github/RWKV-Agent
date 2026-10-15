@@ -34,7 +34,7 @@
   },
   "turns": [
     {
-      "prompt": "Thornbury Bottling Works is closing the books on the Meadowbank depot count. The depot's count export and the standard cost list are in the workspace. What was the total stock value of the depot's stock lines holding twenty units or more at the 14 September count? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "Thornbury Bottling Works is closing the books on the Meadowbank depot count. The depot's count export and the standard cost list are in the workspace. What was the total stock value of the depot's stock lines holding twenty units or more at the 14 September count? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 9366.95,
         "tolerance": 0.01,

@@ -31,9 +31,9 @@ UNKNOWN_TAIL = "Reply with only the final answer. If you cannot determine the an
 DONE_TAIL = "When finished, reply DONE."
 
 ANSWER_TAILS = [
-    "Just give me the answer. If it can't be determined from what's here, tell me why.",
+    "Just give me the answer. If you can't pin it down, tell me why.",
     "A short answer is fine. If you can't find it, say so and tell me what you checked.",
-    "Just tell me the result; if the data doesn't say, tell me that instead.",
+    "Just tell me the result; if you can't find it, tell me that instead.",
     "Keep it brief, and if it can't be worked out, let me know why.",
 ]
 DONE_TAILS = [

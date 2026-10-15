@@ -29,7 +29,7 @@
   },
   "turns": [
     {
-      "prompt": "The platform group is sizing egress for the Ledgerline payments gateway. A one-day access export for the gateway is available. Across the whole export, how many bytes did the gateway write in responses? Just give me the answer. If it can't be determined from what's here, tell me why.",
+      "prompt": "The platform group is sizing egress for the Ledgerline payments gateway. A one-day access export for the gateway is available. Across the whole export, how many bytes did the gateway write in responses? Just give me the answer. If you can't pin it down, tell me why.",
       "expect": {
         "expected_number": 236567,
         "tolerance": 0.01,
