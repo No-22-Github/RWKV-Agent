@@ -9,9 +9,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -58,14 +60,31 @@ func runVerify(args []string) int {
 	}
 	sort.Strings(dirs)
 
-	results := make([]*lab.OrderedMap, 0, len(dirs))
+	// Cases are independent (each run gets its own temp copy and cmd.Dir), and
+	// the time is almost all python3 start-up, so run one per CPU. Results
+	// land in their slot, keeping the report in sorted-directory order.
+	results := make([]*lab.OrderedMap, len(dirs))
+	next := make(chan int)
+	var wg sync.WaitGroup
+	for range min(runtime.NumCPU(), len(dirs)) {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range next {
+				results[i] = verifyCase(dirs[i], *strictShape)
+			}
+		}()
+	}
+	for i := range dirs {
+		next <- i
+	}
+	close(next)
+	wg.Wait()
 	failed := 0
-	for _, dir := range dirs {
-		result := verifyCase(dir, *strictShape)
+	for _, result := range results {
 		if ok, _ := result.Get("ok"); ok != true {
 			failed++
 		}
-		results = append(results, result)
 	}
 
 	report := lab.NewOrderedMap()
