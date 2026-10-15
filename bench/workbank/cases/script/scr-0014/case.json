@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 1885,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The accounts team needs the retail ledger's nightly takings rollup working again. takings.py is the script that produced it and it no longer runs at all. Rebuild takings.py so that, started from the project root, it prints the period's takings in the layout the ledger team documents, using only the Python standard library. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Retail ledger - nightly takings\n===============================\n\nThe ledger writes one export per month into exports/. Each row is a posted\njournal entry: entry_id, account, amount.\n\ntakings.py prints the period's takings: the header line `account,net_cents`,\nthen one `<account>,<net_cents>` line per account in ascending account order,\nclosed by `total,<grand_total_cents>`.\n\nThe ledger shows credits in parentheses, and a credit reduces its account's\nnet. The rollup reports whole cents.\n\nThe scheduler runs takings.py as `python3 takings.py` with the project root as\nits working directory.\n",
@@ -42,7 +44,7 @@
   },
   "turns": [
     {
-      "prompt": "The accounts team needs the retail ledger's nightly takings rollup working again. takings.py is the script that produced it and it no longer runs at all. Rebuild takings.py so that, started from the project root, it prints the period's takings in the layout the ledger team documents, using only the Python standard library. When finished, reply DONE.",
+      "prompt": "The accounts team needs the retail ledger's nightly takings rollup working again. takings.py is the script that produced it and it no longer runs at all. Rebuild takings.py so that, started from the project root, it prints the period's takings in the layout the ledger team documents, using only the Python standard library. Let me know once that's in place.",
       "expect": {}
     }
   ]

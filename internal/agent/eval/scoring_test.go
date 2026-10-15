@@ -482,3 +482,40 @@ func TestOutputContainsAnyTokenRejectsEmbeddedValue(t *testing.T) {
 		t.Errorf("without the flag output_contains_any stays a substring check, got %v", failures)
 	}
 }
+
+func TestNumberInText(t *testing.T) {
+	cases := []struct {
+		output    string
+		want, tol float64
+		pass      bool
+	}{
+		{"共 33 条成功的删除请求。", 33, 0, true},
+		{"共33条", 33, 0, true},
+		{"Total revenue was **$23,609.60** after refunds.", 23609.6, 0.01, true},
+		{"The 2026-09-16 run had 7 failures.", -9, 0, false},
+		{"Net change: -42.5 units", -42.5, 0.01, true},
+		{"It was 120 before.", 45, 0, false},
+		{"约 1,248.50 元", 1248.5, 0.01, true},
+	}
+	for _, c := range cases {
+		if got := numberInText(c.output, c.want, c.tol); got != c.pass {
+			t.Errorf("numberInText(%q, %g) = %v, want %v", c.output, c.want, got, c.pass)
+		}
+	}
+}
+
+func TestContainsTokenHanBoundary(t *testing.T) {
+	for _, c := range []struct {
+		output, want string
+		pass         bool
+	}{
+		{"共33条", "33", true},
+		{"版本是v4.2。", "v4.2", true},
+		{"共133条", "33", false},
+		{"2026-05", "5", false},
+	} {
+		if got := containsToken(c.output, c.want); got != c.pass {
+			t.Errorf("containsToken(%q, %q) = %v, want %v", c.output, c.want, got, c.pass)
+		}
+	}
+}

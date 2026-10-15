@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 1655,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:deepseek-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "HANDBOOK.md": "# Harborline Dispatch engineering handbook\n\nThe standing references for the dispatch platform are linked below. Relative\nlinks are written from the repository root.\n\n- [Deployment runbook](deploy-runbooks.md)\n- [On-call rota](oncall-rota.md)\n- [Release notes](release-notes.md)\n- [Rollout notes](rollout-notes.md)\n\nSections that are still being drafted are tracked in the engineering tracker.\n",
@@ -35,9 +37,12 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. A short answer is fine. If you can't find it, say so and tell me what you checked.",
       "expect": {
-        "output_equals": "deploy-runbooks.md"
+        "output_contains": [
+          "deploy-runbooks.md"
+        ],
+        "output_contains_token": true
       }
     }
   ]

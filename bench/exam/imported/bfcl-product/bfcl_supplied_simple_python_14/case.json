@@ -1,0 +1,36 @@
+{
+  "id": "bfcl_supplied_simple_python_14",
+  "description": "Use the supplied required information and execute the mapped product tool.",
+  "category": "bfcl-missing-required",
+  "source": "BFCL v4 paired supplied-information case simple_python_14 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "single-tool",
+  "files": {
+    "data/owner.txt": "owner=ORCHID-2048\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 paired supplied-information case simple_python_14 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "filesystem",
+    "status": "draft",
+    "task_type": "find_file",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "请处理 owner：具体位置是 data/owner.txt。",
+      "expect": {
+        "tools": null,
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "ORCHID-2048"
+        ]
+      }
+    }
+  ]
+}

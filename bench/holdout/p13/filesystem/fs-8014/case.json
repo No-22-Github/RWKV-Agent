@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 5555,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -39,7 +39,8 @@
       "prompt": "岚山数据中心的 9 月巡检记录都传到了工作区。这里面有几对内容完全相同的重复文件？只回答数字。",
       "expect": {
         "expected_number": 2,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

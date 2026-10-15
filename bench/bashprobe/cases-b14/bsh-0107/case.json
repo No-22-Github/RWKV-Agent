@@ -20,7 +20,7 @@
     "ref_calls": 1,
     "fixture_bytes": 87082,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
@@ -43,7 +43,6 @@
     {
       "prompt": "有多少户居民出现过单日用电 90 度及以上？按房间号算。",
       "expect": {
-        "max_output_chars": 600,
         "output_contains": [
           "161"
         ],

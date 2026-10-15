@@ -151,16 +151,21 @@ type Expectation struct {
 	OutputContains  []string       `json:"output_contains,omitempty"`
 	// OutputContainsToken makes each OutputContains entry match only as a whole
 	// token, so "5" is not found inside "2026-05" or "95000".
-	OutputContainsToken bool             `json:"output_contains_token,omitempty"`
-	OutputContainsAny   []string         `json:"output_contains_any,omitempty"`
-	OutputExcludes      []string         `json:"output_excludes,omitempty"`
-	MaxOutputChars      int              `json:"max_output_chars,omitempty"`
-	ExpectedNumber      *float64         `json:"expected_number,omitempty"`
-	Tolerance           *float64         `json:"tolerance,omitempty"`
-	Plan                *PlanExpectation `json:"plan,omitempty"`
-	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
-	RequireActiveNoCall bool             `json:"require_active_no_call,omitempty"`
-	ForbidRouteFallback bool             `json:"forbid_route_fallback,omitempty"`
+	OutputContainsToken bool     `json:"output_contains_token,omitempty"`
+	OutputContainsAny   []string `json:"output_contains_any,omitempty"`
+	OutputExcludes      []string `json:"output_excludes,omitempty"`
+	MaxOutputChars      int      `json:"max_output_chars,omitempty"`
+	ExpectedNumber      *float64 `json:"expected_number,omitempty"`
+	Tolerance           *float64 `json:"tolerance,omitempty"`
+	// ExpectedNumberInText scores ExpectedNumber against every figure in a
+	// natural-language answer instead of requiring the whole reply to be one
+	// number: "共 33 条成功的删除请求" passes for 33. The exam asks the way an
+	// App user does, so the reply is prose and the figure sits inside it.
+	ExpectedNumberInText bool             `json:"expected_number_in_text,omitempty"`
+	Plan                 *PlanExpectation `json:"plan,omitempty"`
+	MustStateUnverified  []string         `json:"must_state_unverified,omitempty"`
+	RequireActiveNoCall  bool             `json:"require_active_no_call,omitempty"`
+	ForbidRouteFallback  bool             `json:"forbid_route_fallback,omitempty"`
 
 	// OutputContainsAnyToken applies the whole-token match of
 	// OutputContainsToken to the OutputContainsAny alternatives, for a number

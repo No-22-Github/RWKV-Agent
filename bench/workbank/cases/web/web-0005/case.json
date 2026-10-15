@@ -13,9 +13,11 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -49,12 +51,15 @@
   ],
   "turns": [
     {
-      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
-        "output_equals": "2.7.0",
         "required_tools": [
           "web_search"
-        ]
+        ],
+        "output_contains": [
+          "2.7.0"
+        ],
+        "output_contains_token": true
       }
     }
   ]

@@ -1,0 +1,34 @@
+{
+  "id": "pb_json_extract",
+  "description": "Extract a nested value from JSON.",
+  "category": "structured-data",
+  "source": "marty1885/primitive-bench@e0af1723:json_extract",
+  "difficulty": "single-tool",
+  "files": {
+    "payload.json": "{\"meta\":{\"ticket\":{\"id\":\"TCK-204\"}}}\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:json_extract",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "config",
+    "status": "draft",
+    "task_type": "read_effective",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read payload.json and answer with only the nested value at meta.ticket.id.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "TCK-204"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

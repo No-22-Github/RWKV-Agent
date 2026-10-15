@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 1519,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": "human:delegated-20260922"
+    "reviewer": "human:delegated-20260922",
+    "legacy_prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Dispatch platform deploy workspace\n\nLayout:\n- deploy/defaults.yaml - fleet baselines for every service\n- deploy/local.yaml - site-local tuning, layered after the baselines\n- deploy/<env>/<service>.yaml - the environment overlay, layered last\n\nThe deployer brings an environment up from the bottom of that list upward,\nso the environment overlay carries the final value for any key it sets.\ndeploy/prod/dispatch-router.yaml is the reference overlay the platform team\nreviews whenever a new environment is added.\n",
@@ -37,10 +39,11 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Keep it brief, and if it can't be worked out, let me know why.",
       "expect": {
         "expected_number": 350,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

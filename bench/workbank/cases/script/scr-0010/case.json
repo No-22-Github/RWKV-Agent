@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 2176,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The bottling plant's monthly production totals job has failed on every run since the host migration, and the on-call note in README.md holds the console capture it produced. Repair production_totals.py so the job runs again and prints cases per line plus the period total, keeping the recount corrections it already applies. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "On-call notes - bottling production, 2026-09-14\n===============================================\n\nThe monthly production totals job has failed on every run since the\nhost migration. Console capture from the scheduler:\n\nTraceback (most recent call last):\n  File \"/srv/bottling/jobs/production_totals.py\", line 22, in main\n    for row in read_rows(EXTRACT):\n  File \"/srv/bottling/jobs/production_totals.py\", line 16, in read_rows\n    with open(path, newline=\"\", encoding=\"utf-8\") as fh:\nFileNotFoundError: [Errno 2] No such file or directory: '/srv/bottling/jobs/data/raw.csv'\n\nThe drop extract and the recount adjustments both sit in the data\ndirectory. The scheduler always launches production_totals.py from the\nproject root.\n\nDrop extract columns: batch_id, line, cases_ok\nRecount adjustments columns: line, delta_cases (signed)\n",
@@ -42,7 +44,7 @@
   },
   "turns": [
     {
-      "prompt": "The bottling plant's monthly production totals job has failed on every run since the host migration, and the on-call note in README.md holds the console capture it produced. Repair production_totals.py so the job runs again and prints cases per line plus the period total, keeping the recount corrections it already applies. When finished, reply DONE.",
+      "prompt": "The bottling plant's monthly production totals job has failed on every run since the host migration, and the on-call note in README.md holds the console capture it produced. Repair production_totals.py so the job runs again and prints cases per line plus the period total, keeping the recount corrections it already applies.",
       "expect": {}
     }
   ]

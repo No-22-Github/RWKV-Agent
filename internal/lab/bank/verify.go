@@ -374,12 +374,24 @@ func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, []str
 			}
 		}
 		if oca, ok := exp["output_contains_any"].([]any); ok {
+			// Whole-token alternatives are the natural-style form of
+			// output_equals_any (2026-10-15 exam rewrite): each one is an
+			// accepted answer string, not a set to compare against.
+			tokenAlternatives := lab.Truthy(exp["output_contains_any_token"])
 			for _, item := range oca {
 				if s, ok := item.(string); ok && !seenContains[s] {
 					seenContains[s] = true
 					containsAny = append(containsAny, s)
+					if tokenAlternatives {
+						outputEquals = append(outputEquals, s)
+					}
 				}
 			}
+		}
+		// A natural-style abstention names the missing item instead of
+		// replying UNKNOWN; verify.py still prints the contract answer.
+		if msu, ok := exp["must_state_unverified"].([]any); ok && len(msu) > 0 {
+			outputEquals = append(outputEquals, "UNKNOWN")
 		}
 	}
 	fileExp := map[string]any{}

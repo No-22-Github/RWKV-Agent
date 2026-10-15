@@ -627,15 +627,19 @@ func TestLintAnswerStyleOnDistillBanks(t *testing.T) {
 		}
 	})
 
-	t.Run("the test bank ignores the style tag", func(t *testing.T) {
-		code, violations := runLintArgs(t, "--case",
+	// Since the 2026-10-15 exam rewrite the test bank honors natural too: an
+	// exam case asks like an App user, so the missing contract is not a
+	// violation, and the English contracts are.
+	t.Run("the test bank honors the natural style", func(t *testing.T) {
+		_, violations := runLintArgs(t, "--case",
 			makeStyleCase(t, t.TempDir(), "", "natural", nil), "--vocab", DefaultVocab())
-		if hasRule(violations, "answer_style") {
-			t.Errorf("answer_style fired under the test-bank prefix: %v", violations)
+		if hasRule(violations, "answer_contract") || hasRule(violations, "answer_style") {
+			t.Errorf("natural test-bank case without a contract flagged: %v", violations)
 		}
-		if !hasRule(violations, "answer_contract") {
-			t.Errorf("the default contract rule must still fire: %v", violations)
+		_, violations = runLintArgs(t, "--case",
+			makeStyleCase(t, t.TempDir(), valueContract, "natural", nil), "--vocab", DefaultVocab())
+		if !hasRule(violations, "answer_style") {
+			t.Errorf("natural test-bank case keeping the value contract not flagged: %v", violations)
 		}
-		_ = code
 	})
 }

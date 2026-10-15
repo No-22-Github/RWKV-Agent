@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 1443,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The ingest gateway is being retuned for this autumn's intake. Apply change request CR-2071 to this workspace. The staging pool is the environment in scope for this adjustment; the production values should be left exactly as they stand for now. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Ingest gateway workspace\n\nconf/base.yaml holds the baseline keys every gateway service shares.\nconf/<service>.yaml adds the keys that service needs on top of the\nbaseline. environments/<env>.env carries the runtime values the deployer\ninjects for one environment, and those values take effect for that\nenvironment alone.\n\nChange requests live in changes/ and name the service, the setting and\nthe environment they apply to. The incident history for the gateway is\nkept in ops/.\n",
@@ -62,7 +64,7 @@
   },
   "turns": [
     {
-      "prompt": "The ingest gateway is being retuned for this autumn's intake. Apply change request CR-2071 to this workspace. The staging pool is the environment in scope for this adjustment; the production values should be left exactly as they stand for now. When finished, reply DONE."
+      "prompt": "The ingest gateway is being retuned for this autumn's intake. Apply change request CR-2071 to this workspace. The staging pool is the environment in scope for this adjustment; the production values should be left exactly as they stand for now. Tell me when you're finished."
     }
   ]
 }

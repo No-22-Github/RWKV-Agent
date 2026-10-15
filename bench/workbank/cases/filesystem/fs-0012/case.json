@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 1164,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Northwind Regional Air - release packaging.\n\nrelease/ holds the artifacts published with each crew-scheduling release;\nrelease/manifest/ carries the manifest extracts themselves and\nrelease/archive/ keeps superseded copies. The duplication check for a\nrelease treats two files as the same artifact only when their stored\nbytes match exactly; files that only share a name in two folders are\ndistinct artifacts.\n",
@@ -36,12 +38,13 @@
   },
   "turns": [
     {
-      "prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Keep it brief, and if it can't be worked out, let me know why.",
       "expect": {
-        "output_equals_any": [
+        "output_contains_any": [
           "release/manifest/crew-pairing-eu.csv",
           "release/manifest/crew_pairing_eu_copy.csv"
-        ]
+        ],
+        "output_contains_any_token": true
       }
     }
   ]

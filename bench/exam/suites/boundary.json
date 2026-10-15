@@ -1,0 +1,352 @@
+{
+  "schema": "rwkv-exam/v1",
+  "name": "boundary",
+  "description": "早期边界题：多步工具、金融算术、注入（改写自 primitive-bench）",
+  "tool_catalog": "",
+  "harness": "legacy",
+  "hash": "411788d68e8efbe1ae69dc9bd9f0cb095c92fc150c043e7dad85ca08d111540c",
+  "summary": {
+    "total": 18,
+    "by_suite": {
+      "boundary": 18
+    },
+    "by_task": {
+      "compute": 6,
+      "find-read": 12
+    },
+    "by_difficulty": {
+      "check": 3,
+      "decoy": 1,
+      "long-input": 1,
+      "multi-source": 3,
+      "none": 9,
+      "recovery": 1
+    },
+    "by_language": {
+      "en": 18
+    },
+    "by_answer_form": {
+      "contains": 17,
+      "number": 1
+    },
+    "by_level": {
+      "L0": 18
+    },
+    "task_by_language": {
+      "compute": {
+        "en": 6
+      },
+      "find-read": {
+        "en": 12
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "pb_avoid_forbidden_tool",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_avoid_forbidden_tool",
+      "sha256": "8c54f44618a417129ab1fe99d012f2e787a04af14593d49aae4d90d5124fc7ca",
+      "scenario": "filesystem",
+      "task_type": "find_file",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_config_precedence_resolve",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_config_precedence_resolve",
+      "sha256": "8bec25ea22e78c7423a0d2de6fb78cf2c3b8251ecdc8d19d04d4a8775bf06b41",
+      "scenario": "config",
+      "task_type": "precedence",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_csv_reconcile_returns",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_csv_reconcile_returns",
+      "sha256": "e9fc7cbf892a903d7a8144bee922ff627315897615509d6f87f55236ee3ed2fe",
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_csv_sum",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_csv_sum",
+      "sha256": "cbfb0069a15b2e01b51b038ac8f16dbbd8e69ddd0f574d09fc0501a90eb10428",
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_eur_trip_card_vs_fx",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_eur_trip_card_vs_fx",
+      "sha256": "322c0952d80619a63a3a4ed323acd69248ff99d4ff0e50ba96c29e0b488f053a",
+      "scenario": "tabular",
+      "task_type": "policy_calc",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_find_read_submit",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_find_read_submit",
+      "sha256": "aad18e06bbbf480311935163cd3b4f3093f217d695f0afbabccfade6a428b0f1",
+      "scenario": "filesystem",
+      "task_type": "find_file",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_fx_column_trap",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_fx_column_trap",
+      "sha256": "655e89d4a2f7a442ff0a05f191c1b9be6f7a6786be107a1d782f52e685b9db63",
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_json_extract",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_json_extract",
+      "sha256": "8ae0149bd720ed9f748e2ff834cbc1ad546a5f04f1d10ca430eed6c0ad2838c2",
+      "scenario": "config",
+      "task_type": "read_effective",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_jsonl_event_aggregate",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_jsonl_event_aggregate",
+      "sha256": "53cae1a26ee43b0e33e74013e4d3c245de969b71258bea9790f34f160fc422be",
+      "scenario": "logs",
+      "task_type": "aggregate_jsonl",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_loc_interest_8_months",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_loc_interest_8_months",
+      "sha256": "30f6e85d1b4838098dc7270bf8693b4c29c8b27a972586744b9f183eea112fe3",
+      "scenario": "tabular",
+      "task_type": "policy_calc",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_log_incident_root_cause",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_log_incident_root_cause",
+      "sha256": "1e80caf57136f11ce6d995595ce1cd174ea434ac13e2ff441dfc5ec052a93a95",
+      "scenario": "logs",
+      "task_type": "root_cause",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_long_context_small_need",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_long_context_small_need",
+      "sha256": "029a299be890ea8cfd8301aae16bcfd36d3524192d9f97c515f0e07caa000890",
+      "scenario": "filesystem",
+      "task_type": "find_file",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "long-input"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_markdown_release_notes",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_markdown_release_notes",
+      "sha256": "c6a1ad1c7f5e2a2affa76006487b7480d0a086d7ccf15377413fd99d98000cf9",
+      "scenario": "docs",
+      "task_type": "latest_version",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "check"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_missing_file_recover",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_missing_file_recover",
+      "sha256": "1e3584322b4e02644eb537958a665d3d8105b39dbdbad88abe144ea34b012fe8",
+      "scenario": "filesystem",
+      "task_type": "find_file",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_multi_file_compare",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_multi_file_compare",
+      "sha256": "840fbbddc3f018e0323fe1ea9b2eb183c136e30845fb7cc59065c992bc993b6e",
+      "scenario": "docs",
+      "task_type": "extract_items",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_prompt_injection_in_file",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_prompt_injection_in_file",
+      "sha256": "60cdf8b0ffd0ba7cea7a470207feed1e2989769348fdb3403c1b42e687c46272",
+      "scenario": "docs",
+      "task_type": "policy_lookup",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "check"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_read_only_repo_explain",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_read_only_repo_explain",
+      "sha256": "a19b956b4ecfa2d287c350076f140bdf02c313bcc31ee8719dba27134ce43311",
+      "scenario": "code",
+      "task_type": "explain_readonly",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [
+        "check"
+      ],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    },
+    {
+      "id": "pb_search_read_submit",
+      "suite": "boundary",
+      "path": "bench/exam/imported/boundary/pb_search_read_submit",
+      "sha256": "620bf9213ca488dd71b3630fdd04788c9a94796eae2f6c1736a1159264ecc0d1",
+      "scenario": "filesystem",
+      "task_type": "find_file",
+      "level": "L0",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "import:primitive-bench",
+      "status": "draft"
+    }
+  ]
+}

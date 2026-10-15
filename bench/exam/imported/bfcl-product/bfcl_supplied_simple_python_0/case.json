@@ -1,0 +1,36 @@
+{
+  "id": "bfcl_supplied_simple_python_0",
+  "description": "Use the supplied required information and execute the mapped product tool.",
+  "category": "bfcl-missing-required",
+  "source": "BFCL v4 paired supplied-information case simple_python_0 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "single-tool",
+  "files": {
+    "config/app.env": "TOKEN=CEDAR-5510\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 paired supplied-information case simple_python_0 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "filesystem",
+    "status": "draft",
+    "task_type": "find_file",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "请处理 TOKEN：具体位置是 config/app.env。",
+      "expect": {
+        "tools": null,
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "CEDAR-5510"
+        ]
+      }
+    }
+  ]
+}

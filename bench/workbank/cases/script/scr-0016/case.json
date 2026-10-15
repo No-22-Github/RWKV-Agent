@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 2869,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "QA wants the nightly lot rollup running again; tally.py currently does nothing but exit. Run from the project root, it must summarise every lot tally the filling line has dropped anywhere below the spool directory and print the four figures in the arrangement the README lays down, classifying each lot as spec.md sets out. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Filling line lot tallies\n========================\n\nThe filling line writes one tally file per lot into spool/, in whatever\nsubfolder the line controller is currently configured for. A tally file holds a\nsingle line: the units that lot produced.\n\ntally.py prints the nightly rollup for QA:\n\n  shipped_lots,<count>\n  shipped_units,<total>\n  held_lots,<count>\n  held_units,<total>\n\nThe scheduler runs it as `python3 tally.py` with the project root as the\nworking directory. Which suffix belongs to which class, and how each class\ncounts, is set out in spec.md.\n",
@@ -259,7 +261,7 @@
   },
   "turns": [
     {
-      "prompt": "QA wants the nightly lot rollup running again; tally.py currently does nothing but exit. Run from the project root, it must summarise every lot tally the filling line has dropped anywhere below the spool directory and print the four figures in the arrangement the README lays down, classifying each lot as spec.md sets out. When finished, reply DONE.",
+      "prompt": "QA wants the nightly lot rollup running again; tally.py currently does nothing but exit. Run from the project root, it must summarise every lot tally the filling line has dropped anywhere below the spool directory and print the four figures in the arrangement the README lays down, classifying each lot as spec.md sets out. Tell me when you're finished.",
       "expect": {}
     }
   ]

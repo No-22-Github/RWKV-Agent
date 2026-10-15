@@ -1,0 +1,28 @@
+{
+  "id": "bfcl_irrelevance_5",
+  "description": "BFCL irrelevance case translated to the product workspace tool catalog.",
+  "category": "bfcl-irrelevance",
+  "source": "BFCL v4 irrelevance irrelevance_5 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "no-call",
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 irrelevance irrelevance_5 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "notool",
+    "status": "draft",
+    "task_type": "concept",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "What is the perimeter of a rectangle with length 5 meters and width 4 meters?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

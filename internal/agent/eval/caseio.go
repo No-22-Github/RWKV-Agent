@@ -333,6 +333,13 @@ func ValidateCases(cases []Case) error {
 					index+1,
 				)
 			}
+			if turn.Expect.ExpectedNumberInText && turn.Expect.ExpectedNumber == nil {
+				return fmt.Errorf(
+					"case %q turn %d expected_number_in_text requires expected_number",
+					testCase.ID,
+					index+1,
+				)
+			}
 			if turn.Expect.MaxOutputChars < 0 {
 				return fmt.Errorf("case %q turn %d max_output_chars cannot be negative", testCase.ID, index+1)
 			}

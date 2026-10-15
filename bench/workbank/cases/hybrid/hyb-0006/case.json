@@ -19,9 +19,11 @@
     "ref_calls": 3,
     "fixture_bytes": 609,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The Bellhaven nightly pipeline declares its packages in pipeline/requirements.txt. Its wrenfield entry no longer matches the build the pipeline actually runs; bring that entry into agreement with the version the pipeline was built against, and leave the remaining entries untouched. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Bellhaven data pipeline\n\nNightly ETL for the Bellhaven wholesale group.\n\n- pipeline/ - pipeline code and dependency declarations\n- pipeline/deps.lock is written by the resolver when the build image is assembled; it records the exact version of every package the pipeline was built against.\n",
@@ -71,7 +73,7 @@
   },
   "turns": [
     {
-      "prompt": "The Bellhaven nightly pipeline declares its packages in pipeline/requirements.txt. Its wrenfield entry no longer matches the build the pipeline actually runs; bring that entry into agreement with the version the pipeline was built against, and leave the remaining entries untouched. When finished, reply DONE.",
+      "prompt": "The Bellhaven nightly pipeline declares its packages in pipeline/requirements.txt. Its wrenfield entry no longer matches the build the pipeline actually runs; bring that entry into agreement with the version the pipeline was built against, and leave the remaining entries untouched. Let me know once that's in place.",
       "expect": {
         "forbidden_tools": [
           "web_search",

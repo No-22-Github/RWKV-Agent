@@ -15,9 +15,11 @@
     "ref_calls": 0,
     "fixture_bytes": 534,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": "human:delegated-20260922"
+    "reviewer": "human:delegated-20260922",
+    "legacy_prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Research data lake - capacity workspace\n\nPlanning notes for the 2026 archive expansion.\n\n- jobs/     nightly ingest and archive job notes\n- tiers/    storage tier definitions used by the capacity sheet\n\nOwner: data platform review.\n",
@@ -27,11 +29,12 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. A short answer is fine. If you can't find it, say so and tell me what you checked.",
       "expect": {
         "expected_number": 30,
         "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "expected_number_in_text": true
       }
     }
   ]

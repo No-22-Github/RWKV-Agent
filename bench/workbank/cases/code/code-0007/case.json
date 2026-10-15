@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 2351,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The machine-shop maintenance board is meant to queue a follow-up visit whenever a repair job is completed, but the dispatcher reports that the follow-up queue stays empty no matter how many jobs are closed. Explain why that branch never runs. Leave the repository exactly as it is and put the reason in your reply. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Machine-shop maintenance board\n\nworkshop/   job lifecycle and the follow-up planner\ntests/      suite for the job board\ndocs/       shift handover notes\n\nThe board is used by the Baytown machine shop; the planner queue is read by\nthe customer desk every morning.\n",
@@ -33,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "The machine-shop maintenance board is meant to queue a follow-up visit whenever a repair job is completed, but the dispatcher reports that the follow-up queue stays empty no matter how many jobs are closed. Explain why that branch never runs. Leave the repository exactly as it is and put the reason in your reply. When finished, reply DONE.",
+      "prompt": "The machine-shop maintenance board is meant to queue a follow-up visit whenever a repair job is completed, but the dispatcher reports that the follow-up queue stays empty no matter how many jobs are closed. Explain why that branch never runs. Leave the repository exactly as it is and put the reason in your reply. Let me know once that's in place.",
       "expect": {
         "output_contains_any": [
           "finished",

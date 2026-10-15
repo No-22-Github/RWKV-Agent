@@ -1,0 +1,28 @@
+{
+  "id": "bfcl_irrelevance_10",
+  "description": "BFCL irrelevance case translated to the product workspace tool catalog.",
+  "category": "bfcl-irrelevance",
+  "source": "BFCL v4 irrelevance irrelevance_10 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "no-call",
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 irrelevance irrelevance_10 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "notool",
+    "status": "draft",
+    "task_type": "concept",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Compute the derivative of the function '2x' within the at 1.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "pb_multi_file_compare",
+  "description": "Compare two files and identify the changed line.",
+  "category": "multi-file",
+  "source": "marty1885/primitive-bench@e0af1723:multi_file_compare",
+  "difficulty": "multi-tool",
+  "files": {
+    "new.txt": "alpha\nbeta!\ngamma\n",
+    "old.txt": "alpha\nbeta\ngamma\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:multi_file_compare",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "docs",
+    "status": "draft",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Compare old.txt and new.txt. Answer with only the changed line as 'line N: old -\u003e new'.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "line 2: beta -\u003e beta!"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

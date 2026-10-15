@@ -1,0 +1,36 @@
+{
+  "id": "bfcl_missing_simple_python_51",
+  "description": "Ask for missing required information before selecting a product tool.",
+  "category": "bfcl-missing-required",
+  "source": "BFCL v4 paired required-information case simple_python_51 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "no-call",
+  "files": {
+    "reports/audit.txt": "AUDIT-OK\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 paired required-information case simple_python_51 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "notool",
+    "status": "draft",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "我需要你处理 ，但没有提供具体关键词。先向我询问关键词，不要调用工具。",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "关键词"
+        ],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

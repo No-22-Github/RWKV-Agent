@@ -1,0 +1,623 @@
+{
+  "schema": "rwkv-exam/v1",
+  "name": "weatherprobe-b14",
+  "description": "第 14 批题转来的天气场景题",
+  "tool_catalog": "work-v2",
+  "harness": "legacy",
+  "hash": "64aecfb6f9e437bfa0f0c0b75ce78273249305f1719df21e62e98541259449ea",
+  "summary": {
+    "total": 30,
+    "by_suite": {
+      "weatherprobe-b14": 30
+    },
+    "by_task": {
+      "answer-direct": 5,
+      "external": 25
+    },
+    "by_difficulty": {
+      "check": 7,
+      "decoy": 9,
+      "follow-up": 11,
+      "multi-source": 4,
+      "none": 3,
+      "recovery": 5
+    },
+    "by_language": {
+      "en": 7,
+      "zh": 23
+    },
+    "by_answer_form": {
+      "contains": 23,
+      "file": 7
+    },
+    "by_level": {
+      "L1": 26,
+      "L2": 4
+    },
+    "task_by_language": {
+      "answer-direct": {
+        "en": 1,
+        "zh": 4
+      },
+      "external": {
+        "en": 6,
+        "zh": 19
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "wth-0101",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0101",
+      "sha256": "95ed25e45c2d90ce3a72ccdb9fd0f5d9b136720c1e9b722baeeba2f03a962f82",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0102",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0102",
+      "sha256": "8c25622eae741fea7d619dd48eff51af8ddb45a31445199852f73a899753a01e",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0103",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0103",
+      "sha256": "e9e9c7d421b94a9d5b3deaa29acc099202872a5d5c9c3c90d7d639d4a69abdea",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0104",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0104",
+      "sha256": "20d18af6823f9cdabda3e5203edc7271bb6c3e63d7bae5565eefe04974970664",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0105",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0105",
+      "sha256": "022628f63203b3a27f612c63aba72a2b3d5c43324246caa2c6794609477ba563",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0106",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0106",
+      "sha256": "8b2692e1594718b0baa2867ae18f6ddd6f7afc096cf43b6c3a141bba40bbd352",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0107",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0107",
+      "sha256": "88b181a9f3b5c67d3e94bdc999f0ab3d8927a3e79c6bbd0269d364a5d4ac1e30",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0108",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0108",
+      "sha256": "caa3d63ac0c95dcd2807435313b0643bf89d78c12b14fd09837b7f5f3cdee278",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0109",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0109",
+      "sha256": "ee22629ffdb062bd79e365ccb1d1156452eb10c9816602f2be872f9ed9522b4c",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0110",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0110",
+      "sha256": "c4cfc298fef259601043f6abcf503759c6883099d7c2afcb8ee9907cbac3521b",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 3,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0111",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0111",
+      "sha256": "be8a75b6306295edaf3caf02451076c7a61cb63922c3dc938728e7c591cd6f66",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 4,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0112",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0112",
+      "sha256": "4933091e647c0239cb82be63c5483d2b4f93c307196fea9e6fb65b61572f34df",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "ref_calls": 3,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0113",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0113",
+      "sha256": "85f4965be6f18b657715d805a9dfde3545b7e3fd64eeabf0918de139f046df76",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 4,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0114",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0114",
+      "sha256": "70b36465b9c4309c52aa354cfc98fc999859665ef82f6d899c0bee924dac49cc",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "ref_calls": 3,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0115",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0115",
+      "sha256": "36b3e4ea472fe77147f7dd5ea705ef885e54bbc138f3b0c8420837a86685ab4a",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 3,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0116",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0116",
+      "sha256": "0acafc190d43105c0f413c73468ab6a3aecb8ef75a45907fd315f372ca08f51f",
+      "scenario": "hybrid",
+      "task_type": "tool_then_write",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 4,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [
+        "check",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0117",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0117",
+      "sha256": "832b5c804a5817355f235c3e0099b7b6bf224d5e868e269a20208e387c512769",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0118",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0118",
+      "sha256": "d0a5d77518299470aad8e47ecdea6802d54e2c4d94eb7913d0d55d2710e83062",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0119",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0119",
+      "sha256": "e5c1b842e263181d2cb8f4faccce6a747cafc77c2968e1cd1bd6c7ccd43b662a",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0120",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0120",
+      "sha256": "d244e112ef97e3badc55f8411d251697729bdc678acb1c36450bbbd1644c31e4",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0121",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0121",
+      "sha256": "fb52c50ab51a14cbc5025ab015cd6068100e791396ef250c297c7ae2321b1fd6",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0122",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0122",
+      "sha256": "32f19c7a396c5522e7b5545b2cdfe40307fffc00edc53add798c39190fbd0e68",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "recovery",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0123",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0123",
+      "sha256": "093f30c3e80e1230bc2101e9ea33ae316f303784bf94a01ecd966e09216e49d4",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0124",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0124",
+      "sha256": "03dd21092e3cb12faa38126cb22f0317e728fa82b2bffc29abdafb586bd88422",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0125",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0125",
+      "sha256": "325f952a6e560282e91fbd57be6b278b4fa14888d53450548355c95f3cd3eac7",
+      "scenario": "hybrid",
+      "task_type": "special_tool",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 2,
+      "ref_calls": 2,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [
+        "multi-source",
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0126",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0126",
+      "sha256": "57df27902297b25176eec5cf6258dc20f8f751adbe99435179477b4de43a6629",
+      "scenario": "notool",
+      "task_type": "concept",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "ref_calls": 0,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0127",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0127",
+      "sha256": "35dc481af8f407a3ea040f9dee1e94fb3169baa804730fd685dff7477810100d",
+      "scenario": "notool",
+      "task_type": "concept",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 0,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0128",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0128",
+      "sha256": "31fd8661ad1291bc90b00d225017215e99a82647cf7ba38d6d7bd61630f190c3",
+      "scenario": "notool",
+      "task_type": "concept",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "ref_calls": 0,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0129",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0129",
+      "sha256": "07f87ea4f62b9f4bc59d0ed50df887c373616e4e0f5bfe253e316f735683ee69",
+      "scenario": "notool",
+      "task_type": "concept",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    },
+    {
+      "id": "wth-0130",
+      "suite": "weatherprobe-b14",
+      "path": "bench/weatherprobe/cases-b14/wth-0130",
+      "sha256": "7a891f3928dfbc921f34f6a1afc840d11177147aed3bf354fbdb38a83694af41",
+      "scenario": "notool",
+      "task_type": "concept",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 2,
+      "ref_calls": 1,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [
+        "follow-up"
+      ],
+      "author": "llm:claude-b14",
+      "status": "draft"
+    }
+  ]
+}

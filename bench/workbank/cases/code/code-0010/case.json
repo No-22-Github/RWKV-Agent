@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 1167,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "A billing review found that the cancellation fees this pickup service records disagree with the desk's notice terms for some bookings. Those terms are the authority on when a fee applies. Bring billing/notices.py into line with them, keeping the repair as small as the file allows and leaving the rest of the workspace as it stands. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "billing/__init__.py": "",
@@ -43,7 +45,7 @@
   },
   "turns": [
     {
-      "prompt": "A billing review found that the cancellation fees this pickup service records disagree with the desk's notice terms for some bookings. Those terms are the authority on when a fee applies. Bring billing/notices.py into line with them, keeping the repair as small as the file allows and leaving the rest of the workspace as it stands. When finished, reply DONE."
+      "prompt": "A billing review found that the cancellation fees this pickup service records disagree with the desk's notice terms for some bookings. Those terms are the authority on when a fee applies. Bring billing/notices.py into line with them, keeping the repair as small as the file allows and leaving the rest of the workspace as it stands."
     }
   ]
 }

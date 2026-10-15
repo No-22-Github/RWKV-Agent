@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. Nothing on our side spells it out. State the condition name harborlight's reference assigns to HL-3312. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -57,7 +59,7 @@
   ],
   "turns": [
     {
-      "prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. Nothing on our side spells it out. State the condition name harborlight's reference assigns to HL-3312. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. Nothing on our side spells it out. State the condition name harborlight's reference assigns to HL-3312. Just tell me the result; if the data doesn't say, tell me that instead.",
       "expect": {
         "output_contains_any": [
           "moatleak",

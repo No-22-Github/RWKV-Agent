@@ -1,0 +1,34 @@
+{
+  "id": "pb_jsonl_event_aggregate",
+  "description": "Filter and aggregate JSONL checkout events.",
+  "category": "structured-data",
+  "source": "marty1885/primitive-bench@e0af1723:jsonl_event_aggregate",
+  "difficulty": "single-tool-arithmetic",
+  "files": {
+    "events.jsonl": "{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u1\",\"amount\":49.99}\n{\"event\":\"checkout\",\"status\":\"failed\",\"user\":\"u2\",\"amount\":19.99}\n{\"event\":\"view\",\"status\":\"success\",\"user\":\"u3\",\"amount\":0}\n{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u2\",\"amount\":80.00}\n{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u1\",\"amount\":12.50}\n{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u3\",\"amount\":100.25}\n{\"event\":\"refund\",\"status\":\"success\",\"user\":\"u3\",\"amount\":25.00}\n{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u4\",\"amount\":63.00}\n{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u5\",\"amount\":132.98}\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:jsonl_event_aggregate",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "logs",
+    "status": "draft",
+    "task_type": "aggregate_jsonl",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read events.jsonl. For successful checkout events only, answer exactly 'orders=N users=N revenue=N.NN'.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "orders=6 users=5 revenue=438.72"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

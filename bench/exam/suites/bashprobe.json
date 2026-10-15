@@ -1,0 +1,515 @@
+{
+  "schema": "rwkv-exam/v1",
+  "name": "bashprobe",
+  "description": "会不会用 bash 做聚合、批量编辑、出错恢复",
+  "tool_catalog": "work-v2",
+  "harness": "legacy",
+  "hash": "3f7aa2e20dedd182c11592256f13adb226a7103835abad9e7cf1dc04877945db",
+  "summary": {
+    "total": 26,
+    "by_suite": {
+      "bashprobe": 26
+    },
+    "by_task": {
+      "answer-direct": 1,
+      "compute": 15,
+      "external": 2,
+      "find-read": 3,
+      "write": 5
+    },
+    "by_difficulty": {
+      "check": 3,
+      "decoy": 9,
+      "follow-up": 1,
+      "long-input": 2,
+      "multi-source": 2,
+      "none": 12,
+      "recovery": 3
+    },
+    "by_language": {
+      "en": 2,
+      "zh": 24
+    },
+    "by_answer_form": {
+      "contains": 10,
+      "file": 6,
+      "number": 10
+    },
+    "by_level": {
+      "L0": 6,
+      "L1": 14,
+      "L2": 5,
+      "L3": 1
+    },
+    "task_by_language": {
+      "answer-direct": {
+        "zh": 1
+      },
+      "compute": {
+        "en": 2,
+        "zh": 13
+      },
+      "external": {
+        "zh": 2
+      },
+      "find-read": {
+        "zh": 3
+      },
+      "write": {
+        "zh": 5
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "bsh-0001",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0001",
+      "sha256": "0c37202b5be99d5127bcdc6beadec1899fbf9107c3c1267690a246749bc56143",
+      "scenario": "bashprobe",
+      "task_type": "count_lines",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0002",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0002",
+      "sha256": "0dbd3a71ed83d2a145bd7a5ea2dd6987a44202e21a32737fb2279f5b6bfb05ae",
+      "scenario": "bashprobe",
+      "task_type": "filter_count",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "multi-source",
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0003",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0003",
+      "sha256": "fd0e29782861b7b242b3099797cc80809b5b3a06056662a842609e079f976116",
+      "scenario": "bashprobe",
+      "task_type": "rank",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "long-input"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0004",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0004",
+      "sha256": "9ad7800c71486d9b3b817f099b31826894190f3496553a4fa2367dca9af1d716",
+      "scenario": "bashprobe",
+      "task_type": "filter_sum",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0005",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0005",
+      "sha256": "fb74c5fc848f789023a208131be48eb91dab6b542ce9d103363d233e07962019",
+      "scenario": "bashprobe",
+      "task_type": "json_filter",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0006",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0006",
+      "sha256": "f550cd450f1a8ffc5c7cfbecde7fbafa4069fcdb4b01d7ca8fb30c60e982b230",
+      "scenario": "bashprobe",
+      "task_type": "largest",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0007",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0007",
+      "sha256": "b7bbf2844a474acbdd2bab840b3e37ba27c4f2dc5321c5d77ee3e1273545a463",
+      "scenario": "bashprobe",
+      "task_type": "bulk_replace",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "write",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0008",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0008",
+      "sha256": "8938959d456acbb472f5f05ed0eb79082dcb2eeaaff73216efae1945461b8795",
+      "scenario": "bashprobe",
+      "task_type": "bulk_rename",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "write",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0009",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0009",
+      "sha256": "969a1bb32823a72f0d4edd9722b6a838ccf3f356b0c4a9c88d66f15066886c9d",
+      "scenario": "bashprobe",
+      "task_type": "scoped_delete",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "write",
+      "difficulties": [
+        "check"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0010",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0010",
+      "sha256": "5c3706b24d2f5d77eb64c3b263e04a7bd867f5904a1dc7cc7c402fb6db9af011",
+      "scenario": "bashprobe",
+      "task_type": "write_summary",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "write",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0011",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0011",
+      "sha256": "c221d3544eaf951465255349ffdadce4c87b146e528d89ef8c535a1d882c1c80",
+      "scenario": "bashprobe",
+      "task_type": "sort_artifact",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "write",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0012",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0012",
+      "sha256": "57468eb5e806a3b7b2a35a37c6ef09b22f01f0f83dcd3e5dce1801552bf2f9c0",
+      "scenario": "bashprobe",
+      "task_type": "diff_keys",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0013",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0013",
+      "sha256": "2751b6bd07ed8fdc02c085b80c84c66e51aec902b85ac0d5ad758ec43aa7deb5",
+      "scenario": "bashprobe",
+      "task_type": "count_long_file",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "recovery",
+        "long-input",
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0014",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0014",
+      "sha256": "3bf9331d8e1d14a7fe19e64356561a7b04349df565695d4e58da8416ccf41957",
+      "scenario": "bashprobe",
+      "task_type": "script_unrunnable",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "recovery"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0015",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0015",
+      "sha256": "1c11c14cebeae80e1519624618604f0b1e582058ef5e93eccadacec37f97249c",
+      "scenario": "bashprobe",
+      "task_type": "cwd_reset",
+      "level": "L3",
+      "language": "zh",
+      "user_turns": 2,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "recovery",
+        "follow-up",
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0016",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0016",
+      "sha256": "c37a328a31a0c9308dc00b2d8f52f89b7e511a2b6957a9d9f36e7eb6295ac853",
+      "scenario": "bashprobe",
+      "task_type": "no_network",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0017",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0017",
+      "sha256": "eddc84cb7a139a24fea7635da1b660553e0eab48bfd335beda9398c7b979f6ee",
+      "scenario": "bashprobe",
+      "task_type": "no_install",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0018",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0018",
+      "sha256": "00856a37b2a098c0e6007e3f0abd8ce90dd2079cff1430c81988a781ecd3a8f0",
+      "scenario": "bashprobe",
+      "task_type": "answer_only",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "answer-direct",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0019",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0019",
+      "sha256": "4683f30482172de99c02f6aff54438c5fab94ff6401eadca6474b7d816cd3ef8",
+      "scenario": "bashprobe",
+      "task_type": "injection",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "check",
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0020",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0020",
+      "sha256": "d41b606edc17bcc879d8f0a4f3c629679a9181c055e74588cf0384fe82f29c13",
+      "scenario": "bashprobe",
+      "task_type": "weather_then_write",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "file",
+      "task": "external",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0021",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0021",
+      "sha256": "b52a8265fbd76762c224abb72e3e4d32639ca36ab89821e53a68d9b42ebaa80a",
+      "scenario": "bashprobe",
+      "task_type": "tool_choice",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "external",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0022",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0022",
+      "sha256": "6bb0375bbb7fc7a1c125d061aa120a0269257610da56684789b2c7584a269b61",
+      "scenario": "bashprobe",
+      "task_type": "single_read",
+      "level": "L0",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "find-read",
+      "difficulties": [],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0023",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0023",
+      "sha256": "04ff84c29072c6b7dfad24e7bcae67de818b9a2ff46396a65cbf34ccac2f677b",
+      "scenario": "bashprobe",
+      "task_type": "duplicates",
+      "level": "L1",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0024",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0024",
+      "sha256": "5629bad85ab9ab41b24293eb8e8a3e473cfa55731f3f92f91111a1bc73b8c75e",
+      "scenario": "bashprobe",
+      "task_type": "grep_exact",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0025",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0025",
+      "sha256": "331e0a9aa99f27f6417e1fee983c536b438e93f1e8ba42bd5a8b7dab69705f77",
+      "scenario": "bashprobe",
+      "task_type": "chain",
+      "level": "L2",
+      "language": "zh",
+      "user_turns": 1,
+      "answer_form": "contains",
+      "task": "compute",
+      "difficulties": [
+        "multi-source"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    },
+    {
+      "id": "bsh-0026",
+      "suite": "bashprobe",
+      "path": "bench/bashprobe/cases/bsh-0026",
+      "sha256": "777f24f5071ebfdc8fe841866e40a9d144c3bc68c994fa6da5c2d789baa9bb21",
+      "scenario": "bashprobe",
+      "task_type": "count_by_type",
+      "level": "L1",
+      "language": "en",
+      "user_turns": 1,
+      "answer_form": "number",
+      "task": "compute",
+      "difficulties": [
+        "decoy"
+      ],
+      "author": "llm:claude-opus-5-5",
+      "status": "draft"
+    }
+  ]
+}

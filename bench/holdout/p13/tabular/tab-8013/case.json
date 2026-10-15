@@ -22,7 +22,7 @@
     "ref_calls": 4,
     "fixture_bytes": 1027,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -37,7 +37,8 @@
       "prompt": "启澜家居要核 9 月的销售提成总额。明细在 sales/销售明细-2026-09.csv，计提口径见提成办法。总额是多少？只回答数字，保留两位小数。",
       "expect": {
         "expected_number": 2962.0,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

@@ -1,0 +1,37 @@
+{
+  "id": "pb_fx_column_trap",
+  "description": "Choose the correct cash or spot buy/sell columns and reconcile orders.",
+  "category": "finance",
+  "source": "marty1885/primitive-bench@e0af1723:fx_column_trap",
+  "difficulty": "single-tool-arithmetic",
+  "files": {
+    "fx_case.txt": "currency cash_buy cash_sell spot_buy spot_sell\nUSD 31.545 32.215 31.87 32.02\nEUR 35.73 37.07 36.245 36.845\nJPY 0.1888 0.2016 0.1956 0.2006\nGBP 41.47 43.59 42.365 42.995\n\ncash_buy: bank buys physical foreign cash from customer.\ncash_sell: bank sells physical foreign cash to customer.\nspot_buy: bank buys non-cash foreign currency from customer.\nspot_sell: bank sells non-cash foreign currency to customer.\n\naction,currency,amount\nbuy_cash,JPY,150000\nbuy_spot,EUR,800\nsell_cash,USD,600\nsell_spot,GBP,300\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:fx_column_trap",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "tabular",
+    "status": "draft",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-DIRMAP",
+      "TR-DECOY"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read fx_case.txt. For buy orders the customer buys foreign currency from the bank, so use a selling rate; for sell orders use a buying rate. Cash uses cash columns and spot uses spot columns. Answer with only the net TWD outflow rounded to 2 decimals.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "28079.50"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

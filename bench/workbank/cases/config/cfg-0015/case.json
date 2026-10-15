@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 1533,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The dispatch-scheduler enters its peak-season launch window this week. Merge the peak-season overlay into the scheduler's active configuration so the dispatcher comes up with the overlay's values. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Dispatch platform workspace\n\nconf/<service>.yaml is the active configuration the dispatcher loads at\nstartup. overlays/<name>.yaml holds a partial set of keys that operations\nmerge into the active config before a launch window.\n\nMerge rules:\n\n- Every key the overlay declares replaces the value of that key in the\n  active config, on the same line; the key name and the surrounding\n  whitespace stay as they are.\n- A key the overlay declares that the active config does not carry is\n  appended at the end of the file.\n- All other lines of the active config stay exactly as they are.\n- Comment lines in an overlay are notes for the change author and are not\n  copied into the merged config.\n\nprofiles/ holds per-deployment environment settings; the overlay process\nnever reads or writes it. Launch-window notes live in ops/.\n",
@@ -54,7 +56,7 @@
   },
   "turns": [
     {
-      "prompt": "The dispatch-scheduler enters its peak-season launch window this week. Merge the peak-season overlay into the scheduler's active configuration so the dispatcher comes up with the overlay's values. When finished, reply DONE."
+      "prompt": "The dispatch-scheduler enters its peak-season launch window this week. Merge the peak-season overlay into the scheduler's active configuration so the dispatcher comes up with the overlay's values. Let me know when it's done."
     }
   ]
 }

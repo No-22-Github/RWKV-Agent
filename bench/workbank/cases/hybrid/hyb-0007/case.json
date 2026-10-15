@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 509,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Northgate's dispatch tooling keeps its packages in tools/requirements.txt. The saltmarsh entry there predates the stable release the project now publishes; set that entry to the supported stable version and leave the rest of the file untouched. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Northgate dispatch tooling\n\nBack-office tools for the Northgate freight desk.\n\n- tools/ - dispatch automation and its package list\n- Tools install from the frozen vendor mirror; the desk keeps the list in step with the vendor's published releases.\n",
@@ -67,7 +69,7 @@
   },
   "turns": [
     {
-      "prompt": "Northgate's dispatch tooling keeps its packages in tools/requirements.txt. The saltmarsh entry there predates the stable release the project now publishes; set that entry to the supported stable version and leave the rest of the file untouched. When finished, reply DONE."
+      "prompt": "Northgate's dispatch tooling keeps its packages in tools/requirements.txt. The saltmarsh entry there predates the stable release the project now publishes; set that entry to the supported stable version and leave the rest of the file untouched. Tell me when you're finished."
     }
   ]
 }

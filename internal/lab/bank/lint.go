@@ -344,7 +344,10 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			bad("answer_style", "answer_style value forbids the UNKNOWN half-sentence; last turn prompt ends with "+
 				pyReprValue(contract))
 		}
-	} else if ctx.distillRules && answerStyle == "natural" {
+	} else if answerStyle == "natural" {
+		// natural also applies to the test bank since the 2026-10-15 exam
+		// rewrite (docs/evaluations/bench-composition-20261015 §8): exam cases
+		// ask the way an App user does.
 		last := prompts[len(prompts)-1]
 		for _, contract := range []string{ctx.contracts["unknown"], valueAnswerContract(ctx.contracts)} {
 			if contract != "" && strings.HasSuffix(last, contract) {

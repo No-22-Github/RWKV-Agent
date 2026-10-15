@@ -1,0 +1,37 @@
+{
+  "id": "pb_missing_file_recover",
+  "description": "Recover when the named file has a nearby but different extension.",
+  "category": "recovery",
+  "source": "marty1885/primitive-bench@e0af1723:missing_file_recover",
+  "difficulty": "multi-tool",
+  "files": {
+    "README.md": "config is yml\n",
+    "config.yml": "token: COBALT-7\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:missing_file_recover",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "filesystem",
+    "status": "draft",
+    "task_type": "find_file",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "The answer is in config.yaml, but the filename may be slightly different. Find it and answer with only the token value.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "COBALT-7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 579,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Tarnbrook Water — Meadowford wholesale account\n\nQuarterly wholesale statements for the Meadowford distribution zone of the Tarnbrook network.\n\n- usage/  metered consumption by billing period\n- zone/  network notices for the Meadowford zone\n\nEach reconciliation is opened against the billing period the desk names when it asks.\n",
@@ -65,10 +67,11 @@
       }
     },
     {
-      "prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
         "expected_number": 58745.4,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

@@ -13,9 +13,11 @@
     "ref_calls": 3,
     "fixture_bytes": 1094,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "A work order for the spool-writer service is waiting in this workspace. Apply it: the service has to run with the record batch size the work order specifies, and the deployment file must keep the shaping comments and indentation its reviewers signed off on. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Print spool platform\n\nSpool manifest writers keep their deployment settings under services/.\nEach service yaml is reviewed by the print-platform squad before rollout,\nso the comment lines and indentation in those files are part of the\nreview and have to survive any value change.\n\nWork orders land in changes/ and name the service, the setting and the\nnew value. Operations records the squad roster in ops/.\n",
@@ -48,7 +50,7 @@
   },
   "turns": [
     {
-      "prompt": "A work order for the spool-writer service is waiting in this workspace. Apply it: the service has to run with the record batch size the work order specifies, and the deployment file must keep the shaping comments and indentation its reviewers signed off on. When finished, reply DONE."
+      "prompt": "A work order for the spool-writer service is waiting in this workspace. Apply it: the service has to run with the record batch size the work order specifies, and the deployment file must keep the shaping comments and indentation its reviewers signed off on. Let me know when it's done."
     }
   ]
 }

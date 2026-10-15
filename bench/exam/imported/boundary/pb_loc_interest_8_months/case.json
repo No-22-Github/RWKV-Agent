@@ -1,0 +1,33 @@
+{
+  "id": "pb_loc_interest_8_months",
+  "description": "Compute simple line-of-credit interest over a balance schedule.",
+  "category": "finance",
+  "source": "marty1885/primitive-bench@e0af1723:loc_interest_8_months",
+  "difficulty": "single-tool-arithmetic",
+  "files": {
+    "loan_case.txt": "Line of credit APR = prime rate 6.45% + margin 1.75%. Use simple daily interest on a 365-day basis.\n\nmonth,balance,days\n1,4500,30\n2,4500,30\n3,6200,30\n4,6200,30\n5,6200,30\n6,5100,30\n7,5100,30\n8,5100,30\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:loc_interest_8_months",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "tabular",
+    "status": "draft",
+    "task_type": "policy_calc",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read loan_case.txt. Compute the approximate simple interest for all listed rows using balance * APR * days / 365. Answer with only the interest amount rounded to 2 decimals.",
+      "expect": {
+        "tools": null,
+        "expected_number": 289.13,
+        "tolerance": 1.5,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

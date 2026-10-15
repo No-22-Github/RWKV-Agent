@@ -9,8 +9,9 @@
     "traps": [],
     "level": "L1",
     "status": "draft",
-    "version": 1,
-    "author": "llm:claude-opus-5-5"
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "answer_style": "natural"
   },
   "files": {
     "scripts/stats.py": "from pathlib import Path\n\nrows = Path(__file__).resolve().parent.parent.joinpath('data/latency_ms.txt').read_text().splitlines()\nvalues = [int(r) for r in rows if r.strip() and not r.startswith('#')]\nprint(f'mean latency: {sum(values) / len(values):.1f} ms')\n",
@@ -21,7 +22,8 @@
       "prompt": "跑一下 scripts/stats.py，告诉我它算出来的平均延迟是多少毫秒。",
       "expect": {
         "expected_number": 473.7,
-        "tolerance": 0.05
+        "tolerance": 0.05,
+        "expected_number_in_text": true
       }
     }
   ]

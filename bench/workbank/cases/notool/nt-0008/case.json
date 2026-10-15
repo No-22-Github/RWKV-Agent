@@ -22,9 +22,11 @@
     "ref_calls": 0,
     "fixture_bytes": 754,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": "human:delegated-20260922"
+    "reviewer": "human:delegated-20260922",
+    "legacy_prompt": "The security questionnaire asks how many hexadecimal characters a SHA-256 digest contains, because the checksum field is sized from that figure. How many hexadecimal characters are in a SHA-256 digest? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Platform security - compliance workspace\n\nArtifacts supporting the annual security questionnaire.\n\n- security/  hashing and secret-handling references\n- evidence/  exported configuration summaries\n\nOwner: platform security.\n",
@@ -35,11 +37,12 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The security questionnaire asks how many hexadecimal characters a SHA-256 digest contains, because the checksum field is sized from that figure. How many hexadecimal characters are in a SHA-256 digest? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The security questionnaire asks how many hexadecimal characters a SHA-256 digest contains, because the checksum field is sized from that figure. How many hexadecimal characters are in a SHA-256 digest? Keep it brief, and if it can't be worked out, let me know why.",
       "expect": {
         "expected_number": 64,
         "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "expected_number_in_text": true
       }
     }
   ]

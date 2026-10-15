@@ -15,9 +15,11 @@
     "ref_calls": 3,
     "fixture_bytes": 1379,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "dispatch/__init__.py": "",
@@ -29,9 +31,12 @@
   },
   "turns": [
     {
-      "prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
-        "output_equals": "dispatch/handoff.py:12"
+        "output_contains": [
+          "dispatch/handoff.py:12"
+        ],
+        "output_contains_token": true
       }
     }
   ]

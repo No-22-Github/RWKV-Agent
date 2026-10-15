@@ -1,0 +1,39 @@
+{
+  "id": "pb_config_precedence_resolve",
+  "description": "Resolve layered production configuration precedence.",
+  "category": "configuration",
+  "source": "marty1885/primitive-bench@e0af1723:config_precedence_resolve",
+  "difficulty": "single-search-reasoning",
+  "files": {
+    "config/defaults.env": "API_TIMEOUT=30\nRETRIES=2\nFEATURE_X=false\nREGION=us\n",
+    "config/local.env": "API_TIMEOUT=45\n",
+    "config/prod.env": "RETRIES=3\nFEATURE_X=true\n",
+    "docs/precedence.md": "For this service, local overrides prod, and prod overrides defaults.\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:config_precedence_resolve",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "config",
+    "status": "draft",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Resolve the final production config. Precedence is local \u003e prod \u003e defaults. Answer exactly 'API_TIMEOUT=N RETRIES=N FEATURE_X=value' using the final values.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "API_TIMEOUT=45 RETRIES=3 FEATURE_X=true"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

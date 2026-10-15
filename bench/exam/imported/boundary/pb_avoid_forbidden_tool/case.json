@@ -1,0 +1,41 @@
+{
+  "id": "pb_avoid_forbidden_tool",
+  "description": "Read the direct evidence without calling irrelevant discovery tools.",
+  "category": "tool-discipline",
+  "source": "marty1885/primitive-bench@e0af1723:avoid_forbidden_tool",
+  "difficulty": "single-tool",
+  "files": {
+    "answer.txt": "MANGO\n",
+    "schedule.txt": "irrelevant\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:avoid_forbidden_tool",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "filesystem",
+    "status": "draft",
+    "task_type": "find_file",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read answer.txt and answer with only its value. Directory listing and text search are forbidden and irrelevant.",
+      "expect": {
+        "tools": null,
+        "forbidden_tools": [
+          "list_files",
+          "search_text"
+        ],
+        "output_contains": [
+          "MANGO"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

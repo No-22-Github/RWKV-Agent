@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 1266,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Lyndhurst Freight is reconciling its July 2026 carrier account. The workspace holds the carrier's invoice for the month together with our own dispatch register. Put the result in reports/net_freight.csv as a two-column file whose header row reads 'metric,value' and whose only data row carries the label net_freight beside the amount; that amount is the month's carriage charges before the fuel surcharge, restricted to the consignments our depot actually ran. Use a plain decimal with two decimal places and no thousands separators. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -36,7 +38,7 @@
   },
   "turns": [
     {
-      "prompt": "Lyndhurst Freight is reconciling its July 2026 carrier account. The workspace holds the carrier's invoice for the month together with our own dispatch register. Put the result in reports/net_freight.csv as a two-column file whose header row reads 'metric,value' and whose only data row carries the label net_freight beside the amount; that amount is the month's carriage charges before the fuel surcharge, restricted to the consignments our depot actually ran. Use a plain decimal with two decimal places and no thousands separators. When finished, reply DONE."
+      "prompt": "Lyndhurst Freight is reconciling its July 2026 carrier account. The workspace holds the carrier's invoice for the month together with our own dispatch register. Put the result in reports/net_freight.csv as a two-column file whose header row reads 'metric,value' and whose only data row carries the label net_freight beside the amount; that amount is the month's carriage charges before the fuel surcharge, restricted to the consignments our depot actually ran. Use a plain decimal with two decimal places and no thousands separators. Let me know when it's done."
     }
   ],
   "expect": {

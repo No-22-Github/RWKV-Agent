@@ -21,9 +21,11 @@
     "ref_calls": 0,
     "fixture_bytes": 1490,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "It's the coastal one: bulletins/coastal_region_draft.md. Circulate that draft to the coordinators now. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Ridgeway Learning Network - regional programme workspace\n\nCoordination material for the autumn regional cycle.\n\n- bulletins/  one regional bulletin draft per region\n- partners/   coordinator list and partner notes\n- notes/      cycle planning notes\n\nOwner: regional programmes team.\n",
@@ -107,7 +109,7 @@
       }
     },
     {
-      "prompt": "It's the coastal one: bulletins/coastal_region_draft.md. Circulate that draft to the coordinators now. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "It's the coastal one: bulletins/coastal_region_draft.md. Circulate that draft to the coordinators now. Keep it brief, and if it can't be worked out, let me know why.",
       "expect": {
         "tools": [],
         "forbidden_tools": [

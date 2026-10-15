@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 864,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": "human:delegated-20260922"
+    "reviewer": "human:delegated-20260922",
+    "legacy_prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "settings.yaml": "# Runtime settings for the stream-ingest adapter.\nservice: stream-ingest\ningest_workers: 6\nshutdown_grace_seconds: 240\nbackpressure_limit: 512\ndead_letter_suffix: ingest-dlq\n",
@@ -32,10 +34,11 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
         "expected_number": 240,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

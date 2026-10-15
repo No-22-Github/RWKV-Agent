@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1553,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -34,21 +34,24 @@
       "prompt": "The nightly CI export is in flaky-tests-2026.csv. How many distinct tests in the checkout suite were flaky in August 2026? Answer with the number alone.",
       "expect": {
         "expected_number": 9,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     },
     {
       "prompt": "Of those, how many times did the worst offender fail in August? Answer with the number alone.",
       "expect": {
         "expected_number": 14,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     },
     {
       "prompt": "Scratch August — same definition, same suite. How many distinct flaky checkout tests were there in September? Answer with the number alone.",
       "expect": {
         "expected_number": 7,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

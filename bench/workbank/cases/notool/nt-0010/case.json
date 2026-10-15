@@ -19,9 +19,11 @@
     "ref_calls": 0,
     "fixture_bytes": 891,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The open item is the attribution pipeline, jobs/attribution.yaml. The platform standard sets a pipeline's retry budget to its retry_limit multiplied by its stage count, and that file sets retry_limit: 9 and declares 3 stages. Give the retry budget for that pipeline. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Lumen Analytics - pipeline workspace\n\nRuntime settings for the nightly analytics pipelines.\n\n- jobs/       one runtime settings file per pipeline\n- standards/  extracts from the platform standards used by the review\n- notes/      handover notes for the analytics rotation\n\nsession_rollup is the pipeline the other two feed off, so it is the one most reviews start from.\n\nOwner: analytics platform rotation.\n",
@@ -59,11 +61,12 @@
       }
     },
     {
-      "prompt": "The open item is the attribution pipeline, jobs/attribution.yaml. The platform standard sets a pipeline's retry budget to its retry_limit multiplied by its stage count, and that file sets retry_limit: 9 and declares 3 stages. Give the retry budget for that pipeline. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The open item is the attribution pipeline, jobs/attribution.yaml. The platform standard sets a pipeline's retry budget to its retry_limit multiplied by its stage count, and that file sets retry_limit: 9 and declares 3 stages. Give the retry budget for that pipeline. Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
         "expected_number": 27,
         "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "expected_number_in_text": true
       }
     }
   ]

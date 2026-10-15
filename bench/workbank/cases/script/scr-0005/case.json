@@ -13,9 +13,11 @@
     "ref_calls": 3,
     "fixture_bytes": 1535,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Our robotics lab books instrument time through a shared calendar, and each month's export lands under bookings/ as rig-bookings.csv. Write tally.py so that, launched from the project root, it walks the project tree for those exports and prints one line per instrument, '<rig_id> <total minutes>', in ascending rig_id order, then a closing line 'grand <total minutes>'. Keep to the Python standard library. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Instrument booking summary - Robotics Lab\n=========================================\n\ntally.py turns the shared-calendar exports into the lab's usage summary.\n\nEach month the booking system drops one export under bookings/, always\nnamed rig-bookings.csv; the export tool nests the month folder under the\nactive site code, so the folder depth is not fixed. The scheduler runs\n`python3 tally.py` with the project root as its working directory.\n\nColumns in each export:\n  booking_id   booking reference\n  rig_id       instrument the slot belongs to\n  operator     staff initials\n  minutes      length of the booked slot\n  booked_on    date the slot was reserved\n",
@@ -36,7 +38,7 @@
   },
   "turns": [
     {
-      "prompt": "Our robotics lab books instrument time through a shared calendar, and each month's export lands under bookings/ as rig-bookings.csv. Write tally.py so that, launched from the project root, it walks the project tree for those exports and prints one line per instrument, '<rig_id> <total minutes>', in ascending rig_id order, then a closing line 'grand <total minutes>'. Keep to the Python standard library. When finished, reply DONE.",
+      "prompt": "Our robotics lab books instrument time through a shared calendar, and each month's export lands under bookings/ as rig-bookings.csv. Write tally.py so that, launched from the project root, it walks the project tree for those exports and prints one line per instrument, '<rig_id> <total minutes>', in ascending rig_id order, then a closing line 'grand <total minutes>'. Keep to the Python standard library. Let me know once that's in place.",
       "expect": {}
     }
   ]

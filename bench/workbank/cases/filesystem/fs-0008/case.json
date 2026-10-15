@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 30591,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The Halcyon transect programme is closing its field season and the survey archive goes to the national data centre next week. How many bytes does the single biggest file in the Halcyon transect archive occupy? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Halcyon Transect Programme - field survey archive.\n\nsurveys/ is the programme archive. Each arena folder holds one plot\nsheet per quadrat, written tab-separated by the field recorders, and\nregistry/ holds the compiled series the programme exports.\n\ntransfers/ is the outbound staging area: a copy of the compiled series\nis written there whenever a release goes to the national data centre.\nThe staging copies are working files and are not part of the archive.\n",
@@ -588,10 +590,11 @@
   },
   "turns": [
     {
-      "prompt": "The Halcyon transect programme is closing its field season and the survey archive goes to the national data centre next week. How many bytes does the single biggest file in the Halcyon transect archive occupy? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The Halcyon transect programme is closing its field season and the survey archive goes to the national data centre next week. How many bytes does the single biggest file in the Halcyon transect archive occupy? Just give me the answer. If it can't be determined from what's here, tell me why.",
       "expect": {
         "expected_number": 3618,
-        "tolerance": 0.01
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

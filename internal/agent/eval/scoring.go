@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -284,7 +285,14 @@ func answerFailures(expect Expectation, output string) []string {
 			fmt.Sprintf("output length %d chars exceeds max_output_chars %d", len([]rune(output)), expect.MaxOutputChars),
 		)
 	}
-	if expect.ExpectedNumber != nil {
+	if expect.ExpectedNumber != nil && expect.ExpectedNumberInText {
+		if !numberInText(output, *expect.ExpectedNumber, *expect.Tolerance) {
+			failures = append(
+				failures,
+				fmt.Sprintf("answer contains no figure within %g of %g", *expect.Tolerance, *expect.ExpectedNumber),
+			)
+		}
+	} else if expect.ExpectedNumber != nil {
 		actual, err := parseNumericOutput(output)
 		if err != nil || math.IsNaN(actual) || math.IsInf(actual, 0) {
 			failures = append(
@@ -1094,7 +1102,11 @@ func containsToken(output, want string) bool {
 	if want == "" {
 		return true
 	}
-	isWord := func(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) }
+	// Han characters do not bound words: Chinese runs figures and names into
+	// the sentence ("共33条", "版本是v4.2"), so a Han neighbour is a boundary.
+	isWord := func(r rune) bool {
+		return (unicode.IsLetter(r) && !unicode.Is(unicode.Han, r)) || unicode.IsDigit(r)
+	}
 	for from := 0; ; {
 		idx := strings.Index(output[from:], want)
 		if idx < 0 {
@@ -1126,4 +1138,32 @@ func containsToken(output, want string) bool {
 		}
 		from = start + 1
 	}
+}
+
+// textFigure matches a figure inside prose: optional currency symbol, either
+// thousands-grouped or plain digits, optional decimals.
+var textFigure = regexp.MustCompile(`[$€£¥]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?`)
+
+// numberInText reports whether any figure in output is within tolerance of
+// want. A minus sign counts only when it does not join two digit runs, so the
+// "-09" of a date is not read as negative nine.
+func numberInText(output string, want, tolerance float64) bool {
+	for _, loc := range textFigure.FindAllStringIndex(output, -1) {
+		text := strings.TrimLeft(output[loc[0]:loc[1]], "$€£¥")
+		text = strings.ReplaceAll(text, ",", "")
+		value, err := strconv.ParseFloat(text, 64)
+		if err != nil {
+			continue
+		}
+		if loc[0] > 0 && (output[loc[0]-1] == '-' || strings.HasSuffix(output[:loc[0]], "−")) {
+			before := strings.TrimSuffix(strings.TrimSuffix(output[:loc[0]], "-"), "−")
+			if before == "" || !unicode.IsDigit([]rune(before)[len([]rune(before))-1]) {
+				value = -value
+			}
+		}
+		if math.Abs(value-want) <= tolerance {
+			return true
+		}
+	}
+	return false
 }

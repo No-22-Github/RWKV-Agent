@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 3368,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Depot ops needs its nightly scan rollup back: rollup.py is a stub that exits at once. Started from the project root, it has to account for every scan event the service has dropped anywhere under the spool tree, and print the outcome counts and the closing total in the layout README.md sets out. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Parcel hub scan spool\n=====================\n\nThe scan service writes one file per scan event under spool/, in whatever\nsubfolder it is currently configured for. Each file holds a single line:\n\n  <parcel_id>,<outcome>\n\nwith the outcome one of ok, late or void.\n\nrollup.py prints the nightly rollup for depot ops:\n\n  ok,<count>\n  late,<count>\n  void,<count>\n  total,<count>\n\ncounting every scan the spool tree holds. The scheduler runs it as\n`python3 rollup.py` with the project root as the working directory.\n",
@@ -261,7 +263,7 @@
   },
   "turns": [
     {
-      "prompt": "Depot ops needs its nightly scan rollup back: rollup.py is a stub that exits at once. Started from the project root, it has to account for every scan event the service has dropped anywhere under the spool tree, and print the outcome counts and the closing total in the layout README.md sets out. When finished, reply DONE.",
+      "prompt": "Depot ops needs its nightly scan rollup back: rollup.py is a stub that exits at once. Started from the project root, it has to account for every scan event the service has dropped anywhere under the spool tree, and print the outcome counts and the closing total in the layout README.md sets out. Let me know once that's in place.",
       "expect": {}
     }
   ]

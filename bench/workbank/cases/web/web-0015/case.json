@@ -19,9 +19,11 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "A vendor questionnaire wants to know what the flag service permits before we tune anything. We have no copy of bellwether's guide. In bellwether's operations guide, what is the shipped value of the max_concurrent_evaluations setting? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -55,12 +57,15 @@
   ],
   "turns": [
     {
-      "prompt": "A vendor questionnaire wants to know what the flag service permits before we tune anything. We have no copy of bellwether's guide. In bellwether's operations guide, what is the shipped value of the max_concurrent_evaluations setting? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A vendor questionnaire wants to know what the flag service permits before we tune anything. We have no copy of bellwether's guide. In bellwether's operations guide, what is the shipped value of the max_concurrent_evaluations setting? A short answer is fine. If you can't find it, say so and tell me what you checked.",
       "expect": {
-        "output_equals": "640",
         "required_tools": [
           "web_search"
-        ]
+        ],
+        "output_contains": [
+          "640"
+        ],
+        "output_contains_token": true
       }
     }
   ]

@@ -15,9 +15,11 @@
     "ref_calls": 3,
     "fixture_bytes": 1068,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:deepseek-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "CHANGELOG.md": "# quaystone-cache changelog\n\nEntries are listed newest first; each release line carries the version and its\nship date as YYYY-MM-DD.\n\n## 4.6.0 - 2026-08-13\n\n- Add a bounded retry budget to the warm-start loader.\n- Report the per-shard hit ratio in the status output.\n\n## 4.5.2 - 2026-06-27\n\n- Fix a cold-start race when two workers claim the same segment.\n\n## 4.4.0 - 2026-04-09\n\n- Drop the legacy pickle serialiser and the matching config flag.\n",
@@ -27,9 +29,12 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. A short answer is fine. If you can't find it, say so and tell me what you checked.",
       "expect": {
-        "output_equals": "4.6.0"
+        "output_contains": [
+          "4.6.0"
+        ],
+        "output_contains_token": true
       }
     }
   ]

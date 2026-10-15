@@ -19,9 +19,11 @@
     "ref_calls": 0,
     "fixture_bytes": 1264,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": "human:delegated-20260917"
+    "reviewer": "human:delegated-20260917",
+    "legacy_prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "# Trust & Safety review workspace\n\nMonthly exports and contact notes for the quarterly account review.\n\n- exports/  monthly batch exports pulled from the session store\n- notes/    contact book and review checklist\n\nOwner: trust-safety ops rotation.\n",
@@ -31,7 +33,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. A short answer is fine. If you can't find it, say so and tell me what you checked.",
       "expect": {
         "tools": [],
         "output_contains_any": [

@@ -1,0 +1,36 @@
+{
+  "id": "pb_search_read_submit",
+  "description": "Search for a key, read the relevant file, and extract its value.",
+  "category": "search",
+  "source": "marty1885/primitive-bench@e0af1723:search_read_submit",
+  "difficulty": "multi-tool",
+  "files": {
+    "a.txt": "alpha\n",
+    "logs/run.log": "SECRET_CODE=EMBER-91\n",
+    "notes.txt": "beta\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:search_read_submit",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "filesystem",
+    "status": "draft",
+    "task_type": "find_file",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Find SECRET_CODE in the project, inspect the relevant file, and answer with only the code value.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "EMBER-91"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

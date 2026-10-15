@@ -1,0 +1,51 @@
+{
+  "id": "bfcl_recovery_multi_turn_base_7",
+  "description": "Recover from a failed lookup after the user supplies the corrected path.",
+  "category": "bfcl-multiturn",
+  "source": "BFCL v4 multi-turn recovery shape multi_turn_base_7 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "two-turn",
+  "files": {
+    "facts/branch.txt": "branch=main\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 multi-turn recovery shape multi_turn_base_7 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "hybrid",
+    "status": "draft",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "读取 facts/branch.yaml；如果不存在，明确告诉我没有找到。",
+      "expect": {
+        "tools": null,
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "不存在",
+          "main"
+        ]
+      }
+    },
+    {
+      "prompt": "实际文件是 facts/branch.txt，请读取并报告其中的值。",
+      "expect": {
+        "tools": null,
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "main"
+        ]
+      }
+    }
+  ]
+}

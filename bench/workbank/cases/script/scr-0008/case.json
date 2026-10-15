@@ -22,9 +22,11 @@
     "ref_calls": 5,
     "fixture_bytes": 2341,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Environment north wants the weekly ambient-station summary scripted. The analyser exports land under sites/ as air-samples-<week>.csv, at varying depths, and the summary has to cover all of them across the project tree. Build station_summary.py so that, run from the project root, it prints the summary exactly as the monitoring protocol sets out; that protocol also fixes how a run that produced no analyser result is treated. Standard library only. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Ambient air monitoring - weekly station summaries\n=================================================\n\nstation_summary.py builds the weekly summary of ambient readings from\nthe analyser exports.\n\nEvery week the analyser drops an export named air-samples-<week>.csv\nunder sites/, sometimes straight into sites/ and sometimes inside a\ndated week folder below it. The summary always covers the whole\nproject tree, not just the newest export.\n\nThe scheduler runs `python3 station_summary.py` with the project root\nas its working directory. How each station's figure is derived, and\nhow a run that produced no reading is treated, is set out in\nmonitoring_protocol.md.\n",
@@ -46,7 +48,7 @@
   },
   "turns": [
     {
-      "prompt": "Environment north wants the weekly ambient-station summary scripted. The analyser exports land under sites/ as air-samples-<week>.csv, at varying depths, and the summary has to cover all of them across the project tree. Build station_summary.py so that, run from the project root, it prints the summary exactly as the monitoring protocol sets out; that protocol also fixes how a run that produced no analyser result is treated. Standard library only. When finished, reply DONE.",
+      "prompt": "Environment north wants the weekly ambient-station summary scripted. The analyser exports land under sites/ as air-samples-<week>.csv, at varying depths, and the summary has to cover all of them across the project tree. Build station_summary.py so that, run from the project root, it prints the summary exactly as the monitoring protocol sets out; that protocol also fixes how a run that produced no analyser result is treated. Standard library only.",
       "expect": {}
     }
   ]

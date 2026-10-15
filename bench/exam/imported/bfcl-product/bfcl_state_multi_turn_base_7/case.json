@@ -1,0 +1,46 @@
+{
+  "id": "bfcl_state_multi_turn_base_7",
+  "description": "Carry verified evidence into a follow-up without repeating the lookup.",
+  "category": "bfcl-multiturn",
+  "source": "BFCL v4 multi-turn state shape multi_turn_base_7 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "difficulty": "two-turn",
+  "files": {
+    "facts/branch.txt": "branch=main\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:bfcl-v4",
+    "import_source": "BFCL v4 multi-turn state shape multi_turn_base_7 @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "import_suite": "bfcl-product",
+    "level": "L0",
+    "scenario": "hybrid",
+    "status": "draft",
+    "task_type": "multi_turn",
+    "traps": [],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "读取 facts/branch.txt，并报告其中的已验证值。",
+      "expect": {
+        "tools": null,
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "main"
+        ]
+      }
+    },
+    {
+      "prompt": "不要调用工具，根据上一轮已读取的证据重复这个值。",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "main"
+        ],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

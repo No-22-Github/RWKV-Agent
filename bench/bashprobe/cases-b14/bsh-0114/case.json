@@ -20,7 +20,7 @@
     "ref_calls": 1,
     "fixture_bytes": 171187,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
@@ -38,7 +38,6 @@
     {
       "prompt": "Which repo has the most cancelled builds?",
       "expect": {
-        "max_output_chars": 600,
         "output_contains": [
           "web"
         ]

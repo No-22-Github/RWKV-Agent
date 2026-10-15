@@ -1,0 +1,36 @@
+{
+  "id": "pb_eur_trip_card_vs_fx",
+  "description": "Compare two foreign-exchange payment options with fees and cashback.",
+  "category": "finance",
+  "source": "marty1885/primitive-bench@e0af1723:eur_trip_card_vs_fx",
+  "difficulty": "single-tool-arithmetic",
+  "files": {
+    "eur_trip.txt": "BOT rates:\ncurrency cash_buy cash_sell spot_buy spot_sell\nUSD 31.545 32.215 31.87 32.02\nEUR 35.73 37.07 36.245 36.845\nJPY 0.1888 0.2016 0.1956 0.2006\nGBP 41.47 43.59 42.365 42.995\n\nTrip budget: EUR 2430\nBoth options use EUR spot_sell. Option A receives 0.5% cashback on TWD cost. Option B adds a 2.5% foreign transaction fee and has no cashback. Report the cheaper option by the difference between net costs.\n"
+  },
+  "tags": {
+    "answer_style": "natural",
+    "author": "import:primitive-bench",
+    "import_source": "marty1885/primitive-bench@e0af1723:eur_trip_card_vs_fx",
+    "import_suite": "boundary",
+    "level": "L0",
+    "scenario": "tabular",
+    "status": "draft",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "version": 1
+  },
+  "turns": [
+    {
+      "prompt": "Read eur_trip.txt and compare the two payment options. 'By N.NN' means the savings difference, not the winning option's total cost. Answer exactly 'EUR by N.NN' or 'CARD by N.NN'.",
+      "expect": {
+        "tools": null,
+        "output_contains": [
+          "EUR by 2686.00"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

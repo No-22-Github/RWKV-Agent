@@ -19,9 +19,11 @@
     "ref_calls": 4,
     "fixture_bytes": 2699,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": null,
+    "legacy_prompt": "Quarterly royalty statements go out to the label's artists from royalty_report.py, which today prints each artist's headline royalty. Artists have asked to see what actually reaches them, so from now on a plain statement run has to print the payout figure per artist in the same layout, and the headline printout the statement produces today has to stay available to finance behind a --gross switch. The payout notes finance keeps beside the script say what that payout figure is. When finished, reply DONE.",
+    "answer_style": "natural"
   },
   "files": {
     "README.md": "Quarterly royalty statements - label finance\n============================================\n\nroyalty_report.py turns the distributor's quarterly export into the\nstatement the label sends each artist. The scheduler runs\n`python3 royalty_report.py` with the project root as its working\ndirectory, and the export drops land under statements/, sometimes\nnested in a period folder. The statement covers every export in the\nproject tree.\n\nWhat each figure on the statement means is written down in the payout\nnotes (payout_notes.md) that finance keeps beside the script.\n",
@@ -42,7 +44,7 @@
   },
   "turns": [
     {
-      "prompt": "Quarterly royalty statements go out to the label's artists from royalty_report.py, which today prints each artist's headline royalty. Artists have asked to see what actually reaches them, so from now on a plain statement run has to print the payout figure per artist in the same layout, and the headline printout the statement produces today has to stay available to finance behind a --gross switch. The payout notes finance keeps beside the script say what that payout figure is. When finished, reply DONE.",
+      "prompt": "Quarterly royalty statements go out to the label's artists from royalty_report.py, which today prints each artist's headline royalty. Artists have asked to see what actually reaches them, so from now on a plain statement run has to print the payout figure per artist in the same layout, and the headline printout the statement produces today has to stay available to finance behind a --gross switch. The payout notes finance keeps beside the script say what that payout figure is.",
       "expect": {}
     }
   ]

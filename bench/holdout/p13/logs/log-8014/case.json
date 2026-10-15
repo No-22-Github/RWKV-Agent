@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1962,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -33,7 +33,10 @@
     {
       "prompt": "9 月 18 日晚 api-gateway 发布之后线上出了一次故障。当天的应用日志在 app-20260918.log，发布记录在 发布记录.csv。这次故障里最先开始报错的下游服务是哪个？直接回答它的服务代号。",
       "expect": {
-        "output_equals": "sms-gateway"
+        "output_contains": [
+          "sms-gateway"
+        ],
+        "output_contains_token": true
       }
     }
   ]
