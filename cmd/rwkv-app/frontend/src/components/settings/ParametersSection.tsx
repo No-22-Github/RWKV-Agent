@@ -1,5 +1,5 @@
 import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
-import type { ProviderManager } from '../../state/providerManager'
+import { NEW_CONFIG_DEFAULTS, type ProviderManager } from '../../state/providerManager'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
 import { GroupTitle, Row, SettingsPane, SaveStatus, Toggle } from './ui'
 import { autosaveHint } from './autosaveHint'
@@ -57,13 +57,20 @@ export default function ParametersSection({ manager }: Props) {
         <div className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
           <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
             <span className="text-base text-ink-strong">工具协议</span>
-            <span className="text-xs leading-[1.55] text-ink-muted">XML 默认直达工具决策；Markdown 保留为可选模式</span>
+            <span className="text-xs leading-[1.55] text-ink-muted">
+              {manager.profile
+                ? `wire 预设 ${manager.profile}：与评测、训练语料同一套格式；Markdown 为可选模式`
+                : 'XML 默认直达工具决策；Markdown 保留为可选模式'}
+            </span>
           </span>
           <select aria-label="工具协议" className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.agentProtocol} onChange={(event) => {
             const protocol = event.target.value as AgentProtocol
             manager.setAgentProtocol(protocol)
             // 与后端 applyProtocolDefaults 的契约一致：Markdown 协议没有思考预填。
             if (protocol === AgentProtocol.AgentProtocolMarkdown) manager.setThinking('off')
+            // wire 预设（g1k）一旦存在就接管格式，会让协议选择器失效：选 Markdown 时退出预设，
+            // 切回 XML 时回到新档案默认的 g1k。
+            manager.setProfile(protocol === AgentProtocol.AgentProtocolMarkdown ? '' : NEW_CONFIG_DEFAULTS.profile)
           }}>
             <option value={AgentProtocol.AgentProtocolXML}>XML（推荐）</option>
             <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（可选）</option>

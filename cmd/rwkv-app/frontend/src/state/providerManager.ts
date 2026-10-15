@@ -7,7 +7,7 @@ import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import { derivedProviderLabel, firstDraftError, validateDraft } from './draftValidation'
-import { DEFAULT_SAMPLING, matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
+import { DEFAULT_SAMPLING, NEW_CONFIG_SAMPLING_ID, matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
 
 /* 自动保存的防抖：停止输入这么久后才落盘，敲到一半的值不会触发保存或重连。 */
 export const AUTOSAVE_DELAY_MS = 800
@@ -63,6 +63,23 @@ const DEFAULT_AGENT_LIMITS = {
 /* 决策阶段输出预算的"自动"：0 让后端按协议挑默认（XML 512，其余 96）。 */
 const DECISION_MAX_TOKENS_AUTO = 0
 
+/*
+ * 新建连接的 Agent 默认值，对应后端 api.NewConfigDefaults（api/defaults.go）：评测与训练
+ * 语料用的 g1k wire、g1k-agent 采样，联网/天气/bash 默认开（没有 key 时联网工具仍在
+ * 清单里，调用时提示去设置里填写）。只用于新档案的初始值——已保存的档案按自己存的
+ * 值水合，不会被改写；后端 normalizeConfig 也不会替旧档案补这些默认。
+ */
+export const NEW_CONFIG_DEFAULTS = {
+  profile: 'g1k',
+  enableWeb: true,
+  enableBash: true,
+  weatherBackend: 'open-meteo',
+  sampling: presetById(NEW_CONFIG_SAMPLING_ID) ?? DEFAULT_SAMPLING,
+}
+
+/* 思考模式选择器落到 wire 覆盖上的那一种写法；识别它是为了不误删用户自己写的 wire。 */
+const THINKING_WIRE = /^thinking=(fast|full)$/
+
 /* 只看配置、不看名称的签名：改名不应触发重连。 */
 function configSignature(config: Config): string {
   return JSON.stringify(stableValue(config))
@@ -100,12 +117,13 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
   const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
   const [progressiveTools, setProgressiveTools] = useState(false)
-  const [enableWeb, setEnableWeb] = useState(false)
+  const [profile, setProfile] = useState(NEW_CONFIG_DEFAULTS.profile)
+  const [enableWeb, setEnableWeb] = useState(NEW_CONFIG_DEFAULTS.enableWeb)
   const [braveAPIKey, setBraveAPIKey] = useState('')
   const [tavilyAPIKey, setTavilyAPIKey] = useState('')
   const [enableSubagents, setEnableSubagents] = useState(false)
-  const [weatherBackend, setWeatherBackend] = useState('')
-  const [enableBash, setEnableBash] = useState(false)
+  const [weatherBackend, setWeatherBackend] = useState(NEW_CONFIG_DEFAULTS.weatherBackend)
+  const [enableBash, setEnableBash] = useState(NEW_CONFIG_DEFAULTS.enableBash)
   const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_AGENT_LIMITS.maxActiveBatch)
   const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
   const [subagentMaxParallel, setSubagentMaxParallel] = useState(DEFAULT_AGENT_LIMITS.subagentMaxParallel)
@@ -114,12 +132,12 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [maxSteps, setMaxSteps] = useState(DEFAULT_AGENT_LIMITS.maxSteps)
   const [maxTokens, setMaxTokens] = useState(DEFAULT_AGENT_LIMITS.maxTokens)
   const [decisionMaxTokens, setDecisionMaxTokens] = useState(DECISION_MAX_TOKENS_AUTO)
-  const [sampleTemperature, setSampleTemperature] = useState(DEFAULT_SAMPLING.temperature)
-  const [sampleTopK, setSampleTopK] = useState(DEFAULT_SAMPLING.topK)
-  const [sampleTopP, setSampleTopP] = useState(DEFAULT_SAMPLING.topP)
-  const [samplePresencePenalty, setSamplePresencePenalty] = useState(DEFAULT_SAMPLING.presencePenalty)
-  const [sampleFrequencyPenalty, setSampleFrequencyPenalty] = useState(DEFAULT_SAMPLING.frequencyPenalty)
-  const [samplePenaltyDecay, setSamplePenaltyDecay] = useState(DEFAULT_SAMPLING.penaltyDecay)
+  const [sampleTemperature, setSampleTemperature] = useState(NEW_CONFIG_DEFAULTS.sampling.temperature)
+  const [sampleTopK, setSampleTopK] = useState(NEW_CONFIG_DEFAULTS.sampling.topK)
+  const [sampleTopP, setSampleTopP] = useState(NEW_CONFIG_DEFAULTS.sampling.topP)
+  const [samplePresencePenalty, setSamplePresencePenalty] = useState(NEW_CONFIG_DEFAULTS.sampling.presencePenalty)
+  const [sampleFrequencyPenalty, setSampleFrequencyPenalty] = useState(NEW_CONFIG_DEFAULTS.sampling.frequencyPenalty)
+  const [samplePenaltyDecay, setSamplePenaltyDecay] = useState(NEW_CONFIG_DEFAULTS.sampling.penaltyDecay)
   const [advancedSampling, setAdvancedSampling] = useState(false)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [settingsMessage, setSettingsMessage] = useState('')
@@ -152,8 +170,21 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const matchedSamplingPreset = matchSamplingPreset(samplingValues)
   const samplingIsCustom = advancedSampling || matchedSamplingPreset === ''
 
+  /*
+   * 有 wire 预设时，思考模式由预设说了算，旧的 thinking 字段不再起作用；这里把选择器
+   * 的取值写成 wire 覆盖（thinking=fast|full），选择器才不是摆设。关闭思考时沿用档案
+   * 里原有的 wire（若原值正是上次写的思考覆盖则清掉）。
+   */
+  function wireOverride(): string | undefined {
+    const base = draftBaseConfig.wire?.trim() || undefined
+    if (!profile) return base
+    if (thinking !== 'off') return `thinking=${thinking}`
+    return base && THINKING_WIRE.test(base) ? undefined : base
+  }
+
   function agentCapabilityConfig() {
     return {
+      profile: profile || undefined, wire: wireOverride(),
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
       braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
@@ -260,7 +291,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl, injectSessionTime])
+  }, [settingsOpen, previewOpen, settingsTab, profile, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl, injectSessionTime])
 
   /*
    * 自动保存一次：只对已有档案生效。先 SaveProvider（后端校验唯一性、落盘），编辑的是
@@ -362,6 +393,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setTaskControl(config.taskControl || '')
     setInjectSessionTime(config.injectSessionTime || false)
     setProgressiveTools(config.progressiveTools ?? false)
+    setProfile(config.profile || '')
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
     setEnableSubagents(config.enableSubagents || false)
     setWeatherBackend(config.weatherBackend || '')
@@ -402,6 +434,19 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setAvailableModels([])
     applyConfig(config)
   }
+  /* 新建连接：Agent 的行为开关回到新档案默认值，其余（key、预算）沿用当前表单。 */
+  function newConnectionAgentDefaults() {
+    const sampling = NEW_CONFIG_DEFAULTS.sampling
+    return {
+      profile: NEW_CONFIG_DEFAULTS.profile, wire: undefined,
+      agentProtocol: AgentProtocol.AgentProtocolXML, thinking: 'off',
+      enableWeb: NEW_CONFIG_DEFAULTS.enableWeb, weatherBackend: NEW_CONFIG_DEFAULTS.weatherBackend,
+      enableBash: NEW_CONFIG_DEFAULTS.enableBash, decisionMaxTokens: DECISION_MAX_TOKENS_AUTO,
+      temperature: sampling.temperature, topK: sampling.topK, topP: sampling.topP,
+      presencePenalty: sampling.presencePenalty, frequencyPenalty: sampling.frequencyPenalty,
+      penaltyDecay: sampling.penaltyDecay,
+    }
+  }
   function beginNewProvider() {
     const config = new Config({
       ...draftBaseConfig,
@@ -409,6 +454,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
       ...agentCapabilityConfig(),
+      ...newConnectionAgentDefaults(),
     })
     setDraftInitialized(false)
     setEditingProviderId('')
@@ -555,7 +601,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
     stateId, setStateId,
-    agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
+    profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
     enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,

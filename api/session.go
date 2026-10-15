@@ -12,13 +12,11 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
-	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
-	"github.com/no22/RWKV-Agent/internal/inference"
 	"github.com/no22/RWKV-Agent/internal/terminal"
-	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 // Session is an isolated, multi-turn Agent conversation.
@@ -63,7 +61,7 @@ func newSessionAtDepth(
 		view = views[0]
 	}
 	ownsOverlay := false
-	if view == nil && ownerConfig(owner).EnableBash && workspace != "" {
+	if view == nil && bashEnabled(ownerConfig(owner), workspace) {
 		var err error
 		view, err = assistanttools.NewStagedWorkspace(workspace, "")
 		if err != nil {
@@ -86,10 +84,7 @@ func newSessionAtDepth(
 		config.MaxSteps = config.SubagentMaxSteps
 	}
 	markdownProtocol := config.AgentProtocol != AgentProtocolXML
-	if view != nil {
-		config.TaskControl = strings.TrimSpace(config.TaskControl) + "\n\n" + stagedFileControl
-	}
-	runnerOptions := sessionRunnerOptions(config, status, workspace, tools, markdownProtocol)
+	runnerOptions := sessionRunnerOptions(config, status, workspace, tools, markdownProtocol, view != nil)
 	runnerOptions.SessionContext = sessionTimeContext(config.InjectSessionTime, time.Now())
 	runner, err := agent.NewRunner(generator, tools, runnerOptions)
 	if err != nil {
@@ -103,9 +98,7 @@ func sessionTimeContext(enabled bool, startedAt time.Time) string {
 	if !enabled {
 		return ""
 	}
-	local := startedAt.Local()
-	weekday := [...]string{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}[local.Weekday()]
-	return "<session_time>\n会话启动时间为 " + local.Format("2006年01月02日 ") + weekday + local.Format(" 15时04分（UTC-07:00）") + "。这是会话启动时的时间，后续轮次保持不变。\n</session_time>"
+	return product.SessionTimeContext(startedAt)
 }
 
 // RestoreStartTime restores the persisted conversation's start time separately
@@ -119,74 +112,65 @@ func (s *Session) RestoreStartTime(startedAt time.Time) {
 	s.runner.SetSessionContext(sessionTimeContext(s.injectSessionTime, startedAt))
 }
 
-// assembleSessionTools builds the tool catalog for one session depth: workspace
-// and local tools are always offered, web and delegation tools follow their
-// config switches, and delegation is only wired at depth 0. The delegation
-// closure compacts each child result into a presentation-safe summary. The
-// config is passed explicitly so prompts can be previewed for a draft; owner
-// may be nil for such previews, in which case nothing executes.
+// bashEnabled reports whether the bash tool belongs in a session: it needs the
+// config switch, an open workspace and a usable just-bash sidecar. Without the
+// sidecar the tool is left out instead of failing session creation.
+func bashEnabled(config Config, workspace string) bool {
+	if !config.EnableBash || strings.TrimSpace(workspace) == "" {
+		return false
+	}
+	_, err := assistanttools.ResolveBashSidecar("")
+	return err == nil
+}
+
+// assembleSessionTools builds the tool catalog for one session depth through
+// the shared product assembly (the same one the product evaluation uses): file
+// reading is always offered, editing only into a staged view (or for previews),
+// and web, weather, bash and delegation follow their config switches;
+// delegation is only wired at depth 0. The delegation closure compacts each
+// child result into a presentation-safe summary. The config is passed
+// explicitly so prompts can be previewed for a draft; owner may be nil for such
+// previews, in which case nothing executes.
 func assembleSessionTools(config Config, owner *Service, workspace string, depth int, views ...*assistanttools.StagedWorkspace) ([]agent.Tool, error) {
-	// 文件工具始终在目录里（模型能感知该能力）；未打开工作区时它们由
-	// 不可用解析器支撑，调用会返回"请先打开工作区"的明确提示。
 	var view *assistanttools.StagedWorkspace
 	if len(views) > 0 {
 		view = views[0]
 	}
-	var filesystem agent.WorkspaceFS
-	if view != nil {
-		filesystem = view
+	set := product.ToolSet{
+		Files: true,
+		// Editing is only safe into a staged view; previews list it as well.
+		Edit:      view != nil || (owner == nil && workspace != ""),
+		Web:       config.EnableWeb,
+		Weather:   strings.TrimSpace(config.WeatherBackend) != "",
+		Bash:      bashEnabled(config, workspace),
+		Subagents: config.EnableSubagents && depth == 0,
 	}
-	workspaceTools, err := agent.WorkspaceToolsWithFS(workspace, filesystem)
-	if err != nil {
-		return nil, fmt.Errorf("initialize workspace tools: %w", err)
-	}
-	tools := workspaceTools
-	localTools, err := assistanttools.LocalTools(assistanttools.Options{Workspace: workspace, Filesystem: filesystem})
-	if err != nil {
-		return nil, fmt.Errorf("initialize local tools: %w", err)
-	}
-	tools = append(tools, localTools...)
-	if view != nil || (owner == nil && workspace != "") {
-		edits, e := assistanttools.FileEditToolsWithFS(workspace, assistanttools.FileEditLines, filesystem)
-		if e != nil {
-			return nil, e
-		}
-		tools = append(tools, edits...)
-	}
-	if config.EnableWeb {
-		web, providerErr := webProvidersFor(owner, config)
-		if providerErr != nil {
-			return nil, providerErr
-		}
-		tools = append(tools, assistanttools.WebTools(assistanttools.WebOptions{
-			Search: web.search, Fetch: web.fetch,
-		})...)
-	}
-	if backend := strings.TrimSpace(config.WeatherBackend); backend != "" {
-		weather, weatherErr := assistanttools.NewWeatherProvider(backend)
-		if weatherErr != nil {
-			return nil, weatherErr
-		}
-		tools = append(tools, assistanttools.WeatherTools(weather)...)
-	}
-	if config.EnableBash && strings.TrimSpace(workspace) != "" {
-		bash, bashErr := assistanttools.BashTools(assistanttools.BashOptions{Workspace: workspace, Overlay: view, CatalogOnly: owner == nil})
-		if bashErr != nil {
-			return nil, fmt.Errorf("initialize bash tool: %w", bashErr)
-		}
-		tools = append(tools, bash...)
-	}
-	if config.EnableSubagents && depth == 0 {
-		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
+	backends := product.Backends{
+		Workspace: workspace,
+		View:      view,
+		Web:       product.WebBackend{TokenCount: product.TokenCounter(config.TokenizerPath)},
+		Bash:      product.BashBackend{CatalogOnly: owner == nil},
+		Delegation: product.DelegationBackend{
 			MaxParallel: config.SubagentMaxParallel,
 			Timeout:     time.Duration(config.SubagentTimeoutSeconds) * time.Second,
 			Run:         delegateToChildSession(owner, depth+1, view),
-		})...)
+		},
 	}
-	if view != nil {
-		tools = view.WrapTools(tools)
+	if set.Web {
+		web, err := webProvidersFor(owner, config)
+		if err != nil {
+			return nil, err
+		}
+		backends.Web.Search, backends.Web.Fetch = web.search, web.fetch
 	}
-	return tools, nil
+	if backend := strings.TrimSpace(config.WeatherBackend); backend != "" {
+		weather, err := assistanttools.NewWeatherProvider(backend)
+		if err != nil {
+			return nil, err
+		}
+		backends.Weather = weather
+	}
+	return product.Tools(set, backends)
 }
 
 // delegateToChildSession runs one delegated task on a child session and converts
@@ -233,61 +217,43 @@ func delegateToChildSession(owner *Service, depth int, views ...*assistanttools.
 	}
 }
 
-// sessionRunnerOptions assembles the harness Options for one session: the
-// Markdown protocol uses the product profile with its post-tool reminders, the
-// XML profile carries the thinking mode instead.
+// sessionRunnerOptions assembles the harness Options for one session through
+// the shared product constructor: the Markdown protocol uses the product
+// profile with its post-tool reminders, the XML profile carries the thinking
+// mode instead. staged says the session writes through a staged workspace.
 func sessionRunnerOptions(
 	config Config,
 	status Status,
 	workspace string,
 	tools []agent.Tool,
 	markdownProtocol bool,
+	staged bool,
 ) agent.Options {
-	// Real-token counting for the fetch-compression hook and the web budget
-	// (round-3 step 1). Best effort: without a loadable vocabulary TokenCount
-	// stays nil, which keeps the compression hook off (it must never arm on
-	// the estimator) and makes the web budget fall back to the estimator —
-	// never the reverse.
-	var tokenCount func(string) int
-	if strings.TrimSpace(config.TokenizerPath) != "" {
-		if world, err := tokenizer.OpenWorldCached(config.TokenizerPath); err == nil {
-			tokenCount = world.Count
-		}
-	}
-	var postToolHook func(string, json.RawMessage, any, error) string
-	if markdownProtocol {
-		// The Markdown protocol answers directly (plain Markdown or fenced
-		// code) once it has enough evidence; there is no submit gate, so the
-		// model never has to pack the user-visible answer into a JSON tool
-		// argument (which is where Markdown fences get lost).
-		postToolHook = func(name string, _ json.RawMessage, _ any, _ error) string {
-			switch name {
-			case "web_fetch":
-				return "NEXT: Use the fetched page content above and answer the user directly now. Do not call web_search or web_fetch again."
-			case "spawn_agents":
-				return "NEXT: Synthesize the ordered child results above and answer the user directly now. Do not spawn another batch."
-			default:
-				return ""
-			}
-		}
-	}
-	toolBundles := agent.EnabledToolBundles(tools, agent.DefaultToolBundles())
-	taskControl := ""
-	if workspace == "" {
-		taskControl = "工作区未打开：本地文件工具（list_files/read_file/search_text）需要先打开一个工作区才能使用。如果用户需要读取或搜索本地文件，请直接告诉用户先在应用中打开一个工作区（例如“打开工作区”按钮），不要尝试调用任何文件工具，也不要假装读取了文件。"
-	}
-	// The user's personal contract rides in the same Task-specific block,
-	// after any system hint, and reaches the prompt verbatim.
-	if user := strings.TrimSpace(config.TaskControl); user != "" {
-		if taskControl != "" {
-			taskControl += "\n\n"
-		}
-		taskControl += user
-	}
-	generation := continuation.Request{
-		Model:           status.Model,
-		MaxOutputTokens: config.MaxTokens,
-		StateID:         config.StateID,
+	return product.HarnessOptions(harnessConfig(config, status, workspace, tools, markdownProtocol, staged))
+}
+
+// harnessConfig converts the App configuration into the api-independent shape
+// the shared assembly takes.
+func harnessConfig(
+	config Config,
+	status Status,
+	workspace string,
+	tools []agent.Tool,
+	markdownProtocol bool,
+	staged bool,
+) product.HarnessConfig {
+	return product.HarnessConfig{
+		Markdown:          markdownProtocol,
+		Profile:           config.Profile,
+		Wire:              config.Wire,
+		Thinking:          config.Thinking,
+		Model:             status.Model,
+		StateID:           config.StateID,
+		MaxSteps:          config.MaxSteps,
+		MaxTokens:         config.MaxTokens,
+		DecisionMaxTokens: config.DecisionMaxTokens,
+		RouteMaxTokens:    config.RouteMaxTokens,
+		TracePromptBytes:  config.TracePromptBytes,
 		Sampling: continuation.Sampling{
 			Temperature:      float32(config.Temperature),
 			TopK:             config.TopK,
@@ -296,93 +262,22 @@ func sessionRunnerOptions(
 			FrequencyPenalty: float32(config.FrequencyPenalty),
 			PenaltyDecay:     float32(config.PenaltyDecay),
 		},
+		ProgressiveTools:  config.ProgressiveTools,
+		SemanticNoTool:    config.SemanticNoTool,
+		DeepToolAnchor:    config.DeepToolAnchor,
+		DecisionFakeThink: config.DecisionFakeThink,
+		CompressFetch:     config.CompressFetch,
+		WorkspaceOpen:     workspace != "",
+		Staged:            staged,
+		UserTaskControl:   config.TaskControl,
+		TokenizerPath:     config.TokenizerPath,
+		Tools:             tools,
 	}
-	tracePromptBytes := agent.DefaultTracePromptBytes
-	if config.TracePromptBytes != nil {
-		tracePromptBytes = *config.TracePromptBytes
-	}
-	var options agent.Options
-	if markdownProtocol {
-		options = agent.ProductHarnessOptions(agent.ProductHarnessConfig{
-			MaxSteps:                 config.MaxSteps,
-			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
-			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
-			TracePromptBytes:         tracePromptBytes,
-			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
-			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
-			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
-			Generation:               generation,
-			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
-			ToolBundles:              toolBundles,
-			SemanticNoTool:           productSwitchEnabled(config.SemanticNoTool),
-			DecisionFakeThink:        config.DecisionFakeThink,
-			DeepToolAnchor:           productSwitchEnabled(config.DeepToolAnchor),
-			TaskControl:              taskControl,
-			PostToolHook:             postToolHook,
-			CompressFetch:            config.CompressFetch,
-			TokenCount:               tokenCount,
-			AnswerStageLead:          productAnswerStageLead,
-		})
-	} else {
-		options = agent.XMLHarnessOptions(agent.XMLHarnessConfig{
-			MaxSteps:                 config.MaxSteps,
-			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
-			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
-			TracePromptBytes:         tracePromptBytes,
-			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
-			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
-			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
-			Generation:               generation,
-			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
-			ToolBundles:              toolBundles,
-			TaskControl:              taskControl,
-			ThinkingMode:             inference.ThinkingMode(config.Thinking),
-			CompressFetch:            config.CompressFetch,
-			TokenCount:               tokenCount,
-			AnswerStageLead:          productAnswerStageLead,
-		})
-	}
-	if strings.TrimSpace(config.Profile) != "" {
-		// normalizeConfig validated the profile, so a failure here would mean
-		// the base profile and the wire profile disagree; in that case the
-		// base options stay in force rather than silently half-applying.
-		if spec, _, err := wire.Resolve(config.Profile); err == nil {
-			if applied, applyErr := agent.OptionsWithWire(options, spec); applyErr == nil {
-				options = applied
-			}
-		}
-	}
-	if strings.TrimSpace(config.Wire) != "" {
-		// The longhand overrides compose on top of the profile/default: only
-		// the named axes change, and normalizeConfig already validated them.
-		if overrides, err := wire.ParseOverrides(config.Wire); err == nil {
-			if spec, specErr := agent.WireSpecOf(options); specErr == nil {
-				if overridden, overrideErr := spec.WithOverrides(overrides); overrideErr == nil {
-					if applied, applyErr := agent.OptionsWithWire(options, overridden); applyErr == nil {
-						options = applied
-					}
-				}
-			}
-		}
-	}
-	return options
 }
 
-func progressiveToolsEnabled(value *bool) bool {
-	return value != nil && *value
-}
+func progressiveToolsEnabled(value *bool) bool { return product.ProgressiveEnabled(value) }
 
-// productSwitchEnabled resolves a tri-state Markdown-profile switch. Unset is
-// on for semantic no_tool and the deep anchor; XML normalization supplies false.
-func productSwitchEnabled(value *bool) bool {
-	return value == nil || *value
-}
-
-// productAnswerStageLead enters the forced answer stage one step before the
-// budget runs out, so a model that still emits a tool call there gets one
-// strict re-ask instead of ending the turn on "agent reached the step limit"
-// with all gathered evidence thrown away.
-const productAnswerStageLead = 1
+func productSwitchEnabled(value *bool) bool { return product.SwitchEnabled(value) }
 
 var resultURLPattern = regexp.MustCompile(`https?://[^\s"\\]+`)
 
@@ -749,18 +644,28 @@ func webProvidersFor(owner *Service, config Config) (*webProviderSet, error) {
 	return newWebProviders(config)
 }
 
+// newWebProviders builds the search and fetch providers. A missing key is not
+// an error: the tool stays in the catalog and answers with a "not configured"
+// message when called, so a connection without keys still opens.
 func newWebProviders(config Config) (*webProviderSet, error) {
-	brave, err := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
-		APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("initialize Brave search: %w", err)
+	set := &webProviderSet{search: product.MissingWebSearch(), fetch: product.MissingWebFetch()}
+	if strings.TrimSpace(config.BraveAPIKey) != "" {
+		brave, err := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
+			APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initialize Brave search: %w", err)
+		}
+		set.search = brave
 	}
-	tavily, err := assistanttools.NewTavilyFetchProvider(assistanttools.TavilyConfig{
-		APIKey: config.TavilyAPIKey, Endpoint: config.TavilyEndpoint,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("initialize Tavily fetch: %w", err)
+	if strings.TrimSpace(config.TavilyAPIKey) != "" {
+		tavily, err := assistanttools.NewTavilyFetchProvider(assistanttools.TavilyConfig{
+			APIKey: config.TavilyAPIKey, Endpoint: config.TavilyEndpoint,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initialize Tavily fetch: %w", err)
+		}
+		set.fetch = tavily
 	}
-	return &webProviderSet{search: brave, fetch: tavily}, nil
+	return set, nil
 }

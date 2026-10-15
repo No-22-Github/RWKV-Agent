@@ -163,15 +163,13 @@ func (s *Service) PreviewAgentPrompt(config Config) (AgentPromptPreview, error) 
 	if err != nil {
 		return AgentPromptPreview{}, err
 	}
-	if workspace != "" {
-		config.TaskControl = strings.TrimSpace(config.TaskControl) + "\n\n" + stagedFileControl
-	}
 	options := sessionRunnerOptions(
 		config,
 		Status{Workspace: workspace},
 		workspace,
 		tools,
 		config.AgentProtocol != AgentProtocolXML,
+		workspace != "",
 	)
 	preview, err := agent.PreviewPrompts(options, tools, config.Provider == ProviderChatCompletions)
 	if err != nil {
@@ -446,9 +444,8 @@ func applyConfigDefaults(config *Config) error {
 	if config.SubagentTimeoutSeconds < 1 || config.SubagentTimeoutSeconds > 3600 {
 		return fmt.Errorf("subagentTimeoutSeconds must be between 1 and 3600")
 	}
-	if config.EnableWeb && (strings.TrimSpace(config.BraveAPIKey) == "" || strings.TrimSpace(config.TavilyAPIKey) == "") {
-		return fmt.Errorf("enableWeb requires Brave and Tavily API keys")
-	}
+	// enableWeb without API keys is valid: web_search/web_fetch stay in the
+	// catalog and answer "not configured" when called (see newWebProviders).
 	if config.Temperature == 0 {
 		config.Temperature = 1
 	}

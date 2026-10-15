@@ -2,11 +2,10 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 )
-
-const stagedFileControl = "本会话的 bash 和所有文件工具共享同一暂存文件系统。新增、修改和删除都只暂存在内存，读回、列目录和搜索会看到暂存后的内容。只有用户在文件改动面板确认后才会写入真实磁盘。回答中应说明文件改动已暂存待确认，不要声称已保存到磁盘。"
 
 type FileChange = assistanttools.FileChange
 
@@ -18,6 +17,11 @@ func (s *Service) NewStagedSession(ctx context.Context) (*Session, error) {
 		return s.NewSession(ctx)
 	}
 	view, e := assistanttools.NewStagedWorkspace(workspace, "")
+	if errors.Is(e, assistanttools.ErrBashSidecarMissing) {
+		// The staged view runs on the just-bash sidecar. Without it the session
+		// still opens, with read-only file tools and no bash, rather than failing.
+		return s.NewSession(ctx)
+	}
 	if e != nil {
 		return nil, e
 	}

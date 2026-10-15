@@ -71,6 +71,12 @@ export const DEFAULT_SAMPLING: SamplingValues = {
   temperature: 1, topK: 1, topP: 1, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
 }
 
+/*
+ * 新建连接的采样预设（api.NewConfigSampling）。与 DEFAULT_SAMPLING 不同：后者解释
+ * 「已保存但没写采样」的旧档案（greedy），这个只用于新档案的初始值，旧档案不受影响。
+ */
+export const NEW_CONFIG_SAMPLING_ID = 'g1k-agent'
+
 export function presetById(id: string): SamplingPreset | undefined {
   return SAMPLING_PRESETS.find((preset) => preset.id === id)
 }

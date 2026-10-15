@@ -19,7 +19,13 @@ CLI/API/评测都用同一条路径选择它：
 | `rwkv-cli agent` | 交互式 / 单任务产品路径 | 同一套 harness；配置经 `api.Config.Profile` / `api.Config.Wire` |
 
 两者由同一份 `ProductHarnessOptions` / `XMLHarnessOptions` 构造，`--profile` 与 `--wire`
-语义一致。
+语义一致。App 与评测共用 `internal/agent/product` 的 `HarnessOptions`/`Tools`（见
+`docs/guides/app.md` 的 “Shared assembly with the evaluation”）。
+
+**App 默认 profile 是 `g1k`**：新建连接写入 `profile: "g1k"`（训练语料与评测用的同一个点），
+采样默认 `g1k-agent`，兜底限制 2/3/3。已保存的旧连接没有 profile 时仍按旧的按协议默认
+（`xml-v1`）运行，不会被改写。设置里的「思考模式」在有 profile 时写成 `thinking=fast|full`
+的 wire 覆盖；把协议切到 Markdown 会清掉 profile。
 
 ---
 

@@ -3,10 +3,13 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
 func TestListRemoteModelsUsesBearerAndCustomHeaders(t *testing.T) {
@@ -126,6 +129,7 @@ func TestWireProfileOverridesProtocolDefaults(t *testing.T) {
 		t.TempDir(),
 		nil,
 		config.AgentProtocol == AgentProtocolMarkdown,
+		false,
 	)
 	if options.Wire == nil {
 		t.Fatal("session options did not carry the applied wire spec")
@@ -164,6 +168,7 @@ func TestWireOverridesComposeOnProtocolDefaults(t *testing.T) {
 		t.TempDir(),
 		nil,
 		config.AgentProtocol == AgentProtocolMarkdown,
+		false,
 	)
 	if options.Wire == nil {
 		t.Fatal("session options did not carry the overridden wire spec")
@@ -373,16 +378,42 @@ func TestSingleLocalBatchRemainsValidWithoutSubagents(t *testing.T) {
 	}
 }
 
-func TestWebToolsRequireBothProviderKeys(t *testing.T) {
+// TestWebToolsStayListedWithoutKeys locks the degraded mode: enabling web with
+// missing keys is valid, both tools remain in the catalog, and calling them
+// returns the "not configured" provider-unavailable error instead of failing
+// the connection or the session.
+func TestWebToolsStayListedWithoutKeys(t *testing.T) {
 	t.Parallel()
 	for _, config := range []Config{
-		{Model: "model.pth", EnableWeb: true},
-		{Model: "model.pth", EnableWeb: true, BraveAPIKey: "brave"},
-		{Model: "model.pth", EnableWeb: true, TavilyAPIKey: "tavily"},
+		{EnableWeb: true},
+		{EnableWeb: true, BraveAPIKey: "brave"},
+		{EnableWeb: true, TavilyAPIKey: "tavily"},
 	} {
-		if _, err := normalizeConfig(config); err == nil || !strings.Contains(err.Error(), "requires Brave and Tavily API keys") {
+		config.Provider, config.Model, config.Endpoint = ProviderRWKVLightningCUDA, "model", "https://example.test"
+		if _, err := normalizeConfig(config); err != nil {
 			t.Fatalf("normalizeConfig(%+v) error = %v", config, err)
 		}
+	}
+	tools, err := assembleSessionTools(Config{EnableWeb: true}, nil, "", 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	called := map[string]error{}
+	for _, tool := range tools {
+		switch tool.Spec().Name {
+		case "web_search":
+			_, called["web_search"] = tool.Execute(context.Background(), json.RawMessage(`{"query":"golang","max_results":3}`))
+		case "web_fetch":
+			_, called["web_fetch"] = tool.Execute(context.Background(), json.RawMessage(`{"urls":["https://example.com/"]}`))
+		}
+	}
+	for name, err := range called {
+		if err == nil || !errors.Is(err, agent.ErrProviderUnavailable) || !strings.Contains(err.Error(), "未配置") {
+			t.Fatalf("%s error = %v", name, err)
+		}
+	}
+	if len(called) != 2 {
+		t.Fatalf("web tools listed = %v", called)
 	}
 }
 

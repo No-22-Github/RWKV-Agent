@@ -171,7 +171,7 @@ Open **设置** in the lower-left corner.
 - **远端 API** defaults to **RWKV 续写**. It accepts an API base URL, `/v1/models`, or `/v1/batch/completions` and normalizes inference to the continuation-native `/v1/batch/completions` endpoint. Stop sequences are enforced by the Harness client, so the server-specific `stop_tokens` field is omitted by default.
 - **OpenAI 兼容** is the fallback for non-RWKV models and normalizes the same base URL to `/v1/chat/completions`.
 - Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. The desktop app saves these values in the local plaintext `settings.json`; model status exposes only sanitized header names, never values.
-- **Agent 能力** defaults to the XML tool envelope with no separate Router. Markdown/function and progressive tool routing remain explicit options. Optional Brave Search + Tavily Extract and concurrent `spawn_agents` delegation are unchanged. Web tools require both provider keys. Subagent settings control local active batch, child concurrency/steps/timeout, and the RWKV Lightning request-coalescing window.
+- **Agent 能力** for a **new** connection defaults to the `g1k` wire profile (the format the training corpus is rendered in and the product evaluation runs), the `g1k-agent` sampling preset, XML protocol with thinking off, and loop-rescue limits 2/3/3. Web search/fetch, weather (keyless Open-Meteo) and bash are on; sub-agents stay off. Saved connections are never rewritten: one without a profile keeps its legacy XML defaults (`xml-v1` wire, greedy sampling) until you change it. The defaults live in `api.NewConfigDefaults` and are mirrored by `NEW_CONFIG_DEFAULTS` in `providerManager.ts`. Markdown/function protocol and progressive tool routing remain explicit options (choosing Markdown drops the profile; choosing XML again restores `g1k`). With a profile set, the thinking selector is written as a `thinking=fast|full` wire override. Optional Brave Search + Tavily Extract and concurrent `spawn_agents` delegation are unchanged. Web tools no longer need both keys to be enabled: without keys they stay in the tool list and a call answers "not configured, fill in the key in settings" (the Runner marks the tool unavailable for that turn). Subagent settings control local active batch, child concurrency/steps/timeout, and the RWKV Lightning request-coalescing window.
 - On macOS, the desktop process uses `HTTP_PROXY`/`HTTPS_PROXY` when present and otherwise reads the explicit HTTP, HTTPS, or SOCKS proxy from `scutil --proxy` at startup. System proxy exceptions and local addresses bypass the proxy. Restart the app after changing macOS proxy settings; PAC auto-configuration is not evaluated yet.
 
 Each child Agent gets an independent Session and transcript. Local MLX uses
@@ -180,6 +180,26 @@ continuous batching, RWKV Lightning coalesces compatible continuations into one
 Agents do not receive the delegation tool, so batches cannot recursively fan out.
 
 Use **测试并获取模型** to make an authenticated `GET /v1/models` request. Select a returned model and use **连接 API** to configure Agent conversations.
+
+## Shared assembly with the evaluation
+
+The tool list and the harness options of a session are built by
+`internal/agent/product` (`product.Tools` and `product.HarnessOptions`), and the
+product evaluation (`agent-eval --harness app`) calls the same functions with
+fixture backends (fixture web/weather providers, fixed clock). The `api` package
+only converts `api.Config` into `product.ToolSet`/`product.Backends`/
+`product.HarnessConfig`. The tool order is fixed in one place: file reads
+(`list_files`, `read_file`, `search_text`), editing (`read_lines`, `write_file`,
+`replace_lines`, `append_file`), local compute (`calculator`, `data_query`,
+`datetime`), `web_search`, `web_fetch`, `get_weather`, `bash`, `spawn_agents`.
+Editing is offered only when writes go to a staged workspace. The bash tool is
+registered only when the just-bash sidecar is found (it is bundled next to the
+app executable by `scripts/build-app.sh`); without it the session still opens
+with read-only file tools and no bash. `api/parity_test.go` compares the two
+paths byte for byte: control prompt, response prompt, session-time message, tool
+order and per-tool schema hashes. The App-only system text (the `<session_time>`
+message, the no-workspace hint, the staged-files notice, the user's task
+contract) is produced by the same package, so the evaluation can include it.
 
 ## File change review
 

@@ -626,6 +626,42 @@ describe('App', () => {
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('')
   })
+  it('starts a new connection on the g1k wire with web, weather and bash on', async () => {
+    const created = savedRemoteProvider({ endpoint: 'https://new.example.test', model: 'new-model' }, { id: 'created', label: 'New one' })
+    vi.mocked(Backend.SaveProvider).mockResolvedValue(created)
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://new.example.test' } })
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'new-model' } })
+    fireEvent.keyDown(window, { key: 'Escape' })
+    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
+    fireEvent.click(within(dialog).getByRole('button', { name: '保存并返回' }))
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
+    const config = vi.mocked(Backend.SaveProvider).mock.calls[0][2]
+    expect(config).toMatchObject({
+      profile: 'g1k', agentProtocol: 'xml', thinking: 'off',
+      enableWeb: true, enableBash: true, enableSubagents: false, weatherBackend: 'open-meteo',
+      temperature: 0.3, topK: 65536, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
+    })
+    expect(config.decisionMaxTokens).toBe(0)
+  })
+
+  it('keeps a saved connection without a profile on its legacy settings', async () => {
+    bootstrapWithRunningProvider({ enableWeb: false, enableBash: false })
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    await waitFor(() => expect(Backend.PreviewSystemPrompt).toHaveBeenCalled())
+    const draft = vi.mocked(Backend.PreviewSystemPrompt).mock.calls[0][0]
+    expect(draft.profile).toBeUndefined()
+    expect(draft.enableBash).toBe(false)
+    expect(draft.enableWeb).toBe(false)
+    expect(draft.weatherBackend).toBeUndefined()
+    expect(draft.temperature).toBe(1)
+    expect(draft.topK).toBe(1)
+  })
+
   it('activates a saved provider from the connection list', async () => {
     const provider = savedRemoteProvider({}, { id: 'p1', label: 'Solo connection' })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({

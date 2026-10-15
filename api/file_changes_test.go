@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"io"
@@ -39,7 +40,7 @@ func TestStagedSessionReadsBackBeforeUserApproval(t *testing.T) {
 		if len(outputs) == 1 && !strings.Contains(req.Prompt, "staged value") {
 			t.Fatal("native read did not observe staged write")
 		}
-		if !strings.Contains(req.Prompt, stagedFileControl) {
+		if !strings.Contains(req.Prompt, product.StagedFileControl) {
 			t.Fatal("missing staged file contract")
 		}
 		text := outputs[0]
