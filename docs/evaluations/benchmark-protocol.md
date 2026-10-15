@@ -74,13 +74,13 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 ## 5. 题库、预算与重复
 
-**题库**：2026-10-15 起，主考卷是 **exam-full（380 题）/ exam-quick（87 题）**，按 App 默认配置考（`--harness app`，清单自带）。
+**题库**：2026-10-15 起，主考卷是 **exam-full / exam-quick**（题数以 `bench/exam/SUITES.md` 为准，2026-10-15 为 378 / 76），按 App 默认配置考（`--harness app`，清单自带）。
 构成、名词和覆盖缺口见 `bench/exam/SUITES.md`，来由见 `docs/evaluations/bench-composition-20261015/REPORT.md` §8～§10。
 
 | 套件 | 调用 | 备注 |
 |---|---|---|
-| **exam-full 380** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=work-v2、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
-| **exam-quick 87** | `--cases bench/exam/quick.json` | 快速比较；回测与完整版排名 Spearman 0.90～0.99 |
+| **exam-full** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=work-v2、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
+| **exam-quick** | `--cases bench/exam/quick.json` | 快速比较，不当作绝对水平；与完整版的排名一致性见 bench-composition 报告 §10.2 |
 | 裸能力诊断 | 同上加 `--harness raw` | 兜底关闭，看模型自己会不会收尾；作为训练信号另报，不当主分 |
 | 历史口径 workbank 148 | `--cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
 | bfcl-product 60 | `--suite bfcl-product` | 工具时机 |
