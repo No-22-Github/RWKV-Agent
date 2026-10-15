@@ -42,6 +42,12 @@ type StagedWorkspace struct {
 }
 
 func NewStagedWorkspace(root, binary string) (*StagedWorkspace, error) {
+	return NewStagedWorkspaceAt(root, binary, time.Time{})
+}
+
+// NewStagedWorkspaceAt is NewStagedWorkspace with bash's clock pinned to now
+// (it then runs forward from there); the zero time keeps real time.
+func NewStagedWorkspaceAt(root, binary string, now time.Time) (*StagedWorkspace, error) {
 	root, e := filepath.EvalSymlinks(root)
 	if e != nil {
 		return nil, e
@@ -55,7 +61,12 @@ func NewStagedWorkspace(root, binary string) (*StagedWorkspace, error) {
 		return nil, e
 	}
 	w := &StagedWorkspace{root: root, binary: binary, id: hex.EncodeToString(id[:])}
-	_, e = w.call(bashSidecarRequest{Op: "init"})
+	init := bashSidecarRequest{Op: "init"}
+	if !now.IsZero() {
+		millis := now.UnixMilli()
+		init.NowMillis = &millis
+	}
+	_, e = w.call(init)
 	return w, e
 }
 func (w *StagedWorkspace) call(r bashSidecarRequest) (bashSidecarResponse, error) {

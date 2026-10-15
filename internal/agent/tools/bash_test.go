@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func newTestBashTool(t *testing.T) (*bashTool, string) {
@@ -138,5 +139,22 @@ func TestCapBashStreamKeepsRuneBoundary(t *testing.T) {
 	head, _, _ := strings.Cut(capped, "\n... [output truncated")
 	if !strings.HasSuffix(head, "界") || len(head)%3 != 0 {
 		t.Fatalf("cut inside a rune: %d bytes", len(head))
+	}
+}
+
+// Evaluations pin bash's clock to the bank clock; a session without a pinned
+// clock in the same sidecar keeps real time.
+func TestBashToolPinnedClockIsPerSession(t *testing.T) {
+	now := time.Date(2026, time.September, 16, 10, 0, 0, 0, time.FixedZone("Asia/Shanghai", 8*60*60))
+	pinned, _ := newTestBashToolWith(t, BashOptions{Now: now})
+	real, _ := newTestBashTool(t)
+	result := runBash(t, pinned, "date +%F; date -d yesterday +%F; touch new.txt; ls -l new.txt")
+	if result.ExitCode != 0 || !strings.HasPrefix(result.Stdout, "2026-09-16\n2026-09-15\n") ||
+		!strings.Contains(result.Stdout, "Sep 16 10:00 new.txt") {
+		t.Fatalf("pinned result = %+v", result)
+	}
+	result = runBash(t, real, "date +%Y")
+	if want := time.Now().Format("2006") + "\n"; result.Stdout != want {
+		t.Fatalf("unpinned date = %q, want %q", result.Stdout, want)
 	}
 }

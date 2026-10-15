@@ -476,6 +476,25 @@ func TestLintSmalltalkMissingOutputContainsAnyFails(t *testing.T) {
 	}
 }
 
+// gap-fill-spec §2.3: an exam smalltalk case (answer_style natural) is judged
+// by the no-call shape alone, so it may leave the keyword list out.
+func TestLintNaturalSmalltalkWithoutKeywordsPasses(t *testing.T) {
+	caseDir := copyCaseDir(t, distillCaseDir(t, "nt-5001"))
+	editCaseJSON(t, caseDir, func(caseObj map[string]any) {
+		tags, _ := caseObj["tags"].(map[string]any)
+		tags["answer_style"] = "natural"
+		turns, _ := caseObj["turns"].([]any)
+		turn, _ := turns[len(turns)-1].(map[string]any)
+		expect, _ := turn["expect"].(map[string]any)
+		delete(expect, "output_contains_any")
+	})
+	_, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		"--canary-prefix", distillCanaryPrefix)
+	if hasRule(violations, "expect.smalltalk") {
+		t.Errorf("natural smalltalk without keywords reported: %v", violations)
+	}
+}
+
 // §4.1 regression: without --canary-prefix the workbank tree still lints clean
 // under the default WORKBANK-CANARY rule.
 func TestLintWorkbankDefaultCanaryClean(t *testing.T) {

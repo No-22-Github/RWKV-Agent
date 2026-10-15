@@ -483,6 +483,13 @@ func runCase(
 	for index, turn := range testCase.Turns {
 		turnNumber := index + 1
 		recorder.setContext(testCase.ID, turnNumber)
+		if turn.ReviewBefore != "" {
+			if err := reviewStagedChanges(stagedView, turn.ReviewBefore == "accept"); err != nil {
+				result.Error = fmt.Sprintf("turn %d review_before: %v", turnNumber, err)
+				result.Passed = false
+				break
+			}
+		}
 		turnStarted := time.Now()
 		budgetHitsBefore := recording.budgetHits.Load()
 		runResult, runErr := runner.RunWithObserver(

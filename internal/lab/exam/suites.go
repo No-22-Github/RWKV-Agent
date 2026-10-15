@@ -73,7 +73,7 @@ func (exam *Exam) RenderSuites() string {
 	}
 	w("\n一道题可以有多个难点，所以难点的题数加起来会超过总题数；「没有标难点」只表示没匹配到已登记的陷阱，**不等于简单**。\n\n")
 	w("| 判分方式 | 意思 |\n|---|---|\n")
-	for _, id := range []string{FormNumber, FormExact, FormContains, FormAbstain, FormNoCall, FormFile} {
+	for _, id := range []string{FormNumber, FormExact, FormContains, FormAbstain, FormNoCall, FormFile, FormFormat} {
 		w("| `%s` | %s |\n", id, FormLabel[id])
 	}
 	w("\n| 来源题集 | 一句话 |\n|---|---|\n")
@@ -203,7 +203,7 @@ func (exam *Exam) renderComposition(b *strings.Builder, name string, rows []eval
 	w("| 没有标难点 | %d |\n\n", summary.ByDifficulty["none"])
 
 	w("| 判分方式 | 题数 |\n|---|---|\n")
-	for _, form := range []string{FormNumber, FormExact, FormContains, FormAbstain, FormNoCall, FormFile} {
+	for _, form := range []string{FormNumber, FormExact, FormContains, FormAbstain, FormNoCall, FormFile, FormFormat} {
 		if n := summary.ByAnswerForm[form]; n > 0 {
 			w("| %s | %d |\n", FormLabel[form], n)
 		}

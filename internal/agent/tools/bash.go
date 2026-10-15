@@ -52,6 +52,10 @@ type BashOptions struct {
 	// eval's expect.files check see it. Agent eval uses it; the app keeps
 	// changes staged for review.
 	ApplyToDisk bool
+	// Now pins the clock bash sees (date, new files' mtimes) when the tool
+	// starts its own overlay; zero keeps real time. Evaluations pass the
+	// fixed bank clock so bash agrees with the datetime tool.
+	Now time.Time
 }
 
 // ResolveBashSidecar finds the sidecar binary: the explicit path, then
@@ -91,7 +95,7 @@ func BashTools(options BashOptions) ([]agent.Tool, error) {
 		return nil, err
 	}
 	if options.Overlay == nil {
-		options.Overlay, err = NewStagedWorkspace(root, sidecar)
+		options.Overlay, err = NewStagedWorkspaceAt(root, sidecar, options.Now)
 		if err != nil {
 			return nil, err
 		}
@@ -235,6 +239,7 @@ type bashSidecarRequest struct {
 	Data          string   `json:"data,omitempty"`
 	Paths         []string `json:"paths,omitempty"`
 	Close         bool     `json:"close,omitempty"`
+	NowMillis     *int64   `json:"now_ms,omitempty"`
 	ID            int64    `json:"id"`
 	Root          string   `json:"root"`
 	Command       string   `json:"command"`

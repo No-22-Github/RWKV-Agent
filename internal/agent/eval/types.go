@@ -133,6 +133,11 @@ type PrimitiveMetadata struct {
 type Turn struct {
 	Prompt string      `json:"prompt"`
 	Expect Expectation `json:"expect"`
+	// ReviewBefore plays the user acting on the App's file-changes panel
+	// before this turn is sent: "accept" writes every staged change to disk,
+	// "reject" discards them all. The App tells the model nothing about it;
+	// the turn's prompt is all the model learns. Needs --harness app.
+	ReviewBefore string `json:"review_before,omitempty"`
 }
 
 type Expectation struct {
@@ -167,11 +172,17 @@ type Expectation struct {
 	// catches the hedge that lists the right value among others ("can't tell —
 	// 4.6.0, 4.5.2, 4.4.0") and the reply that heads with the decoy and only
 	// mentions the answer later.
-	OutputFirstLineContainsAny []string         `json:"output_first_line_contains_any,omitempty"`
-	Plan                       *PlanExpectation `json:"plan,omitempty"`
-	MustStateUnverified        []string         `json:"must_state_unverified,omitempty"`
-	RequireActiveNoCall        bool             `json:"require_active_no_call,omitempty"`
-	ForbidRouteFallback        bool             `json:"forbid_route_fallback,omitempty"`
+	OutputFirstLineContainsAny []string `json:"output_first_line_contains_any,omitempty"`
+	// OutputFormat checks the shape the user asked the reply to take, each
+	// entry one requirement: "json" (the reply, or its one fenced code block,
+	// parses as JSON), "markdown_table" (a header row followed by a |---|
+	// separator row), "zh" or "en" (the reply's prose is in that language;
+	// code blocks and inline code are ignored).
+	OutputFormat        []string         `json:"output_format,omitempty"`
+	Plan                *PlanExpectation `json:"plan,omitempty"`
+	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
+	RequireActiveNoCall bool             `json:"require_active_no_call,omitempty"`
+	ForbidRouteFallback bool             `json:"forbid_route_fallback,omitempty"`
 
 	// OutputContainsAnyToken applies the whole-token match of
 	// OutputContainsToken to the OutputContainsAny alternatives, for a number

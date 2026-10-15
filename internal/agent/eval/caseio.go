@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 )
 
 const maxCaseFileBytes = 4 << 20
@@ -216,6 +218,20 @@ func ValidateCases(cases []Case) error {
 		for index, turn := range testCase.Turns {
 			if strings.TrimSpace(turn.Prompt) == "" {
 				return fmt.Errorf("case %q turn %d requires a prompt", testCase.ID, index+1)
+			}
+			for _, format := range turn.Expect.OutputFormat {
+				if _, ok := outputFormats[format]; !ok {
+					return fmt.Errorf("case %q turn %d has unknown output_format %q", testCase.ID, index+1, format)
+				}
+			}
+			switch turn.ReviewBefore {
+			case "", "accept", "reject":
+			default:
+				return fmt.Errorf("case %q turn %d has invalid review_before %q (accept or reject)",
+					testCase.ID, index+1, turn.ReviewBefore)
+			}
+			if index == 0 && turn.ReviewBefore != "" {
+				return fmt.Errorf("case %q turn 1 cannot review_before: nothing is staged yet", testCase.ID)
 			}
 			if turn.Expect.Route != "" &&
 				turn.Expect.Route != "respond" &&
@@ -576,7 +592,25 @@ func createWorkspace(tempRoot string, testCase Case) (string, func(), error) {
 			return "", nil, err
 		}
 	}
+	if err := pinFixtureTimes(root); err != nil {
+		cleanup()
+		return "", nil, err
+	}
 	return workspace, cleanup, nil
+}
+
+// fixtureModTime is when every fixture file and directory was "last changed":
+// an hour before the fixed bank clock, so ls -l and find -mtime agree with
+// the datetime tool and anything the model writes during the case is newer.
+var fixtureModTime = workToolCatalogClock.Add(-time.Hour)
+
+func pinFixtureTimes(root string) error {
+	return filepath.WalkDir(root, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Chtimes(path, fixtureModTime, fixtureModTime)
+	})
 }
 
 func writeFixture(root string, path string, content string) error {

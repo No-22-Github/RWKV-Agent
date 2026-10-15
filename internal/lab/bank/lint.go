@@ -379,6 +379,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// (c2) smalltalk turns answer with a direct reply that no scorer can judge
 	// by value, so each one has to pin the no-call shape explicitly (§4.3).
 	if isSmalltalk {
+		naturalSmalltalk := asString(tags["answer_style"]) == "natural"
 		for idx, turn := range turns {
 			turnExpect, _ := turn["expect"].(map[string]any)
 			var missing []string
@@ -388,7 +389,10 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			if active, ok := turnExpect["require_active_no_call"].(bool); !ok || !active {
 				missing = append(missing, "expect.require_active_no_call must be true")
 			}
-			if anyOf, ok := turnExpect["output_contains_any"].([]any); !ok || len(anyOf) == 0 {
+			// Exam cases (answer_style natural) judge smalltalk only by the
+			// no-call shape: a greeting has no keyword every good reply uses,
+			// and pinning one fails good replies (gap-fill-spec §2.3).
+			if anyOf, ok := turnExpect["output_contains_any"].([]any); !naturalSmalltalk && (!ok || len(anyOf) == 0) {
 				missing = append(missing, "expect.output_contains_any must be a non-empty array")
 			}
 			if len(missing) > 0 {

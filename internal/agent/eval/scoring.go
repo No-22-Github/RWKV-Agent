@@ -285,6 +285,11 @@ func answerFailures(expect Expectation, output string) []string {
 				fmt.Sprintf("first line %q does not lead with any of %q", head, expect.OutputFirstLineContainsAny))
 		}
 	}
+	for _, format := range expect.OutputFormat {
+		if problem := checkOutputFormat(output, format); problem != "" {
+			failures = append(failures, problem)
+		}
+	}
 	for _, forbidden := range expect.OutputExcludes {
 		if strings.Contains(output, forbidden) {
 			failures = append(
@@ -742,6 +747,7 @@ func hasAnswerExpectation(expect Expectation) bool {
 		len(expect.OutputContains) > 0 ||
 		len(expect.OutputContainsAny) > 0 ||
 		len(expect.OutputFirstLineContainsAny) > 0 ||
+		len(expect.OutputFormat) > 0 ||
 		len(expect.OutputExcludes) > 0 ||
 		expect.ExpectedNumber != nil
 }

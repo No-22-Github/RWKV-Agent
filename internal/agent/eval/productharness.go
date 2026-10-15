@@ -50,7 +50,7 @@ func productBackends(config Config, workspace string, testCase Case, view *tools
 // does: product.Tools over a staged view of the case workspace. The caller
 // owns the returned view and must finishProductCase it.
 func productCaseTools(config Config, workspace string, testCase Case) ([]agent.Tool, *tools.StagedWorkspace, error) {
-	view, err := tools.NewStagedWorkspace(workspace, "")
+	view, err := tools.NewStagedWorkspaceAt(workspace, "", workToolCatalogClock)
 	if err != nil {
 		return nil, nil, fmt.Errorf("staged workspace (needs the just-bash sidecar, scripts/build-justbash.sh): %w", err)
 	}
@@ -87,6 +87,23 @@ func finishProductCase(view *tools.StagedWorkspace) error {
 		return fmt.Errorf("accept staged changes: %w", err)
 	}
 	return nil
+}
+
+// reviewStagedChanges plays the user resolving every pending change in the
+// file-changes panel between two turns (Turn.ReviewBefore).
+func reviewStagedChanges(view *tools.StagedWorkspace, accept bool) error {
+	if view == nil {
+		return fmt.Errorf("needs the App harness (--harness app): nothing is staged otherwise")
+	}
+	changes, err := view.Changes()
+	if err != nil {
+		return fmt.Errorf("list staged changes: %w", err)
+	}
+	if len(changes) == 0 {
+		return nil
+	}
+	_, err = view.Resolve(changes, accept)
+	return err
 }
 
 // productCatalogHash pins the schemas of the App directory for the manifest.

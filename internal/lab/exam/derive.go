@@ -61,6 +61,7 @@ const (
 	FormAbstain  = "abstain"
 	FormNoCall   = "no-call"
 	FormFile     = "file"
+	FormFormat   = "format"
 )
 
 var FormLabel = map[string]string{
@@ -70,6 +71,7 @@ var FormLabel = map[string]string{
 	FormAbstain:  "应点名缺的是什么，并说明没有 / 做不到",
 	FormNoCall:   "这一轮不许调工具，直接回答",
 	FormFile:     "只看文件最后的样子（评测跑完自动确认暂存改动后检查）",
+	FormFormat:   "检查回答的格式（合法 JSON、Markdown 表格、指定语言），可另加内容检查",
 }
 
 var cjk = regexp.MustCompile(`[\p{Han}]`)
@@ -114,7 +116,8 @@ func noCallTurn(e eval.Expectation) bool {
 
 func hasOutputCheck(e eval.Expectation) bool {
 	return e.OutputEquals != nil || len(e.OutputEqualsAny) > 0 || len(e.OutputContains) > 0 ||
-		len(e.OutputContainsAny) > 0 || e.ExpectedNumber != nil || len(e.MustStateUnverified) > 0
+		len(e.OutputContainsAny) > 0 || e.ExpectedNumber != nil || len(e.MustStateUnverified) > 0 ||
+		len(e.OutputFormat) > 0
 }
 
 // AnswerForm classifies the last turn's expectation.
@@ -131,6 +134,8 @@ func AnswerForm(c eval.Case) string {
 		return FormAbstain
 	case e.OutputEquals != nil || len(e.OutputEqualsAny) > 0:
 		return FormExact
+	case len(e.OutputFormat) > 0:
+		return FormFormat
 	case len(e.OutputContains) > 0 || len(e.OutputContainsAny) > 0:
 		return FormContains
 	case noCallTurn(e):

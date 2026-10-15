@@ -1,17 +1,33 @@
 // A session owns one copy-on-write workspace. No operation writes host files.
 import { Bash, getCommandNames, OverlayFs } from "just-bash";
 import { posix } from "node:path";
+import { AsyncLocalStorage } from "node:async_hooks";
+// Evaluations pin "now" (init's now_ms) so `date`, `date -d yesterday` and new
+// files' mtimes agree with the datetime tool's fixed clock. The offset is
+// scoped to the session's own operations through AsyncLocalStorage, so App
+// sessions (no now_ms) and concurrent sessions keep their own time. Commands
+// run in worker threads (js-exec, if ever enabled) do not see the offset.
+const clockOffset = new AsyncLocalStorage<number>();
+const RealDate = Date;
+const realNow = RealDate.now.bind(RealDate);
+const sessionNow = () => realNow() + (clockOffset.getStore() ?? 0);
+(globalThis as any).Date = new Proxy(RealDate, {
+  construct(target, args, newTarget) { return Reflect.construct(target, args.length ? args : [sessionNow()], newTarget); },
+  apply(target) { return new target(sessionNow()).toString(); },
+  get(target, prop, receiver) { return prop === "now" ? sessionNow : Reflect.get(target, prop, receiver); },
+});
 const mountPoint = "/workspace";
 const commands = getCommandNames().filter((name) => name !== "sqlite3");
 type Snapshot = { kind: "file" | "directory" | "missing"; data?: string; mode?: number };
 type Change = { path: string; before: Snapshot; after: Snapshot };
-type Request = { id: number; root: string; session?: string; op?: string; path?: string; data?: string; paths?: string[]; command?: string; timeout_ms?: number; close?: boolean; mode?: number };
+type Request = { id: number; root: string; session?: string; op?: string; now_ms?: number; path?: string; data?: string; paths?: string[]; command?: string; timeout_ms?: number; close?: boolean; mode?: number };
 class Workspace {
   overlay: OverlayFs;
   shell: Bash;
   baseline = new Map<string, Snapshot>();
   baselineBytes = 0;
   revision = 0;
+  offset?: number; // ms added to the real clock for this session; unset = real time
   constructor(readonly root: string) { this.initialize(); }
   initialize() {
     this.overlay = new OverlayFs({ root: this.root, mountPoint, maxMemoryBytes: 16 * 1024 * 1024 });
@@ -91,6 +107,7 @@ class Workspace {
     // Build the replacement separately. A replay failure leaves the original
     // overlay intact, including every unresolved file's original baseline.
     const replacement = new Workspace(this.root);
+    replacement.offset = this.offset;
     for (const c of remaining.filter(c => c.after.kind === "missing").sort((a,b) => b.path.length-a.path.length))
       await replacement.overlay.rm(replacement.path(c.path), { recursive: true, force: true });
     for (const c of remaining.filter(c => c.after.kind !== "missing").sort((a,b) => a.path.length-b.path.length)) {
@@ -114,32 +131,40 @@ async function handle(r: Request) {
     if (!r.root?.startsWith("/")) throw new Error("root must be absolute");
     if (r.close) { workspaces.delete(key); reply({ id: r.id }); return; }
     let w = workspaces.get(key);
-    if (r.op === "init") { if (!w) { w = new Workspace(r.root); workspaces.set(key, w); } }
+    if (r.op === "init") {
+      if (!w) { w = new Workspace(r.root); workspaces.set(key, w); }
+      if (typeof r.now_ms === "number") w.offset = r.now_ms - realNow();
+    }
     else if (!w && r.session) throw new Error("staged session lost; restart the app (pending changes were not written to disk)");
     else if (!w) { w = new Workspace(r.root); workspaces.set(key, w); }
     if (w!.root !== r.root) throw new Error("session workspace mismatch");
-    const path = w!.path(r.path);
-    let result: any = {};
-    switch (r.op) {
-      case "init": break;
-      case "read": result.data = Buffer.from(await w!.overlay.readFileBuffer(path)).toString("base64"); break;
-      case "stat": { const s = await w!.overlay.lstat(path); result.stat = { directory: s.isDirectory, symlink: s.isSymbolicLink, size: s.size, mode: s.mode, mtime: s.mtime.toISOString() }; break; }
-      case "list": result.names = await w!.overlay.readdir(path); break;
-      case "write": await w!.overlay.writeFile(path, Buffer.from(r.data!, "base64")); break;
-      case "append": await w!.overlay.appendFile(path, Buffer.from(r.data!, "base64")); break;
-      case "mkdir": await w!.overlay.mkdir(path, { recursive: true }); break;
-      case "changes": result.changes = await w!.changes(); break;
-      case "forget": w = await w!.forget(r.paths || []); workspaces.set(key, w); break;
-      default: {
-        if (typeof r.command !== "string") throw new Error("command required");
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), r.timeout_ms ?? 20000);
-        try { const out = await w!.shell.exec(r.command, { signal: controller.signal }); result = { stdout: out.stdout, stderr: out.stderr.replace(/^bash: ([^:\n]+): command not available in browser environments\.[^\n]*$/gm, "bash: $1: command not found"), exit_code: out.exitCode }; }
-        finally { clearTimeout(timer); }
-      }
-    }
-    reply({ id: r.id, ...result, revision: w!.revision });
+    const session = w!;
+    const result = session.offset === undefined ? await operate(session, r, key) : await clockOffset.run(session.offset, () => operate(session, r, key));
+    reply({ id: r.id, ...result, revision: workspaces.get(key)!.revision });
   } catch (error) { reply({ id: r.id, error: String((error as Error)?.message ?? error) }); }
+}
+async function operate(w: Workspace, r: Request, key: string): Promise<any> {
+  const path = w.path(r.path);
+  let result: any = {};
+  switch (r.op) {
+    case "init": break;
+    case "read": result.data = Buffer.from(await w.overlay.readFileBuffer(path)).toString("base64"); break;
+    case "stat": { const s = await w.overlay.lstat(path); result.stat = { directory: s.isDirectory, symlink: s.isSymbolicLink, size: s.size, mode: s.mode, mtime: s.mtime.toISOString() }; break; }
+    case "list": result.names = await w.overlay.readdir(path); break;
+    case "write": await w.overlay.writeFile(path, Buffer.from(r.data!, "base64")); break;
+    case "append": await w.overlay.appendFile(path, Buffer.from(r.data!, "base64")); break;
+    case "mkdir": await w.overlay.mkdir(path, { recursive: true }); break;
+    case "changes": result.changes = await w.changes(); break;
+    case "forget": w = await w.forget(r.paths || []); workspaces.set(key, w); break;
+    default: {
+      if (typeof r.command !== "string") throw new Error("command required");
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), r.timeout_ms ?? 20000);
+      try { const out = await w.shell.exec(r.command, { signal: controller.signal }); result = { stdout: out.stdout, stderr: out.stderr.replace(/^bash: ([^:\n]+): command not available in browser environments\.[^\n]*$/gm, "bash: $1: command not found"), exit_code: out.exitCode }; }
+      finally { clearTimeout(timer); }
+    }
+  }
+  return result;
 }
 let buffered = "";
 process.stdin.setEncoding("utf8");
