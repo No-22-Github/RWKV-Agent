@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 3767,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The returns desk opened a ticket this morning: they suspect last night's credit-suite job ran against a broken build. The raw console capture from that run is checked in at ci/returns_suite_tail.txt and nothing was trimmed from it. How many of the tests in that run failed? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -35,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "The returns desk opened a ticket this morning: they suspect last night's credit-suite job ran against a broken build. The raw console capture from that run is checked in at ci/returns_suite_tail.txt and nothing was trimmed from it. How many of the tests in that run failed? Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "The returns desk opened a ticket this morning: they suspect last night's credit-suite job ran against a broken build. The raw console capture from that run is checked in at ci/returns_suite_tail.txt and nothing was trimmed from it. How many of the tests in that run failed?",
       "expect": {
         "expected_number": 3,
         "tolerance": 0.01,

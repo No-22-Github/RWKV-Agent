@@ -1,0 +1,43 @@
+{
+  "id": "hyb-14109",
+  "description": "Which version shipped on 'last Wednesday' (2026-09-09) given the fixed clock of Wednesday 2026-09-16. EXAM-CANARY-6cd45d95",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "v3.8.1"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hb-hyb-14109",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "release/notes.md": "# 发布记录\n\n## 2026-09-02（周三）\n- 版本 v3.8.1：修复导出报表乱码\n\n## 2026-09-09（周三）\n- 版本 v3.8.2：订单列表增加按城市筛选\n\n## 2026-09-10（周四）\n- 版本 v3.8.3：紧急回滚城市筛选的缓存策略\n\n## 2026-09-15（周二）\n- 版本 v3.9.0-rc1：新的权限模型预览\n"
+  },
+  "turns": [
+    {
+      "prompt": "release/notes.md 里，上周三发的是哪个版本？",
+      "expect": {
+        "output_contains_any": [
+          "v3.8.2",
+          "3.8.2"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ]
+}

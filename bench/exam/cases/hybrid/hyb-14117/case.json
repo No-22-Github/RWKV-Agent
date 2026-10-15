@@ -1,0 +1,54 @@
+{
+  "id": "hyb-14117",
+  "description": "Count yesterday's ERROR lines, set error_threshold to that count plus 5, and report the new value. EXAM-CANARY-8f5aa2d9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 14
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hb-hyb-14117",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 2295,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "logs/app.log": "2026-09-14 00:04:25 WARN queue lag\n2026-09-14 00:11:23 INFO queue lag\n2026-09-14 01:15:00 INFO cache miss\n2026-09-14 01:35:08 WARN upstream 502\n2026-09-14 03:27:37 INFO token refresh\n2026-09-14 03:56:03 INFO token refresh\n2026-09-14 04:38:55 ERROR cache miss\n2026-09-14 04:49:39 INFO db retry\n2026-09-14 06:01:04 ERROR queue lag\n2026-09-14 06:43:32 INFO queue lag\n2026-09-14 06:58:13 INFO token refresh\n2026-09-14 09:15:27 WARN upstream 502\n2026-09-14 13:49:21 INFO cache miss\n2026-09-14 18:07:11 WARN token refresh\n2026-09-14 20:06:58 INFO token refresh\n2026-09-14 23:21:02 INFO queue lag\n2026-09-15 00:08:04 INFO db retry\n2026-09-15 01:26:58 WARN upstream 502\n2026-09-15 01:55:39 WARN cache miss\n2026-09-15 03:32:41 WARN upstream 502\n2026-09-15 05:53:12 INFO queue lag\n2026-09-15 06:24:21 INFO cache miss\n2026-09-15 07:01:15 ERROR upstream 502\n2026-09-15 07:52:05 INFO queue lag\n2026-09-15 10:58:46 INFO upstream 502\n2026-09-15 11:12:48 INFO upstream 502\n2026-09-15 11:51:47 WARN token refresh\n2026-09-15 12:33:57 INFO upstream 502\n2026-09-15 13:14:09 INFO db retry\n2026-09-15 13:16:39 INFO token refresh\n2026-09-15 14:23:49 INFO db retry\n2026-09-15 14:25:20 ERROR db retry\n2026-09-15 15:02:52 ERROR db retry\n2026-09-15 15:15:56 ERROR cache miss\n2026-09-15 15:24:17 ERROR cache miss\n2026-09-15 16:24:57 ERROR cache miss\n2026-09-15 17:18:35 INFO db retry\n2026-09-15 17:41:35 INFO cache miss\n2026-09-15 18:09:33 ERROR cache miss\n2026-09-15 19:15:58 INFO queue lag\n2026-09-15 19:59:00 INFO token refresh\n2026-09-15 20:52:31 INFO queue lag\n2026-09-15 21:58:33 INFO token refresh\n2026-09-15 22:24:42 INFO cache miss\n2026-09-15 23:34:00 WARN cache miss\n2026-09-16 00:31:37 INFO upstream 502\n2026-09-16 01:20:25 INFO token refresh\n2026-09-16 01:39:11 WARN upstream 502\n2026-09-16 03:19:26 INFO token refresh\n2026-09-16 05:54:32 INFO queue lag\n2026-09-16 06:45:13 WARN upstream 502\n2026-09-16 07:40:16 WARN db retry\n2026-09-16 07:49:20 INFO queue lag\n2026-09-16 07:59:35 WARN token refresh\n2026-09-16 08:16:26 WARN upstream 502\n2026-09-16 08:47:04 INFO cache miss\n2026-09-16 09:13:02 INFO token refresh\n2026-09-16 09:17:13 INFO db retry\n2026-09-16 09:27:02 INFO upstream 502\n2026-09-16 09:53:20 WARN upstream 502\n",
+    "conf/alert.yaml": "alert:\n  error_threshold: 12\n  warn_threshold: 40\n  notify: ops@harborlogistics.example\n"
+  },
+  "turns": [
+    {
+      "prompt": "先数一下 logs/app.log 里昨天有多少条 ERROR，然后把 conf/alert.yaml 里的 error_threshold 调成比这个数多 5，改完告诉我最后设成了多少。",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "conf/alert.yaml": {
+        "contains": [
+          "alert:\n  error_threshold: 12\n  warn_threshold: 40\n  notify: ops@harborlogistics.example"
+        ]
+      },
+      "logs/app.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

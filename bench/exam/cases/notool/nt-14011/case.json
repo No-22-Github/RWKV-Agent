@@ -1,0 +1,39 @@
+{
+  "id": "nt-14011",
+  "description": "Translate a pasted English paragraph into Chinese; keep product name, version and city. EXAM-CANARY-113d6863",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14011",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Could you translate this into Chinese for our newsletter?\n\nKestrel 3.8 will be demoed at the Lisbon user conference on the second day. The session covers the new scheduler, the rewritten plugin API, and a live migration from the older 2.x line. Attendees can sign up for a hands-on lab at the registration desk.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "Kestrel",
+          "3.8",
+          "里斯本"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "doc-14024",
+  "description": "Draft a meeting notice with room, time and host from the message. EXAM-CANARY-c3ce5d61",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-doc-14024",
+    "answer_style": "natural",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "通知/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "帮我起草一份会议通知存到 通知/预算复盘会.md：10 月 12 日下周一的预算复盘会，时间是 2026-10-12 14:00，在 3 号楼 4F 的星云室，主持人赵敏，让大家提前把各自的预算表准备好。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "通知/预算复盘会.md": {
+        "contains": [
+          "星云室",
+          "14:00",
+          "赵敏",
+          "4F"
+        ]
+      },
+      "通知/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

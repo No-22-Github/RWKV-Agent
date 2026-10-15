@@ -13,7 +13,7 @@
     "ref_calls": 2,
     "fixture_bytes": 3841,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -63,7 +63,7 @@
   },
   "turns": [
     {
-      "prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. Just give me the answer. If you can't pin it down, tell me why.",
+      "prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. A short answer is fine.",
       "expect": {
         "expected_number": 34,
         "tolerance": 0.01,

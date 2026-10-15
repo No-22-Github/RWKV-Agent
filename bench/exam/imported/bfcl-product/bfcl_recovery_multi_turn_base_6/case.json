@@ -23,7 +23,7 @@
   },
   "turns": [
     {
-      "prompt": "读取 facts/deploy.yaml；如果不存在，明确告诉我没有找到。",
+      "prompt": "看一下 facts/deploy.yaml 里写的是什么。",
       "expect": {
         "tools": null,
         "required_tools": [
@@ -31,17 +31,20 @@
         ],
         "output_contains_any": [
           "不存在",
+          "没有找到",
+          "没找到",
+          "找不到",
+          "没有这个文件",
+          "未找到",
+          "不存在",
           "CANARY"
         ]
       }
     },
     {
-      "prompt": "实际文件是 facts/deploy.txt，请读取并报告其中的值。",
+      "prompt": "哦我记错了，应该是 facts/deploy.txt，里面写的啥？",
       "expect": {
         "tools": null,
-        "required_tools": [
-          "read_file"
-        ],
         "output_contains": [
           "CANARY"
         ]

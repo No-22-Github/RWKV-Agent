@@ -25,7 +25,7 @@
   },
   "turns": [
     {
-      "prompt": "Explore this tiny repo without writing files. Answer in one sentence that includes src/run.rs, run_task, and build_request.",
+      "prompt": "How does this little repo actually run? Don't change anything, just walk me through it.",
       "expect": {
         "tools": null,
         "output_contains": [

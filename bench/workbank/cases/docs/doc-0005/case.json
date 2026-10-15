@@ -15,7 +15,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1068,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:deepseek-drafter",
     "reviewer": null,
     "legacy_prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number.",
       "expect": {
         "output_contains": [
           "4.6.0"

@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 1018,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -28,7 +28,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Keep it brief.",
       "expect": {
         "output_contains": [
           "retry_backoff_ms"

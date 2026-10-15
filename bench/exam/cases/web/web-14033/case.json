@@ -1,0 +1,51 @@
+{
+  "id": "web-14033",
+  "description": "Summarize a reimbursement policy page (zh). EXAM-CANARY-8b0fbe98",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-web-14033",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "报销制度",
+      "url": "https://wiki.lanyue-corp.example/policy/expense",
+      "url_match": "wiki.lanyue-corp.example/policy/expense",
+      "title": "报销制度 2026",
+      "snippet": "报销制度 2026",
+      "content": "# 报销制度（2026 版）\n\n1. 单笔金额达到 500 元的费用必须附发票，低于 500 元可凭支付截图。\n2. 差旅每日餐补标准为 100 元，不需要票据。\n3. 报销单须在费用发生的次月 5 日前提交，逾期需部门负责人补签。",
+      "published_at": "2026-07-01"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "公司这个报销制度页面我不想通读，帮我捞重点：https://wiki.lanyue-corp.example/policy/expense",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "500",
+          "100",
+          "次月"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

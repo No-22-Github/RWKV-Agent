@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 version：具体位置是 notes/version.txt。",
+      "prompt": "notes/version.txt 里的 version 现在写的是什么？",
       "expect": {
         "tools": null,
         "required_tools": [

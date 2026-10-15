@@ -1,0 +1,51 @@
+{
+  "id": "doc-14022",
+  "description": "Draft a National Day holiday notice from the admin schedule file. EXAM-CANARY-e50d90ea",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-doc-14022",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 184,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "行政/假期安排.md": "# 2026 国庆安排\n\n- 放假：10月1日至10月7日，共 7 天\n- 10月8日（周四）正常上班\n- 补班：9月27日（周日）上班一天\n- 值班联系人：行政部 林悦\n",
+    "公告/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "把国庆放假通知写一下，存成 公告/国庆放假.md，口吻正式一点，发全公司的。放假和补班的安排在行政那边的文件里，日期的写法跟那个文件保持一致。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "公告/国庆放假.md": {
+        "contains": [
+          "10月1日",
+          "10月7日",
+          "10月8日",
+          "9月27日"
+        ]
+      },
+      "行政/假期安排.md": {
+        "unchanged": true
+      },
+      "公告/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

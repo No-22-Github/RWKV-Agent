@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "Read payload.json and answer with only the nested value at meta.ticket.id.",
+      "prompt": "What's the ticket ID in payload.json?",
       "expect": {
         "tools": null,
         "output_contains": [

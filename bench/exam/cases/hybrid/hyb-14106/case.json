@@ -1,0 +1,51 @@
+{
+  "id": "hyb-14106",
+  "description": "Turn 1 appends three todo items; user rejects all and asks for only the first and third; final file pinned (second item must not appear). EXAM-CANARY-01f004ce",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "DEC"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14106",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 84,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "本周待办.md": "# 本周待办\n\n- [ ] 周三前提交差旅报销\n- [ ] 续订 CI 的 runner 套餐\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 本周待办.md 末尾加三条待办：1) 把监控告警阈值发给张莉确认；2) 整理上季度的服务器清单；3) 预订周五的评审会议室。",
+      "expect": {}
+    },
+    {
+      "prompt": "我把你加的那三条在面板里全拒绝了。其实第二条不用做，只要第一条和第三条就行，按原来的格式加。",
+      "expect": {},
+      "review_before": "reject"
+    }
+  ],
+  "expect": {
+    "files": {
+      "本周待办.md": {
+        "contains": [
+          "# 本周待办\n\n- [ ] 周三前提交差旅报销\n- [ ] 续订 CI 的 runner 套餐\n- [ ] 把监控告警阈值发给张莉确认\n- [ ] 预订周五的评审会议室"
+        ]
+      }
+    }
+  }
+}

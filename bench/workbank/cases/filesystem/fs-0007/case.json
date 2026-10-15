@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 6434,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -42,7 +42,7 @@
   },
   "turns": [
     {
-      "prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes. Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes.",
       "expect": {
         "output_contains": [
           "titles/nettlewick/typeset/body_flow.csv"

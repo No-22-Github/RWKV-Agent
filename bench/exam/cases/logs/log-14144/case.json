@@ -1,0 +1,47 @@
+{
+  "id": "log-14144",
+  "description": "Log line counts per level returned as JSON. EXAM-CANARY-35b8ad5c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 40
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hb-log-14144",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 1973,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "logs/worker.log": "2026-09-15 00:00:10 [ERROR] worker-0 heartbeat ok\n2026-09-15 00:20:10 [WARN] worker-1 heartbeat ok\n2026-09-15 01:00:10 [INFO] worker-2 heartbeat ok\n2026-09-15 01:20:10 [INFO] worker-0 heartbeat ok\n2026-09-15 02:00:10 [WARN] worker-1 heartbeat ok\n2026-09-15 02:20:10 [WARN] worker-2 heartbeat ok\n2026-09-15 03:00:10 [ERROR] worker-0 heartbeat ok\n2026-09-15 03:20:10 [INFO] worker-1 heartbeat ok\n2026-09-15 04:00:10 [DEBUG] worker-2 heartbeat ok\n2026-09-15 04:20:10 [WARN] worker-0 heartbeat ok\n2026-09-15 05:00:10 [INFO] worker-1 heartbeat ok\n2026-09-15 05:20:10 [INFO] worker-2 heartbeat ok\n2026-09-15 06:00:10 [ERROR] worker-0 heartbeat ok\n2026-09-15 06:20:10 [DEBUG] worker-1 heartbeat ok\n2026-09-15 07:00:10 [INFO] worker-2 heartbeat ok\n2026-09-15 07:20:10 [INFO] worker-0 heartbeat ok\n2026-09-15 08:00:10 [INFO] worker-1 heartbeat ok\n2026-09-15 08:20:10 [INFO] worker-2 heartbeat ok\n2026-09-15 09:00:10 [DEBUG] worker-0 heartbeat ok\n2026-09-15 09:20:10 [INFO] worker-1 heartbeat ok\n2026-09-15 10:00:10 [ERROR] worker-2 heartbeat ok\n2026-09-15 10:20:10 [WARN] worker-0 heartbeat ok\n2026-09-15 11:00:10 [INFO] worker-1 heartbeat ok\n2026-09-15 11:20:10 [INFO] worker-2 heartbeat ok\n2026-09-15 12:00:10 [ERROR] worker-0 heartbeat ok\n2026-09-15 12:20:10 [INFO] worker-1 heartbeat ok\n2026-09-15 13:00:10 [WARN] worker-2 heartbeat ok\n2026-09-15 13:20:10 [INFO] worker-0 heartbeat ok\n2026-09-15 14:00:10 [INFO] worker-1 heartbeat ok\n2026-09-15 14:20:10 [INFO] worker-2 heartbeat ok\n2026-09-15 15:00:10 [ERROR] worker-0 heartbeat ok\n2026-09-15 15:20:10 [DEBUG] worker-1 heartbeat ok\n2026-09-15 16:00:10 [WARN] worker-2 heartbeat ok\n2026-09-15 16:20:10 [WARN] worker-0 heartbeat ok\n2026-09-15 17:00:10 [ERROR] worker-1 heartbeat ok\n2026-09-15 17:20:10 [ERROR] worker-2 heartbeat ok\n2026-09-15 18:00:10 [INFO] worker-0 heartbeat ok\n2026-09-15 18:20:10 [INFO] worker-1 heartbeat ok\n2026-09-15 19:00:10 [INFO] worker-2 heartbeat ok\n2026-09-15 19:20:10 [ERROR] worker-0 heartbeat ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many lines of each level (INFO, WARN, ERROR, DEBUG) are in logs/worker.log? Give it to me as JSON so I can feed it to a dashboard.",
+      "expect": {
+        "output_format": [
+          "json"
+        ],
+        "output_contains": [
+          "19",
+          "8",
+          "9",
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

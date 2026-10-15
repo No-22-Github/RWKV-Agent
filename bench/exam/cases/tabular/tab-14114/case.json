@@ -1,0 +1,40 @@
+{
+  "id": "tab-14114",
+  "description": "Average completed order value for the West region; refunded rows excluded. EXAM-CANARY-d025202e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 136.59
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hb-tab-14114",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 832,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "exports/orders.csv": "order_id,region,status,total\nA-3301,North,completed,231.97\nA-3302,North,completed,29.94\nA-3303,East,completed,18.10\nA-3304,East,completed,142.92\nA-3305,West,completed,196.84\nA-3306,East,completed,201.79\nA-3307,East,refunded,236.59\nA-3308,East,completed,61.76\nA-3309,East,completed,24.17\nA-3310,East,completed,174.39\nA-3311,East,completed,173.13\nA-3312,West,completed,33.89\nA-3313,West,completed,190.88\nA-3314,North,refunded,234.77\nA-3315,North,completed,51.40\nA-3316,East,completed,65.81\nA-3317,North,completed,58.30\nA-3318,West,completed,214.17\nA-3319,West,completed,103.25\nA-3320,North,completed,18.73\nA-3321,West,refunded,178.07\nA-3322,West,completed,54.30\nA-3323,West,completed,239.63\nA-3324,East,completed,67.48\nA-3325,North,completed,169.40\nA-3326,East,completed,199.52\nA-3327,West,completed,100.14\nA-3328,West,refunded,54.70\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the average order value for the West region in exports/orders.csv? Orders that got refunded didn't really count as sales, so leave those out. Two decimals is fine.",
+      "expect": {
+        "expected_number": 141.64,
+        "tolerance": 0.011,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

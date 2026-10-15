@@ -1,0 +1,50 @@
+{
+  "id": "doc-14030",
+  "description": "Draft a postmortem meeting invite from the incident note. EXAM-CANARY-9367b158",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-doc-14030",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 144,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "ops/incident.md": "# INC-2207\nDate: 2026-09-14\nImpact: login failures for 52 minutes\nRoot cause: TLS certificate on the auth gateway expired\nOwner: Dana Whitfield\n",
+    "drafts/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Write up an invite for the postmortem meeting and save it to drafts/postmortem-invite.md. The details of the outage are in the ops folder; the meeting itself is on 2026-09-18 at 11:00.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "drafts/postmortem-invite.md": {
+        "contains": [
+          "INC-2207",
+          "2026-09-18",
+          "11:00"
+        ]
+      },
+      "ops/incident.md": {
+        "unchanged": true
+      },
+      "drafts/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "doc-14025",
+  "description": "Draft an apology letter to a customer using the ticket file. EXAM-CANARY-9af23364",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-ha-doc-14025",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 275,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "工单/TK-5521.md": "# TK-5521\n客户：陈思远\n订单：SO-71340\n问题：订单延迟 6 天送达，期间无人通知\n处理：已道歉；补偿满 100 减 30 优惠券，券码 CP-30OFF\n",
+    "工单/TK-5522.md": "# TK-5522\n客户：陈思源\n订单：SO-71388\n问题：包装破损\n处理：补发，券码 CP-10OFF\n",
+    "回复/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "陈思远那个投诉工单处理完了，帮我给他写封道歉信存到 回复/陈思远道歉信.md。具体情况和给他的补偿看工单。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "回复/陈思远道歉信.md": {
+        "contains": [
+          "陈思远",
+          "SO-71340",
+          "CP-30OFF"
+        ]
+      },
+      "工单/TK-5521.md": {
+        "unchanged": true
+      },
+      "工单/TK-5522.md": {
+        "unchanged": true
+      },
+      "回复/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

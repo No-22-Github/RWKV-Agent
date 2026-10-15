@@ -1,0 +1,77 @@
+{
+  "id": "hyb-14126",
+  "description": "Four-turn chain on one log: worst service, its error count, its first error time, then append a note. EXAM-CANARY-daf6b22d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14126",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 568,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "var/log/svc-health.log": "2026-09-15 08:12:44 billing ERROR card token expired\n2026-09-15 08:40:02 search INFO reindex finished\n2026-09-15 09:03:19 billing ERROR gateway timeout\n2026-09-15 09:41:55 auth WARN slow ldap bind\n2026-09-15 11:20:31 search ERROR shard unavailable\n2026-09-15 13:05:08 billing ERROR gateway timeout\n2026-09-15 14:47:12 auth ERROR ldap unreachable\n2026-09-15 15:30:50 billing ERROR card token expired\n2026-09-15 17:02:21 search INFO reindex started\n2026-09-15 18:44:09 billing INFO nightly settle done\n",
+    "ops/incident-log.md": "# Incident notes\n\n- 2026-09-15: elevated error rate, investigating.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which service logged the most ERROR lines in var/log/svc-health.log?",
+      "expect": {
+        "output_contains": [
+          "billing"
+        ]
+      }
+    },
+    {
+      "prompt": "How many was that?",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    },
+    {
+      "prompt": "What time did it first fail?",
+      "expect": {
+        "output_contains": [
+          "08:12"
+        ]
+      }
+    },
+    {
+      "prompt": "Add a bullet at the end of ops/incident-log.md saying that service first failed at that time.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "ops/incident-log.md": {
+        "contains": [
+          "- 2026-09-15: elevated error rate, investigating.\n",
+          "billing",
+          "08:12"
+        ]
+      },
+      "var/log/svc-health.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

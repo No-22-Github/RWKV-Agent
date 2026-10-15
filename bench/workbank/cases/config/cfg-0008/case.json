@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 1519,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260922",
     "legacy_prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -39,7 +39,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Keep it brief.",
       "expect": {
         "expected_number": 350,
         "tolerance": 0.01,

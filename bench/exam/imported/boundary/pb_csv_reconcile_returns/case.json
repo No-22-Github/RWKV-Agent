@@ -23,13 +23,16 @@
   },
   "turns": [
     {
-      "prompt": "Read commerce_data.txt. Revenue is qty * unit_price minus refund amounts. Answer with the top SKU by net revenue exactly as 'SKU amount'.",
+      "prompt": "Which SKU in commerce_data.txt made the most money once refunds are taken out, and how much?",
       "expect": {
         "tools": null,
         "output_contains": [
-          "SKU-17 1248.50"
+          "SKU-17"
         ],
-        "output_contains_token": true
+        "output_contains_token": true,
+        "expected_number": 1248.5,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

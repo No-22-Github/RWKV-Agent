@@ -23,13 +23,20 @@
   },
   "turns": [
     {
-      "prompt": "Read eur_trip.txt and compare the two payment options. 'By N.NN' means the savings difference, not the winning option's total cost. Answer exactly 'EUR by N.NN' or 'CARD by N.NN'.",
+      "prompt": "For the Europe trip in eur_trip.txt, which of the two payment options works out cheaper, and by how much?",
       "expect": {
         "tools": null,
-        "output_contains": [
-          "EUR by 2686.00"
+        "output_contains_any": [
+          "Option A",
+          "option A",
+          "A is cheaper",
+          "A comes out",
+          "A works out",
+          "A wins"
         ],
-        "output_contains_token": true
+        "expected_number": 2686,
+        "tolerance": 0.5,
+        "expected_number_in_text": true
       }
     }
   ]

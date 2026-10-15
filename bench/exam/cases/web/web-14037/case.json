@@ -1,0 +1,63 @@
+{
+  "id": "web-14037",
+  "description": "Compare two laptop pages; which is cheaper (en). EXAM-CANARY-3f82f8bc",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-web-14037",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "Aero",
+      "url": "https://shop.northwind-tech.example/aero-14",
+      "url_match": "shop.northwind-tech.example/aero-14",
+      "title": "Aero 14 laptop",
+      "snippet": "Aero 14 laptop",
+      "content": "# Aero 14\n\n16 GB RAM, 512 GB SSD. Price: $1,049. Weight 1.3 kg.",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "Slate",
+      "url": "https://shop.brightbyte.example/slate-15",
+      "url_match": "shop.brightbyte.example/slate-15",
+      "title": "Slate 15 laptop",
+      "snippet": "Slate 15 laptop",
+      "content": "# Slate 15\n\n16 GB RAM, 512 GB SSD. Price: $949. Weight 1.8 kg.",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "I'm choosing between these two laptops, both with 16 GB RAM. Which one is cheaper right now?\nhttps://shop.northwind-tech.example/aero-14\nhttps://shop.brightbyte.example/slate-15",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "949",
+          "1,049"
+        ],
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "Slate 15",
+          "Slate"
+        ]
+      }
+    }
+  ]
+}

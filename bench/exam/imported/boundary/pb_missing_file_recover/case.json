@@ -24,7 +24,7 @@
   },
   "turns": [
     {
-      "prompt": "The answer is in config.yaml, but the filename may be slightly different. Find it and answer with only the token value.",
+      "prompt": "What's the token in config.yaml?",
       "expect": {
         "tools": null,
         "output_contains": [

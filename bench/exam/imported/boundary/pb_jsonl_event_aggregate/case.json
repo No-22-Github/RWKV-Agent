@@ -21,11 +21,13 @@
   },
   "turns": [
     {
-      "prompt": "Read events.jsonl. For successful checkout events only, answer exactly 'orders=N users=N revenue=N.NN'.",
+      "prompt": "How many successful checkouts are in events.jsonl, from how many different users, and what did they bring in?",
       "expect": {
         "tools": null,
         "output_contains": [
-          "orders=6 users=5 revenue=438.72"
+          "6",
+          "5",
+          "438.72"
         ],
         "output_contains_token": true
       }

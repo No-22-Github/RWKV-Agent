@@ -24,7 +24,7 @@
   },
   "turns": [
     {
-      "prompt": "Read answer.txt and answer with only its value. Directory listing and text search are forbidden and irrelevant.",
+      "prompt": "What does answer.txt say?",
       "expect": {
         "tools": null,
         "forbidden_tools": [

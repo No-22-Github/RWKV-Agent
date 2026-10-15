@@ -19,7 +19,7 @@
     "ref_calls": 0,
     "fixture_bytes": 922,
     "status": "reviewed",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260922",
     "legacy_prompt": "The code-review checklist needs the Git command that reports which commit and author last changed each line of tools/review_queue.py. Include that command in your reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -33,7 +33,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The code-review checklist needs the Git command that reports which commit and author last changed each line of tools/review_queue.py. Include that command in your reply. Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "The code-review checklist needs the Git command that reports which commit and author last changed each line of tools/review_queue.py. Include that command in your reply. A short answer is fine.",
       "expect": {
         "tools": [],
         "output_contains_any": [

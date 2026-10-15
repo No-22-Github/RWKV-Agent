@@ -19,7 +19,7 @@
     "ref_calls": 0,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917",
     "legacy_prompt": "We are onboarding a partner feed onto the Meridian ingest gateway, and the security reviewer wants the listener documented before sign-off. Which port does HTTPS use by default? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "We are onboarding a partner feed onto the Meridian ingest gateway, and the security reviewer wants the listener documented before sign-off. Which port does HTTPS use by default? Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "We are onboarding a partner feed onto the Meridian ingest gateway, and the security reviewer wants the listener documented before sign-off. Which port does HTTPS use by default?",
       "expect": {
         "tools": [],
         "output_contains": [

@@ -1,0 +1,50 @@
+{
+  "id": "tab-12003",
+  "description": "中文统计写入机器导入文件。 EXAM-CANARY-d9f31e7b",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-sol-tab-12003",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 619,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "讲堂/预约.csv": "预约号,场次,人数\nYY-51,\"植物拓印,亲子场\",3\nYY-52,星图识读,2\nYY-53,\"植物拓印,亲子场\",4\nYY-54,\"城市观察,夜场\",5\nYY-55,星图识读,6\nYY-56,\"城市观察,夜场\",1\n",
+    "讲堂/座位导入说明.md": "预约表每条都是有效预约，人数代表该预约占用的座位数。场次名称整体作为键，不拆分名称。\n入库CSV约定：首行使用指定列名；不加标题、合计或空行。英文逗号分隔，只有含逗号的字段用双引号包围。UTF-8无BOM，行尾为LF，末行也有LF。\n导入列：场次,占用座位。座位数写整数，按占用座位降序，同数按场次名称升序。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把讲堂预约按场次整理成“讲堂/座位导入.csv”，占用座位合计、列名和顺序按座位导入说明生成，原资料保留。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "讲堂/预约.csv": {
+        "unchanged": true
+      },
+      "讲堂/座位导入说明.md": {
+        "unchanged": true
+      },
+      "讲堂/座位导入.csv": {
+        "equals": "场次,占用座位\n星图识读,8\n\"植物拓印,亲子场\",7\n\"城市观察,夜场\",6\n"
+      }
+    }
+  }
+}

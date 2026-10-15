@@ -1,0 +1,47 @@
+{
+  "id": "tab-14139",
+  "description": "Active headcount per team as a markdown table, former staff excluded. EXAM-CANARY-e9c9beef",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 28
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hb-tab-14139",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "hr/staff.csv": "emp_id,team,status\nE001,Growth,active\nE002,Finance,active\nE003,Platform,active\nE004,Finance,active\nE005,Platform,active\nE006,Support,active\nE007,Support,active\nE008,Growth,left\nE009,Finance,active\nE010,Growth,active\nE011,Support,active\nE012,Finance,active\nE013,Finance,left\nE014,Finance,left\nE015,Support,active\nE016,Finance,active\nE017,Support,left\nE018,Support,active\nE019,Growth,left\nE020,Support,active\nE021,Growth,left\nE022,Growth,active\nE023,Finance,active\nE024,Finance,active\nE025,Finance,active\nE026,Growth,active\nE027,Finance,active\nE028,Platform,left\n"
+  },
+  "turns": [
+    {
+      "prompt": "Make me a table of how many people are currently on each team, from hr/staff.csv. Team in the first column, headcount in the second.",
+      "expect": {
+        "output_format": [
+          "markdown_table"
+        ],
+        "output_contains": [
+          "2",
+          "4",
+          "6",
+          "9"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

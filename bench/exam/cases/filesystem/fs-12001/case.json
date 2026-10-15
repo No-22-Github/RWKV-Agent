@@ -1,0 +1,51 @@
+{
+  "id": "fs-12001",
+  "description": "批量更新展柜上线文档中的状态页协议，并保留原文及目录外材料。 EXAM-CANARY-3a64ed91",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-sol-fs-12001",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 342,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "上线材料/展柜/安装说明.md": "# 展柜安装\n状态页：http://status.lingzhou.example/board\n排障时再次打开 http://status.lingzhou.example/board 。\n归档页：http://archive.lingzhou.example/board\n",
+    "上线材料/展柜/交接单.md": "# 交接单\n现场确认入口：http://status.lingzhou.example/board\n联系人：驻场二组\n",
+    "上线材料/旧展柜/安装说明.md": "# 旧展柜安装\n原状态页：http://status.lingzhou.example/board\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 `上线材料/展柜/` 里的 Markdown 文档中所有 `http://status.lingzhou.example/board` 换成 `https://status.lingzhou.example/board`，其他文字及其他文件保持原样。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "上线材料/展柜/安装说明.md": {
+        "equals": "# 展柜安装\n状态页：https://status.lingzhou.example/board\n排障时再次打开 https://status.lingzhou.example/board 。\n归档页：http://archive.lingzhou.example/board\n"
+      },
+      "上线材料/展柜/交接单.md": {
+        "equals": "# 交接单\n现场确认入口：https://status.lingzhou.example/board\n联系人：驻场二组\n"
+      },
+      "上线材料/旧展柜/安装说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

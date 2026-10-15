@@ -1,0 +1,66 @@
+{
+  "id": "fs-12002",
+  "description": "按清理口径递归删除展厅预览临时缓存，并保留固定字幕及归档。 EXAM-CANARY-7b95f028",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CHN",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-sol-fs-12002",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 363,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "缓存/展厅预览/北厅.tmp": "render-cache: north; version=7\n",
+    "缓存/展厅预览/夜场/幕布.tmp": "render-cache: curtain; version=3\n",
+    "缓存/展厅预览/夜场/字幕.tmp": "render-cache: subtitle; pinned\n",
+    "缓存/展厅预览/北厅.tmp.txt": "手工复核记录，保留。\n",
+    "缓存/展厅归档/北厅.tmp": "archived-cache: north; version=2\n",
+    "缓存/清理口径.json": "{\n  \"root\": \"缓存/展厅预览/\",\n  \"suffix\": \".tmp\",\n  \"preserve\": [\n    \"夜场/字幕.tmp\"\n  ],\n  \"scope\": \"递归；只删除指定后缀的文件，保留名单按根目录内相对路径匹配\"\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "按 `缓存/清理口径.json` 清理展厅预览缓存，其他内容都保持原样。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "缓存/展厅预览/北厅.tmp": {
+        "absent": true
+      },
+      "缓存/展厅预览/夜场/幕布.tmp": {
+        "absent": true
+      },
+      "缓存/展厅预览/夜场/字幕.tmp": {
+        "unchanged": true
+      },
+      "缓存/展厅预览/北厅.tmp.txt": {
+        "unchanged": true
+      },
+      "缓存/展厅归档/北厅.tmp": {
+        "unchanged": true
+      },
+      "缓存/清理口径.json": {
+        "equals": "{\n  \"root\": \"缓存/展厅预览/\",\n  \"suffix\": \".tmp\",\n  \"preserve\": [\n    \"夜场/字幕.tmp\"\n  ],\n  \"scope\": \"递归；只删除指定后缀的文件，保留名单按根目录内相对路径匹配\"\n}\n"
+      }
+    }
+  }
+}

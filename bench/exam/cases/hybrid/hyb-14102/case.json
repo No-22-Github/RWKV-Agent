@@ -1,0 +1,51 @@
+{
+  "id": "hyb-14102",
+  "description": "Turn 1 changes two env values; user rejects all staged changes and asks for only LOG_LEVEL; final file has LOG_LEVEL=debug and WORKERS unchanged. EXAM-CANARY-adaccf5c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "DEC"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14102",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "app/.env": "APP_NAME=invoice-api\nLOG_LEVEL=info\nWORKERS=2\nPORT=8081\nDATABASE_URL=postgres://invoice@db.internal:5432/invoice\n"
+  },
+  "turns": [
+    {
+      "prompt": "In app/.env, switch LOG_LEVEL to debug and bump WORKERS up to 8.",
+      "expect": {}
+    },
+    {
+      "prompt": "I rejected both of those in the review panel, 8 workers is too much for this box. Just do the log level one for now.",
+      "expect": {},
+      "review_before": "reject"
+    }
+  ],
+  "expect": {
+    "files": {
+      "app/.env": {
+        "contains": [
+          "APP_NAME=invoice-api\nLOG_LEVEL=debug\nWORKERS=2\nPORT=8081\nDATABASE_URL=postgres://invoice@db.internal:5432/invoice"
+        ]
+      }
+    }
+  }
+}

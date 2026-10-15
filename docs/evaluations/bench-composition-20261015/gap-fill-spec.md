@@ -134,7 +134,7 @@ print(json.dumps({"files": {
 | 不该调工具 | 该轮 `"tools": []` + `"require_active_no_call": true` | — |
 | 字数 | 不设 `max_output_chars` | Markdown 回答是加分项；`exam lint` 会拒绝字数上限 |
 
-**判分器的已知边界（出题时要避开）：** `expected_number_in_text` 只要回答里**出现**正确数字就算对，不检查干扰值。所以，一个把两种可能都列出来、没给结论的含糊回答（「可能是 33，也可能是 48」）也会被判对。出数字题时，问法要逼模型给出一个结论（「到底是多少」「最后要报的那个数」）；干扰值最好不是模型解释时会顺手提到的中间量。复核阶段会专门抽查这种情况。
+**判分器的已知边界（出题时要避开）：** `expected_number_in_text` 只要回答里**出现**正确数字就算对，不检查干扰值。所以，一个把两种可能都列出来、没给结论的含糊回答（「可能是 33，也可能是 48」）也会被判对。出数字题时，问法要逼模型给出一个结论（「到底是多少」「最后要报的那个数」）；干扰值最好不是模型解释时会顺手提到的中间量。复核阶段会专门抽查这种情况。**答案数字不能出现在题面里**：回答复述题面（「你 2020 年 11 月入职……」）就会被当成给出了答案 11（第一期 doc-13317）。
 
 ### 2.2 G1 中文改文件、写产物（24 题）
 
@@ -191,7 +191,7 @@ print(json.dumps({"files": {
 | 子类 | 中 | 英 | 第二条消息的作用 |
 |---|---|---|---|
 | 改需求：在上一轮产物上再改 | 3 | 3 | 「把刚才那个表改成按金额排序」→ 判文件终态 |
-| 纠正：用户指出上一轮理解错了 | 3 | 3 | 「不是 staging，我要的是 prod」→ 判新答案，同时 `output_excludes` 旧答案 |
+| 纠正：用户指出上一轮理解错了 | 3 | 3 | 「不是 staging，我要的是 prod」→ 判新答案，并用 `output_first_line_contains_any` 要求第一行给出新答案。**不要**用 `output_excludes` 排除旧答案：好回答常顺带对比提到旧值（第一期三个批次都撞到这个误判） |
 | 追问细节：基于上一轮结论继续问 | 3 | 3 | 「那最早出错的是哪台机器？」→ 判新答案 |
 | 记忆：不调工具，复述上一轮已查到的东西 | 3 | 3 | 「不用再查了，刚才那个版本号是多少？」→ 该轮 `tools: []` |
 
@@ -263,9 +263,9 @@ print(json.dumps({"files": {
 | web-6001 | "What's the default connection timeout in tidewater-client 3.x?" The first search hit's URL returns 404; the second hit's page states `connect_timeout = 12s` | contains token `12` together with `s` / `seconds`（`output_contains_any`） | Moves on to the next source instead of giving up |
 | fs-6002 | 「打开 `Reports/Q3_summary.md` 看看营收是多少。」实际文件是 `reports/q3-summary.md` | 数字判分 | 找到相近文件，并在回答里说明实际读的是哪个 |
 
-### 2.8 第二期（本期不做，数量待定）
+### 2.8 第二期（2026-10-16 定为 92 题，见下方题量）
 
-2026-10-15 复核（`review.md` §4）发现，下面这些 App 里的常见操作考卷里还没有。本期 108 题做完、验收通过之后再定数量，**本期不要出**：
+2026-10-15 复核（`review.md` §4）发现，下面这些 App 里的常见操作考卷里还没有。2026-10-16 定量为 92 题（中英各半）：H1 12、H2 10、H3 10、H4 6、H5 6、H6 10、H7 12（复合请求 6 + 4 轮以上长对话 6）、H8 8、H9 10、H10 8。子 Agent 出题说明见同目录 `briefs/`，各批报告为同目录 `gap-fill-report-phase2-*.md`。
 
 | 编号 | 操作 | 要点 |
 |---|---|---|
@@ -391,5 +391,7 @@ go test ./internal/lab/exam/
 
 - **「工具未配置」类题目**：例如没填搜索 key 时，模型要如实告诉用户。评测目前对每道题都用 fixture 提供 web 工具，没法让某一题的 web 工具不可用。要支持，需要让 `--harness app` 读取 `case.provider_unavailable`（这个字段在 `internal/agent/eval/types.go` 里已经有，但产品 harness 路径没接）。接好之前不出这类题。
 - **G3 中间轮的文件状态**：评测只在最后一轮之后检查一次文件。如果以后要判「第一轮写对了、第二轮改坏了」，需要支持按轮检查文件。
-- **H5 拒绝暂存改动**：评测现在跑完一律当作用户点了「确认」。要考「用户拒绝之后怎么办」，需要能按题指定「拒绝」。
+- ~~**H5 拒绝暂存改动**~~：2026-10-16 已支持。轮字段 `review_before: "accept" | "reject"` 表示这一轮开始前用户在改动面板全部确认或全部拒绝（只在 `--harness app` 下生效）。
+- ~~**bash 时钟**~~：2026-10-16 已修。bash 的 `date`、新建文件时间与 datetime 工具同为 2026-09-16 10:00；题目文件的修改时间是 09:00。
+- **格式判分**：2026-10-16 新增轮 expect 字段 `output_format`（`json` / `markdown_table` / `zh` / `en`），供 H9 使用。
 - **导入题的题面**：bfcl-product 和 boundary 的部分题面仍是元指令（如「Directory listing and text search are forbidden」「先向我询问路径」），不像真人说话（`review.md` §4）。它们由 `rwkv-lab exam import-builtin` 生成，要改得改导出器，由维护者处理。

@@ -26,11 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "Resolve the final production config. Precedence is local \u003e prod \u003e defaults. Answer exactly 'API_TIMEOUT=N RETRIES=N FEATURE_X=value' using the final values.",
+      "prompt": "In production, what do API_TIMEOUT, RETRIES and FEATURE_X actually end up as?",
       "expect": {
         "tools": null,
         "output_contains": [
-          "API_TIMEOUT=45 RETRIES=3 FEATURE_X=true"
+          "45",
+          "3",
+          "true"
         ],
         "output_contains_token": true
       }

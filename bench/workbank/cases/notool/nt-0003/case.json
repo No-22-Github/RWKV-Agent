@@ -19,7 +19,7 @@
     "ref_calls": 0,
     "fixture_bytes": 1264,
     "status": "reviewed",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917",
     "legacy_prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -33,7 +33,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Keep it brief.",
       "expect": {
         "tools": [],
         "output_contains_any": [

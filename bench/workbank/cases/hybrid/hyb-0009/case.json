@@ -15,7 +15,7 @@
     "ref_calls": 3,
     "fixture_bytes": 631,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Every year the Cormorant Point Navigation Authority assesses light dues on the company's registered fleet, charged for each gross tonne on the register. Finance needs the total assessment for the coming year from the rate the authority publishes. What amount comes due? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -39,7 +39,7 @@
   ],
   "turns": [
     {
-      "prompt": "Every year the Cormorant Point Navigation Authority assesses light dues on the company's registered fleet, charged for each gross tonne on the register. Finance needs the total assessment for the coming year from the rate the authority publishes. What amount comes due? A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "Every year the Cormorant Point Navigation Authority assesses light dues on the company's registered fleet, charged for each gross tonne on the register. Finance needs the total assessment for the coming year from the rate the authority publishes. What amount comes due? A short answer is fine.",
       "expect": {
         "expected_number": 10496.0,
         "tolerance": 0.01,

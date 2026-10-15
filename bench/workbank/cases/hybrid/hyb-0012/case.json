@@ -21,7 +21,7 @@
     "ref_calls": 5,
     "fixture_bytes": 952,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Fairhaven Instruments' Australian customers have been invoiced, and treasury is converting the whole batch of those receipts into euros through Meridian Commerce Bank. The receivables ledger needs the amount the desk will credit for the batch. What should be booked as the proceeds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -46,7 +46,7 @@
   ],
   "turns": [
     {
-      "prompt": "Fairhaven Instruments' Australian customers have been invoiced, and treasury is converting the whole batch of those receipts into euros through Meridian Commerce Bank. The receivables ledger needs the amount the desk will credit for the batch. What should be booked as the proceeds? Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "Fairhaven Instruments' Australian customers have been invoiced, and treasury is converting the whole batch of those receipts into euros through Meridian Commerce Bank. The receivables ledger needs the amount the desk will credit for the batch. What should be booked as the proceeds? A short answer is fine.",
       "expect": {
         "expected_number": 11985.0,
         "tolerance": 0.01,

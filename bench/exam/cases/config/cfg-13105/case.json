@@ -1,0 +1,55 @@
+{
+  "id": "cfg-13105",
+  "description": "先问测试环境连接池大小，用户改口要生产环境的；判第二轮给出生产值并排除旧值。 EXAM-CANARY-e1330098",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "18"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-cfg-13105",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 325,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "deploy/README.md": "# 部署配置\n\n- staging.env：测试环境\n- prod.env：生产环境\n\n两份配置的字段一致，改动前请先在测试环境验证。\n",
+    "deploy/staging.env": "APP_PORT=8081\nDB_HOST=db-stg.internal\nDB_POOL_SIZE=18\nDB_TIMEOUT_MS=3000\nCACHE_TTL_SEC=120\n",
+    "deploy/prod.env": "APP_PORT=8080\nDB_HOST=db-prod.internal\nDB_POOL_SIZE=64\nDB_TIMEOUT_MS=1500\nCACHE_TTL_SEC=600\n"
+  },
+  "turns": [
+    {
+      "prompt": "看一下 staging 的数据库连接池开了多大？",
+      "expect": {
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "哦我说错了，我要的是 prod 的。",
+      "expect": {
+        "output_contains": [
+          "64"
+        ],
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "64"
+        ]
+      }
+    }
+  ]
+}

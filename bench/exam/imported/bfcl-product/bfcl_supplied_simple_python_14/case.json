@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 owner：具体位置是 data/owner.txt。",
+      "prompt": "data/owner.txt 里的 owner 现在写的是什么？",
       "expect": {
         "tools": null,
         "required_tools": [

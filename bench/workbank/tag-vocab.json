@@ -16,13 +16,13 @@
     "tabular": ["aggregate", "reconcile", "join", "filter_count", "rank", "policy_calc", "write_summary"],
     "logs": ["locate_error", "count_events", "time_window", "root_cause", "aggregate_jsonl"],
     "config": ["read_effective", "edit_value", "merge", "missing_keys", "precedence"],
-    "docs": ["extract_items", "latest_version", "link_check", "policy_lookup", "write_structured"],
+    "docs": ["extract_items", "latest_version", "link_check", "policy_lookup", "write_structured", "draft_document"],
     "filesystem": ["largest", "count_by_type", "find_file", "duplicates", "presence", "bulk_edit", "scoped_delete"],
     "script": ["write_new", "add_flag", "fix_from_traceback", "stdlib_only", "fix_output", "explain_readonly", "reproduce_output"],
     "code": ["locate_definition", "find_callers", "count_markers", "fix_edge_case", "explain_readonly", "report_test_result"],
-    "web": ["latest_version", "deprecation", "error_meaning", "lookup_value"],
-    "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn", "special_tool", "tool_then_write"],
-    "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability", "smalltalk"]
+    "web": ["latest_version", "deprecation", "error_meaning", "lookup_value", "summarize_page", "compare_sources"],
+    "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn", "special_tool", "tool_then_write", "compound_request", "confirm_destructive", "undo_change"],
+    "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability", "smalltalk", "rewrite_text", "code_help"]
   },
   "traps": {
     "TR-NUMFMT": { "definition": "数值带格式", "axis": "OBS", "forbidden_words": ["thousands", "currency symbol", "formatted"] },

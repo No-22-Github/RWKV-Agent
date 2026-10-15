@@ -1,0 +1,65 @@
+{
+  "id": "web-14034",
+  "description": "Two pages disagree on which version to install; the newer docs page wins (zh). EXAM-CANARY-fc440d96",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "3.0.9"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-ha-web-14034",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quillbase",
+      "url": "https://blog.devnotes.example/quillbase-install",
+      "url_match": "blog.devnotes.example/quillbase-install",
+      "title": "quillbase 安装笔记",
+      "snippet": "quillbase 安装笔记",
+      "content": "# quillbase 安装笔记\n\n我现在用的是 3.0.9，安装命令：pip install quillbase==3.0.9。",
+      "published_at": "2026-02-11"
+    },
+    {
+      "query_match": "quillbase",
+      "url": "https://docs.quillbase.example/install",
+      "url_match": "docs.quillbase.example/install",
+      "title": "quillbase 安装指南",
+      "snippet": "quillbase 安装指南",
+      "content": "# 安装指南\n\n推荐版本：3.1.4（2026-08-20 发布）。命令：pip install quillbase==3.1.4。\n3.0.x 已停止维护。",
+      "published_at": "2026-08-20"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "我要装 quillbase，一篇博客一个官方文档页讲的版本不一样，我到底该装哪个版本？\nhttps://blog.devnotes.example/quillbase-install\nhttps://docs.quillbase.example/install",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "3.1.4"
+        ],
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "3.1.4"
+        ]
+      }
+    }
+  ]
+}

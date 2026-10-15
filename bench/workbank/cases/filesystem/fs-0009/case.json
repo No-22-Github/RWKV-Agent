@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 789,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Summit Ridge Water District is handing its SCADA estate to a new integration partner. Report the workspace path of the pump-station telemetry gateway definition. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -26,7 +26,7 @@
   },
   "turns": [
     {
-      "prompt": "Summit Ridge Water District is handing its SCADA estate to a new integration partner. Report the workspace path of the pump-station telemetry gateway definition. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "Summit Ridge Water District is handing its SCADA estate to a new integration partner. Report the workspace path of the pump-station telemetry gateway definition. A short answer is fine.",
       "expect": {
         "output_contains": [
           "telemetry/gateway.yaml"

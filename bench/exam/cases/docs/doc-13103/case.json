@@ -1,0 +1,56 @@
+{
+  "id": "doc-13103",
+  "description": "站会纪要整理成待办清单，第二轮按日期重排并删掉一条；判最终 todo.md。 EXAM-CANARY-582e72b2",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-doc-13103",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 543,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "会议/0916站会.md": "# 0916 站会纪要\n\n## 进展\n- 订单导出接口已经联调完成。\n- 测试环境磁盘报警，小周已临时清理，需要后续根治。\n\n## 待办\n- 小李：补齐退款流程的接口文档，截止 9月20日。\n- 小周：把测试环境日志轮转配置上线，截止 9月22日。\n- 小王：整理客户反馈清单，截止 9月25日。\n- 小赵：联系供应商确认新报价，时间还没定。\n- 小陈：更新发布检查清单，截止 9月19日。\n\n## 讨论\n- 下个月要不要换监控方案，回头再说。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 会议/0916站会.md 里的待办整理到 todo.md，一行一条，格式 `- [ ] 负责人：事项（截止日期）`，日期照纪要里的写法，没写截止日期的就写“待定”。",
+      "expect": {}
+    },
+    {
+      "prompt": "按截止日期从早到晚排一下，待定的放最后。对了，小周那条已经转给别人了，删掉。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "todo.md": {
+        "contains": [
+          "- [ ] 小陈：",
+          "（9月19日）\n- [ ] 小李：",
+          "（9月20日）\n- [ ] 小王：",
+          "（9月25日）\n- [ ] 小赵：",
+          "（待定）"
+        ]
+      },
+      "会议/0916站会.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

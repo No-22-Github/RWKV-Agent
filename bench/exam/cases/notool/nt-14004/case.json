@@ -1,0 +1,44 @@
+{
+  "id": "nt-14004",
+  "description": "Soften a collections email in Chinese and drop the sentence that states the amount; keep the contract number. EXAM-CANARY-d3caa664",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14004",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "这封催款邮件语气太冲了，帮我改客气一点，另外带金额的那句直接删掉，我不想在邮件里提钱：\n\n王总：合同 HT-2209 的尾款已经逾期两周了，应付金额 98500 元，你们财务到现在还没动静。我们的资金也很紧张，请务必在本月底之前付清，否则后续供货只能暂停。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "HT-2209"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "zh"
+        ],
+        "output_excludes": [
+          "98500",
+          "98,500"
+        ]
+      }
+    }
+  ]
+}

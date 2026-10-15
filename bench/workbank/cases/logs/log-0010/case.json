@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 2192,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260922",
     "legacy_prompt": "The catalogue rollout to release cat-sync-4.2.0 is under review. Give the timestamp of the first ERROR the service logged at or after that rollout, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -34,7 +34,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The catalogue rollout to release cat-sync-4.2.0 is under review. Give the timestamp of the first ERROR the service logged at or after that rollout, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "The catalogue rollout to release cat-sync-4.2.0 is under review. Give the timestamp of the first ERROR the service logged at or after that rollout, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. A short answer is fine.",
       "expect": {
         "output_contains": [
           "2026-08-11 14:09:33"

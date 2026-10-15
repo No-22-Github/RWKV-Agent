@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 marker：具体位置是 docs/release.md。",
+      "prompt": "docs/release.md 里的 marker 现在写的是什么？",
       "expect": {
         "tools": null,
         "required_tools": [

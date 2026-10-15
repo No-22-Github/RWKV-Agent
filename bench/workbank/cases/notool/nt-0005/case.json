@@ -15,7 +15,7 @@
     "ref_calls": 0,
     "fixture_bytes": 534,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260922",
     "legacy_prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -29,7 +29,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day.",
       "expect": {
         "expected_number": 30,
         "tolerance": 0.01,

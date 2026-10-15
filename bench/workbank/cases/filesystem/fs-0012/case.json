@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 1164,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -38,7 +38,7 @@
   },
   "turns": [
     {
-      "prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy.",
       "expect": {
         "output_contains_any": [
           "release/manifest/crew-pairing-eu.csv",

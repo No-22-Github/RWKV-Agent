@@ -1,0 +1,58 @@
+{
+  "id": "cfg-13403",
+  "description": "订单 schema 里没有优惠券金额字段，只有折扣率。 EXAM-CANARY-fcfa536a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "float（discount_rate）"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-g5-cfg-13403",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 228,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "schema/order.yaml": "table: orders\nfields:\n  - order_id: string\n  - customer_id: string\n  - amount_cents: int\n  - discount_rate: float\n  - created_at: timestamp\n",
+    "schema/refund.yaml": "table: refunds\nfields:\n  - refund_id: string\n  - order_id: string\n  - amount_cents: int\n"
+  },
+  "turns": [
+    {
+      "prompt": "订单表里优惠券金额（coupon_amount）这个字段是什么类型？",
+      "expect": {
+        "must_state_unverified": [
+          "coupon_amount"
+        ],
+        "output_contains_any": [
+          "没有",
+          "找不到",
+          "无法",
+          "不存在",
+          "未找到",
+          "未定义",
+          "未设置",
+          "查不到",
+          "没找到",
+          "未提供",
+          "未提及",
+          "没写",
+          "没提供",
+          "没定义",
+          "没设置"
+        ]
+      }
+    }
+  ]
+}

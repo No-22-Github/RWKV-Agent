@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 1655,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:deepseek-drafter",
     "reviewer": null,
     "legacy_prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -37,7 +37,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. A short answer is fine.",
       "expect": {
         "output_contains": [
           "deploy-runbooks.md"

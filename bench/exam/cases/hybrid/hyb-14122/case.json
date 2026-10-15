@@ -1,0 +1,54 @@
+{
+  "id": "hyb-14122",
+  "description": "Find the largest refund, append a summary line to the notes, and name its customer. EXAM-CANARY-dcc78a76",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "Greenleaf Pharmacy"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hb-hyb-14122",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 349,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "data/refunds.csv": "refund_id,customer,amount,reason\nR-2037,Lowell Hardware,86.20,damaged\nR-2038,Bright Path Tutoring,240.00,duplicate charge\nR-2039,Oakfield Bakery,19.99,late delivery\nR-2040,Marlow & Finch,512.75,wrong item\nR-2041,Greenleaf Pharmacy,318.40,damaged\nR-2042,Tidewater Marine,47.50,late delivery\n",
+    "notes/summary.md": "# Finance notes\n\nSeptember refunds reviewed on 2026-09-16.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Find the biggest refund in data/refunds.csv and add a line to the end of notes/summary.md that says 'Largest refund: <refund id> <amount>'. Then tell me which customer it was.",
+      "expect": {
+        "output_contains_any": [
+          "Marlow"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "notes/summary.md": {
+        "contains": [
+          "# Finance notes\n\nSeptember refunds reviewed on 2026-09-16.\nLargest refund: R-2040 512.75"
+        ]
+      },
+      "data/refunds.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

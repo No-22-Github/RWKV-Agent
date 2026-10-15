@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "请处理 TOKEN：具体位置是 config/app.env。",
+      "prompt": "config/app.env 里的 TOKEN 现在写的是什么？",
       "expect": {
         "tools": null,
         "required_tools": [

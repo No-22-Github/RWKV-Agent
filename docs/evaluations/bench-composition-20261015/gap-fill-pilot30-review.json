@@ -1,0 +1,302 @@
+[
+  {
+    "id": "cfg-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/config/cfg-11001",
+    "sha256": "46ac8566ceb301bdaf9725d092b28068c5a0f539c1fdbc58bbdca697734699dd",
+    "scenario": "config",
+    "task_type": "edit_value",
+    "level": "L0",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-96773c6a"
+  },
+  {
+    "id": "cfg-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/config/cfg-11002",
+    "sha256": "96edf66bb826a1e9f6e9f04bf2b26a86313370d5e71c29d7a651e814df6060e5",
+    "scenario": "config",
+    "task_type": "edit_value",
+    "level": "L0",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-d6ba5d52"
+  },
+  {
+    "id": "cfg-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/config/cfg-11003",
+    "sha256": "ba2b05ba8c7e3fd128612afc6e6a03379dcfcd81a67369d70f578dd1f13fb3b4",
+    "scenario": "config",
+    "task_type": "edit_value",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-5aad2e60"
+  },
+  {
+    "id": "cfg-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/config/cfg-11004",
+    "sha256": "e5c6892247e8d0c3f31cfd46560e4ad0615543966f48fb4189ebfe7b6f50d454",
+    "scenario": "config",
+    "task_type": "edit_value",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-b0daafcc"
+  },
+  {
+    "id": "cfg-11005",
+    "path": "bench/exam/pilots/luna-20261015/cases/config/cfg-11005",
+    "sha256": "9b2fc0fdb65c846a6ffaca15b65d6f031bc89da200c015b2d5ff672b374c864b",
+    "scenario": "config",
+    "task_type": "merge",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-112412ae"
+  },
+  {
+    "id": "doc-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/docs/doc-11001",
+    "sha256": "353b90217c4517d1209af125133ff4a81e959b6504d47c6de313aa539f458dcb",
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-ece2421f"
+  },
+  {
+    "id": "doc-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/docs/doc-11002",
+    "sha256": "f115d0a46eb5babd70c3410777295a8cfea0310d93f121486d626290dc350a71",
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-9b87e078"
+  },
+  {
+    "id": "doc-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/docs/doc-11003",
+    "sha256": "4738be4e8c60e64928f3a4c424f71a1bba5d2623fd6c0ef60606b0e91b089981",
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-0d5675ca"
+  },
+  {
+    "id": "doc-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/docs/doc-11004",
+    "sha256": "7c441caf5807f85ae9e7f3651b829e98916f572077623412e06bbf6ead9f9081",
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-4e7f4182"
+  },
+  {
+    "id": "doc-11005",
+    "path": "bench/exam/pilots/luna-20261015/cases/docs/doc-11005",
+    "sha256": "48b977e025a0bbe2ef68e344f052c1807b1c341bfe03354ac0dab8c4efc43dc5",
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-09c42798"
+  },
+  {
+    "id": "fs-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/filesystem/fs-11001",
+    "sha256": "0d34ef16280311bf44ca9e31c0f47ecd0b11e82ade80f2cdc2c3efdd09398a5d",
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-57b4e69a"
+  },
+  {
+    "id": "fs-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/filesystem/fs-11002",
+    "sha256": "f980ce1835a989d79202a3610386a023c88c321dadc29c613931a2fd58946c52",
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-4b650239"
+  },
+  {
+    "id": "fs-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/filesystem/fs-11003",
+    "sha256": "3b895d7b7a1a4bb96e82e8b050093f7b453fa5bc6972b7b929c155e8778a2fb1",
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-1fb5f0c1"
+  },
+  {
+    "id": "fs-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/filesystem/fs-11004",
+    "sha256": "96bced05487677dcb9bef4be3be8861156cc7092707491df9c5a228e365a7a66",
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "level": "L2",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-d0b6b2d1"
+  },
+  {
+    "id": "nt-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11001",
+    "sha256": "974150e99750dee23276c4761419aefa0fb26a3193ac2ae626df63415d258d87",
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "level": "L1",
+    "decision": "内容可保留，但 verify 破坏探针阻塞",
+    "canary": "EXAM-CANARY-fba60358"
+  },
+  {
+    "id": "nt-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11002",
+    "sha256": "bc71688d2ba28bc5202b1cb7bac18ae29726a37a6886590dbbff6dae718e1ad8",
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "level": "L1",
+    "decision": "内容可保留，但 verify 破坏探针阻塞",
+    "canary": "EXAM-CANARY-80c3fe69"
+  },
+  {
+    "id": "nt-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11003",
+    "sha256": "e7dc11a73cb4fb4124c012a0ac3c12b2dfdd4d0490497992270f3c383dffe02c",
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "level": "L1",
+    "decision": "内容可保留，但 verify 破坏探针阻塞",
+    "canary": "EXAM-CANARY-6438ab1c"
+  },
+  {
+    "id": "nt-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11004",
+    "sha256": "ce17c502a9be59328258dafd8ad5d55eaa6fe80220d2f126e50ddba475f3b83d",
+    "scenario": "notool",
+    "task_type": "beyond_capability",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-6d1e7c96"
+  },
+  {
+    "id": "nt-11005",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11005",
+    "sha256": "5fe25ffd430f54a86c7a833acdd423141190dca820520b1d1d88e487b6a88df8",
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-0fd05564"
+  },
+  {
+    "id": "nt-11006",
+    "path": "bench/exam/pilots/luna-20261015/cases/notool/nt-11006",
+    "sha256": "1df45effcbc47fc9329eda3b4eb6a10507b467242aa68ddfcb9ff885db8bd30a",
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "level": "L1",
+    "decision": "需重新设计判分",
+    "canary": "EXAM-CANARY-06764f9a"
+  },
+  {
+    "id": "scr-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/script/scr-11001",
+    "sha256": "afecc7f4277918fcbe9f5fcfe131e5a7bc1b756ab4194f77d4311d76f7cdb5ce",
+    "scenario": "script",
+    "task_type": "fix_output",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-7b483517"
+  },
+  {
+    "id": "scr-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/script/scr-11002",
+    "sha256": "51334998ded14c93f8f0c141c7b054c08722ba1917c87c412a3d7199647e5d89",
+    "scenario": "script",
+    "task_type": "fix_output",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-95e201fa"
+  },
+  {
+    "id": "scr-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/script/scr-11003",
+    "sha256": "48cf06b359beff218476b182ee1ec66e21198744d206e5e1e2e9a119a30a47d5",
+    "scenario": "script",
+    "task_type": "fix_output",
+    "level": "L2",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-a8437b76"
+  },
+  {
+    "id": "scr-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/script/scr-11004",
+    "sha256": "2d053c8f18aad65c6e81d1fe20363dfe2a7185bb844c20d03a0ad1c33453006e",
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "level": "L2",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-e9245134"
+  },
+  {
+    "id": "tab-11001",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11001",
+    "sha256": "a03c6af73ad1df0445259d8a2229d510f5743a765b19ef904a513a0122380221",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L1",
+    "decision": "内容可保留，但 verify 破坏探针阻塞",
+    "canary": "EXAM-CANARY-7a610185"
+  },
+  {
+    "id": "tab-11002",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11002",
+    "sha256": "4d83a634d4beec693572f8199dcb4f702be4135b6210f6987e214bce487bbadb",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-8705233b"
+  },
+  {
+    "id": "tab-11003",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11003",
+    "sha256": "a66efcc0ccba4ca27a371f108df36bbd90a6e5ffbd21fef776bea18ba693ca79",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-80d783ff"
+  },
+  {
+    "id": "tab-11004",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11004",
+    "sha256": "25ad222798e759bc165268ca26c86b4759e8d661c12d0d34ccd283a2e758456e",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L1",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-d2877ebd"
+  },
+  {
+    "id": "tab-11005",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11005",
+    "sha256": "56ab6fc36a9a2387c3f4bf3ca36b3595cbaf82b5dfdc305b148d19a45163ab81",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L2",
+    "decision": "内容可保留，但 verify 破坏探针阻塞",
+    "canary": "EXAM-CANARY-10dab17d"
+  },
+  {
+    "id": "tab-11006",
+    "path": "bench/exam/pilots/luna-20261015/cases/tabular/tab-11006",
+    "sha256": "aa6c03e31f2d066d020e659cbb850e2be9a4b3fa9ef574b4059665e2f31129b3",
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "level": "L2",
+    "decision": "可保留的草稿候选",
+    "canary": "EXAM-CANARY-b77c9c33"
+  }
+]

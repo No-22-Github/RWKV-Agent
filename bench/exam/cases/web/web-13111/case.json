@@ -1,0 +1,71 @@
+{
+  "id": "web-13111",
+  "description": "先联网查某库的最新版本，第二轮不许再查，凭记忆复述版本号。 EXAM-CANARY-b0de2b78",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "3.8.2"
+    },
+    "axes": [
+      "VER",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-web-13111",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "tidewater-client",
+      "url": "https://blog.dockyard-notes.example/posts/tidewater-client-upgrade",
+      "url_match": "blog.dockyard-notes.example/posts/tidewater-client-upgrade",
+      "title": "升级 tidewater-client 踩坑记录",
+      "snippet": "我们团队刚升到 tidewater-client 3.8.2，下面记录几个迁移时遇到的问题。",
+      "content": "# 升级 tidewater-client 踩坑记录\n\n我们团队刚升到 tidewater-client 3.8.2，下面记录几个迁移时遇到的问题。\n\n1. 连接池参数改名。\n2. 重试策略默认关闭。\n",
+      "published_at": "2025-11-03"
+    },
+    {
+      "query_match": "tidewater-client",
+      "url": "https://tidewater.example/client/releases",
+      "url_match": "tidewater.example/client/releases",
+      "title": "tidewater-client 发布记录",
+      "snippet": "tidewater-client 3.11.0 已发布（2026-08-21）。",
+      "content": "# tidewater-client 发布记录\n\n## 3.11.0 (2026-08-21)\n\n- 新增流式下载接口。\n- 修复重连时的内存泄漏。\n\n## 3.10.4 (2026-06-30)\n\n- 修复 TLS 握手超时。\n\n## 3.8.2 (2025-10-12)\n\n- 连接池参数改名。\n",
+      "published_at": "2026-08-21"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "上网查一下，tidewater-client 现在最新是哪个版本？",
+      "expect": {
+        "output_contains": [
+          "3.11.0"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "不用再查了，刚才那个版本号是多少来着？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "3.11.0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

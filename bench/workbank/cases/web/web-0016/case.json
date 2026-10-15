@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 4,
+    "version": 5,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The migration proposal for the events platform has to name the broker version we would move to. Nothing we hold here records thornfield's releases. What is the current thornfield broker release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -65,7 +65,7 @@
   },
   "turns": [
     {
-      "prompt": "The migration proposal for the events platform has to name the broker version we would move to. Nothing we hold here records thornfield's releases. What is the current thornfield broker release? A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The migration proposal for the events platform has to name the broker version we would move to. Nothing we hold here records thornfield's releases. What is the current thornfield broker release?",
       "expect": {
         "required_tools": [
           "web_search"

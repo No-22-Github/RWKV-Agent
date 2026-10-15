@@ -1,0 +1,52 @@
+{
+  "id": "scr-13510",
+  "description": "工单等待时间脚本在沙箱里跑不了（没有 python），换方法复算它会打印的平均等待分钟数。 EXAM-CANARY-b7d3e1c8",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null,
+    "task_type": "reproduce_output",
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 82.9
+    },
+    "level": "L1",
+    "ref_calls": 3,
+    "family": "fam-g6-unrunnable-01",
+    "fixture_bytes": 1090
+  },
+  "files": {
+    "scripts/avg_wait.py": "from pathlib import Path\n\ndef to_min(s):\n    h, m = s.split(\":\")\n    return int(h) * 60 + int(m)\n\nwaits = []\nfor line in (Path(__file__).resolve().parent.parent / \"data\" / \"tickets.tsv\").read_text().splitlines()[1:]:\n    ticket, priority, opened, closed = line.split(\"\\t\")\n    if not closed or priority == \"test\":\n        continue\n    waits.append(to_min(closed) - to_min(opened))\nprint(f\"平均等待 {sum(waits) / len(waits):.1f} 分钟\")\n",
+    "data/tickets.tsv": "ticket\tpriority\topened\tclosed\nT3300\tlow\t14:36\t14:49\nT3301\tlow\t12:41\t14:04\nT3302\tlow\t12:39\t\nT3303\thigh\t08:16\t09:36\nT3304\tnormal\t16:07\t\nT3305\ttest\t14:17\t14:47\nT3306\thigh\t09:54\t12:40\nT3307\tnormal\t16:12\t16:58\nT3308\ttest\t10:17\t\nT3309\thigh\t08:43\t09:57\nT3310\tlow\t14:30\t\nT3311\ttest\t09:29\t10:36\nT3312\tnormal\t08:45\t10:17\nT3313\ttest\t12:38\t12:53\nT3314\thigh\t09:11\t10:27\nT3315\tlow\t12:16\t13:10\nT3316\thigh\t12:05\t14:56\nT3317\ttest\t08:46\t09:58\nT3318\ttest\t14:28\t14:58\nT3319\tlow\t08:07\t10:56\nT3320\ttest\t15:55\t18:05\nT3321\tnormal\t16:18\t17:12\nT3322\thigh\t08:13\t\nT3323\thigh\t08:43\t09:29\nT3324\tnormal\t14:02\t\nT3325\tnormal\t12:22\t14:40\nT3326\tlow\t14:56\t16:48\nT3327\ttest\t12:48\t14:34\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我跑一下 scripts/avg_wait.py，它算出来的平均等待是多少分钟？",
+      "expect": {
+        "expected_number": 91.6,
+        "tolerance": 0.05,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "scripts/avg_wait.py": {
+        "unchanged": true
+      },
+      "data/tickets.tsv": {
+        "unchanged": true
+      }
+    }
+  }
+}

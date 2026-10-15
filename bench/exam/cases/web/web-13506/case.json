@@ -1,0 +1,62 @@
+{
+  "id": "web-13506",
+  "description": "The first search hit fails to fetch with a provider error; the free-plan upload cap is on the second hit. EXAM-CANARY-92d5b7e4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null,
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "ref_calls": 3,
+    "family": "fam-g6-fetchfail-01",
+    "fixture_bytes": 0
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quarryhub",
+      "url": "https://quarryhub.example/pricing",
+      "url_match": "quarryhub.example/pricing",
+      "title": "Plans and pricing - Quarryhub",
+      "snippet": "Compare Quarryhub plans: free, team and enterprise.",
+      "published_at": "2026-07-01",
+      "error": "fetch failed: HTTP 404 Not Found (https://quarryhub.example/pricing)"
+    },
+    {
+      "query_match": "quarryhub",
+      "url": "https://help.quarryhub.example/articles/free-plan-limits",
+      "url_match": "help.quarryhub.example/articles/free-plan-limits",
+      "title": "Free plan limits - Quarryhub help center",
+      "snippet": "What is included with the free plan and where the limits are.",
+      "content": "# Free plan limits\n\n- Projects: up to 3\n- Collaborators: up to 5\n- Uploads: files up to 25 MB each\n- History: 30 days\n\nNeed more? See the team plan.",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We're deciding whether our team can stay on Quarryhub's free plan. What's the largest single file we can upload on it, in MB? Nothing in our wiki covers it.",
+      "expect": {
+        "required_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "expected_number": 25,
+        "tolerance": 0,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

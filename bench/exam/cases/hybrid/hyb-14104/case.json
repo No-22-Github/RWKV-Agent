@@ -1,0 +1,51 @@
+{
+  "id": "hyb-14104",
+  "description": "Turn 1 promotes one of two analysts; the user accepts then asks to undo it; only that row must go back, the other analyst untouched. EXAM-CANARY-8df4292f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14104",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 166,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "data/team.csv": "name,team,role,city\nDana Whitfield,payments,analyst,Leeds\nMarcus Oyelaran,payments,analyst,Leeds\nPriya Raman,platform,engineer,Pune\nTomas Brandt,platform,lead,Berlin\n"
+  },
+  "turns": [
+    {
+      "prompt": "In data/team.csv, Dana Whitfield's role should be lead instead of analyst.",
+      "expect": {}
+    },
+    {
+      "prompt": "I accepted your change in the panel. Then HR told me the promotion isn't confirmed, so put Dana back how she was.",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "expect": {
+    "files": {
+      "data/team.csv": {
+        "contains": [
+          "name,team,role,city\nDana Whitfield,payments,analyst,Leeds\nMarcus Oyelaran,payments,analyst,Leeds\nPriya Raman,platform,engineer,Pune\nTomas Brandt,platform,lead,Berlin"
+        ]
+      }
+    }
+  }
+}

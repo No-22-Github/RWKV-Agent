@@ -1,0 +1,38 @@
+{
+  "id": "hyb-14111",
+  "description": "Exact product of two large integers from a file; floating point loses digits. EXAM-CANARY-256d8186",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hb-hyb-14111",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 60,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "inventory/batch.csv": "batch,units,unit_price_fen\nA-2026-09,3141592653589,27182818\n"
+  },
+  "turns": [
+    {
+      "prompt": "inventory/batch.csv 里 A-2026-09 这批的件数乘以单价（单位是分），总额精确是多少分？要精确到个位，一位都不能差。",
+      "expect": {
+        "output_contains_any": [
+          "85397341332646833802",
+          "85,397,341,332,646,833,802"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ]
+}

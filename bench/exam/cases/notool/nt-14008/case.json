@@ -1,0 +1,55 @@
+{
+  "id": "nt-14008",
+  "description": "Polish a blunt English email; keep the colleague name, invoice number and day. EXAM-CANARY-cfc8b943",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-ha-nt-14008",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 17,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "mail/draft-old.txt": "Subject: invoice\n"
+  },
+  "turns": [
+    {
+      "prompt": "make this email sound more professional pls:\n\nhey Marta, invoice INV-5531 is still wrong, the VAT line is double counted AGAIN. fix it and send it back by Friday or I can't close the month. thx",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "Marta",
+          "INV-5531",
+          "Friday"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "en"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "mail/draft-old.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

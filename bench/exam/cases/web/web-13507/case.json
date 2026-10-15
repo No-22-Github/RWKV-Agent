@@ -1,0 +1,62 @@
+{
+  "id": "web-13507",
+  "description": "第一条搜索结果打不开（404 页面），默认重试次数在第二条。 EXAM-CANARY-e6a02f5d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null,
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "ref_calls": 3,
+    "family": "fam-g6-fetchfail-01",
+    "fixture_bytes": 0
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "okapi-queue",
+      "url": "https://okapi-queue.example/guide/retries",
+      "url_match": "okapi-queue.example/guide/retries",
+      "title": "重试与退避 - okapi-queue 指南",
+      "snippet": "介绍 okapi-queue 客户端的重试策略与退避参数。",
+      "content": "# 404\n\n你访问的页面不存在，可能已被移动或删除。",
+      "published_at": "2026-03-02"
+    },
+    {
+      "query_match": "okapi-queue",
+      "url": "https://docs.okapi-queue.example/3.x/client/options",
+      "url_match": "docs.okapi-queue.example/3.x/client/options",
+      "title": "客户端选项（3.x）- okapi-queue 文档",
+      "snippet": "3.x 客户端构造参数一览，含超时、重试与连接池。",
+      "content": "# 客户端选项（3.x）\n\n| 参数 | 默认值 | 说明 |\n| --- | --- | --- |\n| max_retries | 5 | 失败后最多重试次数。 |\n| backoff_ms | 200 | 首次退避毫秒数。 |\n| timeout_s | 30 | 单次请求超时秒数。 |\n\n最后审阅 2026-09-02。",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "我在给 okapi-queue 的客户端配重试，帮我上网查一下它 3.x 版本默认会重试几次？",
+      "expect": {
+        "required_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "expected_number": 5,
+        "tolerance": 0,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

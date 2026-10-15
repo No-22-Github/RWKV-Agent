@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "Read sales.csv, sum the qty column, and answer with only the numeric total.",
+      "prompt": "What's the total qty in sales.csv?",
       "expect": {
         "tools": null,
         "output_contains": [

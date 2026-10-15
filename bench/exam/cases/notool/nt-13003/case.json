@@ -1,0 +1,42 @@
+{
+  "id": "nt-13003",
+  "description": "道谢加问身份，不需要工具，只判没调工具且有回答。 EXAM-CANARY-a1641672",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-sonnet-nt-13003",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 35,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "日志/昨天.log": "2026-09-15 10:02 INFO job finished\n"
+  },
+  "turns": [
+    {
+      "prompt": "谢谢你啊，昨天那个问题搞定了，多亏你。对了你是真人还是机器人呀？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "日志/昨天.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

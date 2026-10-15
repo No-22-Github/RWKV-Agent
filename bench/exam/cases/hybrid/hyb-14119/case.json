@@ -1,0 +1,61 @@
+{
+  "id": "hyb-14119",
+  "description": "Count jpg and png files in one folder, fill both numbers into the stats note, and say which kind is more numerous. EXAM-CANARY-a1dbfd87",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hb-hyb-14119",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "相册/2026夏/a01.jpg": "fake image data a01\n",
+    "相册/2026夏/a02.jpg": "fake image data a02\n",
+    "相册/2026夏/a03.png": "fake image data a03\n",
+    "相册/2026夏/a04.jpg": "fake image data a04\n",
+    "相册/2026夏/a05.jpg": "fake image data a05\n",
+    "相册/2026夏/a06.png": "fake image data a06\n",
+    "相册/2026夏/a07.jpg": "fake image data a07\n",
+    "相册/2026夏/a08.gif": "fake image data a08\n",
+    "相册/备份/b01.jpg": "backup copy\n",
+    "相册/备份/b02.png": "backup copy\n",
+    "相册/统计.md": "# 夏季相册统计\n\n- jpg: \n- png: \n"
+  },
+  "turns": [
+    {
+      "prompt": "数一下 相册/2026夏 这个文件夹里 jpg 和 png 各有多少张，填到 相册/统计.md 对应的两行里，最后告诉我这两种加起来一共多少张。",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "相册/统计.md": {
+        "contains": [
+          "- jpg: 5",
+          "- png: 2"
+        ]
+      }
+    }
+  }
+}

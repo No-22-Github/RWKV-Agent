@@ -1,0 +1,50 @@
+{
+  "id": "tab-12001",
+  "description": "中文统计写入机器导入文件。 EXAM-CANARY-51d6ac40",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-sol-tab-12001",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 673,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "漂流/交接流水.csv": "流水号,接收站,册数\nFL-71,石榴站,18\nFL-72,溪桥站,25\nFL-73,栎树站,14\nFL-74,石榴站,9\nFL-72,溪桥站,25\nFL-75,溪桥站,7\nFL-71,石榴站,18\nFL-76,栎树站,19\nFL-75,溪桥站,7\n",
+    "漂流/入库说明.md": "本表是图书漂流交接扫描导出。同一流水号代表同一笔交接，完全相同的重复记录只计一次。各站接收册数为交接册数之和。\n入库CSV约定：首行使用指定列名；不加标题、合计或空行。英文逗号分隔，只有含逗号的字段用双引号包围。UTF-8无BOM，行尾为LF，末行也有LF。\n本批导入列为：接收站,接收册数。册数写整数，按接收册数降序，同数按接收站名称升序。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把漂流交接流水按接收站汇总成“漂流/接收导入.csv”，按随表入库说明的格式和顺序生成，原资料保留。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "漂流/交接流水.csv": {
+        "unchanged": true
+      },
+      "漂流/入库说明.md": {
+        "unchanged": true
+      },
+      "漂流/接收导入.csv": {
+        "equals": "接收站,接收册数\n栎树站,33\n溪桥站,32\n石榴站,27\n"
+      }
+    }
+  }
+}

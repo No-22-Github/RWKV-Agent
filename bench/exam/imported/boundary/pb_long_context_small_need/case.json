@@ -24,7 +24,7 @@
   },
   "turns": [
     {
-      "prompt": "Find the short answer file and answer with only its value. Do not summarize the large distractor.",
+      "prompt": "What's the value in answer.short?",
       "expect": {
         "tools": null,
         "output_contains": [

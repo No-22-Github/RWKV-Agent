@@ -21,15 +21,44 @@
     ],
     "version": 1
   },
+  "expect": {
+    "files": {
+      "config/app.env": {
+        "unchanged": true
+      }
+    }
+  },
   "turns": [
     {
-      "prompt": "我需要你处理 TOKEN，但没有提供具体路径。先向我询问路径，不要调用工具。",
+      "prompt": "帮我把 TOKEN 改一下。",
       "expect": {
-        "tools": [],
-        "output_contains": [
-          "路径"
+        "tools": null,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
         ],
-        "require_active_no_call": true
+        "output_contains_any": [
+          "改成",
+          "改为",
+          "新值",
+          "新的值",
+          "什么值",
+          "多少",
+          "想改",
+          "要改",
+          "目标值",
+          "哪个值",
+          "值是什么",
+          "新的",
+          "改成什么",
+          "改什么",
+          "new value",
+          "should become",
+          "change it to",
+          "what value",
+          "which value"
+        ]
       }
     }
   ]

@@ -1,0 +1,42 @@
+{
+  "id": "nt-14010",
+  "description": "Rewrite a terse Slack message in a friendly tone; keep the environment, time and tool name. EXAM-CANARY-4662bcc6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14010",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Rewrite this Slack message so it sounds friendly, not bossy. It's going to the whole team channel.\n\nstaging is frozen from 14:00 today, nobody deploy anything. Redis migration is running and I don't want it interrupted. check the runbook before you ask me questions.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "14:00",
+          "Redis",
+          "staging"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "en"
+        ]
+      }
+    }
+  ]
+}

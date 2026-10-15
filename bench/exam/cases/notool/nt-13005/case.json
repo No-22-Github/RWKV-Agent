@@ -1,0 +1,50 @@
+{
+  "id": "nt-13005",
+  "description": "问「幂等」的含义，通用概念，不需要工具。 EXAM-CANARY-6a046cda",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "调用搜索后回答"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-sonnet-nt-13005",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "同事老说接口要做幂等，幂等到底是啥意思？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "多次",
+          "重复",
+          "同样的结果",
+          "相同的结果",
+          "一样的结果",
+          "同一个结果",
+          "结果一致",
+          "same result",
+          "multiple times",
+          "repeated",
+          "repeat"
+        ]
+      }
+    }
+  ]
+}

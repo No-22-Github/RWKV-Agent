@@ -1,0 +1,59 @@
+{
+  "id": "doc-14027",
+  "description": "Draft an event announcement from the current event details file, not last year's. EXAM-CANARY-50a4669c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-ha-doc-14027",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 226,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "event/details.txt": "Event: Autumn Hack Night\nDate: 2026-10-17\nStart: 18:30\nPlace: Room Delta, 2nd floor\nRSVP: rsvp@brightlabs.example\n",
+    "event/old-details.txt": "Event: Spring Hack Night (2025)\nDate: 2025-04-11\nStart: 19:00\nPlace: Room Gamma\nRSVP: events@brightlabs.example\n",
+    "announce/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Write the announcement for our hack night and save it to announce/hack-night.md. Everything you need is in the event folder. Make it friendly, we'll post it in the company channel.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "announce/hack-night.md": {
+        "contains": [
+          "Autumn Hack Night",
+          "18:30",
+          "Room Delta",
+          "rsvp@brightlabs.example"
+        ]
+      },
+      "event/details.txt": {
+        "unchanged": true
+      },
+      "event/old-details.txt": {
+        "unchanged": true
+      },
+      "announce/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

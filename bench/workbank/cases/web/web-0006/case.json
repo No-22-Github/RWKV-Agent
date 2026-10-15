@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 4,
+    "version": 5,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -57,7 +57,7 @@
   ],
   "turns": [
     {
-      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain. Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain.",
       "expect": {
         "required_tools": [
           "web_search"

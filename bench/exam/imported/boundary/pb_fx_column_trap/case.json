@@ -24,13 +24,12 @@
   },
   "turns": [
     {
-      "prompt": "Read fx_case.txt. For buy orders the customer buys foreign currency from the bank, so use a selling rate; for sell orders use a buying rate. Cash uses cash columns and spot uses spot columns. Answer with only the net TWD outflow rounded to 2 decimals.",
+      "prompt": "I'm settling the four currency orders in fx_case.txt with the bank. A buy means I'm buying the foreign currency, a sell means I'm selling it back. Net, how much TWD do I end up paying out?",
       "expect": {
         "tools": null,
-        "output_contains": [
-          "28079.50"
-        ],
-        "output_contains_token": true
+        "expected_number": 28079.5,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

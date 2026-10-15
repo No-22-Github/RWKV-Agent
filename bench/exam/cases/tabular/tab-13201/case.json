@@ -1,0 +1,48 @@
+{
+  "id": "tab-13201",
+  "description": "Two-turn edit: per-department expense totals saved to a CSV, then re-sorted with a percent-share column added; final file judged. EXAM-CANARY-e82fd28c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-g3en-tab-13201",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 288,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "expenses.csv": "date,dept,amount\n2026-09-01,Quality,95.00\n2026-09-02,Packaging,180.25\n2026-09-03,Logistics,412.50\n2026-09-05,Logistics,230.75\n2026-09-06,Packaging,610.40\n2026-09-08,Quality,142.60\n2026-09-09,Logistics,88.10\n2026-09-11,Packaging,75.00\n2026-09-12,Quality,310.30\n2026-09-14,Logistics,150.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Can you total up spending per department from expenses.csv and save it as summary.csv? Two columns, department and total, two decimals.",
+      "expect": {}
+    },
+    {
+      "prompt": "Nice. Now put the biggest spender on top, and add a share column next to total: each department's percent of everything, one decimal and a % sign.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "summary.csv": {
+        "contains": [
+          "department,total,share\nLogistics,881.35,38.4%\nPackaging,865.65,37.7%\nQuality,547.90,23.9%"
+        ]
+      },
+      "expenses.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

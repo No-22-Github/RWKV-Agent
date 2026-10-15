@@ -21,7 +21,7 @@
     "ref_calls": 5,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "A compliance note about marrowgate has to name the release in which session_ttl_minutes was retired. We hold no marrowgate material of our own. Which version deprecated it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -59,7 +59,7 @@
   ],
   "turns": [
     {
-      "prompt": "A compliance note about marrowgate has to name the release in which session_ttl_minutes was retired. We hold no marrowgate material of our own. Which version deprecated it? Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "A compliance note about marrowgate has to name the release in which session_ttl_minutes was retired. We hold no marrowgate material of our own. Which version deprecated it?",
       "expect": {
         "required_tools": [
           "web_search"

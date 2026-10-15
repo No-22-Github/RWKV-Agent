@@ -24,6 +24,7 @@ import (
 //   - required_tools are dropped except where calling a tool is the lesson
 //     (the bfcl "supplied information" and state cases keep read_file).
 // No-call contracts (tools: [] and require_active_no_call) are kept verbatim.
+// Prompts are then rewritten into what a user would type (importnatural.go).
 
 type importTags struct {
 	Scenario     string
@@ -168,7 +169,7 @@ func runImportBuiltin(args []string) int {
 		c = bfclSearchPrompts(c)
 		keep := strings.HasPrefix(c.ID, "bfcl_supplied_") || strings.HasPrefix(c.ID, "bfcl_state_") ||
 			strings.HasPrefix(c.ID, "bfcl_recovery_")
-		bfclOut = append(bfclOut, exportCase(c, "bfcl-product", "import:bfcl-v4", bfclTags(c), keep))
+		bfclOut = append(bfclOut, naturalizeBFCL(exportCase(c, "bfcl-product", "import:bfcl-v4", bfclTags(c), keep)))
 	}
 	boundary, err := eval.BoundaryCases()
 	if err != nil {
@@ -182,7 +183,7 @@ func runImportBuiltin(args []string) int {
 			fmt.Fprintf(os.Stderr, "rwkv-lab exam import-builtin: boundary case %q has no tag mapping\n", c.ID)
 			return 1
 		}
-		boundaryOut = append(boundaryOut, exportCase(c, "boundary", "import:primitive-bench", tags, false))
+		boundaryOut = append(boundaryOut, naturalizeBoundary(exportCase(c, "boundary", "import:primitive-bench", tags, false)))
 	}
 	for suite, cases := range map[string][]eval.Case{"bfcl-product": bfclOut, "boundary": boundaryOut} {
 		if err := writeImported(root, suite, cases); err != nil {

@@ -1,0 +1,52 @@
+{
+  "id": "doc-13203",
+  "description": "Two-turn edit: action items extracted into todo.md, then reformatted with deadlines in parentheses and the finished item dropped; final file judged. EXAM-CANARY-df5139d5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3en-doc-13203",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 329,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "notes/standup-0914.md": "- Dana to reorder the label scanner by 19 Sep\n- Marcus to send the vendor contract to legal by 22 Sep (done)\n- Priya to update the onboarding checklist by 24 Sep\n- Leo to book the October offsite venue by 30 Sep\n\n## Discussion (standup 14 Sep)\n- Parking permits: someone should look into it eventually.\n- Snack budget unchanged.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pull the action items out of notes/standup-0914.md into todo.md. One line each like \"- Dana: reorder the label scanner by 19 Sep\", same order as the notes.",
+      "expect": {}
+    },
+    {
+      "prompt": "Actually, put the deadline at the end in parentheses, like (19 Sep). And take out the one that's already finished.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "todo.md": {
+        "contains": [
+          "- Dana: reorder the label scanner (19 Sep)\n- Priya: update the onboarding checklist (24 Sep)\n- Leo: book the October offsite venue (30 Sep)"
+        ]
+      },
+      "notes/standup-0914.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

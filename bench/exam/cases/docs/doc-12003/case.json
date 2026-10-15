@@ -1,0 +1,47 @@
+{
+  "id": "doc-12003",
+  "description": "从版本说明中选择现行方案并填写服务台发布卡。 EXAM-CANARY-a638bf03",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-sol-doc-12003",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 514,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "发布/借阅终端方案.md": "版本=R4.2｜状态=现行｜启用日期=2026-09-23｜适用范围=一层成人阅览区｜办理入口=自助终端“读者证续期”\n版本=R3.8｜状态=停用｜启用日期=2026-08-19｜适用范围=一层全部阅览区｜办理入口=窗口领取纸质续期单\n说明：状态为现行的方案是本次服务台发布依据；停用方案仅留档。\n",
+    "服务台/借阅发布卡.md": "# 借阅终端发布卡\n\n- 版本：{{版本}}\n- 适用范围：{{适用范围}}\n- 办理入口：{{办理入口}}\n- 启用日期：{{启用日期}}\n"
+  },
+  "turns": [
+    {
+      "prompt": "服务台要换上新的发布卡。依据 `发布/借阅终端方案.md` 中标注的现行方案，把 `服务台/借阅发布卡.md` 的占位符补齐；版本号、适用范围、办理入口和启用日期按方案原文填写，卡片其余内容与换行保持原样，方案文档保留。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "发布/借阅终端方案.md": {
+        "unchanged": true
+      },
+      "服务台/借阅发布卡.md": {
+        "equals": "# 借阅终端发布卡\n\n- 版本：R4.2\n- 适用范围：一层成人阅览区\n- 办理入口：自助终端“读者证续期”\n- 启用日期：2026-09-23\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "scr-13509",
+  "description": "Access-log peak script cannot run (no python); recompute the request count it prints for the busiest hour. EXAM-CANARY-0f6c83d2",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null,
+    "task_type": "reproduce_output",
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 33
+    },
+    "level": "L1",
+    "ref_calls": 3,
+    "family": "fam-g6-unrunnable-01",
+    "fixture_bytes": 7734
+  },
+  "files": {
+    "scripts/peak_hour.py": "import collections\nfrom pathlib import Path\n\ncounts = collections.Counter()\nfor line in (Path(__file__).resolve().parent.parent / \"logs\" / \"access.log\").read_text().splitlines():\n    ts, method, path, status, dur = line.split()\n    if int(status) >= 500:\n        continue\n    counts[ts[11:13]] += 1\nhour, n = max(counts.items(), key=lambda kv: kv[1])\nprint(f\"peak hour {hour}:00 handled {n} successful requests\")\n",
+    "logs/access.log": "2026-09-15T08:00:12Z GET /api/items 404 353ms\n2026-09-15T08:03:59Z GET /api/items 502 330ms\n2026-09-15T08:15:44Z GET /api/items 500 387ms\n2026-09-15T08:16:57Z GET /api/items 200 168ms\n2026-09-15T08:17:06Z GET /api/items 500 33ms\n2026-09-15T08:17:24Z GET /api/items 200 194ms\n2026-09-15T08:22:50Z GET /api/items 200 154ms\n2026-09-15T08:23:22Z GET /api/items 404 235ms\n2026-09-15T08:31:13Z GET /api/items 200 398ms\n2026-09-15T08:36:17Z GET /api/items 404 135ms\n2026-09-15T08:41:48Z GET /api/items 200 305ms\n2026-09-15T08:42:30Z GET /api/items 404 225ms\n2026-09-15T08:49:42Z GET /api/items 500 212ms\n2026-09-15T08:59:40Z GET /api/items 200 396ms\n2026-09-15T09:00:01Z GET /api/items 200 90ms\n2026-09-15T09:00:24Z GET /api/items 404 282ms\n2026-09-15T09:00:52Z GET /api/items 502 382ms\n2026-09-15T09:01:02Z GET /api/items 200 148ms\n2026-09-15T09:01:28Z GET /api/items 404 285ms\n2026-09-15T09:03:20Z GET /api/items 500 66ms\n2026-09-15T09:04:38Z GET /api/items 200 171ms\n2026-09-15T09:06:31Z GET /api/items 404 110ms\n2026-09-15T09:07:15Z GET /api/items 200 40ms\n2026-09-15T09:08:40Z GET /api/items 500 377ms\n2026-09-15T09:09:42Z GET /api/items 500 60ms\n2026-09-15T09:11:13Z GET /api/items 200 117ms\n2026-09-15T09:12:43Z GET /api/items 200 158ms\n2026-09-15T09:26:51Z GET /api/items 200 13ms\n2026-09-15T09:33:37Z GET /api/items 200 115ms\n2026-09-15T09:34:44Z GET /api/items 200 256ms\n2026-09-15T09:35:01Z GET /api/items 502 79ms\n2026-09-15T09:35:11Z GET /api/items 404 399ms\n2026-09-15T09:35:50Z GET /api/items 200 259ms\n2026-09-15T09:40:39Z GET /api/items 500 80ms\n2026-09-15T09:46:21Z GET /api/items 200 189ms\n2026-09-15T09:50:47Z GET /api/items 502 75ms\n2026-09-15T09:54:45Z GET /api/items 200 50ms\n2026-09-15T09:54:57Z GET /api/items 404 97ms\n2026-09-15T09:56:10Z GET /api/items 200 180ms\n2026-09-15T09:58:10Z GET /api/items 200 12ms\n2026-09-15T09:59:08Z GET /api/items 200 194ms\n2026-09-15T10:06:14Z GET /api/items 500 27ms\n2026-09-15T10:10:09Z GET /api/items 502 376ms\n2026-09-15T10:10:25Z GET /api/items 200 66ms\n2026-09-15T10:11:26Z GET /api/items 200 344ms\n2026-09-15T10:25:54Z GET /api/items 200 264ms\n2026-09-15T10:27:40Z GET /api/items 200 261ms\n2026-09-15T10:28:44Z GET /api/items 200 171ms\n2026-09-15T10:31:38Z GET /api/items 500 302ms\n2026-09-15T10:34:51Z GET /api/items 404 76ms\n2026-09-15T10:39:40Z GET /api/items 200 125ms\n2026-09-15T10:42:25Z GET /api/items 500 346ms\n2026-09-15T10:43:25Z GET /api/items 404 111ms\n2026-09-15T10:45:07Z GET /api/items 500 326ms\n2026-09-15T10:56:49Z GET /api/items 200 142ms\n2026-09-15T11:04:07Z GET /api/items 200 127ms\n2026-09-15T11:07:24Z GET /api/items 200 364ms\n2026-09-15T11:09:32Z GET /api/items 200 30ms\n2026-09-15T11:12:03Z GET /api/items 200 311ms\n2026-09-15T11:15:21Z GET /api/items 200 356ms\n2026-09-15T11:18:33Z GET /api/items 200 265ms\n2026-09-15T11:20:09Z GET /api/items 502 61ms\n2026-09-15T11:23:30Z GET /api/items 200 118ms\n2026-09-15T11:30:46Z GET /api/items 200 354ms\n2026-09-15T11:39:38Z GET /api/items 500 103ms\n2026-09-15T11:40:32Z GET /api/items 200 84ms\n2026-09-15T11:43:08Z GET /api/items 404 91ms\n2026-09-15T11:48:14Z GET /api/items 502 207ms\n2026-09-15T11:48:36Z GET /api/items 200 92ms\n2026-09-15T11:52:09Z GET /api/items 502 158ms\n2026-09-15T11:54:25Z GET /api/items 200 229ms\n2026-09-15T11:58:02Z GET /api/items 200 328ms\n2026-09-15T13:05:10Z GET /api/items 200 316ms\n2026-09-15T13:05:48Z GET /api/items 200 166ms\n2026-09-15T13:15:12Z GET /api/items 200 163ms\n2026-09-15T13:23:44Z GET /api/items 502 31ms\n2026-09-15T13:27:16Z GET /api/items 404 117ms\n2026-09-15T13:32:37Z GET /api/items 200 318ms\n2026-09-15T13:41:32Z GET /api/items 200 145ms\n2026-09-15T13:44:33Z GET /api/items 200 372ms\n2026-09-15T13:45:26Z GET /api/items 200 348ms\n2026-09-15T13:54:25Z GET /api/items 200 165ms\n2026-09-15T13:56:05Z GET /api/items 200 211ms\n2026-09-15T14:01:37Z GET /api/items 502 208ms\n2026-09-15T14:03:40Z GET /api/items 200 285ms\n2026-09-15T14:04:11Z GET /api/items 502 100ms\n2026-09-15T14:04:45Z GET /api/items 200 311ms\n2026-09-15T14:06:22Z GET /api/items 200 114ms\n2026-09-15T14:06:24Z GET /api/items 200 122ms\n2026-09-15T14:06:54Z GET /api/items 200 55ms\n2026-09-15T14:08:01Z GET /api/items 200 135ms\n2026-09-15T14:08:27Z GET /api/items 200 100ms\n2026-09-15T14:09:10Z GET /api/items 200 139ms\n2026-09-15T14:10:22Z GET /api/items 200 374ms\n2026-09-15T14:13:00Z GET /api/items 500 344ms\n2026-09-15T14:14:14Z GET /api/items 200 293ms\n2026-09-15T14:15:24Z GET /api/items 200 112ms\n2026-09-15T14:24:15Z GET /api/items 200 183ms\n2026-09-15T14:25:46Z GET /api/items 404 298ms\n2026-09-15T14:26:37Z GET /api/items 200 128ms\n2026-09-15T14:29:24Z GET /api/items 200 15ms\n2026-09-15T14:30:12Z GET /api/items 500 310ms\n2026-09-15T14:32:41Z GET /api/items 200 146ms\n2026-09-15T14:32:47Z GET /api/items 404 48ms\n2026-09-15T14:34:43Z GET /api/items 200 199ms\n2026-09-15T14:35:38Z GET /api/items 200 372ms\n2026-09-15T14:41:18Z GET /api/items 200 290ms\n2026-09-15T14:46:15Z GET /api/items 502 114ms\n2026-09-15T14:46:46Z GET /api/items 500 348ms\n2026-09-15T14:47:19Z GET /api/items 200 77ms\n2026-09-15T14:50:27Z GET /api/items 200 104ms\n2026-09-15T14:55:30Z GET /api/items 200 42ms\n2026-09-15T14:56:13Z GET /api/items 500 145ms\n2026-09-15T14:57:16Z GET /api/items 200 140ms\n2026-09-15T14:57:18Z GET /api/items 502 180ms\n2026-09-15T14:58:49Z GET /api/items 502 44ms\n2026-09-15T15:04:13Z GET /api/items 500 292ms\n2026-09-15T15:05:45Z GET /api/items 500 299ms\n2026-09-15T15:06:32Z GET /api/items 200 88ms\n2026-09-15T15:06:37Z GET /api/items 200 275ms\n2026-09-15T15:07:44Z GET /api/items 200 293ms\n2026-09-15T15:10:27Z GET /api/items 404 255ms\n2026-09-15T15:11:54Z GET /api/items 200 50ms\n2026-09-15T15:19:47Z GET /api/items 502 8ms\n2026-09-15T15:20:23Z GET /api/items 500 159ms\n2026-09-15T15:21:54Z GET /api/items 404 282ms\n2026-09-15T15:32:20Z GET /api/items 404 195ms\n2026-09-15T15:34:48Z GET /api/items 200 395ms\n2026-09-15T15:36:22Z GET /api/items 404 47ms\n2026-09-15T15:40:11Z GET /api/items 502 200ms\n2026-09-15T15:42:10Z GET /api/items 404 230ms\n2026-09-15T15:44:41Z GET /api/items 404 148ms\n2026-09-15T15:46:11Z GET /api/items 200 178ms\n2026-09-15T15:53:00Z GET /api/items 502 324ms\n2026-09-15T15:55:55Z GET /api/items 200 103ms\n2026-09-15T15:56:30Z GET /api/items 500 343ms\n2026-09-15T15:59:46Z GET /api/items 500 53ms\n2026-09-15T16:00:31Z GET /api/items 502 20ms\n2026-09-15T16:08:57Z GET /api/items 502 338ms\n2026-09-15T16:19:10Z GET /api/items 404 338ms\n2026-09-15T16:20:00Z GET /api/items 200 245ms\n2026-09-15T16:20:31Z GET /api/items 502 357ms\n2026-09-15T16:33:14Z GET /api/items 200 162ms\n2026-09-15T16:40:28Z GET /api/items 200 106ms\n2026-09-15T16:44:10Z GET /api/items 200 49ms\n2026-09-15T16:45:59Z GET /api/items 500 172ms\n2026-09-15T16:47:15Z GET /api/items 200 69ms\n2026-09-15T16:47:51Z GET /api/items 404 256ms\n2026-09-15T17:02:51Z GET /api/items 200 96ms\n2026-09-15T17:04:16Z GET /api/items 200 281ms\n2026-09-15T17:11:55Z GET /api/items 404 32ms\n2026-09-15T17:12:48Z GET /api/items 200 140ms\n2026-09-15T17:13:18Z GET /api/items 200 360ms\n2026-09-15T17:15:06Z GET /api/items 500 384ms\n2026-09-15T17:23:27Z GET /api/items 200 393ms\n2026-09-15T17:28:26Z GET /api/items 200 342ms\n2026-09-15T17:36:33Z GET /api/items 404 172ms\n2026-09-15T17:38:44Z GET /api/items 404 187ms\n2026-09-15T17:39:31Z GET /api/items 200 143ms\n2026-09-15T17:39:53Z GET /api/items 500 85ms\n"
+  },
+  "turns": [
+    {
+      "prompt": "Run scripts/peak_hour.py for me - I want to know how many requests it says the busiest hour handled.",
+      "expect": {
+        "expected_number": 24,
+        "tolerance": 0,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "scripts/peak_hour.py": {
+        "unchanged": true
+      },
+      "logs/access.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

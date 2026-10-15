@@ -1,0 +1,42 @@
+{
+  "id": "cfg-14146",
+  "description": "Services from a YAML turned into a markdown table with port and replicas. EXAM-CANARY-2e54dc57",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hb-cfg-14146",
+    "answer_style": "natural",
+    "ref_calls": 1,
+    "fixture_bytes": 155,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "deploy/services.yaml": "services:\n  - name: gateway\n    port: 8443\n    replicas: 3\n  - name: ledger\n    port: 9100\n    replicas: 2\n  - name: mailer\n    port: 2525\n    replicas: 1\n"
+  },
+  "turns": [
+    {
+      "prompt": "Put the services in deploy/services.yaml into a table for me: name, port and replicas.",
+      "expect": {
+        "output_format": [
+          "markdown_table"
+        ],
+        "output_contains": [
+          "8443",
+          "9100",
+          "2525"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

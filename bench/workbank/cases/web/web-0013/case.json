@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The storage group is standing up a new build farm and wants our current setting on record before anything is changed. We have never held cindermill's reference here. According to cindermill's configuration reference, what value does cache_ttl_hours ship with? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -51,7 +51,7 @@
   ],
   "turns": [
     {
-      "prompt": "The storage group is standing up a new build farm and wants our current setting on record before anything is changed. We have never held cindermill's reference here. According to cindermill's configuration reference, what value does cache_ttl_hours ship with? A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The storage group is standing up a new build farm and wants our current setting on record before anything is changed. We have never held cindermill's reference here. According to cindermill's configuration reference, what value does cache_ttl_hours ship with? Keep it brief.",
       "expect": {
         "required_tools": [
           "web_search"

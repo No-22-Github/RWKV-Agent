@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. We keep nothing of tidalforge's here. media_priority: what tidalforge version deprecated it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -57,7 +57,7 @@
   ],
   "turns": [
     {
-      "prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. We keep nothing of tidalforge's here. media_priority: what tidalforge version deprecated it? Just give me the answer. If you can't pin it down, tell me why.",
+      "prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. We keep nothing of tidalforge's here. media_priority: what tidalforge version deprecated it?",
       "expect": {
         "required_tools": [
           "web_search"

@@ -25,7 +25,7 @@
   },
   "turns": [
     {
-      "prompt": "Find the required migration flag for version 2.4.0. Answer with only the flag.",
+      "prompt": "We're upgrading to 2.4.0. Which migration flag do I need to set?",
       "expect": {
         "tools": null,
         "output_contains": [

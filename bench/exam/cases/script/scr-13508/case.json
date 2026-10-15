@@ -1,0 +1,52 @@
+{
+  "id": "scr-13508",
+  "description": "Revenue script cannot run in the sandbox (no python); recompute its printed net revenue by another method. EXAM-CANARY-4b19d7a0",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null,
+    "task_type": "reproduce_output",
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 17154.45
+    },
+    "level": "L1",
+    "ref_calls": 3,
+    "family": "fam-g6-unrunnable-01",
+    "fixture_bytes": 1254
+  },
+  "files": {
+    "scripts/net_revenue.py": "import csv\nfrom pathlib import Path\n\nrows = csv.DictReader(open(Path(__file__).resolve().parent.parent / \"data\" / \"orders.csv\", newline=\"\"))\ntotal = 0.0\nfor r in rows:\n    if r[\"status\"] == \"cancelled\":\n        continue\n    total += float(r[\"gross\"]) - float(r[\"refund\"])\nprint(f\"net revenue: {total:.2f}\")\n",
+    "data/orders.csv": "order_id,status,gross,refund\nR7100,paid,630.36,0.00\nR7101,cancelled,740.24,0.00\nR7102,refunded,89.73,44.87\nR7103,refunded,594.42,148.60\nR7104,refunded,267.36,66.84\nR7105,paid,552.00,0.00\nR7106,paid,492.81,0.00\nR7107,paid,420.04,0.00\nR7108,cancelled,195.63,0.00\nR7109,cancelled,840.19,0.00\nR7110,paid,774.12,0.00\nR7111,paid,535.24,0.00\nR7112,refunded,624.14,156.03\nR7113,refunded,215.16,215.16\nR7114,paid,109.17,0.00\nR7115,cancelled,422.78,0.00\nR7116,cancelled,400.82,0.00\nR7117,paid,102.52,0.00\nR7118,paid,374.08,0.00\nR7119,cancelled,319.72,0.00\nR7120,paid,151.08,0.00\nR7121,paid,271.30,0.00\nR7122,refunded,575.88,143.97\nR7123,paid,243.37,0.00\nR7124,paid,216.56,0.00\nR7125,paid,575.76,0.00\nR7126,refunded,521.25,521.25\nR7127,paid,677.23,0.00\nR7128,paid,839.79,0.00\nR7129,paid,505.93,0.00\nR7130,refunded,524.18,131.04\nR7131,paid,743.62,0.00\nR7132,paid,418.12,0.00\nR7133,cancelled,720.12,0.00\nR7134,cancelled,735.53,0.00\nR7135,cancelled,734.20,0.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Can you run scripts/net_revenue.py and tell me what net revenue it reports?",
+      "expect": {
+        "expected_number": 10617.46,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "scripts/net_revenue.py": {
+        "unchanged": true
+      },
+      "data/orders.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

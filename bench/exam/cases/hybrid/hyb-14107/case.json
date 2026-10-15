@@ -1,0 +1,40 @@
+{
+  "id": "hyb-14107",
+  "description": "Days from the fixed date 2026-09-16 to the Beta milestone listed in plan.md. EXAM-CANARY-f86977bd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 34
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hb-hyb-14107",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 164,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "project/plan.md": "# 数据看板 2.0 迭代计划\n\n- 需求冻结：2026-09-25\n- 代码冻结：2026-10-20\n- Beta 发布：2026-11-03\n- 正式发布：2026-12-01\n\n负责人：陈蔚\n"
+  },
+  "turns": [
+    {
+      "prompt": "project/plan.md 里的 Beta 发布日期，离今天还有几天？直接告诉我天数就行。",
+      "expect": {
+        "expected_number": 48,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

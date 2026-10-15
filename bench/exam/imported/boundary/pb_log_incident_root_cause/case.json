@@ -25,11 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "Find the first ERROR after the deployment marker at 2026-07-05T14:00:00Z that has a request_id. Answer exactly 'service code request_id'. Ignore pre-deploy errors and warnings.",
+      "prompt": "We deployed at 14:00 UTC on July 5 and things broke right after. What was the first error after the deploy that has a request ID? I need the service, the error code and the request.",
       "expect": {
         "tools": null,
         "output_contains": [
-          "worker E_DB_DEADLOCK req-8842"
+          "worker",
+          "E_DB_DEADLOCK",
+          "req-8842"
         ],
         "output_contains_token": true
       }

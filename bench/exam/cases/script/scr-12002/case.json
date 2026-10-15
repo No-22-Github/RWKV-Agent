@@ -1,0 +1,65 @@
+{
+  "id": "scr-12002",
+  "description": "修复冷链装车摘要的缺值报错，并按复点、扫描、计划三层来源取箱数。 EXAM-CANARY-a8f0c936",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-PRECEDENCE",
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": null,
+      "TR-MISSING": null
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-sol-scr-12002",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1226,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# 静川冷链装车箱数\n每一行是一个独立托盘。每行按 box_sources.json 的字段先后取第一个已填箱数，再按 dock 汇总；所有字段均未填时该行按 0 箱计，0 是已填数值。\n输出所有出现过的 dock，按编号升序。第一行 dock,boxes，后续为编号与箱数，逗号分隔，不加空格。\n输入为与脚本同目录的 pallets.csv，程序不需要命令行参数。\n",
+    "box_sources.json": "{\n  \"priority\": [\n    \"recounted_boxes\",\n    \"scanned_boxes\",\n    \"planned_boxes\"\n  ],\n  \"unset\": [\n    \"\",\n    \"NA\",\n    \"-\",\n    \"null\"\n  ]\n}\n",
+    "pallets.csv": "dock,recounted_boxes,scanned_boxes,planned_boxes\nD1,3,NA,10\nD2,NA,4,6\nD2,,null,5\nD3,-,NA,2\nD1,null,7,9\nD3,,NA,-\nD4,0,6,8\n",
+    "loading_summary.py": "from pathlib import Path\nimport csv\n\nrows = csv.DictReader((Path(__file__).parent / \"pallets.csv\").open(encoding=\"utf-8\", newline=\"\"))\ntotals = {}\nfor row in rows:\n    boxes = int(row[\"scanned_boxes\"])\n    dock = row[\"dock\"]\n    totals[dock] = totals.get(dock, 0) + boxes\nprint(\"dock,boxes\")\nfor dock in sorted(totals):\n    print(f\"{dock},{totals[dock]}\")\n",
+    "traceback.log": "Traceback (most recent call last):\n  File \"loading_summary.py\", line 7, in <module>\n    boxes = int(row[\"scanned_boxes\"])\nValueError: invalid literal for int() with base 10: 'NA'\n"
+  },
+  "turns": [
+    {
+      "prompt": "`loading_summary.py` 按 `traceback.log` 报错了，装车箱数也需要按仓库说明统一口径。请修复脚本，让它按 `README.md` 生成摘要，其他文件保持原样。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "run": {
+      "path": "loading_summary.py",
+      "args": [],
+      "expected_stdout": "dock,boxes\nD1,10\nD2,9\nD3,2\nD4,0",
+      "timeout_millis": 10000
+    },
+    "files": {
+      "README.md": {
+        "unchanged": true
+      },
+      "box_sources.json": {
+        "unchanged": true
+      },
+      "pallets.csv": {
+        "unchanged": true
+      },
+      "traceback.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

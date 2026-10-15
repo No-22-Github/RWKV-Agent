@@ -23,7 +23,7 @@
   },
   "turns": [
     {
-      "prompt": "Find SECRET_CODE in the project, inspect the relevant file, and answer with only the code value.",
+      "prompt": "What's the SECRET_CODE in this project?",
       "expect": {
         "tools": null,
         "output_contains": [

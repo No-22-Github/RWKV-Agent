@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "Read loan_case.txt. Compute the approximate simple interest for all listed rows using balance * APR * days / 365. Answer with only the interest amount rounded to 2 decimals.",
+      "prompt": "Roughly how much simple interest does the credit line in loan_case.txt rack up over those eight months?",
       "expect": {
         "tools": null,
         "expected_number": 289.13,

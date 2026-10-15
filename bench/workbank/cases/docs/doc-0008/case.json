@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 1378,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:deepseek-drafter",
     "reviewer": null,
     "legacy_prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -39,7 +39,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Just tell me the result; if you can't find it, tell me that instead.",
+      "prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Keep it brief.",
       "expect": {
         "output_contains": [
           "rollback-checklist.md"

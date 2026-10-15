@@ -1,0 +1,52 @@
+{
+  "id": "log-13107",
+  "description": "先数昨天的 5xx 总数，再追问这些里最早的一条几点、哪台机器。 EXAM-CANARY-de657944",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 15
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-log-13107",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 2063,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "logs/api.log": "2026-09-14 00:40:41 web-03 200 /api/orders\n2026-09-14 05:34:50 web-03 500 /api/orders\n2026-09-14 06:09:07 web-03 502 /api/pay\n2026-09-14 06:43:24 web-01 404 /api/pay\n2026-09-14 08:20:30 web-03 200 /api/search\n2026-09-14 08:36:05 web-04 500 /api/users\n2026-09-14 10:29:27 web-01 500 /api/users\n2026-09-14 10:29:33 web-04 200 /api/pay\n2026-09-14 10:31:47 web-04 502 /api/pay\n2026-09-14 11:29:07 web-04 200 /api/search\n2026-09-14 13:22:57 web-04 200 /api/users\n2026-09-14 13:41:33 web-01 200 /api/users\n2026-09-14 16:27:03 web-04 404 /api/search\n2026-09-14 17:25:39 web-01 502 /api/search\n2026-09-14 18:33:53 web-02 404 /api/pay\n2026-09-14 18:44:10 web-01 200 /api/users\n2026-09-14 19:28:41 web-02 301 /api/search\n2026-09-14 19:34:23 web-03 200 /api/orders\n2026-09-14 20:37:07 web-01 200 /api/orders\n2026-09-14 22:03:32 web-04 200 /api/orders\n2026-09-15 00:03:05 web-01 404 /api/users\n2026-09-15 00:34:59 web-02 404 /api/orders\n2026-09-15 00:47:30 web-02 200 /api/orders\n2026-09-15 00:57:50 web-03 200 /api/pay\n2026-09-15 02:17:33 web-03 503 /api/pay\n2026-09-15 03:34:02 web-04 301 /api/pay\n2026-09-15 06:39:22 web-01 429 /api/users\n2026-09-15 06:59:01 web-01 404 /api/search\n2026-09-15 07:16:28 web-02 502 /api/orders\n2026-09-15 07:40:06 web-01 429 /api/users\n2026-09-15 10:12:01 web-04 502 /api/search\n2026-09-15 10:48:44 web-02 200 /api/search\n2026-09-15 11:32:12 web-03 200 /api/pay\n2026-09-15 11:46:47 web-04 500 /api/orders\n2026-09-15 14:05:19 web-01 504 /api/users\n2026-09-15 14:14:18 web-01 503 /api/search\n2026-09-15 15:24:18 web-04 503 /api/users\n2026-09-15 15:49:32 web-04 200 /api/search\n2026-09-15 16:32:57 web-02 301 /api/users\n2026-09-15 17:06:43 web-01 502 /api/search\n2026-09-15 18:24:14 web-02 200 /api/search\n2026-09-15 22:49:32 web-01 200 /api/users\n2026-09-15 22:53:32 web-02 200 /api/orders\n2026-09-15 23:09:28 web-03 500 /api/users\n2026-09-16 00:55:43 web-03 200 /api/search\n2026-09-16 02:32:41 web-01 500 /api/search\n2026-09-16 03:48:32 web-03 404 /api/orders\n2026-09-16 04:03:32 web-01 404 /api/pay\n2026-09-16 06:08:10 web-01 404 /api/users\n"
+  },
+  "turns": [
+    {
+      "prompt": "api.log 里昨天一共有多少条 5xx 错误？",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    },
+    {
+      "prompt": "那这些里面最早的一条是几点出的，在哪台机器上？",
+      "expect": {
+        "output_contains": [
+          "web-03"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "02:17"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "doc-12004",
+  "description": "将接口说明中的提交条件整理为固定字段核对表。 EXAM-CANARY-a638bf04",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-sol-doc-12004",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 744,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "接口/展品借调说明.md": "字段=exhibit_id｜含义=馆藏展品编号｜可省略=否\n字段=pickup_note｜含义=现场提取备注｜可省略=是\n字段=courier_code｜含义=承运方机构代码｜可省略=取件方式为快递时不可省略\n\n提交条件三类名称：可省略为“否”记“必填”；可省略为“是”记“选填”；带场景条件的记“条件必填”，并在括号内抄录该场景原文。\n",
+    "联调/借调字段核对表.md": "# 借调字段核对表\n\n| 字段 | 字段含义 | 提交条件 |\n| --- | --- | --- |\n| exhibit_id | {{exhibit_id.含义}} | {{exhibit_id.提交条件}} |\n| pickup_note | {{pickup_note.含义}} | {{pickup_note.提交条件}} |\n| courier_code | {{courier_code.含义}} | {{courier_code.提交条件}}（{{courier_code.场景}}） |\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 `接口/展品借调说明.md` 整理到 `联调/借调字段核对表.md` 的占位符里。联调表供双方逐项签核，保留已有表格、行顺序和换行；字段含义照原文，提交条件按说明中的三类名称填写。原说明留存。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "接口/展品借调说明.md": {
+        "unchanged": true
+      },
+      "联调/借调字段核对表.md": {
+        "equals": "# 借调字段核对表\n\n| 字段 | 字段含义 | 提交条件 |\n| --- | --- | --- |\n| exhibit_id | 馆藏展品编号 | 必填 |\n| pickup_note | 现场提取备注 | 选填 |\n| courier_code | 承运方机构代码 | 条件必填（取件方式为快递时不可省略） |\n"
+      }
+    }
+  }
+}

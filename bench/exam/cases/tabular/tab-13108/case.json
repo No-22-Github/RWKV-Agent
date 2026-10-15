@@ -1,0 +1,49 @@
+{
+  "id": "tab-13108",
+  "description": "先问按件数卖得最多的商品，再追问它一共卖了多少钱；判第二轮金额。 EXAM-CANARY-aac8a124",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4277.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-tab-13108",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 525,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "sales.csv": "日期,商品,数量,单价\n2026-09-01,帆布袋,30,12.50\n2026-09-01,机械键盘,4,329.00\n2026-09-02,保温杯,9,59.00\n2026-09-03,数据线,22,15.00\n2026-09-04,帆布袋,45,12.50\n2026-09-05,手机支架,18,19.90\n2026-09-06,机械键盘,6,329.00\n2026-09-07,保温杯,12,59.00\n2026-09-08,数据线,16,15.00\n2026-09-09,帆布袋,38,12.50\n2026-09-10,手机支架,25,19.90\n2026-09-11,机械键盘,3,329.00\n2026-09-12,保温杯,14,59.00\n2026-09-13,帆布袋,27,12.50\n2026-09-14,数据线,19,15.00\n2026-09-15,手机支架,21,19.90\n"
+  },
+  "turns": [
+    {
+      "prompt": "sales.csv 是我们这个月的销售记录，哪个商品卖得最多（按件数）？",
+      "expect": {
+        "output_contains": [
+          "帆布袋"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "那它这个月一共卖了多少钱？",
+      "expect": {
+        "expected_number": 1750.0,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ]
+}

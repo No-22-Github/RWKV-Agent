@@ -1,0 +1,42 @@
+{
+  "id": "nt-14001",
+  "description": "Translate a pasted Chinese room notice into English; keep the room code, project name and headcount. EXAM-CANARY-8cb1343b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14001",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "帮我把下面这段通知翻成英文，我要发给外籍同事：\n\n各位同事：本周四下午的 Orion 项目评审会改到 B2-17 会议室，预计 42 人参加，请大家提前十分钟入场并带好笔记本电脑。会议室不提供转接线，需要投屏的同事请自备。如无法出席，请提前告知项目助理小周。谢谢配合。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "Orion",
+          "B2-17",
+          "42"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "en"
+        ]
+      }
+    }
+  ]
+}

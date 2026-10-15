@@ -1,0 +1,47 @@
+{
+  "id": "doc-14029",
+  "description": "Draft an onboarding checklist from facts in the message. EXAM-CANARY-e07d5c85",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-doc-14029",
+    "answer_style": "natural",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "onboarding/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Priya Raman joins on 2026-10-05 and Tomas is her buddy. Her laptop request is IT-4410. Can you put together an onboarding checklist for her first week and save it at onboarding/priya.md?",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "onboarding/priya.md": {
+        "contains": [
+          "Priya Raman",
+          "2026-10-05",
+          "Tomas",
+          "IT-4410"
+        ]
+      },
+      "onboarding/.keep": {
+        "unchanged": true
+      }
+    }
+  }
+}

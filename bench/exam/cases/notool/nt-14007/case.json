@@ -1,0 +1,42 @@
+{
+  "id": "nt-14007",
+  "description": "Summarize a pasted English status update to two sentences; keep service name, count and time. EXAM-CANARY-9be81a02",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14007",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Can you boil this down to two sentences for my manager?\n\nAt 09:12 this morning the payments-api service started returning 502 errors after a config push. On-call rolled the config back by 09:40, but 41 checkout attempts failed during that window and a handful of customers were charged twice. Finance has been notified and will refund the duplicates; we are adding a canary step to the config pipeline so a bad push gets caught before it reaches all instances.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "payments-api",
+          "41",
+          "09:12"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "en"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "hyb-14124",
+  "description": "Four-turn chain: count North orders, count those over 200, write them to a file, total them. EXAM-CANARY-9090fb1f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14124",
+    "answer_style": "natural",
+    "ref_calls": 5,
+    "fixture_bytes": 543,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "data/sales.csv": "order_id,region,amount\nS-5101,South,72\nS-5102,North,161\nS-5103,South,275\nS-5104,North,351\nS-5105,North,124\nS-5106,North,108\nS-5107,South,65\nS-5108,West,242\nS-5109,West,193\nS-5110,South,407\nS-5111,West,220\nS-5112,West,320\nS-5113,West,416\nS-5114,South,291\nS-5115,West,239\nS-5116,South,86\nS-5117,West,230\nS-5118,West,370\nS-5119,North,342\nS-5120,West,86\nS-5121,North,169\nS-5122,North,402\nS-5123,North,390\nS-5124,South,382\nS-5125,West,122\nS-5126,South,110\nS-5127,West,134\nS-5128,South,85\nS-5129,North,117\nS-5130,North,88\n",
+    "reports/README.md": "Generated reports go here.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many orders in data/sales.csv came from the North region?",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    },
+    {
+      "prompt": "And how many of those were over 200?",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    },
+    {
+      "prompt": "Save just those big ones (order id and amount, with a header row) to reports/north_big.csv.",
+      "expect": {}
+    },
+    {
+      "prompt": "What do they add up to?",
+      "expect": {
+        "expected_number": 1485,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/north_big.csv": {
+        "contains": [
+          "order_id,amount\nS-5104,351\nS-5119,342\nS-5122,402\nS-5123,390"
+        ]
+      },
+      "data/sales.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

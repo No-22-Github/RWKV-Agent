@@ -1,0 +1,51 @@
+{
+  "id": "hyb-14101",
+  "description": "Turn 1 raises both timeouts; the user then rejects every staged change in the panel and asks to redo only staging; the final file must have prod untouched and staging at 60. EXAM-CANARY-a3c3217f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "DEC"
+    ],
+    "level": "L3",
+    "family": "fam-hb-hyb-14101",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 167,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "conf/services.ini": "[prod]\nhost = orders.prod.internal\nport = 8443\nrequest_timeout = 30\nretries = 3\n\n[staging]\nhost = orders.staging.internal\nport = 8443\nrequest_timeout = 30\nretries = 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 conf/services.ini 里 prod 和 staging 的 request_timeout 都改成 60 吧。",
+      "expect": {}
+    },
+    {
+      "prompt": "我在改动面板里把你刚才的修改全拒绝了。这样，只把 staging 那一段的超时改成 60，prod 先保持原样。",
+      "expect": {},
+      "review_before": "reject"
+    }
+  ],
+  "expect": {
+    "files": {
+      "conf/services.ini": {
+        "contains": [
+          "[prod]\nhost = orders.prod.internal\nport = 8443\nrequest_timeout = 30\nretries = 3\n\n[staging]\nhost = orders.staging.internal\nport = 8443\nrequest_timeout = 60\nretries = 3"
+        ]
+      }
+    }
+  }
+}

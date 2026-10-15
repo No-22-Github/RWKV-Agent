@@ -20,7 +20,7 @@
     "ref_calls": 4,
     "fixture_bytes": 40958,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:deepseek-drafter",
     "reviewer": null,
     "legacy_prompt": "The fleetlens ingest tier appends one record per batch to logs/fleetlens-ingest.log. A shift review needs the ingress call attached to the FATAL record. Report that call identifier. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -34,7 +34,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The fleetlens ingest tier appends one record per batch to logs/fleetlens-ingest.log. A shift review needs the ingress call attached to the FATAL record. Report that call identifier. A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "The fleetlens ingest tier appends one record per batch to logs/fleetlens-ingest.log. A shift review needs the ingress call attached to the FATAL record. Report that call identifier.",
       "expect": {
         "output_contains": [
           "rq-c93f4485"

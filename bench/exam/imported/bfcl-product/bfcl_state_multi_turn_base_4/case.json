@@ -21,7 +21,7 @@
   },
   "turns": [
     {
-      "prompt": "读取 facts/checksum.txt，并报告其中的已验证值。",
+      "prompt": "facts/checksum.txt 里写的是什么？",
       "expect": {
         "tools": null,
         "required_tools": [
@@ -33,7 +33,7 @@
       }
     },
     {
-      "prompt": "不要调用工具，根据上一轮已读取的证据重复这个值。",
+      "prompt": "不用再查了，刚才那个值是什么来着？",
       "expect": {
         "tools": [],
         "output_contains": [

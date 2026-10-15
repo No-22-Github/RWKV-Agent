@@ -1,0 +1,54 @@
+{
+  "id": "scr-12001",
+  "description": "修复装配质检汇总中把返工和拒收批次算入合格数的问题。 EXAM-CANARY-5e82a4c7",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-sol-scr-12001",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 792,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6.1-sol",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# 澄岳装配质检汇总\n程序只统计 state 为 accepted 的批次，按 station 升序输出。\n第一行为 station,accepted_units，后续每行是工位编号与合格件数之和，逗号分隔，不加空格。\n输入为与脚本同目录的 inspection.csv；命令行不需要参数。\n",
+    "inspection.csv": "station,state,units\nC08,accepted,12\nA16,rejected,900\nB04,accepted,5\nA16,accepted,9\nC08,rework,600\nB04,accepted,7\nA16,accepted,4\n",
+    "quality_summary.py": "from pathlib import Path\nimport csv\n\nrows = csv.DictReader((Path(__file__).parent / \"inspection.csv\").open(encoding=\"utf-8\", newline=\"\"))\ntotals = {}\nfor row in rows:\n    station = row[\"station\"]\n    totals[station] = totals.get(station, 0) + int(row[\"units\"])\nprint(\"station,accepted_units\")\nfor station in sorted(totals):\n    print(f\"{station},{totals[station]}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "质检汇总 `quality_summary.py` 能跑，但合格件数明显偏大。请按 `README.md` 修好这个脚本，输入资料保持原样。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "run": {
+      "path": "quality_summary.py",
+      "args": [],
+      "expected_stdout": "station,accepted_units\nA16,13\nB04,12\nC08,12",
+      "timeout_millis": 10000
+    },
+    "files": {
+      "README.md": {
+        "unchanged": true
+      },
+      "inspection.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

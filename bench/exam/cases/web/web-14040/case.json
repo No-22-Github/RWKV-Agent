@@ -1,0 +1,51 @@
+{
+  "id": "web-14040",
+  "description": "Summarize a conference page (en). EXAM-CANARY-79723da1",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-ha-web-14040",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "DevSummit",
+      "url": "https://confs.devsummit.example/2026",
+      "url_match": "confs.devsummit.example/2026",
+      "title": "DevSummit 2026",
+      "snippet": "DevSummit 2026",
+      "content": "# DevSummit 2026\n\nDates: 2026-11-12 to 2026-11-14, Rotterdam.\nEarly-bird ticket: EUR 390 until 2026-10-01; regular ticket EUR 520.\nTracks: platform engineering, data tooling, security.",
+      "published_at": "2026-08-18"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "What's this conference about and when is it? Just the highlights please: https://confs.devsummit.example/2026",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "Rotterdam",
+          "390",
+          "520"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

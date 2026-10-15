@@ -23,7 +23,7 @@
   },
   "turns": [
     {
-      "prompt": "Find the obvious answer file, read it, and answer with only the answer string.",
+      "prompt": "There's a file in here that has the answer written in it. What does it say?",
       "expect": {
         "tools": null,
         "output_contains": [

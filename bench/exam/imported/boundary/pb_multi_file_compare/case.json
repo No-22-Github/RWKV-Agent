@@ -24,13 +24,19 @@
   },
   "turns": [
     {
-      "prompt": "Compare old.txt and new.txt. Answer with only the changed line as 'line N: old -\u003e new'.",
+      "prompt": "What changed between old.txt and new.txt?",
       "expect": {
         "tools": null,
         "output_contains": [
-          "line 2: beta -\u003e beta!"
+          "beta!"
         ],
-        "output_contains_token": true
+        "output_contains_any": [
+          "line 2",
+          "Line 2",
+          "second line",
+          "2nd line",
+          "line two"
+        ]
       }
     }
   ]

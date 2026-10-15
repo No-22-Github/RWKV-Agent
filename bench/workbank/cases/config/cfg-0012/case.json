@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 1247,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null,
     "legacy_prompt": "The route-planner service is coming up for its onboarding review. The review checks that the settings file declares every key the platform requires of it, so tell me which keys the settings file does not declare. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -39,7 +39,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "The route-planner service is coming up for its onboarding review. The review checks that the settings file declares every key the platform requires of it, so tell me which keys the settings file does not declare. Keep it brief, and if it can't be worked out, let me know why.",
+      "prompt": "The route-planner service is coming up for its onboarding review. The review checks that the settings file declares every key the platform requires of it, so tell me which keys the settings file does not declare.",
       "expect": {
         "must_state_unverified": [
           "sfo-edge"

@@ -1,0 +1,49 @@
+{
+  "id": "cfg-13102",
+  "description": "先把网关对外段的超时改成 60 秒，第二轮在这个结果上翻倍并改日志级别；判最终配置文件。 EXAM-CANARY-77af3190",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-g3zh-cfg-13102",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 181,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "conf/gateway.ini": "[public]\nlisten = 0.0.0.0:8080\nupstream_timeout_sec = 30\nmax_conns = 200\nlog_level = info\n\n[admin]\nlisten = 127.0.0.1:9090\nupstream_timeout_sec = 10\nmax_conns = 20\nlog_level = info\n"
+  },
+  "turns": [
+    {
+      "prompt": "conf/gateway.ini 里 [public] 那一段的上游超时太短了，改成 60 秒。",
+      "expect": {}
+    },
+    {
+      "prompt": "60 还是不够，刚才改的那个再翻一倍。另外 [public] 的日志级别也调成 warn，别的不要动。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "conf/gateway.ini": {
+        "contains": [
+          "[public]\nlisten = 0.0.0.0:8080\nupstream_timeout_sec = 120\nmax_conns = 200\nlog_level = warn\n\n[admin]\nlisten = 127.0.0.1:9090\nupstream_timeout_sec = 10\nmax_conns = 20\nlog_level = info"
+        ]
+      }
+    }
+  }
+}

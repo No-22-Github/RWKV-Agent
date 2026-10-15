@@ -1,0 +1,43 @@
+{
+  "id": "nt-14015",
+  "description": "Explain a pasted Python one-liner that removes duplicates while keeping order. EXAM-CANARY-a8c71b7f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "code_help",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-ha-nt-14015",
+    "answer_style": "natural",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "turns": [
+    {
+      "prompt": "同事写了这么一行，我看不太懂，帮我讲讲它是干嘛的：\n\nnames = list(dict.fromkeys(names))",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "fromkeys"
+        ],
+        "output_contains_any": [
+          "去重",
+          "重复",
+          "duplicate",
+          "dedup",
+          "unique"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "cfg-14140",
+  "description": "Prod host/port/workers returned as JSON. EXAM-CANARY-b3aea087",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "8443"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hb-cfg-14140",
+    "answer_style": "natural",
+    "ref_calls": 1,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5",
+    "reviewer": null
+  },
+  "files": {
+    "conf/server.ini": "[prod]\nhost = api.prod.internal\nport = 9443\nworkers = 8\n\n[staging]\nhost = api.staging.internal\nport = 8443\nworkers = 2\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 conf/server.ini 里 prod 的 host、port、workers 用 JSON 给我，我要直接贴进脚本里。",
+      "expect": {
+        "output_format": [
+          "json"
+        ],
+        "output_contains": [
+          "9443",
+          "api.prod.internal",
+          "8"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ]
+}

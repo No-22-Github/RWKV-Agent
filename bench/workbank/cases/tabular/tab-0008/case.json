@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 1824,
     "status": "reviewed",
-    "version": 3,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260922",
     "legacy_prompt": "Ravensbourne Plastics' August 2026 site records are in the workspace, together with the pay terms in force at the site. What is the total pay owed to the Moulding department for August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
@@ -38,7 +38,7 @@
   },
   "turns": [
     {
-      "prompt": "Ravensbourne Plastics' August 2026 site records are in the workspace, together with the pay terms in force at the site. What is the total pay owed to the Moulding department for August 2026? A short answer is fine. If you can't find it, say so and tell me what you checked.",
+      "prompt": "Ravensbourne Plastics' August 2026 site records are in the workspace, together with the pay terms in force at the site. What is the total pay owed to the Moulding department for August 2026?",
       "expect": {
         "expected_number": 30033.15,
         "tolerance": 0.01,

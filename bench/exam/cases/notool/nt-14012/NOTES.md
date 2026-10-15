@@ -1,0 +1,10 @@
+## Traps
+- 无陷阱；文字已在消息里。
+
+## Reference solution
+1. 不调工具，直接按要求改写。必须保留的事实：报销系统、升级、IT-3307。
+
+## Why the answer is unique
+判分只看这些原样出现的事实是否被保留，以及目标语言['zh']。
+
+EXAM-CANARY-ec79fbc1
