@@ -328,6 +328,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			WireProfile:              config.WireProfile,
 			StateID:                  config.StateID,
 			StateSHA256:              stateSHA256,
+			AdapterID:                config.AdapterID,
 			WireCanonical:            wireSpec.Canonical(),
 			WireHash:                 wireSpec.Hash(),
 			WirePreset:               wirePreset,

@@ -57,7 +57,10 @@ type Config struct {
 	// StateID is the default uploaded-state identifier applied to every
 	// generation that does not carry one of its own. Empty leaves the server's
 	// zero-initialized state in charge.
-	StateID    string
+	StateID string
+	// AdapterID binds a MiSS adapter registered on the server (POST
+	// /v1/adapters) to every generation. Empty runs the bare base model.
+	AdapterID  string
 	Headers    http.Header
 	HTTPClient *http.Client
 }
@@ -67,6 +70,7 @@ type Client struct {
 	model         string
 	password      string
 	stateID       string
+	adapterID     string
 	stopTokenMode StopTokenMode
 	stopTokenIDs  []int
 	stream        bool
@@ -112,6 +116,7 @@ func New(config Config) (*Client, error) {
 		model:         strings.TrimSpace(config.Model),
 		password:      config.Password,
 		stateID:       strings.TrimSpace(config.StateID),
+		adapterID:     strings.TrimSpace(config.AdapterID),
 		stopTokenMode: stopTokenMode,
 		stopTokenIDs:  stopTokenIDs,
 		stream:        stream,
@@ -135,6 +140,7 @@ type requestBody struct {
 	Stream         bool     `json:"stream"`
 	ChunkSize      int      `json:"chunk_size"`
 	StateID        string   `json:"state_id,omitempty"`
+	AdapterID      string   `json:"adapter_id,omitempty"`
 	Password       string   `json:"password,omitempty"`
 }
 
@@ -205,6 +211,7 @@ func (c *Client) encodeRequestBody(
 		Stream:         c.stream,
 		ChunkSize:      1,
 		StateID:        c.effectiveStateID(request),
+		AdapterID:      c.adapterID,
 		Password:       c.password,
 	})
 	if err != nil {

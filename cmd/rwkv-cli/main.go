@@ -88,6 +88,7 @@ type runOptions struct {
 	apiStream                bool
 	apiHeaderEnvs            stringListFlag
 	stateID                  string
+	adapterID                string
 	evalSuite                string
 	evalSuiteExplicit        bool
 	evalCasesPath            string
@@ -532,6 +533,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"state-id",
 			"",
 			"reuse an uploaded rwkv_lightning state for every generation (state state upload)",
+		)
+		fs.StringVar(
+			&options.adapterID,
+			"adapter-id",
+			"",
+			"bind a MiSS adapter registered on the rwkv_lightning server (POST /v1/adapters) to every generation",
 		)
 		fs.Var(
 			&options.apiHeaderEnvs,
@@ -1261,7 +1268,8 @@ func newAgentGeneratorSource(
 			ChatTokenLimit:      chatcompletions.TokenLimitField(options.chatTokenLimit),
 			ChatSystemSuffix:    options.chatSystemSuffix,
 			StopTokens:          options.apiStopTokens, StateID: options.stateID,
-			Stream: &options.apiStream, BatchWait: batchWait,
+			AdapterID: options.adapterID,
+			Stream:    &options.apiStream, BatchWait: batchWait,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -1875,6 +1883,7 @@ func runAgentEval(args []string) error {
 		ToolCatalog:           options.evalToolCatalog,
 		WireProfile:           options.profile,
 		StateID:               options.stateID,
+		AdapterID:             options.adapterID,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

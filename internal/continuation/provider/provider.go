@@ -86,6 +86,7 @@ type Config struct {
 	ChatSystemSuffix string
 	StopTokens       string
 	StateID          string
+	AdapterID        string
 	Stream           *bool
 	BatchWait        time.Duration
 }
@@ -129,13 +130,16 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			if strings.TrimSpace(config.StateID) != "" {
 				return nil, fmt.Errorf("Python Lightning raw continuation does not support uploaded state_id")
 			}
+			if strings.TrimSpace(config.AdapterID) != "" {
+				return nil, fmt.Errorf("Python Lightning raw continuation does not support MiSS adapter_id")
+			}
 		} else if mode == rwkvlightning.StopTokenText {
 			return nil, fmt.Errorf("CUDA Lightning requires integer stop token IDs; decoded-text stops are handled locally")
 		}
 		client, err := rwkvlightning.New(rwkvlightning.Config{
 			Endpoint: endpoint, Model: config.Model, Password: config.Credential,
 			Headers: config.Headers, HTTPClient: config.HTTPClient,
-			StopTokenMode: mode, StopTokenIDs: ids, StateID: config.StateID,
+			StopTokenMode: mode, StopTokenIDs: ids, StateID: config.StateID, AdapterID: config.AdapterID,
 			Stream: config.Stream, BatchWait: config.BatchWait,
 		})
 		if err != nil {

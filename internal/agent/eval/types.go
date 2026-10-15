@@ -259,6 +259,8 @@ type HarnessMetadata struct {
 	// is over the state ID string (the harness never sees the .pth bytes).
 	StateID     string `json:"state_id,omitempty"`
 	StateSHA256 string `json:"state_sha256,omitempty"`
+	// AdapterID names the MiSS adapter bound on the rwkv_lightning server.
+	AdapterID string `json:"adapter_id,omitempty"`
 	// WireCanonical and WireHash identify the exact model-facing
 	// configuration (format x thinking x prefill x action space x loop). They
 	// are derived from the runtime options by agent.WireSpecOf, so an archived
@@ -567,6 +569,8 @@ type Config struct {
 	// StateID/StateSHA256 record a reused rwkv_lightning state in the manifest.
 	StateID     string
 	StateSHA256 string
+	// AdapterID records the MiSS adapter bound to every generation.
+	AdapterID string
 }
 
 type SubagentFixtureEntry struct {

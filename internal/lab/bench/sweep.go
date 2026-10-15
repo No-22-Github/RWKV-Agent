@@ -117,6 +117,7 @@ type SweepArgs struct {
 	APIURL         string
 	Prefix         string
 	StateID        string
+	AdapterID      string
 	Profile        string
 	MaxConcurrency int
 	MaxAttempts    int
@@ -306,6 +307,9 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		"--remote-batch-wait", "0s"}
 	if args.StateID != "" {
 		cmd = append(cmd, "--state-id", args.StateID)
+	}
+	if args.AdapterID != "" {
+		cmd = append(cmd, "--adapter-id", args.AdapterID)
 	}
 	if spec.g1k {
 		cmd = append(cmd, "--profile", args.profile())
@@ -532,6 +536,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	provenance.Set("git_head", gitHead)
 	provenance.Set("diff_sha256", hex.EncodeToString(diffSum[:]))
 	provenance.Set("state_id", args.StateID)
+	provenance.Set("adapter_id", args.AdapterID)
 	provenance.Set("profile", args.profile())
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("exit_code", lastExitCode)

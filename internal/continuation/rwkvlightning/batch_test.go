@@ -600,3 +600,32 @@ func TestCancelledBatchChoiceDoesNotEmitWhilePeerContinues(t *testing.T) {
 		t.Fatalf("cancelled=%q peer=%q outcomes=%+v", cancelledText.String(), peerText.String(), outcomes)
 	}
 }
+
+func TestClientSendsAdapterID(t *testing.T) {
+	t.Parallel()
+	got := make(chan string, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var received requestBody
+		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+			t.Error(err)
+		}
+		got <- received.AdapterID
+		writeSSE(writer,
+			`{"choices":[{"index":0,"delta":{"content":"ok"}}]}`,
+			`{"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+		)
+	}))
+	defer server.Close()
+
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7", AdapterID: " miss-r16 "})
+	if err != nil {
+		t.Fatal(err)
+	}
+	results := runBatchedCalls(t, client, []string{"p0"}, nil)
+	if results["p0"].err != nil {
+		t.Fatal(results["p0"].err)
+	}
+	if adapter := <-got; adapter != "miss-r16" {
+		t.Fatalf("adapter_id = %q, want miss-r16", adapter)
+	}
+}
