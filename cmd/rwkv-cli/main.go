@@ -102,6 +102,7 @@ type runOptions struct {
 	evalSubagentFixture      string
 	evalWebFixture           string
 	evalToolCatalog          string
+	evalHarness              string
 	evalIncludeDraft         bool
 	seed                     int64
 	primitiveProfile         string
@@ -685,6 +686,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				"tool-catalog",
 				"",
 				"register a fixed tool catalog for --cases suites: work-v1 (twelve tools, fixed clock, always-on fixture web tools) or work-v2 (work-v1 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh)",
+			)
+			fs.StringVar(
+				&options.evalHarness,
+				"harness",
+				"",
+				"build tools and harness options the way the App does: app (a new App connection: g1k, web/weather/bash, staged files accepted before scoring, rescue on) or raw (the same with the rescue off); an exam manifest under --cases defaults to its own harness",
 			)
 			fs.BoolVar(
 				&options.evalIncludeDraft,
@@ -1791,6 +1798,7 @@ func runAgentEval(args []string) error {
 	if err != nil {
 		return err
 	}
+	examName, examHash := "", ""
 	if options.evalCasesPath != "" {
 		info, statErr := os.Stat(options.evalCasesPath)
 		if statErr != nil {
@@ -1806,6 +1814,19 @@ func runAgentEval(args []string) error {
 				cases, err = agenteval.LoadPrimitiveCases(options.evalCasesPath)
 				suite = agenteval.SuitePrimitive
 			}
+		} else if agenteval.IsExamManifest(options.evalCasesPath) {
+			// Exam manifest: cases listed across bank directories, pinned by
+			// digest. The manifest also names its tool catalog and harness.
+			var manifest agenteval.ExamManifest
+			manifest, cases, err = agenteval.LoadCasesManifest(options.evalCasesPath, "")
+			suite = manifest.Name
+			examName, examHash = manifest.Name, manifest.Hash
+			if options.evalToolCatalog == "" {
+				options.evalToolCatalog = manifest.ToolCatalog
+			}
+			if options.evalHarness == "" && agenteval.IsProductHarness(manifest.Harness) {
+				options.evalHarness = manifest.Harness
+			}
 		} else {
 			cases, err = agenteval.LoadCases(options.evalCasesPath)
 			suite = "custom"
@@ -1813,6 +1834,19 @@ func runAgentEval(args []string) error {
 		if err != nil {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
+	}
+	if options.evalHarness != "" && !agenteval.IsProductHarness(options.evalHarness) {
+		return fmt.Errorf("unsupported --harness %q (known: %s, %s)", options.evalHarness,
+			agenteval.ProductHarnessApp, agenteval.ProductHarnessRaw)
+	}
+	if agenteval.IsProductHarness(options.evalHarness) {
+		if options.evalCasesPath == "" || agenteval.IsPrimitiveSuite(suite) {
+			return errors.New("--harness app/raw needs bank cases or an exam manifest under --cases")
+		}
+		if options.evalToolCatalog != "" && options.evalToolCatalog != agenteval.WorkV2ToolCatalogName {
+			return fmt.Errorf("--harness %s offers the App directory (work-v2), not %s", options.evalHarness, options.evalToolCatalog)
+		}
+		options.evalToolCatalog = agenteval.WorkV2ToolCatalogName
 	}
 	if options.evalToolCatalog != "" && !agenteval.IsWorkToolCatalog(options.evalToolCatalog) {
 		return fmt.Errorf("unsupported --tool-catalog %q (known: %s, %s)", options.evalToolCatalog,
@@ -1884,6 +1918,12 @@ func runAgentEval(args []string) error {
 	if err != nil {
 		return err
 	}
+	if agenteval.IsProductHarness(options.evalHarness) {
+		runnerOptions, err = agentEvalProductRunnerOptions(options, runnerOptions, tokenCount)
+		if err != nil {
+			return err
+		}
+	}
 	evalConfig := agenteval.Config{
 		Cases:                 cases,
 		Suite:                 suite,
@@ -1903,6 +1943,9 @@ func runAgentEval(args []string) error {
 		FetchBudgetTokens:     options.fetchBudgetTokens,
 		ToolCatalog:           options.evalToolCatalog,
 		WireProfile:           options.profile,
+		ProductHarness:        options.evalHarness,
+		Exam:                  examName,
+		ExamHash:              examHash,
 		StateID:               options.stateID,
 		AdapterID:             options.adapterID,
 		GeneratorFactory: func(
@@ -1987,6 +2030,44 @@ func runAgentEval(args []string) error {
 // applies an explicit --profile on top. The profile is the single source of
 // truth for the axes it spells out; the suite keeps the loop defaults and the
 // tool/fixture wiring.
+// agentEvalProductRunnerOptions replaces the CLI-built runner options with the
+// ones a new App connection uses (api.EvalHarnessOptions): budgets, rescue
+// limits, task control and wire all come from the App. Only the transport side
+// of the generation request (model, state, sampling, stops) is kept from the
+// CLI, and --profile/--wire still choose the wire the way the App's selectors
+// do. "raw" then switches the rescue off.
+func agentEvalProductRunnerOptions(options runOptions, cli agent.Options, tokenCount func(string) int) (agent.Options, error) {
+	app, err := agentapi.EvalHarnessOptions(agentapi.EvalConnection{
+		Model:      cli.Generation.Model,
+		StateID:    options.stateID,
+		Profile:    options.profile,
+		Wire:       options.wireOverrides,
+		Staged:     true,
+		TokenCount: tokenCount,
+	})
+	if err != nil {
+		return agent.Options{}, fmt.Errorf("App harness options: %w", err)
+	}
+	generation := cli.Generation
+	generation.MaxOutputTokens = app.Generation.MaxOutputTokens
+	app.Generation = generation
+	if options.evalHarness == agenteval.ProductHarnessRaw {
+		app.DuplicateRescueThreshold = 0
+		app.SameToolRescueLimit = 0
+	}
+	app = reconcileWireLoop(app)
+	if options.strictSpec {
+		spec, specErr := agent.WireSpecOf(app)
+		if specErr != nil {
+			return agent.Options{}, fmt.Errorf("--strict-spec: %w", specErr)
+		}
+		if _, ok := spec.MatchPreset(); !ok {
+			return agent.Options{}, fmt.Errorf("--strict-spec: the App harness spec matches no registered preset (canonical: %s)", spec.Canonical())
+		}
+	}
+	return app, nil
+}
+
 func agentEvalRunnerOptions(options runOptions, suite string) (agent.Options, error) {
 	bank := suite == "workbank"
 	options = applyBankSuiteDefaults(options, bank)

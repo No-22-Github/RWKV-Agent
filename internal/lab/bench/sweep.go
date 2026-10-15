@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	agentapi "github.com/no22/RWKV-Agent/api"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
@@ -39,6 +40,10 @@ var suites = map[string]suiteSpec{
 		"--file-tools", "lines", "--include-draft"}, 148, 48, true},
 	"p13": {"p13", []string{"--cases", "bench/holdout/p13", "--tool-catalog", "work-v1",
 		"--file-tools", "lines", "--include-draft"}, 60, 48, true},
+	// The exam (bench/exam): manifests pin their cases, tool catalog and the
+	// App harness (--harness app comes from the manifest).
+	"exam-full":            {"examfull", []string{"--cases", "bench/exam/full.json"}, 380, 48, true},
+	"exam-quick":           {"examquick", []string{"--cases", "bench/exam/quick.json"}, 80, 48, true},
 	"bfcl-product":         {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
 	"boundary":             {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
 	"assistant":            {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
@@ -599,16 +604,20 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	}
 
 	// The gate runs in-process now; check_run.py is gone (M5).
+	budget, err := gateBudget(args, suite)
+	if err != nil {
+		return nil, false, "", err
+	}
 	gateOut, gateCode := runs.RunCheckCaptured(runs.CheckArgs{
 		RunDir:              output,
 		Arm:                 arm,
 		RWKV:                true,
 		Primitive:           !spec.g1k,
-		Cases:               spec.count,
+		Cases:               budget.cases,
 		HasCases:            true,
-		MaxSteps:            16,
-		MaxTokens:           4096,
-		DecisionMaxTokens:   args.decisionBudget(),
+		MaxSteps:            budget.maxSteps,
+		MaxTokens:           budget.maxTokens,
+		DecisionMaxTokens:   budget.decisionMaxTokens,
 		CaseTimeoutSeconds:  1800,
 		Profile:             args.profile(),
 		RemoteBatchWaitMS:   int(runs.BenchRemoteBatchWait / time.Millisecond),
@@ -768,4 +777,34 @@ func sameStrings(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+// sweepBudget is what the run gate expects of one suite's run.
+type sweepBudget struct {
+	cases, maxSteps, maxTokens, decisionMaxTokens int
+}
+
+// isExamSuite reports a manifest-backed exam suite: its case count comes from
+// the manifest and its budgets from the App (--harness app ignores the bench
+// budget flags), so the gate asks the same source the App uses.
+func isExamSuite(suite string) bool { return strings.HasPrefix(suite, "exam-") }
+
+func examManifestPath(suite string) string {
+	args := suites[suite].args
+	return filepath.Join(lab.RepoRoot(), filepath.FromSlash(args[len(args)-1]))
+}
+
+func gateBudget(args *SweepArgs, suite string) (sweepBudget, error) {
+	if !isExamSuite(suite) {
+		return sweepBudget{suites[suite].count, 16, 4096, args.decisionBudget()}, nil
+	}
+	manifest, err := agenteval.ReadExamManifest(examManifestPath(suite))
+	if err != nil {
+		return sweepBudget{}, err
+	}
+	app, err := agentapi.EvalHarnessOptions(agentapi.EvalConnection{Profile: args.profile(), Staged: true})
+	if err != nil {
+		return sweepBudget{}, err
+	}
+	return sweepBudget{len(manifest.Cases), app.MaxSteps, app.Generation.MaxOutputTokens, app.DecisionMaxOutputTokens}, nil
 }

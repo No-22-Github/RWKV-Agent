@@ -212,7 +212,9 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	// Tool catalog identity: build the registered catalog once (schemas do
 	// not depend on fixtures) and pin its schema hash in the manifest.
 	toolCatalogHash := ""
-	if IsWorkToolCatalog(config.ToolCatalog) {
+	if IsProductHarness(config.ProductHarness) {
+		toolCatalogHash = productCatalogHash(config.TempDir)
+	} else if IsWorkToolCatalog(config.ToolCatalog) {
 		root, err := os.MkdirTemp(config.TempDir, "rwkv-agent-catalog-")
 		if err != nil {
 			toolCatalogHash = ""
@@ -354,6 +356,9 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			TokenCountVocabSHA256:    config.TokenCountVocabSHA256,
 			ToolCatalog:              config.ToolCatalog,
 			ToolCatalogHash:          toolCatalogHash,
+			ProductHarness:           config.ProductHarness,
+			Exam:                     config.Exam,
+			ExamHash:                 config.ExamHash,
 			WireProfile:              config.WireProfile,
 			StateID:                  config.StateID,
 			StateSHA256:              stateSHA256,
@@ -418,10 +423,22 @@ func runCase(
 		return result
 	}
 	defer cleanup()
-	tools, primitiveRun, err := evalTools(config, workspace, testCase)
+	var (
+		tools        []agent.Tool
+		primitiveRun *primitiveExecution
+		stagedView   *assistanttools.StagedWorkspace
+	)
+	if IsProductHarness(config.ProductHarness) {
+		tools, stagedView, err = productCaseTools(config, workspace, testCase)
+	} else {
+		tools, primitiveRun, err = evalTools(config, workspace, testCase)
+	}
 	if err != nil {
 		result.Error = fmt.Sprintf("create tools: %v", err)
 		return result
+	}
+	if stagedView != nil {
+		defer stagedView.Close()
 	}
 	caseContext, cancel := context.WithTimeout(WithCaseID(parent, testCase.ID), config.CaseTimeout)
 	defer cancel()
@@ -514,6 +531,12 @@ func runCase(
 	}
 	// Case-level end-state expectations (v5) score the final workspace and the
 	// whole transcript after the last turn, before the deferred cleanup.
+	if stagedView != nil {
+		if err := finishProductCase(stagedView); err != nil && result.Error == "" {
+			result.Error = err.Error()
+			result.Passed = false
+		}
+	}
 	evaluateCaseExpect(caseContext, workspace, testCase, &result)
 	return result
 }
@@ -567,46 +590,9 @@ func evalTools(
 		if err != nil {
 			return nil, nil, err
 		}
-		if testCase.OfferedTools != nil {
-			// Per-case tool subset (v1.3 §2.12): the case faces only the tools
-			// it declares, so a call to a dropped tool is rejected as unknown.
-			// Unknown names fail here rather than silently narrowing the case.
-			offered := make(map[string]struct{}, len(testCase.OfferedTools))
-			for _, name := range testCase.OfferedTools {
-				offered[name] = struct{}{}
-			}
-			filtered := make([]agent.Tool, 0, len(testCase.OfferedTools))
-			if testCase.OfferedToolsOrdered {
-				// v2.0: the generated order is part of the lesson; keep it.
-				byName := make(map[string]agent.Tool, len(catalog))
-				for _, tool := range catalog {
-					byName[tool.Spec().Name] = tool
-				}
-				for _, name := range testCase.OfferedTools {
-					if tool, ok := byName[name]; ok {
-						filtered = append(filtered, tool)
-						delete(offered, name)
-					}
-				}
-			} else {
-				for _, tool := range catalog {
-					name := tool.Spec().Name
-					if _, want := offered[name]; want {
-						filtered = append(filtered, tool)
-						delete(offered, name)
-					}
-				}
-			}
-			if len(offered) > 0 {
-				names := make([]string, 0, len(offered))
-				for name := range offered {
-					names = append(names, name)
-				}
-				sort.Strings(names)
-				return nil, nil, fmt.Errorf("offered_tools names outside the %s catalog: %v",
-					config.ToolCatalog, names)
-			}
-			catalog = filtered
+		catalog, err = narrowOfferedTools(config.ToolCatalog, catalog, testCase)
+		if err != nil {
+			return nil, nil, err
 		}
 		if err := checkToolPolicyCatalog(testCase, catalog); err != nil {
 			return nil, nil, err
@@ -761,4 +747,51 @@ func checkToolPolicyCatalog(testCase Case, catalog []agent.Tool) error {
 		}
 	}
 	return nil
+}
+
+// narrowOfferedTools applies a case's offered_tools subset (v1.3 §2.12) to a
+// catalog. nil OfferedTools keeps the whole catalog.
+func narrowOfferedTools(catalogName string, catalog []agent.Tool, testCase Case) ([]agent.Tool, error) {
+	if testCase.OfferedTools != nil {
+		// Per-case tool subset (v1.3 §2.12): the case faces only the tools
+		// it declares, so a call to a dropped tool is rejected as unknown.
+		// Unknown names fail here rather than silently narrowing the case.
+		offered := make(map[string]struct{}, len(testCase.OfferedTools))
+		for _, name := range testCase.OfferedTools {
+			offered[name] = struct{}{}
+		}
+		filtered := make([]agent.Tool, 0, len(testCase.OfferedTools))
+		if testCase.OfferedToolsOrdered {
+			// v2.0: the generated order is part of the lesson; keep it.
+			byName := make(map[string]agent.Tool, len(catalog))
+			for _, tool := range catalog {
+				byName[tool.Spec().Name] = tool
+			}
+			for _, name := range testCase.OfferedTools {
+				if tool, ok := byName[name]; ok {
+					filtered = append(filtered, tool)
+					delete(offered, name)
+				}
+			}
+		} else {
+			for _, tool := range catalog {
+				name := tool.Spec().Name
+				if _, want := offered[name]; want {
+					filtered = append(filtered, tool)
+					delete(offered, name)
+				}
+			}
+		}
+		if len(offered) > 0 {
+			names := make([]string, 0, len(offered))
+			for name := range offered {
+				names = append(names, name)
+			}
+			sort.Strings(names)
+			return nil, fmt.Errorf("offered_tools names outside the %s catalog: %v",
+				catalogName, names)
+		}
+		catalog = filtered
+	}
+	return catalog, nil
 }

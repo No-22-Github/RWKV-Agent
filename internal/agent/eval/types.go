@@ -259,6 +259,13 @@ type HarnessMetadata struct {
 	// schemas offered, so a catalog change invalidates ledger comparability.
 	ToolCatalog     string `json:"tool_catalog,omitempty"`
 	ToolCatalogHash string `json:"tool_catalog_hash,omitempty"`
+	// ProductHarness is "app" or "raw" when the run used the App's own tool
+	// and harness assembly (internal/agent/product); "raw" is the same with
+	// the duplicate/same-tool rescue switched off.
+	ProductHarness string `json:"product_harness,omitempty"`
+	// Exam and ExamHash identify the exam manifest the cases came from.
+	Exam     string `json:"exam,omitempty"`
+	ExamHash string `json:"exam_hash,omitempty"`
 	// WireProfile records the raw --profile string (ad-hoc modifier chains do
 	// not match a preset, so WirePreset alone cannot recover the input).
 	WireProfile string `json:"wire_profile,omitempty"`
@@ -575,6 +582,14 @@ type Config struct {
 	ToolCatalog string
 	// WireProfile records the raw --profile input for the manifest.
 	WireProfile string
+	// ProductHarness ("app" or "raw") builds every case's tools through
+	// product.Tools over a staged workspace, the way an App session does;
+	// the staged changes are accepted before the case-level file checks.
+	// Runner must then come from the App's harness options as well.
+	ProductHarness string
+	// Exam and ExamHash record the exam manifest (--cases <manifest>).
+	Exam     string
+	ExamHash string
 	// StateID/StateSHA256 record a reused rwkv_lightning state in the manifest.
 	StateID     string
 	StateSHA256 string

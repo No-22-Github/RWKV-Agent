@@ -120,6 +120,11 @@ func LoadCasesManifest(path string, repoRoot string) (ExamManifest, []Case, erro
 	if err != nil {
 		return manifest, nil, err
 	}
+	if repoRoot == "" {
+		if repoRoot, err = moduleRoot(path); err != nil {
+			return manifest, nil, err
+		}
+	}
 	cases := make([]Case, 0, len(manifest.Cases))
 	seen := make(map[string]bool, len(manifest.Cases))
 	for _, item := range manifest.Cases {
@@ -178,4 +183,23 @@ func LoadCaseFile(path string) (Case, error) {
 		return testCase, fmt.Errorf("%s: %w", path, err)
 	}
 	return testCase, nil
+}
+
+// moduleRoot finds the repository root above a manifest: the nearest
+// directory holding go.mod.
+func moduleRoot(path string) (string, error) {
+	dir, err := filepath.Abs(filepath.Dir(path))
+	if err != nil {
+		return "", err
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("%s: no go.mod above the manifest to resolve case paths", path)
+		}
+		dir = parent
+	}
 }
