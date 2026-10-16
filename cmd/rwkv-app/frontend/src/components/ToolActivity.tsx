@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChevronRight, X } from 'lucide-react'
+import { Brain, ChevronRight, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import AnimatedToolIcon from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
@@ -12,10 +12,14 @@ import type { SubagentTrace, ToolTrace } from '../trajectory-types'
  * - 收起时一行摘要：运行中显示最新一次调用，结束后按工具汇总，连续同名调用记 ×N。
  * - 展开后一行一个调用组；连续调用同一工具合并成一行并刷新为最新一次的参数。
  * - 每行再展开看参数、结果、错误；子 Agent 也作为 spawn_agents 行的详情。
+ * - 带思考的模型按步骤穿插「思考」行：思考 → 调用 → 思考 → 调用 → 思考（作答），
+ *   思考行同样可以展开看原文。
  */
 
 export type ToolCall = {
   id: string
+  /** 所在的 Agent 步骤，用来和同一步的思考排在一起。 */
+  step?: number
   tool: string
   arguments?: string
   result?: string
@@ -29,12 +33,17 @@ export type ToolCall = {
 
 type CallGroup = { id: string; tool: string; calls: ToolCall[] }
 
+/** 某一步模型输出里的思考。 */
+export type Thought = { step: number; text: string }
+
+type TimelineEntry = { kind: 'thought'; thought: Thought } | { kind: 'calls'; group: CallGroup }
+
 /** 落定的回合：优先用完整 trace（含结果），否则退回历史轨迹摘要。 */
 export function callsFromSteps(steps: readonly Step[]): ToolCall[] {
   return steps.filter((step) => step.tool).map((step) => {
     const error = step.toolError || step.toolRejected || ''
     return {
-      id: `s${step.number}`, tool: step.tool || '', arguments: step.toolArguments,
+      id: `s${step.number}`, step: step.number, tool: step.tool || '', arguments: step.toolArguments,
       result: step.toolResult, error: error || undefined,
       status: error ? 'failed' : 'completed', durationMs: step.toolDurationMs,
       subagents: step.subagents?.map((child) => ({
@@ -48,7 +57,7 @@ export function callsFromSteps(steps: readonly Step[]): ToolCall[] {
 
 export function callsFromTrajectory(trajectory: readonly ToolTrace[]): ToolCall[] {
   return trajectory.map((item, index) => ({
-    id: `t${item.step}:${index}`, tool: item.tool, arguments: item.arguments, error: item.error,
+    id: `t${item.step}:${index}`, step: item.step, tool: item.tool, arguments: item.arguments, error: item.error,
     status: item.status, subagents: item.subagents,
   }))
 }
@@ -86,7 +95,7 @@ export function callsFromEvents(events: readonly LiveEvent[]): ToolCall[] {
       continue
     }
     if (event.kind === 'tool_start' && event.tool) {
-      const call: ToolCall = { id: `live${event.step || calls.length}`, tool: event.tool, arguments: event.arguments, status: 'running', startedAt: event.at }
+      const call: ToolCall = { id: `live${event.step || calls.length}`, step: event.step, tool: event.tool, arguments: event.arguments, status: 'running', startedAt: event.at }
       calls.push(call)
       byStep.set(event.step || 0, call)
     } else if (event.kind === 'tool_done') {
@@ -98,6 +107,26 @@ export function callsFromEvents(events: readonly LiveEvent[]): ToolCall[] {
     }
   }
   return calls
+}
+
+/*
+ * 按步骤把思考与调用排成一条时间线：同一步先思考后调用。连续调用同一工具仍合并成一行，
+ * 但中间隔着思考就不合并——那是模型看过上一次结果后重新想过的另一次调用。
+ */
+function buildTimeline(calls: readonly ToolCall[], thoughts: readonly Thought[]): TimelineEntry[] {
+  const order = (step: number | undefined, rank: number) => (step ?? Number.MAX_SAFE_INTEGER) * 2 + rank
+  const items = [
+    ...thoughts.map((thought) => ({ at: order(thought.step, 0), thought })),
+    ...calls.map((call, index) => ({ at: order(call.step, 1) + index / 1e6, call })),
+  ].sort((a, b) => a.at - b.at)
+  const entries: TimelineEntry[] = []
+  for (const item of items) {
+    if ('thought' in item) { entries.push({ kind: 'thought', thought: item.thought }); continue }
+    const last = entries.at(-1)
+    if (last?.kind === 'calls' && last.group.tool === item.call.tool) last.group.calls.push(item.call)
+    else entries.push({ kind: 'calls', group: { id: item.call.id, tool: item.call.tool, calls: [item.call] } })
+  }
+  return entries
 }
 
 function groupCalls(calls: readonly ToolCall[]): CallGroup[] {
@@ -127,37 +156,44 @@ function SettledMark({ fresh }: { fresh: boolean }) {
 
 type Props = {
   calls: readonly ToolCall[]
+  /** 各步骤的思考；没有思考的模型传空数组。 */
+  thoughts?: readonly Thought[]
   running?: boolean
   /** 运行中摘要行的文字（如「步骤 3 · 正在决定下一步」）；不传则用最新调用。 */
   liveLabel?: string
 }
 
-export default function ToolActivity({ calls, running = false, liveLabel }: Props) {
+export default function ToolActivity({ calls, thoughts = [], running = false, liveLabel }: Props) {
   const [open, setOpen] = useState(false)
   // 本次挂载期间跑过的卡片，结束时才播定格动画；历史回合挂载时就是完成态。
   const ranHere = useRef(running)
   if (running) ranHere.current = true
-  if (calls.length === 0) return null
+  if (calls.length === 0 && thoughts.length === 0) return null
   const groups = groupCalls(calls)
+  const timeline = buildTimeline(calls, thoughts)
   const failed = calls.filter((call) => call.status === 'failed').length
-  const latest = groups.at(-1)!
+  const latestEntry = timeline.at(-1)!
+  const latest = latestEntry.kind === 'calls' ? latestEntry.group : undefined
   // 运行中的标题行：工具正在执行时显示该工具的动画图标，模型在想下一步时显示 R 点阵。
   // 卡片默认收起，不放到这里的话工具动画平时根本看不到。
-  const executing = running && latest.calls.at(-1)!.status === 'running'
+  const executing = running && latest?.calls.at(-1)!.status === 'running'
+  const summary = [thoughts.length > 0 ? `思考了 ${thoughts.length} 次` : '', groups.length > 0 ? summarize(groups) : ''].filter(Boolean).join(' · ')
 
   return <div className="tool-activity text-sm" data-testid="tool-activity">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="group flex max-w-full items-center gap-[6px] border-0 bg-transparent p-0 text-left text-ink-muted transition-colors hover:text-ink">
       {executing
         // 与 ThinkingMark 同宽同高的方框：两种标记互换时文字不左右挪。
-        ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={latest.tool} running size={15} /></span>
+        ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={latest!.tool} running size={15} /></span>
         : running ? <ThinkingMark /> : <SettledMark fresh={ranHere.current} />}
       {running
-        ? <span className="shimmer-text min-w-0 truncate">{liveLabel || `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim()}</span>
-        : <span className="min-w-0 truncate">{summarize(groups)}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
+        ? <span className="shimmer-text min-w-0 truncate">{liveLabel || (latest ? `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim() : '正在思考…')}</span>
+        : <span className="min-w-0 truncate">{summary}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
       <ChevronRight size={15} className={`flex-none transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
     <ActivityDisclosure open={open}><div className="tool-activity-panel mt-[10px] overflow-hidden rounded-xl border border-line bg-card-bg">
-      {groups.map((group) => <GroupRow key={group.id} group={group} />)}
+      {timeline.map((entry) => entry.kind === 'thought'
+        ? <ThoughtRow key={`thought${entry.thought.step}`} thought={entry.thought} live={running && entry === latestEntry} />
+        : <GroupRow key={entry.group.id} group={entry.group} />)}
     </div></ActivityDisclosure>
   </div>
 }
@@ -209,6 +245,25 @@ function GroupRow({ group }: { group: CallGroup }) {
     </button>
     <ActivityDisclosure open={open}><div className="flex flex-col gap-[14px] border-t border-line-soft bg-paper-soft px-[14px] py-[12px]">
       {group.calls.map((call, index) => <CallDetail key={call.id} call={call} order={group.calls.length > 1 ? index + 1 : undefined} />)}
+    </div></ActivityDisclosure>
+  </div>
+}
+
+/* 思考行：收起时一行显示思考开头，展开看全文；正在写的那段思考图标会动。 */
+function ThoughtRow({ thought, live }: { thought: Thought; live: boolean }) {
+  const [open, setOpen] = useState(false)
+  const preview = thought.text.replace(/\s+/g, ' ').trim()
+  return <div className="border-b border-line last:border-b-0" data-testid="thought-row">
+    <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex w-full min-w-0 items-center gap-[10px] border-0 bg-transparent px-[14px] py-[10px] text-left transition-colors hover:bg-surface-active">
+      <Brain size={15} className={`flex-none text-ink-muted ${live ? 'animate-pulse motion-reduce:animate-none' : ''}`} />
+      <span className="flex-none text-ink-muted">思考</span>
+      <span className={`min-w-0 truncate text-ink-soft ${live ? 'shimmer-text' : ''}`} title={preview}>{preview}</span>
+      <span className="flex-1" />
+      <span className="flex-none font-mono text-2xs text-ink-ghost">步骤 {thought.step}</span>
+      <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
+    </button>
+    <ActivityDisclosure open={open}><div className="border-t border-line-soft bg-paper-soft px-[14px] py-[12px]">
+      <p className="m-0 whitespace-pre-wrap text-xs leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{thought.text}</p>
     </div></ActivityDisclosure>
   </div>
 }

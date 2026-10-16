@@ -25,7 +25,8 @@ import SettingsPage from './components/SettingsPage'
 import PixelLoader from './components/PixelLoader'
 import Wordmark from './components/Wordmark'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
-import ThinkingTrail, { LiveThought } from './components/ThinkingTrail'
+import { LiveThought, stepThoughts } from './components/LiveThought'
+import type { Thought } from './components/ToolActivity'
 import { shortMeta } from './runNames'
 import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
@@ -75,9 +76,10 @@ export default function App() {
   // 正在生成的回答预览：后端 answer_delta 逐段追加、answer_reset 清空；一轮结束后由正式结果取代。
   const [liveAnswer, setLiveAnswer] = useState('')
   const liveAnswerRef = useRef('')
-  // 当前这一步的思考：thinking_delta 逐段追加，新的一步（或 model_start）清空；只在运行中显示。
-  const [liveThinking, setLiveThinking] = useState('')
-  const liveThinkingRef = useRef({ step: 0, text: '' })
+  // 运行中各步的思考：thinking_delta 按步骤追加；liveModelStep 是正在生成的那一步，预览只显示它的思考。
+  const [liveThoughts, setLiveThoughts] = useState<Thought[]>([])
+  const liveThoughtsRef = useRef<Thought[]>([])
+  const [liveModelStep, setLiveModelStep] = useState(0)
   const motionMemory = useRef<MotionMemory>({ seen: new Set(), progress: new Map(), instant: new Set() })
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
@@ -120,14 +122,18 @@ export default function App() {
         return
       }
       if (data.runId && data.runId !== eventRunID.current) return
-      if (data.kind === 'thinking_delta' || (data.kind === 'model_start' && !data.subagentIndex)) {
+      if (data.kind === 'thinking_delta') {
         if (data.subagentIndex) return
-        const current = liveThinkingRef.current
-        const text = data.kind === 'model_start' ? '' : (current.step === data.step ? current.text : '') + (data.text || '')
-        liveThinkingRef.current = { step: data.step || 0, text }
-        setLiveThinking(text)
-        if (data.kind === 'thinking_delta') return
+        const step = data.step || 0
+        const current = liveThoughtsRef.current
+        const previous = current.find((thought) => thought.step === step)
+        liveThoughtsRef.current = previous
+          ? current.map((thought) => thought.step === step ? { step, text: thought.text + (data.text || '') } : thought)
+          : [...current, { step, text: data.text || '' }]
+        setLiveThoughts(liveThoughtsRef.current)
+        return
       }
+      if (data.kind === 'model_start' && !data.subagentIndex) setLiveModelStep(data.step || 0)
       if (data.kind === 'answer_delta' || data.kind === 'answer_reset') {
         // 子 Agent 的回答只是它交回主 Agent 的中间结果，不显示在对话里。
         if (data.subagentIndex) return
@@ -220,7 +226,7 @@ export default function App() {
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
-    liveAnswerRef.current = ''; setLiveAnswer(''); liveThinkingRef.current = { step: 0, text: '' }; setLiveThinking('')
+    liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0)
     setOpenFile(null); setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setScrollResetKey(key => key + 1); if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
@@ -276,7 +282,7 @@ export default function App() {
       return next
     })
     setBusy(true)
-    liveAnswerRef.current = ''; setLiveAnswer(''); liveThinkingRef.current = { step: 0, text: '' }; setLiveThinking('')
+    liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0)
     try {
       const call = run()
       runningChat.current = call
@@ -307,7 +313,7 @@ export default function App() {
         setMessages((current) => [...current, failure])
       }
     }
-    finally { try { setFileChanges(await Backend.FileChanges()) } catch (error) { reportError(error) }; runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer(''); liveThinkingRef.current = { step: 0, text: '' }; setLiveThinking('') }
+    finally { try { setFileChanges(await Backend.FileChanges()) } catch (error) { reportError(error) }; runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0) }
   }
   function openArtifact(file: FileArtifact, view: FileView) { setOpenFile(file); setFileView(view) }
   async function resolveFileChanges(reviewed: FileChange[], accept: boolean) {
@@ -336,7 +342,7 @@ export default function App() {
     // 输入法组字中的回车是确认候选词，不是发送（WebKit 组字时 keyCode 为 229）。
     if (event.nativeEvent.isComposing || event.keyCode === 229 || busy) return
     if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
-  async function newConversation() { if (busy) return; try { await Backend.NewConversation(); liveAnswerRef.current = ''; setLiveAnswer(''); liveThinkingRef.current = { step: 0, text: '' }; setLiveThinking(''); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
+  async function newConversation() { if (busy) return; try { await Backend.NewConversation(); liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } } finally { setBusy(false) } }
@@ -366,7 +372,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThinking={liveThinking} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
@@ -448,7 +454,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, liveThinking, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, scrollResetKey }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; liveThinking: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; scrollResetKey: number }) {
+function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, liveThoughts, liveModelStep, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, scrollResetKey }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; liveThoughts: Thought[]; liveModelStep: number; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; scrollResetKey: number }) {
   const turns = groupMessagesIntoTurns(messages)
   const unattachedChanges = fileChanges.filter(c => !messages.some(m => m.files?.some(f => sameChange(f.change, c))))
   const empty = turns.length === 0
@@ -509,7 +515,7 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
       {/* 滚动容器铺满舞台，滚动条贴窗口最右；两侧预留等宽槽位，滚动条出现时正文不被挤、也不偏离输入框的中线。 */}
       {!empty && <div ref={scrollRef} tabIndex={0} aria-label="对话消息" className="conversation-scroll overscroll-y-contain [overflow-anchor:none] [scroll-behavior:auto] absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
         <div ref={contentRef} className="mx-auto content-narrow">
-          {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} onAnimating={setAnswerAnimating} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} liveThinking={liveThinking} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
+          {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} onAnimating={setAnswerAnimating} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
         </div>
       </div>}
     </div>
@@ -523,10 +529,11 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
   </div>
 }
 
-function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, onOpenFile, turn, index, last, busy, pending, activity, liveAnswer, liveThinking, motion, onGrow, onTrace, onRegenerate, onEditLast }: { onAnimating: (value: boolean) => void; fileChanges: FileChange[]; fallbackChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; liveThinking: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
+function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, onOpenFile, turn, index, last, busy, pending, activity, liveAnswer, liveThoughts, liveModelStep, motion, onGrow, onTrace, onRegenerate, onEditLast }: { onAnimating: (value: boolean) => void; fileChanges: FileChange[]; fallbackChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; liveThoughts: Thought[]; liveModelStep: number; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const calls = pending ? callsFromEvents(activity) : response?.trace ? callsFromSteps(response.trace.steps) : callsFromTrajectory(response?.trajectory || [])
+  const thoughts = pending ? liveThoughts : stepThoughts(response?.trace?.steps)
   const lastEvent = activity.at(-1)
   // 运行中摘要行：正在调用工具时显示最新那次调用，其余阶段（决策、路由、子 Agent）沿用活动文字。
   const liveLabel = lastEvent && !lastEvent.subagentIndex && lastEvent.kind.startsWith('tool_') && lastEvent.kind !== 'tool_done' ? undefined : activityLabel(lastEvent)
@@ -549,10 +556,9 @@ function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, o
   return <article className={`mb-[42px] conversation-turn${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter animate-turn-enter motion-reduce:animate-none' : ''}`} data-testid={`conversation-turn-${index}`}>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <UserMessage content={turn.user.content} canEdit={last} busy={busy} onEdit={onEditLast} />}
-      {calls.length > 0 && <ToolActivity calls={calls} running={pending && !liveAnswer} liveLabel={liveLabel} />}
-      {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
-      {pending && !liveAnswer && <LiveThought text={liveThinking} />}
-      {!pending && response?.trace && <ThinkingTrail steps={response.trace.steps} />}
+      {(calls.length > 0 || thoughts.length > 0) && <ToolActivity calls={calls} thoughts={thoughts} running={pending && !liveAnswer} liveLabel={liveLabel} />}
+      {pending && !liveAnswer && calls.length === 0 && thoughts.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {pending && !liveAnswer && <LiveThought text={liveThoughts.find((thought) => thought.step === liveModelStep)?.text || ''} />}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} immediate={immediate} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>

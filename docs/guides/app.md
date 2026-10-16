@@ -43,9 +43,10 @@ frontend and bind the same public Go API from `api/`.
   appear while a saved connection still uses them. Sampling presets show Chinese
   names; the CLI `--sampling` name is in the hint.
 - Thinking is visible: the runner streams `thinking_delta` events, the chat shows
-  the last two lines of the current step's thought while it runs, and a finished
-  turn has a collapsed "思考过程" list (the trajectory view splits it out too,
-  including g1k-think's withheld `<think` opening).
+  the last two lines of the current step's thought while it runs, and the tool
+  activity card interleaves an expandable "思考" row per step with the tool calls
+  (thought → call → thought → answer). The trajectory view splits it out too,
+  including g1k-think's withheld `<think` opening.
 - Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
   Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
   HTTP headers, and macOS system proxy support.
