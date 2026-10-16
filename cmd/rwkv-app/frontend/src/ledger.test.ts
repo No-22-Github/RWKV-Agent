@@ -40,6 +40,12 @@ describe('splitModelOutput', () => {
     expect(rest).toBe('<tool_call>{"name":"web_search"}</tool_call>')
   })
 
+  it('splits g1k-think output whose "<think" opening was withheld in the prompt', () => {
+    const { thinking, rest } = splitModelOutput('>The user wants the weather in Hefei.</think>\n<tool_call>{"name":"get_weather"}')
+    expect(thinking).toBe('The user wants the weather in Hefei.')
+    expect(rest).toBe('<tool_call>{"name":"get_weather"}')
+  })
+
   it('keeps a leading ">" that is ordinary Markdown quoting, not framing', () => {
     expect(splitModelOutput('> 引用的内容')).toEqual({ thinking: '', rest: '> 引用的内容' })
   })

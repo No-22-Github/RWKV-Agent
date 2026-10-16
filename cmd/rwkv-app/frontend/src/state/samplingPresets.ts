@@ -26,7 +26,7 @@ export type SamplingValues = {
 
 export type SamplingPreset = SamplingValues & {
   id: string
-  /** 下拉里显示的名字，与 CLI 的 --sampling 取值一致。 */
+  /** 下拉里显示的中文名；CLI 的 --sampling 取值是 id，写在说明里。 */
   label: string
   /** 扫参报告里"何时用"一栏，作为选择器的说明文字。 */
   use: string
@@ -35,32 +35,32 @@ export type SamplingPreset = SamplingValues & {
 /* 顺序照搬扫参报告的结论表：从最常用的推荐档到基线档。 */
 export const SAMPLING_PRESETS: readonly SamplingPreset[] = [
   {
-    id: 'g1k-agent', label: 'g1k-agent',
-    use: '默认推荐，工具调用决策；bfcl-product 最高（均 48/60）',
+    id: 'g1k-agent', label: 'Agent 推荐',
+    use: '默认推荐，工具调用决策；bfcl-product 最高（均 48/60）。CLI 名 g1k-agent',
     temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5,
     presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
   },
   {
-    id: 'g1k-agent-fast', label: 'g1k-agent-fast',
-    use: '长的多步任务；分数同一档、快约 27%，但缺参数时的追问变差',
+    id: 'g1k-agent-fast', label: 'Agent 长任务',
+    use: '长的多步任务；分数同一档、快约 27%，但缺参数时的追问变差。CLI 名 g1k-agent-fast',
     temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5,
     presencePenalty: 0.5, frequencyPenalty: 0.1, penaltyDecay: 0.996,
   },
   {
-    id: 'g1k-stable', label: 'g1k-stable',
-    use: '少副本 A/B 对比；跑与跑之间波动最小',
+    id: 'g1k-stable', label: '稳定对比',
+    use: '少副本 A/B 对比；跑与跑之间波动最小。CLI 名 g1k-stable',
     temperature: 1, topK: 20, topP: 0.3,
     presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
   },
   {
-    id: 'greedy', label: 'greedy',
-    use: '回归与调试；最接近可复现（批处理仍有约 ±1 题抖动）',
+    id: 'greedy', label: '贪心（可复现）',
+    use: '回归与调试；最接近可复现（批处理仍有约 ±1 题抖动）。CLI 名 greedy',
     temperature: 1, topK: 1, topP: 1,
     presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
   },
   {
-    id: 'backend', label: 'backend',
-    use: '聊天与最快跑分；rwkv_lightning 作者默认，重惩罚把输出长度减半',
+    id: 'backend', label: '聊天（后端默认）',
+    use: '聊天与最快跑分；rwkv_lightning 作者默认，重惩罚把输出长度减半。CLI 名 backend',
     temperature: 1, topK: 20, topP: 0.3,
     presencePenalty: 2, frequencyPenalty: 0.2, penaltyDecay: 0.996,
   },

@@ -172,6 +172,56 @@ func TestRunnerStreamPreviewHidesWithheldThinkOpening(t *testing.T) {
 	}
 }
 
+func TestRunnerStreamsThinkingOfWithheldThinkBlock(t *testing.T) {
+	t.Parallel()
+	runner, err := NewRunner(
+		chunkedGenerator([]string{">用户只是打招呼，直接回答。</think>你好！"}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 2, Protocol: G1Protocol{}, Renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFull}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var thought strings.Builder
+	var events []Event
+	result, err := runner.RunWithObserver(context.Background(), "你好", func(event Event) {
+		events = append(events, event)
+		if event.Kind == EventThinkingDelta {
+			thought.WriteString(event.Text)
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if thought.String() != "用户只是打招呼，直接回答。" {
+		t.Fatalf("streamed thinking %q", thought.String())
+	}
+	if text, _ := streamedAnswer(events); text != result.Output {
+		t.Fatalf("streamed %q, output %q", text, result.Output)
+	}
+}
+
+func TestPreviewThinkingText(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		output string
+		want   string
+		ok     bool
+	}{
+		{"<think>想一想", "想一想", true},
+		{"<think>想一想</thi", "想一想", true},
+		{"<think>想完了</think><tool_call>{", "想完了", true},
+		{"你好", "", false},
+		{"<tool_call>{", "", false},
+	}
+	for _, test := range cases {
+		got, ok := previewThinkingText(test.output)
+		if got != test.want || ok != test.ok {
+			t.Errorf("previewThinkingText(%q) = %q, %v; want %q, %v", test.output, got, ok, test.want, test.ok)
+		}
+	}
+}
+
 func TestRunnerWithoutObserverPassesNoSink(t *testing.T) {
 	t.Parallel()
 	runner, err := NewRunner(

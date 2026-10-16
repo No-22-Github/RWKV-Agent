@@ -194,6 +194,9 @@ const (
 	EventAnswerDelta EventKind = "answer_delta"
 	// EventAnswerReset retracts every answer delta streamed so far.
 	EventAnswerReset EventKind = "answer_reset"
+	// EventThinkingDelta carries newly generated text of the step's leading
+	// think block, for live display only; the step's ModelOutput keeps it.
+	EventThinkingDelta EventKind = "thinking_delta"
 )
 
 type Event struct {

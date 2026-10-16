@@ -99,7 +99,7 @@ function openAgentSection() {
   openSettingsSection('Agent')
 }
 
-/* 对话协议、思考模式、采样、预算与附加约定在设置页的参数分区。 */
+/* 对话格式、采样、预算与附加约定在设置页的参数分区。 */
 function openParametersSection() {
   openSettingsSection('参数')
 }
@@ -292,22 +292,26 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
+    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'markdown' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].profile).toBeUndefined()
   })
 
-  it('submits the selected thinking mode through auto-apply', async () => {
+  it('submits the deep-thinking format as g1k-think through auto-apply', async () => {
     bootstrapWithRunningProvider()
     render(<App />)
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
+    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'think' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].thinking).toBe('fast')
+    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
+    expect(config.thinking).toBe('full')
+    expect(config.profile).toBe('g1k')
+    expect(config.wire).toBe('thinking=full,nudge=think')
   })
 
   it('submits the personal task contract through auto-apply', async () => {
@@ -342,7 +346,7 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
+    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'think' } })
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
@@ -395,16 +399,18 @@ describe('App', () => {
     expect(vi.mocked(Backend.PreviewSystemPrompt).mock.lastCall?.[0].injectSessionTime).toBe(false)
   })
 
-  it('resets the thinking mode when the Markdown protocol is selected', async () => {    render(<App />)
+  it('offers only the recommended formats with Chinese names', async () => {
+    render(<App />)
     openSettings()
     switchToRemoteProvider()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
-    expect(screen.getByLabelText('思考模式')).toHaveValue('fast')
-    fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
-
-    expect(screen.getByLabelText('思考模式')).toHaveValue('off')
-    expect(screen.getByLabelText('思考模式')).toBeDisabled()
+    const select = screen.getByLabelText('格式预设')
+    expect(select).toHaveValue('standard')
+    expect(Array.from((select as HTMLSelectElement).options).map((option) => option.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
+    fireEvent.change(select, { target: { value: 'think' } })
+    expect(select).toHaveValue('think')
+    fireEvent.change(select, { target: { value: 'markdown' } })
+    expect(select).toHaveValue('markdown')
   })
 
   it('applies a named sampling preset through auto-apply', async () => {
@@ -437,7 +443,7 @@ describe('App', () => {
     // 切到自定义不改数值，从预设那组值出发继续调。
     expect(screen.getByLabelText('温度')).toHaveValue(0.3)
     // 下拉说自定义时说明文字不能说成"选中了预设"。
-    expect(screen.getByText(/当前数值等同 g1k-agent/)).toBeInTheDocument()
+    expect(screen.getByText(/当前数值等同 Agent 推荐/)).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('温度'), { target: { value: '0.9' } })
 
     // 改过的配置不再冒充预设名。
@@ -992,7 +998,7 @@ describe('App', () => {
     openSettings()
     openParametersSection()
 
-    expect(screen.getByLabelText('工具协议')).toHaveValue('markdown')
+    expect(screen.getByLabelText('格式预设')).toHaveValue('markdown')
     openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
   })
@@ -1025,7 +1031,7 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
     openParametersSection()
-    expect(screen.getByLabelText('工具协议')).toHaveValue('xml')
+    expect(screen.getByLabelText('格式预设')).toHaveValue('legacy')
     openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')

@@ -1,5 +1,5 @@
-import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
-import { NEW_CONFIG_DEFAULTS, type ProviderManager } from '../../state/providerManager'
+import { type ProviderManager } from '../../state/providerManager'
+import { FORMAT_PRESETS, formatPresetById, matchFormatPreset } from '../../state/formatPresets'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
 import { GroupTitle, Row, SettingsPane, SaveStatus, Toggle } from './ui'
 import { autosaveHint } from './autosaveHint'
@@ -18,6 +18,8 @@ type Props = {
  */
 export default function ParametersSection({ manager }: Props) {
   const activePreset = presetById(manager.matchedSamplingPreset)
+  const formatId = matchFormatPreset({ agentProtocol: manager.agentProtocol, profile: manager.profile, thinking: manager.thinking })
+  const formatHint = formatPresetById(formatId)?.use ?? `连接档案里写的是自定义 wire 预设 ${manager.profile}，选一档即可改回`
 
   /*
    * 选择器在自定义模式下不再显示预设名，说明文字也要跟着走：数值恰好等于某个预设
@@ -53,50 +55,26 @@ export default function ParametersSection({ manager }: Props) {
       </div>
 
       <section className="mt-[18px]">
-        <GroupTitle title="对话协议" />
-        <div className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
-          <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-            <span className="text-base text-ink-strong">工具协议</span>
-            <span className="text-xs leading-[1.55] text-ink-muted">
-              {manager.profile
-                ? `wire 预设 ${manager.profile}：与评测、训练语料同一套格式；Markdown 为可选模式`
-                : 'XML 默认直达工具决策；Markdown 保留为可选模式'}
-            </span>
-          </span>
-          <select aria-label="工具协议" className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.agentProtocol} onChange={(event) => {
-            const protocol = event.target.value as AgentProtocol
-            manager.setAgentProtocol(protocol)
-            // 与后端 applyProtocolDefaults 的契约一致：Markdown 协议没有思考预填。
-            if (protocol === AgentProtocol.AgentProtocolMarkdown) manager.setThinking('off')
-            // wire 预设（g1k）一旦存在就接管格式，会让协议选择器失效：选 Markdown 时退出预设，
-            // 切回 XML 时回到新档案默认的 g1k。
-            manager.setProfile(protocol === AgentProtocol.AgentProtocolMarkdown ? '' : NEW_CONFIG_DEFAULTS.profile)
-          }}>
-            <option value={AgentProtocol.AgentProtocolXML}>XML（推荐）</option>
-            <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（可选）</option>
-          </select>
-        </div>
-        <div className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
-          <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-            <span className="text-base text-ink-strong">思考模式</span>
-            <span className="text-xs leading-[1.55] text-ink-muted">
-              {manager.agentProtocol === AgentProtocol.AgentProtocolMarkdown
-                ? 'Markdown 协议不支持思考预填，已按关闭处理'
-                : '快速：预填闭合 think 块，直接进入动作，适合思考型模型；完整：预填开口由模型自行闭合'}
-            </span>
-          </span>
+        <GroupTitle title="对话格式" />
+        <Row label="格式预设" description={formatHint}>
           <select
-            aria-label="思考模式"
-            className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand disabled:opacity-40"
-            value={manager.thinking}
-            disabled={manager.agentProtocol === AgentProtocol.AgentProtocolMarkdown}
-            onChange={(event) => manager.setThinking(event.target.value as 'off' | 'fast' | 'full')}
+            aria-label="格式预设"
+            className="rounded-md h-[36px] w-[190px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand"
+            value={formatId}
+            onChange={(event) => {
+              const preset = formatPresetById(event.target.value)
+              if (!preset) return
+              manager.setAgentProtocol(preset.agentProtocol)
+              manager.setProfile(preset.profile)
+              manager.setThinking(preset.thinking)
+            }}
           >
-            <option value="off">关闭（默认）</option>
-            <option value="fast">快速思考</option>
-            <option value="full">完整思考</option>
+            {FORMAT_PRESETS.filter((preset) => !preset.hidden || preset.id === formatId).map((preset) => (
+              <option key={preset.id} value={preset.id}>{preset.label}</option>
+            ))}
+            {formatId === 'custom' && <option value="custom">自定义（{manager.profile}）</option>}
           </select>
-        </div>
+        </Row>
       </section>
 
       <section className="mt-[18px]">

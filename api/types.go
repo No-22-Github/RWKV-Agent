@@ -159,6 +159,9 @@ const (
 	EventAnswerDelta EventKind = "answer_delta"
 	// EventAnswerReset retracts the answer text streamed so far.
 	EventAnswerReset EventKind = "answer_reset"
+	// EventThinkingDelta streams the current step's thinking for live display;
+	// a new Step starts a new thought.
+	EventThinkingDelta EventKind = "thinking_delta"
 )
 
 // Event is a transport-safe Agent loop event.

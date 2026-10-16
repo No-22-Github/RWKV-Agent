@@ -36,8 +36,16 @@ frontend and bind the same public Go API from `api/`.
   `rwkv-cli adapter register --path …` (also `adapter list` / `adapter delete`). Connecting is refused when the chosen adapter is gone or the
   deployment has no `/v1/adapters` (an old build would ignore `adapter_id` and
   answer as the base model). The running adapter has its own chip next to the
-  state chip. "Full thinking" now resolves `g1k` to the `g1k-think` preset (adds
-  `nudge=think`), the wire v2.0 adapters were trained on.
+  state chip.
+- One "格式预设" selector replaces the protocol and thinking selectors: 标准（不思考）
+  = `g1k`, 深度思考 = `g1k-think` (the wire v2.0 MiSS adapters were trained on),
+  Markdown 工具调用（实验）. Fast thinking and the profile-less legacy `xml-v1` only
+  appear while a saved connection still uses them. Sampling presets show Chinese
+  names; the CLI `--sampling` name is in the hint.
+- Thinking is visible: the runner streams `thinking_delta` events, the chat shows
+  the last two lines of the current step's thought while it runs, and a finished
+  turn has a collapsed "思考过程" list (the trajectory view splits it out too,
+  including g1k-think's withheld `<think` opening).
 - Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
   Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
   HTTP headers, and macOS system proxy support.

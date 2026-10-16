@@ -24,6 +24,7 @@ type answerPreview struct {
 	injected bool
 	raw      strings.Builder
 	sent     string
+	thought  string
 	// firstToken is when the first non-empty text delta arrived (time to first token).
 	firstToken time.Time
 }
@@ -55,7 +56,12 @@ func (preview *answerPreview) sink() continuation.EventSink {
 			preview.firstToken = time.Now()
 		}
 		preview.raw.WriteString(event.Text)
-		visible, ok := previewAnswerText(preview.turn.postProcessModelOutput(preview.raw.String(), preview.injected))
+		output := preview.turn.postProcessModelOutput(preview.raw.String(), preview.injected)
+		if thought, ok := previewThinkingText(output); ok && len(thought) > len(preview.thought) && strings.HasPrefix(thought, preview.thought) {
+			preview.emit(Event{Kind: EventThinkingDelta, Step: preview.step, Text: thought[len(preview.thought):]})
+			preview.thought = thought
+		}
+		visible, ok := previewAnswerText(output)
 		if !ok || visible == preview.sent {
 			return nil
 		}
@@ -80,6 +86,22 @@ func (preview *answerPreview) retract() {
 
 func (preview *answerPreview) emit(event Event) {
 	preview.turn.r.observe(event, preview.turn.observer)
+}
+
+// previewThinkingText extracts the leading think block of a partial model
+// output, open or closed, so a viewer can watch the model reason. Output that
+// does not open with a think block has no thinking to show.
+func previewThinkingText(output string) (string, bool) {
+	body, ok := strings.CutPrefix(strings.TrimSpace(output), "<think>")
+	if !ok {
+		return "", false
+	}
+	if end := strings.Index(body, "</think>"); end >= 0 {
+		body = body[:end]
+	} else {
+		body = holdPartialTag(body)
+	}
+	return strings.TrimSpace(body), true
 }
 
 // callFence matches the start of a fenced tool-call envelope: a fence whose
