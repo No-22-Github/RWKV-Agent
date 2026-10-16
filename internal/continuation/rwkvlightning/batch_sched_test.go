@@ -236,3 +236,33 @@ func TestBatchHoldSendsQueuedCallsWhenSlotsStayBusy(t *testing.T) {
 		t.Fatalf("queued call waited %v, want about the 150ms hold", waited)
 	}
 }
+
+// A looping member is handed back as a length finish while its peer keeps
+// streaming; the text it gets stops where the guard tripped.
+func TestBatchStreamLoopGuardReleasesLoopingMember(t *testing.T) {
+	t.Parallel()
+	var chunks []string
+	for index := range 400 {
+		chunks = append(chunks,
+			`{"choices":[{"index":0,"delta":{"content":"again and "}}]}`,
+			fmt.Sprintf(`{"choices":[{"index":1,"delta":{"content":"word%d "}}]}`, index))
+	}
+	request := validRequest()
+	request.MaxOutputTokens = 4096
+	calls := streamCalls(request, request)
+	for _, call := range calls {
+		call.guard = continuation.NewLoopGuard()
+	}
+	outcomes := readBatchStreamResponse(context.Background(),
+		strings.NewReader(sseLines(chunks...)+"data: [DONE]\n\n"), calls, "", 4096)
+	if !outcomes[0].delivered {
+		t.Fatal("looping member was not released early")
+	}
+	cut := <-calls[0].response
+	if cut.result.FinishReason != continuation.FinishLength || len(cut.result.Text) >= 4000 {
+		t.Fatalf("looping outcome = %q (%s)", cut.result.Text[:40], cut.result.FinishReason)
+	}
+	if outcomes[1].delivered || !strings.HasSuffix(outcomes[1].result.Text, "word399 ") {
+		t.Fatalf("clean peer outcome = %+v", outcomes[1].result.FinishReason)
+	}
+}

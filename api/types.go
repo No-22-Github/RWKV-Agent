@@ -110,9 +110,13 @@ type Config struct {
 	EnableBash bool `json:"enableBash,omitempty"`
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the agent transcript (docs/design/preferences.md P5-1..P5-3).
-	CompressFetch          bool `json:"compressFetch,omitempty"`
-	MaxActiveBatch         int  `json:"maxActiveBatch,omitempty"`
-	RemoteBatchWaitMS      int  `json:"remoteBatchWaitMs,omitempty"`
+	CompressFetch     bool `json:"compressFetch,omitempty"`
+	MaxActiveBatch    int  `json:"maxActiveBatch,omitempty"`
+	RemoteBatchWaitMS int  `json:"remoteBatchWaitMs,omitempty"`
+	// DisableLoopGuard lets RWKV Lightning generations that repeat themselves
+	// verbatim run on to max_tokens; by default they end early (see
+	// continuation.LoopGuard).
+	DisableLoopGuard       bool `json:"disableLoopGuard,omitempty"`
 	SubagentMaxParallel    int  `json:"subagentMaxParallel,omitempty"`
 	SubagentMaxSteps       int  `json:"subagentMaxSteps,omitempty"`
 	SubagentTimeoutSeconds int  `json:"subagentTimeoutSeconds,omitempty"`

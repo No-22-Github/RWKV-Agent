@@ -145,6 +145,7 @@ type runOptions struct {
 	remoteBatchWait          time.Duration
 	remoteBatchMax           int
 	remoteBatchInflight      int
+	loopGuard                bool
 	subagentMaxParallel      int
 	subagentMaxSteps         int
 	subagentTimeout          time.Duration
@@ -573,6 +574,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.BoolVar(&options.enableSubagents, "subagents", false, "enable concurrent spawn_agents delegation")
 			fs.IntVar(&options.maxActiveBatch, "max-active-batch", 4, "maximum local active generation batch, 1..8")
 			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent Agent requests")
+			fs.BoolVar(&options.loopGuard, "loop-guard", true, loopGuardUsage)
 			fs.IntVar(&options.subagentMaxParallel, "subagent-max-parallel", 4, "maximum tasks in one spawn_agents call, 2..8")
 			fs.IntVar(&options.subagentMaxSteps, "subagent-max-steps", 4, "maximum model steps for each child Agent")
 			fs.DurationVar(&options.subagentTimeout, "subagent-timeout", 2*time.Minute, "wall-clock timeout for one spawn_agents batch")
@@ -672,6 +674,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", rwkvlightning.DefaultBatchWait, "RWKV Lightning coalescing window for concurrent eval cases: calls arriving within it share one contents[] request (the server does no cross-request batching, so single-prompt requests are bandwidth-bound bsz=1 loops). A call that hits a text stop returns at once; one that ends on EOS waits for its batch, because the server reports EOS only when the request ends. 0 sends one request per call")
 			fs.IntVar(&options.remoteBatchMax, "remote-batch-max", rwkvlightning.DefaultBatchMax, "maximum calls in one coalesced RWKV Lightning request; a full window is sent at once (0 = no cap)")
 			fs.IntVar(&options.remoteBatchInflight, "remote-batch-inflight", rwkvlightning.DefaultBatchInflight, "maximum coalesced RWKV Lightning requests running at once; calls arriving meanwhile queue and leave together as one wider request when one finishes (or after 2s). Set it to the endpoint's card count (0 = no cap)")
+			fs.BoolVar(&options.loopGuard, "loop-guard", true, loopGuardUsage)
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
 			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
@@ -1301,6 +1304,7 @@ func newAgentGeneratorSource(
 			StopTokens:          options.apiStopTokens, StateID: options.stateID,
 			AdapterID: options.adapterID,
 			Stream:    &options.apiStream, BatchWait: batchWait, BatchMax: batchMax, BatchInflight: batchInflight,
+			LoopGuard: options.loopGuard,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -1783,6 +1787,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		EnableSubagents:        options.enableSubagents,
 		MaxActiveBatch:         options.maxActiveBatch,
 		RemoteBatchWaitMS:      int(options.remoteBatchWait / time.Millisecond),
+		DisableLoopGuard:       !options.loopGuard,
 		SubagentMaxParallel:    options.subagentMaxParallel,
 		SubagentMaxSteps:       options.subagentMaxSteps,
 		SubagentTimeoutSeconds: int(options.subagentTimeout / time.Second),
@@ -1941,6 +1946,7 @@ func runAgentEval(args []string) error {
 		RemoteBatchWait:       evalRemoteBatchWait(options),
 		RemoteBatchMax:        evalRemoteBatchMax(options),
 		RemoteBatchInflight:   evalRemoteBatchInflight(options),
+		RemoteLoopGuard:       options.loopGuard,
 		PrimitiveProfile:      options.primitiveProfile,
 		FileToolForm:          options.evalFileToolForm,
 		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
@@ -2349,6 +2355,11 @@ func formatEvalScore(score agenteval.Score) string {
 	}
 	return fmt.Sprintf("%.1f%%", 100*score.Rate)
 }
+
+// loopGuardUsage documents --loop-guard for the agent and agent-eval commands.
+const loopGuardUsage = "end an RWKV Lightning generation early, as a length finish, once it repeats itself verbatim " +
+	"(fewer than 5% new 24-character windows in its last 768 characters) instead of decoding the loop until max_tokens; " +
+	"pass =false to let loops run (runs before 2026-10-16 had no guard)"
 
 // parseAPIStopTokens delegates API and CLI stop settings to the transport layer.
 func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error) {

@@ -92,7 +92,11 @@ type Config struct {
 	StateID string
 	// AdapterID binds a MiSS adapter registered on the server (POST
 	// /v1/adapters) to every generation. Empty runs the bare base model.
-	AdapterID  string
+	AdapterID string
+	// LoopGuard ends a streamed generation early, as a length finish, once
+	// continuation.LoopGuard sees it repeating itself verbatim; the server
+	// would otherwise decode the loop until max_tokens.
+	LoopGuard  bool
 	Headers    http.Header
 	HTTPClient *http.Client
 }
@@ -110,6 +114,7 @@ type Client struct {
 	batchMax      int
 	batchInflight int
 	batchHold     time.Duration
+	loopGuard     bool
 	headers       http.Header
 	httpClient    *http.Client
 	batchMu       sync.Mutex
@@ -168,6 +173,7 @@ func New(config Config) (*Client, error) {
 		batchMax:      config.BatchMax,
 		batchInflight: config.BatchInflight,
 		batchHold:     batchHold,
+		loopGuard:     config.LoopGuard,
 		headers:       config.Headers.Clone(),
 		httpClient:    httpClient,
 	}, nil
@@ -372,7 +378,17 @@ func (c *Client) continueOne(
 		request.MaxOutputTokens,
 		sink,
 		c.password,
+		c.newLoopGuard(),
 	)
+}
+
+// newLoopGuard returns a fresh guard for one generation, or nil when the
+// client runs without one.
+func (c *Client) newLoopGuard() *continuation.LoopGuard {
+	if !c.loopGuard {
+		return nil
+	}
+	return continuation.NewLoopGuard()
 }
 
 // readBufferedResponse handles stream=false. The whole completion arrives at
@@ -471,6 +487,7 @@ func readStreamResponse(
 	maxOutputTokens int,
 	sink continuation.EventSink,
 	secret string,
+	guard *continuation.LoopGuard,
 ) (continuation.Result, error) {
 	scanner := bufio.NewScanner(body)
 	scanner.Buffer(make([]byte, 64*1024), maxResponseBytes)
@@ -555,6 +572,14 @@ func readStreamResponse(
 					FinishReason: continuation.FinishStop,
 					Usage:        streamUsage(usage, deltas),
 					Stop:         stop,
+				}, nil
+			}
+			if guard != nil && guard.Write(text) {
+				// Returning closes the body, which also stops the server.
+				return continuation.Result{
+					Text:         result.String(),
+					FinishReason: continuation.FinishLength,
+					Usage:        streamUsage(usage, deltas),
 				}, nil
 			}
 		}

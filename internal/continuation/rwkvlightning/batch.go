@@ -22,6 +22,8 @@ type pendingCall struct {
 	request  continuation.Request
 	sink     continuation.EventSink
 	response chan batchOutcome
+	// guard, when set, ends this call early once its stream starts looping.
+	guard *continuation.LoopGuard
 }
 
 type batchOutcome struct {
@@ -44,6 +46,7 @@ func (c *Client) continueBatched(
 		request:  request,
 		sink:     sink,
 		response: make(chan batchOutcome, 1),
+		guard:    c.newLoopGuard(),
 	}
 	defer func() {
 		call.sinkMu.Lock()
@@ -504,6 +507,12 @@ func readBatchStreamResponse(
 				state.stop = stop
 				state.finish = continuation.FinishStop
 				deliverEarly(choice.Index)
+				continue
+			}
+			if guard := calls[choice.Index].guard; guard != nil && guard.Write(text) {
+				// The server keeps decoding this row until the request ends;
+				// its caller gets the loop-free part now, as a length finish.
+				finishChoice(choice.Index, continuation.FinishLength)
 				continue
 			}
 			if budget := calls[choice.Index].request.MaxOutputTokens; budget > 0 &&

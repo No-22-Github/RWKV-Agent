@@ -262,6 +262,7 @@ type HarnessMetadata struct {
 	RemoteBatchWaitMillis    int      `json:"remote_batch_wait_ms"`
 	RemoteBatchMax           int      `json:"remote_batch_max,omitempty"`
 	RemoteBatchInflight      int      `json:"remote_batch_inflight,omitempty"`
+	RemoteLoopGuard          bool     `json:"remote_loop_guard,omitempty"`
 	ToolProfile              string   `json:"tool_profile,omitempty"`
 	DuplicateReplayLimit     int      `json:"duplicate_replay_limit"`
 	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
@@ -566,9 +567,13 @@ type Config struct {
 	RemoteBatchWait     time.Duration
 	RemoteBatchMax      int
 	RemoteBatchInflight int
-	Now                 func() time.Time
-	TempDir             string
-	PrimitiveProfile    string
+	// RemoteLoopGuard records that the RWKV Lightning client ended looping
+	// generations early (as a length finish) instead of letting them run to
+	// max_tokens.
+	RemoteLoopGuard  bool
+	Now              func() time.Time
+	TempDir          string
+	PrimitiveProfile string
 	// FileToolForm optionally appends the file-editing toolset ("lines" or
 	// "whole", see tools.FileEditForm) to non-primitive suites.
 	FileToolForm string

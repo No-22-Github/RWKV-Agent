@@ -137,6 +137,7 @@ func buildRemoteSource(config Config) (generatorSource, error) {
 		ChatTokenLimit: chatcompletions.TokenLimitField(config.ChatTokenLimit),
 		StopTokens:     config.RWKVStopTokens, StateID: config.StateID, AdapterID: config.AdapterID,
 		Stream: config.Stream, BatchWait: time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,
+		LoopGuard: !config.DisableLoopGuard,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("initialize %s: %w", config.Provider, err)
