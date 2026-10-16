@@ -73,6 +73,7 @@ type runnerTurn struct {
 	forceAnswer           bool
 	terminalToolCompleted bool
 	answerViolations      int
+	answerOpenerTried     bool
 	// answerRollback marks turn.messages indices the rewrite variant drops at
 	// answer-stage entry: rejected/violating assistant outputs and their
 	// receipts. A zero keep length drops the message; a positive one truncates
@@ -193,6 +194,9 @@ func (turn *runnerTurn) run() (Result, error) {
 		action, err := turn.parseModelAction(step, &modelStep)
 		if err != nil {
 			if retryErr := turn.retryProtocolAction(step, modelStep, err); retryErr != nil {
+				if errors.Is(retryErr, errAnswerCommitted) {
+					return turn.result, nil
+				}
 				return turn.result, retryErr
 			}
 			continue
@@ -248,6 +252,12 @@ func (turn *runnerTurn) run() (Result, error) {
 			return turn.result, nil
 		}
 	}
+	if turn.stage == StageAnswer {
+		// The step budget ran out inside the answer stage: the user still
+		// gets an account of what was looked up instead of an error.
+		turn.commitAnswerFallback()
+		return turn.result, nil
+	}
 	return turn.result, ErrMaxSteps
 }
 
@@ -302,6 +312,11 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 	}
 	if turn.r.wire.Experiments.AnswerOpen == "answer" {
 		prefix = "<answer>"
+	}
+	if turn.answerOpenerTried {
+		// The answer stage is re-prepared on every step; keep the prefilled
+		// prose opening set by retryProtocolAction.
+		prefix = answerOpener(turn.task)
 	}
 	turn.assistantPrefix = prefix
 	// The answer stage owns its own opening; no decision-stage frame applies.
@@ -789,12 +804,18 @@ func (turn *runnerTurn) retryProtocolAction(
 		turn.r.options.AnswerStageLead > 0 && turn.answerViolations == 0 {
 		turn.answerViolations++
 		turn.r.observe(Event{Kind: EventRetry, Step: step, Err: errors.New("answer-stage violation re-ask")}, turn.observer)
-		if echoed := retryEcho(modelStep.modelAction, err); strings.TrimSpace(echoed) != "" {
-			turn.messages = append(turn.messages, Message{
-				Role:             RoleAssistant,
-				Content:          echoed,
-				ReasoningContent: modelStep.reasoningContent,
-			})
+		// On the text wire the rejected tool call is not echoed back: RWKV
+		// copies its own previous assistant turn verbatim, so an echoed call
+		// primes the same call again (2026-10-16 probe: three identical
+		// rejections in a row). The User instruction carries the correction.
+		if modelStep.nativeCall != nil {
+			if echoed := retryEcho(modelStep.modelAction, err); strings.TrimSpace(echoed) != "" {
+				turn.messages = append(turn.messages, Message{
+					Role:             RoleAssistant,
+					Content:          echoed,
+					ReasoningContent: modelStep.reasoningContent,
+				})
+			}
 		}
 		turn.appendUserMessage(
 			"Answer the original current task in ordinary Markdown NOW using the Function outputs above. " +
@@ -803,12 +824,38 @@ func (turn *runnerTurn) retryProtocolAction(
 		turn.assistantPrefix = "Assistant:"
 		return nil
 	}
+	answerViolation := errors.Is(err, ErrStageViolation) && turn.stage == StageAnswer
+	if answerViolation && turn.answerOpenerTried {
+		// The prefilled opening was the last generation: keep any real prose
+		// written before the tool frame, otherwise summarize the evidence.
+		if salvaged := salvageAnswerProse(modelStep.modelAction, turn.assistantPrefix); salvaged != "" {
+			turn.result.AnswerFallback = answerFallbackOpener
+			turn.commitFinalText(salvaged)
+		} else {
+			turn.commitAnswerFallback()
+		}
+		return errAnswerCommitted
+	}
 	if turn.retries >= turn.r.options.ProtocolRetries {
-		return err
+		if !answerViolation {
+			return err
+		}
+		// The retry budget is spent and the model still calls tools. Prefill
+		// the start of a prose answer so the next generation continues a
+		// sentence instead of opening another tool call.
+		turn.answerOpenerTried = true
+		turn.assistantPrefix = answerOpener(turn.task)
+		turn.r.observe(Event{Kind: EventRetry, Step: step, Err: errors.New("answer-stage prefilled opening")}, turn.observer)
+		return nil
 	}
 	turn.retries++
 	turn.r.observe(Event{Kind: EventRetry, Step: step, Err: err}, turn.observer)
 	echoed := retryEcho(modelStep.modelAction, err)
+	if answerViolation && modelStep.nativeCall == nil {
+		// Same reason as the re-ask above. A native call keeps its echo:
+		// Chat Completions needs the rejected tool_call answered.
+		echoed = ""
+	}
 	if strings.TrimSpace(echoed) != "" {
 		retryMessage := Message{
 			Role:             RoleAssistant,
@@ -861,7 +908,17 @@ func (turn *runnerTurn) finishFinalAction(step int, action Action) (bool, error)
 	return true, nil
 }
 
+// commitAnswerFallback ends the answer stage with the harness-written account
+// of what the turn looked up, for a model that would not stop calling tools.
+func (turn *runnerTurn) commitAnswerFallback() {
+	turn.result.AnswerFallback = answerFallbackSummary
+	turn.commitFinalText(answerFallbackSummaryText(turn.task, turn.result.Steps))
+}
+
 func (turn *runnerTurn) commitFinalText(content string) {
+	if turn.answerOpenerTried && turn.result.AnswerFallback == "" {
+		turn.result.AnswerFallback = answerFallbackOpener
+	}
 	turn.result.OriginalOutput = content
 	violations := validateAnswer(content)
 	committedOutput := content

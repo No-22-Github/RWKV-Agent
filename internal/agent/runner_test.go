@@ -1003,12 +1003,15 @@ func TestRunnerAnswerStageRejectsEmptyNoTool(t *testing.T) {
 		t.Fatal(err)
 	}
 	result, err := runner.Run(context.Background(), "Read the log and answer.")
-	if !errors.Is(err, ErrMaxSteps) {
-		t.Fatalf("empty no_tool err = %v, want ErrMaxSteps", err)
+	// The empty no_tool is never committed; the budget runs out inside the
+	// answer stage and the harness-written summary ends the turn instead.
+	if err != nil {
+		t.Fatalf("empty no_tool err = %v, want the answer-stage fallback", err)
 	}
 	closing := result.Steps[1]
 	if closing.Stage != StageAnswer || closing.StageViolation ||
-		!strings.Contains(closing.ProtocolError, "no_tool") || result.Output != "" {
+		!strings.Contains(closing.ProtocolError, "no_tool") ||
+		result.AnswerFallback != answerFallbackSummary || !strings.Contains(result.Output, "- counting_echo") {
 		t.Fatalf("empty no_tool step = %+v output = %q", closing, result.Output)
 	}
 }

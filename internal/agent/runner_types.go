@@ -360,6 +360,11 @@ type Result struct {
 	PlanFallbacks          int         `json:"plan_fallbacks,omitempty"`
 	RescueAttempted        bool        `json:"rescue_attempted,omitempty"`
 	RescueSubmitted        bool        `json:"rescue_submitted,omitempty"`
+	// AnswerFallback names how an answer stage that kept emitting tool calls
+	// was ended: "opener" (a prefilled answer opening got prose out of the
+	// model) or "summary" (the harness wrote what was looked up and what is
+	// missing). Empty when the model answered on its own.
+	AnswerFallback string `json:"answer_fallback,omitempty"`
 }
 
 type answerViolation string
