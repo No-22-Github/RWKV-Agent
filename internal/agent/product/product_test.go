@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/tools"
 )
 
 func names(tools []agent.Tool) []string {
@@ -82,5 +83,17 @@ func TestTaskControlComposition(t *testing.T) {
 	want := NoWorkspaceControl + "\n\n用中文\n\n" + StagedFileControl
 	if got != want {
 		t.Fatalf("control = %q", got)
+	}
+}
+
+func TestMarkdownPostToolHookEmptyFetchAllowsRecovery(t *testing.T) {
+	empty := map[string]any{"pages": []tools.WebFetchResult{{URL: "https://example.com", Content: ""}}}
+	hook := markdownPostToolHook("web_fetch", nil, empty, nil)
+	if strings.Contains(hook, "fetched page content") || !strings.Contains(hook, "could not be read") {
+		t.Fatalf("empty fetch hook = %q", hook)
+	}
+	full := map[string]any{"pages": []tools.WebFetchResult{{Content: "body"}}}
+	if hook := markdownPostToolHook("web_fetch", nil, full, nil); !strings.Contains(hook, "fetched page content") {
+		t.Fatalf("full fetch hook = %q", hook)
 	}
 }

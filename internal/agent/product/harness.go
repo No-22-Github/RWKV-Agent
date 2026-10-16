@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -236,9 +237,12 @@ func HarnessOptions(config HarnessConfig) agent.Options {
 
 // markdownPostToolHook is the Markdown protocol's post-tool reminder for the
 // tools whose result should end the search.
-func markdownPostToolHook(name string, _ json.RawMessage, _ any, _ error) string {
+func markdownPostToolHook(name string, _ json.RawMessage, value any, _ error) string {
 	switch name {
 	case "web_fetch":
+		if !tools.WebFetchHasContent(value) {
+			return "NEXT: No page content came back. Fetch one different URL, or answer the user directly and say the page could not be read."
+		}
 		return "NEXT: Use the fetched page content above and answer the user directly now. Do not call web_search or web_fetch again."
 	case "spawn_agents":
 		return "NEXT: Synthesize the ordered child results above and answer the user directly now. Do not spawn another batch."

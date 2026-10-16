@@ -114,6 +114,7 @@ func (turn *runnerTurn) compressWebFetchFeedback(
 				Content   string `json:"content"`
 				Truncated bool   `json:"truncated,omitempty"`
 			} `json:"pages"`
+			Note string `json:"note,omitempty"`
 		} `json:"result"`
 	}
 	if json.Unmarshal([]byte(payload), &parsed) != nil || !parsed.OK {

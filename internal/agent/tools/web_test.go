@@ -406,3 +406,59 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 func (fn roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) {
 	return fn(request)
 }
+
+func TestWebToolsExplainEmptyResults(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		if request.Method == http.MethodPost {
+			_, _ = writer.Write([]byte(`{"results":[{"url":"https://example.com/page","raw_content":"  "}]}`))
+			return
+		}
+		_, _ = writer.Write([]byte(`{"web":{"results":[]}}`))
+	}))
+	defer server.Close()
+
+	search, err := NewBraveSearchProvider(BraveConfig{APIKey: "k", Endpoint: server.URL, HTTPClient: server.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fetch, err := NewTavilyFetchProvider(TavilyConfig{APIKey: "k", Endpoint: server.URL, HTTPClient: server.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	tools := WebTools(WebOptions{Search: search, Fetch: fetch})
+	for _, tc := range []struct {
+		tool int
+		args string
+		note string
+	}{
+		{0, `{"query":"nothing","max_results":3}`, emptyWebSearchNote},
+		{1, `{"urls":["https://example.com/page"]}`, emptyWebFetchNote},
+	} {
+		value, err := tools[tc.tool].Execute(context.Background(), json.RawMessage(tc.args))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := value.(map[string]any)["note"]; got != tc.note {
+			t.Fatalf("%s note = %v", tools[tc.tool].Spec().Name, got)
+		}
+	}
+}
+
+func TestWebFetchHasContent(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		pages []WebFetchResult
+		want  bool
+	}{
+		{nil, false},
+		{[]WebFetchResult{{Content: " "}}, false},
+		{[]WebFetchResult{{Content: ""}, {Content: "body"}}, true},
+		{[]WebFetchResult{{Content: "", Truncated: true}}, true},
+	} {
+		if got := WebFetchHasContent(map[string]any{"pages": tc.pages}); got != tc.want {
+			t.Fatalf("pages %+v: got %v want %v", tc.pages, got, tc.want)
+		}
+	}
+}

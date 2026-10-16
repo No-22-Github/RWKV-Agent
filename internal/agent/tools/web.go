@@ -196,7 +196,40 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err != nil {
 		return nil, err
 	}
+	if len(results) == 0 {
+		return map[string]any{"query": args.Query, "results": results, "note": emptyWebSearchNote}, nil
+	}
 	return map[string]any{"query": args.Query, "results": results}, nil
+}
+
+// The empty-result notes ride inside the tool result so every wire format
+// carries them. Wording was picked by a 2026-10-16 probe on g1k-7.2b (five
+// variants, 24 runs each): telling the model that repeating the same query
+// returns nothing again cut searches per empty case from 6.0 to 2.3, while
+// "tell the user ..." phrasings in English were sometimes echoed verbatim as
+// the final answer and a flat "do not search again" invited a made-up date.
+const (
+	emptyWebSearchNote = "没有搜到任何结果。同样的关键词再搜也不会有结果。最多换一种说法再搜一次；还是没有，就直接告诉用户没查到。不要编造。"
+	emptyWebFetchNote  = "这个页面没有返回任何正文。同一个网址再抓也不会有内容。如果有别的网址可以换一个；没有就直接告诉用户页面读不到。不要编造页面内容。"
+)
+
+// WebFetchHasContent reports whether a web_fetch result carries any page text.
+// A page cut to "" by the shared budget still counts: its content existed.
+func WebFetchHasContent(value any) bool {
+	result, ok := value.(map[string]any)
+	if !ok {
+		return true
+	}
+	pages, ok := result["pages"].([]WebFetchResult)
+	if !ok {
+		return true
+	}
+	for _, page := range pages {
+		if page.Truncated || strings.TrimSpace(page.Content) != "" {
+			return true
+		}
+	}
+	return false
 }
 
 type webFetchTool struct {
@@ -287,7 +320,11 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 		results[index].Truncated = true
 		budget = 0
 	}
-	return map[string]any{"pages": results}, nil
+	value := map[string]any{"pages": results}
+	if !WebFetchHasContent(value) {
+		value["note"] = emptyWebFetchNote
+	}
+	return value, nil
 }
 
 type BraveConfig struct {
