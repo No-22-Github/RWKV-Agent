@@ -78,6 +78,7 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 | `rwkv-cli concurrent` · `bench` | 1–8 concurrent generations from one model in a dashboard; pick a pane to keep chatting |
 | `rwkv-cli convert` | `.pth` → MLX safetensors without Python (optional) |
 | `rwkv-cli state` | Upload / list / delete States on an `rwkv_lightning` deployment |
+| `rwkv-cli adapter` | Register (by inference-host path or local file) / list / delete MiSS adapters on an `rwkv_lightning` deployment |
 | Desktop app (`cmd/rwkv-app`) | Local or remote model setup, persistent conversations, tool trajectories, streamed answers, State management |
 | `rwkv-lab` (`cmd/rwkv-lab`) | Dev tooling: `bank` case bank, `corpus` rendering, `run` checks and comparisons, `bench` sweeps, `state` training helpers |
 

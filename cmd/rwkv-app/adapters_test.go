@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,27 +35,16 @@ func (f *fakeAdapterServer) ServeHTTP(writer http.ResponseWriter, request *http.
 	case http.MethodGet:
 		_ = json.NewEncoder(writer).Encode(map[string]any{"data": f.adapters, "ram_hits": 0})
 	case http.MethodPost:
-		var id, content string
-		if strings.HasPrefix(request.Header.Get("Content-Type"), "multipart/") {
-			file, _, err := request.FormFile("file")
-			if err != nil {
-				http.Error(writer, err.Error(), http.StatusBadRequest)
-				return
-			}
-			defer file.Close()
-			id = request.FormValue("adapter_id")
-			buffer := make([]byte, 64)
-			n, _ := file.Read(buffer)
-			content = string(buffer[:n])
-		} else {
-			var body struct {
-				AdapterID string `json:"adapter_id"`
-				Path      string `json:"path"`
-			}
-			_ = json.NewDecoder(request.Body).Decode(&body)
-			id, content = body.AdapterID, body.Path
+		file, _, err := request.FormFile("file")
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
 		}
-		version := fmt.Sprintf("sha-%s", content)
+		defer file.Close()
+		id := request.FormValue("adapter_id")
+		buffer := make([]byte, 64)
+		n, _ := file.Read(buffer)
+		version := fmt.Sprintf("sha-%s", buffer[:n])
 		f.adapters = append(f.adapters, map[string]any{
 			"id": id, "version": version, "manifest": map[string]any{"rank": 16, "alpha": 16, "scale": 1},
 		})
@@ -93,7 +83,11 @@ func TestAppServiceAdapterRegisterListVerifyAndDelete(t *testing.T) {
 	backend := newAppService(service, testAppStore(t))
 	t.Cleanup(func() { _ = backend.Close() })
 
-	localPath := filepath.Join(t.TempDir(), "adapter-final.pth")
+	dir := t.TempDir()
+	firstPath, localPath := filepath.Join(dir, "lr3e-5.pth"), filepath.Join(dir, "adapter-final.pth")
+	if err := os.WriteFile(firstPath, []byte("first"), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(localPath, []byte("local"), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -104,14 +98,10 @@ func TestAppServiceAdapterRegisterListVerifyAndDelete(t *testing.T) {
 	}
 	ctx := context.Background()
 
-	byPath, err := backend.RegisterAdapter(ctx, config, "lr3e-5", "/srv/train-2-0/adapter-final.pth", false)
-	if err != nil {
+	if _, err := backend.UploadAdapter(ctx, config, "lr3e-5", firstPath); err != nil {
 		t.Fatal(err)
 	}
-	if byPath.Version != "sha-/srv/train-2-0/adapter-final.pth" || byPath.ServerPath == "" || byPath.LocalPath != "" {
-		t.Fatalf("registered by path = %+v", byPath)
-	}
-	uploaded, err := backend.RegisterAdapter(ctx, config, "r64", localPath, true)
+	uploaded, err := backend.UploadAdapter(ctx, config, "r64", localPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,13 +152,13 @@ func TestJoinAdaptersPicksRecordedVersion(t *testing.T) {
 		{ID: "b", Version: "x1"},
 		{ID: "b", Version: "x2"},
 	}
-	records := []appstorage.AdapterRegistration{{AdapterID: "a", Version: "v2", ServerPath: "/srv/a.pth"}}
+	records := []appstorage.AdapterRegistration{{AdapterID: "a", Version: "v2", LocalPath: "/nowhere/a.pth"}}
 	listing := joinAdapters(adapters, records)
 	if len(listing.Adapters) != 2 {
 		t.Fatalf("listing = %+v", listing)
 	}
 	a, b := listing.Adapters[0], listing.Adapters[1]
-	if a.Version != "v2" || a.Rank != 16 || a.Versions != 2 || a.ServerPath != "/srv/a.pth" {
+	if a.Version != "v2" || a.Rank != 16 || a.Versions != 2 || a.LocalPath != "/nowhere/a.pth" || a.LocalAvailable {
 		t.Errorf("a = %+v", a)
 	}
 	// Two versions this machine never registered: the list cannot say which
@@ -206,5 +196,52 @@ func TestAdapterOnOldDeploymentIsExplainedAndBlocksConnect(t *testing.T) {
 	config.AdapterID = "r16"
 	if err := backend.verifyAdapterAvailable(ctx, config); err == nil || !strings.Contains(err.Error(), "r16") {
 		t.Fatalf("selected adapter on old deployment error = %v", err)
+	}
+}
+
+func TestBrowserUploadStagesThenForwardsAndCleansUp(t *testing.T) {
+	fake := &fakeAdapterServer{}
+	server := httptest.NewServer(fake)
+	t.Cleanup(server.Close)
+	service, err := agentapi.NewService(agentapi.Options{Workspace: resolvedWorkspace(t)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, testAppStore(t))
+	t.Cleanup(func() { _ = backend.Close() })
+	config := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: server.URL, Model: "rwkv7"}
+
+	handler := backend.uploads.middleware(http.NotFoundHandler())
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, browserUploadPath+"?name="+url.QueryEscape(`C:\miss\adapter-final.pth`), strings.NewReader("browser")))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("stage status = %d: %s", recorder.Code, recorder.Body)
+	}
+	var staged struct{ Token string }
+	if err := json.NewDecoder(recorder.Body).Decode(&staged); err != nil || staged.Token == "" {
+		t.Fatalf("stage response = %v %+v", err, staged)
+	}
+	backend.uploads.mu.Lock()
+	path := backend.uploads.staged[staged.Token]
+	backend.uploads.mu.Unlock()
+	if filepath.Base(path) != "adapter-final.pth" {
+		t.Fatalf("staged path = %q, want the original base name", path)
+	}
+
+	entry, err := backend.UploadBrowserAdapter(context.Background(), config, "r16", staged.Token)
+	if err != nil || entry.Version != "sha-browser" || entry.LocalPath != "" {
+		t.Fatalf("UploadBrowserAdapter = %+v, %v", entry, err)
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("staged file still exists: %v", err)
+	}
+	if _, err := backend.UploadBrowserAdapter(context.Background(), config, "r16", staged.Token); err == nil {
+		t.Fatal("a token was usable twice")
+	}
+	// Other paths fall through to the asset handler.
+	recorder = httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/index.html", nil))
+	if recorder.Code != http.StatusNotFound {
+		t.Fatalf("passthrough status = %d", recorder.Code)
 	}
 }

@@ -26,10 +26,8 @@ type AdapterEntry struct {
 	Versions int     `json:"versions"`
 	Rank     int     `json:"rank,omitempty"`
 	Alpha    float64 `json:"alpha,omitempty"`
-	// ServerPath / LocalPath say where the registration came from (see
-	// appstorage.AdapterRegistration); LocalAvailable reports whether the
-	// local file still exists for a re-upload.
-	ServerPath     string `json:"serverPath,omitempty"`
+	// LocalPath is the file this machine uploaded; LocalAvailable reports
+	// whether it still exists for a re-upload.
 	LocalPath      string `json:"localPath,omitempty"`
 	LocalAvailable bool   `json:"localAvailable,omitempty"`
 }
@@ -81,61 +79,69 @@ func (s *AppService) ListAdapters(ctx context.Context, config agentapi.Config) (
 	return joinAdapters(adapters, records), nil
 }
 
-// RegisterAdapter registers path under id. upload=false hands path to the
-// server as a path on the inference host; upload=true sends the local file.
-// Re-registering an existing ID adds a version that becomes its default.
-func (s *AppService) RegisterAdapter(ctx context.Context, config agentapi.Config, id, path string, upload bool) (AdapterEntry, error) {
-	id, path = strings.TrimSpace(id), strings.TrimSpace(path)
+// UploadAdapter uploads a local MiSS package (adapter-final.pth or a
+// checkpoint's training.pth) and registers it under id, remembering the file
+// for a re-upload after a server restart. Re-uploading an existing ID adds a
+// version that becomes its default.
+func (s *AppService) UploadAdapter(ctx context.Context, config agentapi.Config, id, path string) (AdapterEntry, error) {
+	return s.uploadAdapter(ctx, config, id, strings.TrimSpace(path), true)
+}
+
+// UploadBrowserAdapter forwards a file the browser sent to browserUploadPath
+// and registers it under id. The staged copy is deleted afterwards, so there
+// is no local file to remember for a re-upload.
+func (s *AppService) UploadBrowserAdapter(ctx context.Context, config agentapi.Config, id, token string) (AdapterEntry, error) {
+	path, err := s.uploads.take(token)
+	if err != nil {
+		return AdapterEntry{}, err
+	}
+	defer s.uploads.release(path)
+	return s.uploadAdapter(ctx, config, id, path, false)
+}
+
+func (s *AppService) uploadAdapter(ctx context.Context, config agentapi.Config, id, path string, remember bool) (AdapterEntry, error) {
+	id = strings.TrimSpace(id)
 	if id == "" {
 		return AdapterEntry{}, fmt.Errorf("请填写适配器 ID")
 	}
-	if path == "" {
-		return AdapterEntry{}, fmt.Errorf("请填写适配器文件路径")
+	info, err := os.Stat(path)
+	if err != nil {
+		return AdapterEntry{}, fmt.Errorf("读取适配器文件失败: %w", err)
 	}
-	record := appstorage.AdapterRegistration{Server: stateServerKey(config.Endpoint), AdapterID: id}
-	var version string
-	var err error
-	if upload {
-		info, statErr := os.Stat(path)
-		if statErr != nil {
-			return AdapterEntry{}, fmt.Errorf("读取适配器文件失败: %w", statErr)
-		}
-		if info.IsDir() {
-			return AdapterEntry{}, fmt.Errorf("%s 是目录，请选择 .pth 文件", path)
-		}
-		// Uploads share the state-upload lock: concurrent large uploads have
-		// knocked the shared deployment over before.
-		s.stateUpload.Lock()
-		defer s.stateUpload.Unlock()
-		uploadCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
-		defer cancel()
-		var lastPercent int64 = -1
-		version, err = s.currentService().UploadAdapter(uploadCtx, config, id, path, func(sent, total int64) {
-			percent := int64(100)
-			if total > 0 {
-				percent = sent * 100 / total
-			}
-			if percent == lastPercent {
-				return
-			}
-			lastPercent = percent
-			s.emit(adapterUploadProgressEvent, AdapterUploadProgress{Path: path, Sent: sent, Total: total})
-		})
-		record.LocalPath = path
-	} else {
-		registerCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
-		defer cancel()
-		version, err = s.currentService().RegisterAdapterPath(registerCtx, config, id, path)
-		record.ServerPath = path
+	if info.IsDir() {
+		return AdapterEntry{}, fmt.Errorf("%s 是目录，请选择 .pth 文件", path)
 	}
+	// Uploads share the state-upload lock: concurrent large uploads have
+	// knocked the shared deployment over before.
+	s.stateUpload.Lock()
+	defer s.stateUpload.Unlock()
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
+	var lastPercent int64 = -1
+	version, err := s.currentService().UploadAdapter(ctx, config, id, path, func(sent, total int64) {
+		percent := int64(100)
+		if total > 0 {
+			percent = sent * 100 / total
+		}
+		if percent == lastPercent {
+			return
+		}
+		lastPercent = percent
+		s.emit(adapterUploadProgressEvent, AdapterUploadProgress{Path: path, Sent: sent, Total: total})
+	})
 	if err != nil {
 		return AdapterEntry{}, adapterError(err)
 	}
-	record.Version = version
-	record.RegisteredAt = time.Now().UTC()
+	if !remember {
+		return AdapterEntry{ID: id, Version: version, Versions: 1}, nil
+	}
+	record := appstorage.AdapterRegistration{
+		Server: stateServerKey(config.Endpoint), AdapterID: id, Version: version,
+		LocalPath: path, RegisteredAt: time.Now().UTC(),
+	}
 	entry := adapterEntryFromRecord(record)
 	if err := s.storage.RecordAdapterRegistration(record); err != nil {
-		return entry, fmt.Errorf("适配器已注册，但记录来源失败: %w", err)
+		return entry, fmt.Errorf("适配器已上传，但记录本地路径失败: %w", err)
 	}
 	return entry, nil
 }
@@ -178,7 +184,7 @@ func (s *AppService) verifyAdapterAvailable(ctx context.Context, config agentapi
 			return nil
 		}
 	}
-	return fmt.Errorf("MiSS 适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的 MiSS 分组里重新注册，或改回基模", id)
+	return fmt.Errorf("MiSS 适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的 MiSS 分组里重新上传，或改回基模", id)
 }
 
 // runtimeAdapterID is the MiSS adapter the running provider generates with.
@@ -232,7 +238,7 @@ func joinAdapters(adapters []agentapi.RemoteAdapter, records []appstorage.Adapte
 		}
 		entry := AdapterEntry{ID: id, Version: version, Versions: len(listed), Rank: shown.Rank, Alpha: shown.Alpha}
 		if known {
-			entry.ServerPath, entry.LocalPath, entry.LocalAvailable = record.ServerPath, record.LocalPath, localFileExists(record.LocalPath)
+			entry.LocalPath, entry.LocalAvailable = record.LocalPath, localFileExists(record.LocalPath)
 		}
 		listing.Adapters = append(listing.Adapters, entry)
 	}
@@ -248,8 +254,7 @@ func joinAdapters(adapters []agentapi.RemoteAdapter, records []appstorage.Adapte
 func adapterEntryFromRecord(record appstorage.AdapterRegistration) AdapterEntry {
 	return AdapterEntry{
 		ID: record.AdapterID, Version: record.Version, Versions: 1,
-		ServerPath: record.ServerPath, LocalPath: record.LocalPath,
-		LocalAvailable: localFileExists(record.LocalPath),
+		LocalPath: record.LocalPath, LocalAvailable: localFileExists(record.LocalPath),
 	}
 }
 

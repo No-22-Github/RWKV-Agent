@@ -231,17 +231,6 @@ export function Regenerate(): $CancellablePromise<api$0.Result> {
 }
 
 /**
- * RegisterAdapter registers path under id. upload=false hands path to the
- * server as a path on the inference host; upload=true sends the local file.
- * Re-registering an existing ID adds a version that becomes its default.
- */
-export function RegisterAdapter(config: api$0.Config, id: string, path: string, upload: boolean): $CancellablePromise<$models.AdapterEntry> {
-    return $Call.ByID(692822058, config, id, path, upload).then(($result: any) => {
-        return $$createType11($result);
-    });
-}
-
-/**
  * RenameConversation updates a conversation's display title.
  */
 export function RenameConversation(id: string, title: string): $CancellablePromise<void> {
@@ -259,7 +248,7 @@ export function ResolveFileChanges(reviewed: api$0.FileChange[], accept: boolean
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType11($result);
     });
 }
 
@@ -276,6 +265,40 @@ export function SetConversationPinned(id: string, pinned: boolean): $Cancellable
 export function Status(): $CancellablePromise<api$0.Status> {
     return $Call.ByID(838280468).then(($result: any) => {
         return $$createType0($result);
+    });
+}
+
+/**
+ * UploadAdapter uploads a local MiSS package (adapter-final.pth or a
+ * checkpoint's training.pth) and registers it under id, remembering the file
+ * for a re-upload after a server restart. Re-uploading an existing ID adds a
+ * version that becomes its default.
+ */
+export function UploadAdapter(config: api$0.Config, id: string, path: string): $CancellablePromise<$models.AdapterEntry> {
+    return $Call.ByID(270781990, config, id, path).then(($result: any) => {
+        return $$createType12($result);
+    });
+}
+
+/**
+ * UploadBrowserAdapter forwards a file the browser sent to browserUploadPath
+ * and registers it under id. The staged copy is deleted afterwards, so there
+ * is no local file to remember for a re-upload.
+ */
+export function UploadBrowserAdapter(config: api$0.Config, id: string, token: string): $CancellablePromise<$models.AdapterEntry> {
+    return $Call.ByID(878917108, config, id, token).then(($result: any) => {
+        return $$createType12($result);
+    });
+}
+
+/**
+ * UploadBrowserState forwards a file the browser sent to browserUploadPath.
+ * The staged copy is deleted afterwards, so there is no local file to
+ * remember for a re-upload.
+ */
+export function UploadBrowserState(config: api$0.Config, token: string): $CancellablePromise<$models.StateEntry> {
+    return $Call.ByID(111862102, config, token).then(($result: any) => {
+        return $$createType13($result);
     });
 }
 
@@ -302,6 +325,6 @@ const $$createType7 = $Create.Array($$createType6);
 const $$createType8 = $models.StateListing.createFrom;
 const $$createType9 = $models.ConversationView.createFrom;
 const $$createType10 = api$0.AgentPromptPreview.createFrom;
-const $$createType11 = $models.AdapterEntry.createFrom;
-const $$createType12 = appstorage$0.SavedProvider.createFrom;
+const $$createType11 = appstorage$0.SavedProvider.createFrom;
+const $$createType12 = $models.AdapterEntry.createFrom;
 const $$createType13 = $models.StateEntry.createFrom;

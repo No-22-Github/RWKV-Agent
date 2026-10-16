@@ -74,6 +74,9 @@ type AppBootstrap struct {
 	Workspaces      []WorkspaceItem       `json:"workspaces"`
 	Paths           StoragePaths          `json:"paths"`
 	Warning         string                `json:"warning,omitempty"`
+	// BrowserUploads is true in server mode: there is no native file dialog,
+	// so uploads go through the browser's picker and browserUploadPath.
+	BrowserUploads bool `json:"browserUploads,omitempty"`
 }
 
 // AppService binds durable application state to the public Agent API.
@@ -92,10 +95,12 @@ type AppService struct {
 	warning           string
 	runSequence       uint64
 	closed            bool
+	// uploads stages files the browser picks in server mode.
+	uploads *browserUploads
 }
 
 func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppService {
-	backend := &AppService{service: service, storage: storage}
+	backend := &AppService{service: service, storage: storage, uploads: newBrowserUploads()}
 	if err := storage.Prepare(); err != nil {
 		backend.warning = fmt.Sprintf("准备应用存储目录失败：%v", err)
 	}
@@ -749,6 +754,7 @@ func (s *AppService) Close() error {
 		return nil
 	}
 	s.closed = true
+	s.uploads.clear()
 	session := s.session
 	service := s.service
 	s.session = nil
@@ -837,7 +843,8 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 			ConfigFile: paths.ConfigFile, DataDirectory: paths.DataDirectory,
 			StateFile: paths.StateFile, CacheDirectory: paths.CacheDirectory,
 		},
-		Warning: warning,
+		Warning:        warning,
+		BrowserUploads: serverBuild,
 	}
 	if active != nil {
 		view := conversationView(*active)

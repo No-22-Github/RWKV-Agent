@@ -97,7 +97,22 @@ func (s *AppService) ListStates(ctx context.Context, config agentapi.Config) (St
 // Uploads are serialized: concurrent multi-hundred-MB uploads have knocked
 // the shared deployment over before.
 func (s *AppService) UploadState(ctx context.Context, config agentapi.Config, path string) (StateEntry, error) {
-	path = strings.TrimSpace(path)
+	return s.uploadState(ctx, config, strings.TrimSpace(path), true)
+}
+
+// UploadBrowserState forwards a file the browser sent to browserUploadPath.
+// The staged copy is deleted afterwards, so there is no local file to
+// remember for a re-upload.
+func (s *AppService) UploadBrowserState(ctx context.Context, config agentapi.Config, token string) (StateEntry, error) {
+	path, err := s.uploads.take(token)
+	if err != nil {
+		return StateEntry{}, err
+	}
+	defer s.uploads.release(path)
+	return s.uploadState(ctx, config, path, false)
+}
+
+func (s *AppService) uploadState(ctx context.Context, config agentapi.Config, path string, remember bool) (StateEntry, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return StateEntry{}, fmt.Errorf("读取 State 文件失败: %w", err)
@@ -127,6 +142,9 @@ func (s *AppService) UploadState(ctx context.Context, config agentapi.Config, pa
 	})
 	if err != nil {
 		return StateEntry{}, err
+	}
+	if !remember {
+		return StateEntry{RemoteState: state}, nil
 	}
 	record := appstorage.StateUpload{
 		Server: stateServerKey(config.Endpoint), StateID: state.ID, Path: path,

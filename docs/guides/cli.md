@@ -38,6 +38,9 @@ rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 rwkv-cli state upload --api-url <URL> [--api-header-env HEADER=ENV ...] --file <state .pth>
 rwkv-cli state list --api-url <URL> [--api-header-env HEADER=ENV ...]
 rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-id <state_id>
+rwkv-cli adapter register --api-url <URL> [--api-header-env HEADER=ENV ...] --adapter-id <id> (--path <PTH on the inference host> | --file <local PTH>)
+rwkv-cli adapter list --api-url <URL> [--api-header-env HEADER=ENV ...]
+rwkv-cli adapter delete --api-url <URL> [--api-header-env HEADER=ENV ...] --adapter-id <id> [--version <sha256>]
 ```
 
 ## 2. 模型加载与转换
@@ -338,6 +341,26 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 - 复用后同一 `state_id` 可以继续用于 `/v1/chat/completions`、`/v1/batch/completions`、
   `/translate/v1/batch-translate` 与 `/state/chat/completions`；连续 Agent 步骤会从同一
   状态持续续写，适合把微调后的口吻/知识固化进整个工作区会话。
+
+#### MiSS 适配器
+
+MiSS 适配器改的是权重，和 State 互不影响，可以同时用。`adapter register --path` 直接注册推理机上已有的
+训练产物（`adapter-final.pth` 或 checkpoint 的 `training.pth`；相对路径按服务进程的工作目录解析），
+不用把文件传一遍；`--file` 则上传本机文件。注册只存在服务端内存里，重启后要重新注册。App 只支持上传
+本机文件，按推理机路径注册只能用 CLI。
+
+```sh
+# 注册，stdout 打印 adapter_id 与内容版本（SHA-256）
+./local/dist/rwkv-cli adapter register --api-url http://100.64.0.19:8100 \
+  --adapter-id r16-lr3e-5 --path train-2-0/r16-lr3e-5/adapter-final.pth
+
+./local/dist/rwkv-cli adapter list --api-url http://100.64.0.19:8100
+./local/dist/rwkv-cli adapter delete --api-url http://100.64.0.19:8100 --adapter-id r16-lr3e-5
+
+# 使用：agent/agent-eval 的每次生成都带上 adapter_id（可与 --state-id 同时传）
+./local/dist/rwkv-cli agent --completion rwkv-lightning-cuda --api-url http://100.64.0.19:8100 \
+  --model rwkv7-g1k-7.2b-20260930-ctx25600 --adapter-id r16-lr3e-5 --workspace /absolute/path/to/project
+```
 
 ### OpenAI-compatible Chat Completions
 

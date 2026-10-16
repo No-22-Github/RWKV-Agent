@@ -190,6 +190,8 @@ func main() {
 		err = runConcurrent(append(os.Args[2:], "--ui", "plain"))
 	case "state":
 		err = runState(os.Args[2:])
+	case "adapter":
+		err = runAdapter(os.Args[2:])
 	case "convert":
 		err = convertModel(os.Args[2:])
 	default:
@@ -220,11 +222,14 @@ func usage() {
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
   rwkv-cli state upload --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --file <state .pth>
   rwkv-cli state list --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...]
-  rwkv-cli state delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --state-id <state_id>`)
+  rwkv-cli state delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --state-id <state_id>
+  rwkv-cli adapter register --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --adapter-id <id> (--path <PTH on the inference host> | --file <local PTH>)
+  rwkv-cli adapter list --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...]
+  rwkv-cli adapter delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --adapter-id <id> [--version <sha256>]`)
 }
 
-// stateFlags are the connection flags shared by every state subcommand. State
-// management is model-independent, so no --model is required.
+// stateFlags are the connection flags shared by every state and adapter
+// subcommand. Both are model-independent, so no --model is required.
 type stateFlags struct {
 	apiURL         string
 	apiPasswordEnv string

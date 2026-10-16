@@ -93,15 +93,13 @@ type StateUpload struct {
 	UploadedAt time.Time `json:"uploadedAt"`
 }
 
-// AdapterRegistration records where a registered MiSS adapter came from:
-// a path on the inference host (ServerPath) or a local file this machine
-// uploaded (LocalPath). Exactly one of the two is set.
+// AdapterRegistration links a registered MiSS adapter ID to the local file
+// this machine uploaded for it.
 type AdapterRegistration struct {
 	Server       string    `json:"server"`
 	AdapterID    string    `json:"adapterId"`
 	Version      string    `json:"version"`
-	ServerPath   string    `json:"serverPath,omitempty"`
-	LocalPath    string    `json:"localPath,omitempty"`
+	LocalPath    string    `json:"localPath"`
 	RegisteredAt time.Time `json:"registeredAt"`
 }
 

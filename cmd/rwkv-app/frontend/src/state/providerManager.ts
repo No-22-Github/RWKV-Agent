@@ -117,6 +117,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [apiKey, setAPIKey] = useState('')
   const [stateId, setStateId] = useState('')
   const [adapterId, setAdapterId] = useState('')
+  /* 网页版（server 模式）没有系统文件对话框，上传改走浏览器的文件选择框。 */
+  const [browserUploads, setBrowserUploads] = useState(false)
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
   const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
@@ -431,6 +433,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setRuntimeProviderId(value.runtimeProviderId || '')
     setRuntimeConfig(value.runtimeProviderId ? Config.createFrom(value.config) : null)
     setRuntimeOutdated(Boolean(value.runtimeOutdated))
+    setBrowserUploads(Boolean(value.browserUploads))
   }
 
   function beginEditingProvider(provider: SavedProvider) {
@@ -621,6 +624,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
     stateId, setStateId,
     adapterId, setAdapterId,
+    browserUploads,
     profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
     enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,

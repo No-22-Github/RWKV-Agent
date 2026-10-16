@@ -31,11 +31,9 @@ export class AdapterEntry {
     "alpha"?: number;
 
     /**
-     * ServerPath / LocalPath say where the registration came from (see
-     * appstorage.AdapterRegistration); LocalAvailable reports whether the
-     * local file still exists for a re-upload.
+     * LocalPath is the file this machine uploaded; LocalAvailable reports
+     * whether it still exists for a re-upload.
      */
-    "serverPath"?: string;
     "localPath"?: string;
     "localAvailable"?: boolean;
 
@@ -115,6 +113,12 @@ export class AppBootstrap {
     "workspaces": WorkspaceItem[];
     "paths": StoragePaths;
     "warning"?: string;
+
+    /**
+     * BrowserUploads is true in server mode: there is no native file dialog,
+     * so uploads go through the browser's picker and browserUploadPath.
+     */
+    "browserUploads"?: boolean;
 
     /** Creates a new AppBootstrap instance. */
     constructor($$source: Partial<AppBootstrap> = {}) {

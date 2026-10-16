@@ -46,6 +46,7 @@ func main() {
 		},
 		Assets: application.AssetOptions{
 			Handler:        application.BundledAssetFileServer(frontend),
+			Middleware:     backend.uploads.middleware,
 			DisableLogging: true,
 		},
 		Server: application.ServerOptions{

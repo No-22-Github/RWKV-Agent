@@ -76,6 +76,7 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 | `rwkv-cli concurrent` · `bench` | 单模型 1–8 路并发生成 dashboard，可点选某一路继续追问 |
 | `rwkv-cli convert` | `.pth` → MLX safetensors（不依赖 Python，可选） |
 | `rwkv-cli state` | 向 `rwkv_lightning` 部署上传 / 列出 / 删除 State |
+| `rwkv-cli adapter` | 在 `rwkv_lightning` 部署上注册（推理机路径或本机文件）/ 列出 / 删除 MiSS 适配器 |
 | 桌面 App（`cmd/rwkv-app`） | 本地或远端模型配置、持久会话、工具轨迹、流式回答、State 管理 |
 | `rwkv-lab`（`cmd/rwkv-lab`） | 开发工具：`bank` 题库、`corpus` 语料渲染、`run` 检查与对比、`bench` 扫描、`state` 训练辅助 |
 

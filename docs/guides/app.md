@@ -18,19 +18,22 @@ frontend and bind the same public Go API from `api/`.
   `Retry-After`, and emit retry events into the trajectory; a gate serializes provider
   requests.
 - Uploaded-state management for RWKV Lightning CUDA connections: upload a `.pth`
-  state (native picker, or a typed path in server mode), pick the state a
+  state (native picker on the desktop, the browser's file picker in server mode,
+  where the file is staged by the app server and forwarded), pick the state a
   connection generates from, and delete states from the shared deployment. The
   app remembers which local file produced each `state_id`; when a deployment
   restart wipes its states, the editor offers a one-click re-upload, and
   connecting with a state the server no longer holds is refused up front. The
   running state is shown next to the model name and in each turn's metadata.
 - MiSS adapter management for the same connections, independent of the state
-  (a connection can use an adapter, a state, both, or neither): register an
-  adapter by a path on the inference host (`adapter-final.pth` or a checkpoint's
-  `training.pth`) or by uploading a local file, pick the adapter a connection
-  binds via `adapter_id`, and unregister it. Registrations live in the server's
-  RAM, so the app remembers each one's source and offers a one-click re-register
-  after a restart. Connecting is refused when the chosen adapter is gone or the
+  (a connection can use an adapter, a state, both, or neither): upload a local
+  MiSS package (`adapter-final.pth` or a checkpoint's `training.pth`) under an
+  adapter ID, pick the adapter a connection binds via `adapter_id`, and
+  unregister it. Uploads use the same pickers as states. Registrations live in
+  the server's RAM, so the desktop app remembers which local file produced each
+  one and offers a one-click re-upload after a restart. Registering a package
+  that already sits on the inference host is a CLI-only operation:
+  `rwkv-cli adapter register --path …` (also `adapter list` / `adapter delete`). Connecting is refused when the chosen adapter is gone or the
   deployment has no `/v1/adapters` (an old build would ignore `adapter_id` and
   answer as the base model). The running adapter has its own chip next to the
   state chip. "Full thinking" now resolves `g1k` to the `g1k-think` preset (adds

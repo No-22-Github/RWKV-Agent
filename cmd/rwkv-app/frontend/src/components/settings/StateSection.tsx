@@ -5,7 +5,8 @@ import type { ProviderManager } from '../../state/providerManager'
 import type { StateEntry, StateListing } from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
-import { Field, GroupTitle } from './ui'
+import { GroupTitle } from './ui'
+import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
 
@@ -25,7 +26,6 @@ export default function StateSection({ manager }: Props) {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null)
-  const [manualPath, setManualPath] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
   const requestRef = useRef(0)
 
@@ -65,20 +65,22 @@ export default function StateSection({ manager }: Props) {
     return () => { off() }
   }, [])
 
-  async function upload(path: string, replacing?: string) {
-    const trimmed = path.trim()
-    if (!trimmed) return
-    setUploading({ name: baseName(trimmed), percent: 0 })
+  /* source 是本机路径（桌面版、重新上传）或浏览器选的文件（网页版）。 */
+  async function upload(source: string | PickedFile, replacing?: string) {
+    const picked: PickedFile = typeof source === 'string' ? { kind: 'path', path: source.trim(), name: baseName(source.trim()) } : source
+    if (picked.kind === 'path' && !picked.path) return
+    setUploading({ name: picked.name, percent: 0 })
     setError('')
     setNotice('')
     try {
-      const entry = await Backend.UploadState(config, trimmed)
+      const entry = picked.kind === 'path'
+        ? await Backend.UploadState(config, picked.path)
+        : await Backend.UploadBrowserState(config, await stageBrowserFile(picked.file))
       if (replacing) {
         // 旧 id 已随服务端重启失效，只清本机记录，不再请求服务器。
         await Backend.DeleteState(config, replacing, false).catch(() => undefined)
       }
       if (!replacing || manager.stateId === replacing) manager.setStateId(entry.id)
-      setManualPath(null)
       setNotice(replacing ? `已重新上传，新 State：${entry.id}` : `上传完成并已选用：${entry.id}`)
       await refresh()
     } catch (reason) {
@@ -90,11 +92,10 @@ export default function StateSection({ manager }: Props) {
 
   async function chooseAndUpload() {
     try {
-      const path = await Backend.ChooseStateFile()
-      if (path) await upload(path)
-    } catch {
-      // 浏览器模式没有原生文件对话框：退回手填路径（服务进程与文件在同一台机器上）。
-      setManualPath((current) => current ?? '')
+      const picked = await pickLocalFile(manager.browserUploads, Backend.ChooseStateFile)
+      if (picked) await upload(picked)
+    } catch (reason) {
+      setError(errorText(reason))
     }
   }
 
@@ -169,13 +170,6 @@ export default function StateSection({ manager }: Props) {
         <div className="mt-[6px] h-[3px] w-full bg-line-soft"><div className="h-full bg-brand transition-[width] duration-200" style={{ width: `${uploading.percent}%` }} /></div>
       )}
 
-      {manualPath !== null && (
-        <div className="mt-[6px] flex items-end gap-[8px]">
-          <div className="flex-1"><Field label="State 文件路径（服务进程所在机器上的绝对路径）" value={manualPath} onChange={setManualPath} placeholder="/path/to/state.pth" /></div>
-          <button className="rounded-md mb-[6px] h-[40px] border-0 bg-brand px-[14px] text-sm text-brand-fg disabled:opacity-50" disabled={!manualPath.trim() || busy} onClick={() => void upload(manualPath)}>上传</button>
-        </div>
-      )}
-
       {error && <p role="alert" className="mb-0 mt-[8px] text-xs leading-[1.6] text-danger">{error}</p>}
       {notice && !error && <p className="mb-0 mt-[8px] text-xs text-brand">{notice}</p>}
 
@@ -245,11 +239,6 @@ export default function StateSection({ manager }: Props) {
 function stateLabel(entry: StateEntry): string {
   if (!entry.filename || entry.filename === entry.id) return entry.id
   return `${entry.filename} · ${entry.id}`
-}
-
-function baseName(path: string): string {
-  const index = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
-  return index >= 0 ? path.slice(index + 1) : path
 }
 
 function formatBytes(value: number): string {
