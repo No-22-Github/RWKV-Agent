@@ -81,7 +81,7 @@ export const NEW_CONFIG_DEFAULTS = {
 }
 
 /* 思考模式选择器落到 wire 覆盖上的那一种写法；识别它是为了不误删用户自己写的 wire。 */
-const THINKING_WIRE = /^thinking=(fast|full)$/
+const THINKING_WIRE = /^thinking=(fast|full(,nudge=think)?)$/
 
 /* 只看配置、不看名称的签名：改名不应触发重连。 */
 function configSignature(config: Config): string {
@@ -116,6 +116,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [remoteProtocol, setRemoteProtocol] = useState<keyof typeof REMOTE_BACKENDS>('cuda')
   const [apiKey, setAPIKey] = useState('')
   const [stateId, setStateId] = useState('')
+  const [adapterId, setAdapterId] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
   const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
@@ -176,12 +177,14 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   /*
    * 有 wire 预设时，思考模式由预设说了算，旧的 thinking 字段不再起作用；这里把选择器
    * 的取值写成 wire 覆盖（thinking=fast|full），选择器才不是摆设。关闭思考时沿用档案
-   * 里原有的 wire（若原值正是上次写的思考覆盖则清掉）。
+   * 里原有的 wire（若原值正是上次写的思考覆盖则清掉）。完整思考另带 nudge=think（工具
+   * 结果后不禁止思考的提醒），使 g1k 落到 g1k-think 预设上：v2.0 MiSS 适配器按它训练，
+   * think-full 复测与评测也用它。
    */
   function wireOverride(): string | undefined {
     const base = draftBaseConfig.wire?.trim() || undefined
     if (!profile) return base
-    if (thinking !== 'off') return `thinking=${thinking}`
+    if (thinking !== 'off') return thinking === 'full' ? 'thinking=full,nudge=think' : `thinking=${thinking}`
     return base && THINKING_WIRE.test(base) ? undefined : base
   }
 
@@ -216,7 +219,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       ...draftBaseConfig,
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
-      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined, stateId: undefined,
+      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined, stateId: undefined, adapterId: undefined,
       ...agentCapabilityConfig(),
     })
   }
@@ -238,6 +241,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
       // 只有 CUDA 支持上传的 State；切到别的协议时不带出去，否则 Python 会直接拒绝。
       stateId: remoteProtocol === 'cuda' ? stateId.trim() || undefined : undefined,
+      // MiSS 适配器同理只在 CUDA 上有；它和 State 互不影响，可以同时选。
+      adapterId: remoteProtocol === 'cuda' ? adapterId.trim() || undefined : undefined,
       ...agentCapabilityConfig(),
     })
   }
@@ -390,6 +395,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
     setStateId(config.provider === Provider.ProviderRWKVLightningCUDA ? config.stateId || '' : '')
+    setAdapterId(config.provider === Provider.ProviderRWKVLightningCUDA ? config.adapterId || '' : '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
     setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
@@ -455,7 +461,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     const config = new Config({
       ...draftBaseConfig,
       provider: Provider.ProviderRWKVLightningCUDA,
-      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined,
+      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined, adapterId: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
       ...agentCapabilityConfig(),
       ...newConnectionAgentDefaults(),
@@ -520,6 +526,15 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     const provider = providers.find((item) => item.id === runtimeProviderId)
     if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
     const config = new Config({ ...provider.config, stateId: stateId || undefined })
+    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
+    await refreshProviders()
+  }
+
+  /** 切换运行中连接的 MiSS 适配器（仅 Lightning CUDA）；空串表示用基模本身的权重。 */
+  async function setRuntimeAdapter(adapterId: string) {
+    const provider = providers.find((item) => item.id === runtimeProviderId)
+    if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
+    const config = new Config({ ...provider.config, adapterId: adapterId || undefined })
     onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
     await refreshProviders()
   }
@@ -605,6 +620,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
     stateId, setStateId,
+    adapterId, setAdapterId,
     profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
     enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
@@ -627,7 +643,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // 动作
     openSettings, discardDraft, selectProvider, startNewDraft,
     applyProviderBootstrapState, applyConfig, refreshProviders,
-    activateProvider, setRuntimeCapability, setRuntimeState, deleteProvider, testRemote,
+    activateProvider, setRuntimeCapability, setRuntimeState, setRuntimeAdapter, deleteProvider, testRemote,
     saveProviderDraft, saveAndUseProviderDraft, flushDraft,
   }
 }

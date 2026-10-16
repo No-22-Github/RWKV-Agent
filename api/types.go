@@ -87,6 +87,11 @@ type Config struct {
 	// StateID reuses an uploaded rwkv_lightning state for every generation in
 	// this provider. Empty leaves the server's zero-initialized state in charge.
 	StateID string `json:"stateId,omitempty"`
+	// AdapterID binds a MiSS adapter registered on the rwkv_lightning server
+	// (POST /v1/adapters) to every generation. It composes with StateID: the
+	// adapter changes the weights, the state the starting context. Empty runs
+	// the bare base model.
+	AdapterID string `json:"adapterId,omitempty"`
 	// ProgressiveTools enables the optional capability Router. Nil defaults to
 	// false so the XML decision stage owns tool selection directly.
 	ProgressiveTools *bool  `json:"progressiveTools,omitempty"`
@@ -128,7 +133,10 @@ type Status struct {
 	HasAPIKey    bool       `json:"hasApiKey"`
 	// StateID is the uploaded state every generation runs from; empty means
 	// the zero-initialized state.
-	StateID   string    `json:"stateId,omitempty"`
+	StateID string `json:"stateId,omitempty"`
+	// AdapterID is the MiSS adapter bound to every generation; empty means the
+	// base model's own weights.
+	AdapterID string    `json:"adapterId,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 

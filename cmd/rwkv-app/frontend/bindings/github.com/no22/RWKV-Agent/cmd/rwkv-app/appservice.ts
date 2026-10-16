@@ -52,6 +52,14 @@ export function Chat(prompt: string): $CancellablePromise<api$0.Result> {
 }
 
 /**
+ * ChooseAdapterFile opens the native file picker for a MiSS package
+ * (adapter-final.pth or a checkpoint's training.pth).
+ */
+export function ChooseAdapterFile(): $CancellablePromise<string> {
+    return $Call.ByID(3131724980);
+}
+
+/**
  * ChooseStateFile opens the native file picker for a .pth state file. Server
  * builds return the Wails "file dialogs not available" error; the UI then
  * falls back to a typed path.
@@ -84,6 +92,15 @@ export function ConfigureProvider(id: string, label: string, config: api$0.Confi
     return $Call.ByID(348868143, id, label, config).then(($result: any) => {
         return $$createType0($result);
     });
+}
+
+/**
+ * DeleteAdapter removes every version of id from the shared deployment and
+ * forgets the local record. Records for adapters already gone from the
+ * server are only forgotten.
+ */
+export function DeleteAdapter(config: api$0.Config, id: string, serverSide: boolean): $CancellablePromise<void> {
+    return $Call.ByID(2068362468, config, id, serverSide);
 }
 
 /**
@@ -142,11 +159,20 @@ export function FileChanges(): $CancellablePromise<api$0.FileChange[]> {
 }
 
 /**
+ * ListAdapters lists the deployment's adapters and joins local records.
+ */
+export function ListAdapters(config: api$0.Config): $CancellablePromise<$models.AdapterListing> {
+    return $Call.ByID(582991906, config).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
+/**
  * ListRemoteModels verifies remote connectivity and returns model identifiers.
  */
 export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$0.RemoteModel[]> {
     return $Call.ByID(3365822742, config).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
@@ -155,7 +181,7 @@ export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$
  */
 export function ListStates(config: api$0.Config): $CancellablePromise<$models.StateListing> {
     return $Call.ByID(260521560, config).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -170,7 +196,7 @@ export function NewConversation(): $CancellablePromise<void> {
  */
 export function OpenConversation(id: string): $CancellablePromise<$models.ConversationView> {
     return $Call.ByID(2245178561, id).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType9($result);
     });
 }
 
@@ -190,7 +216,7 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
     return $Call.ByID(766505949, config).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType10($result);
     });
 }
 
@@ -201,6 +227,17 @@ export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<a
 export function Regenerate(): $CancellablePromise<api$0.Result> {
     return $Call.ByID(3829194448).then(($result: any) => {
         return $$createType2($result);
+    });
+}
+
+/**
+ * RegisterAdapter registers path under id. upload=false hands path to the
+ * server as a path on the inference host; upload=true sends the local file.
+ * Re-registering an existing ID adds a version that becomes its default.
+ */
+export function RegisterAdapter(config: api$0.Config, id: string, path: string, upload: boolean): $CancellablePromise<$models.AdapterEntry> {
+    return $Call.ByID(692822058, config, id, path, upload).then(($result: any) => {
+        return $$createType11($result);
     });
 }
 
@@ -222,7 +259,7 @@ export function ResolveFileChanges(reviewed: api$0.FileChange[], accept: boolean
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType12($result);
     });
 }
 
@@ -249,7 +286,7 @@ export function Status(): $CancellablePromise<api$0.Status> {
  */
 export function UploadState(config: api$0.Config, path: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(320817040, config, path).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType13($result);
     });
 }
 
@@ -259,10 +296,12 @@ const $$createType1 = $models.AppBootstrap.createFrom;
 const $$createType2 = api$0.Result.createFrom;
 const $$createType3 = tools$0.FileChange.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = api$0.RemoteModel.createFrom;
-const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = $models.StateListing.createFrom;
-const $$createType8 = $models.ConversationView.createFrom;
-const $$createType9 = api$0.AgentPromptPreview.createFrom;
-const $$createType10 = appstorage$0.SavedProvider.createFrom;
-const $$createType11 = $models.StateEntry.createFrom;
+const $$createType5 = $models.AdapterListing.createFrom;
+const $$createType6 = api$0.RemoteModel.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = $models.StateListing.createFrom;
+const $$createType9 = $models.ConversationView.createFrom;
+const $$createType10 = api$0.AgentPromptPreview.createFrom;
+const $$createType11 = $models.AdapterEntry.createFrom;
+const $$createType12 = appstorage$0.SavedProvider.createFrom;
+const $$createType13 = $models.StateEntry.createFrom;

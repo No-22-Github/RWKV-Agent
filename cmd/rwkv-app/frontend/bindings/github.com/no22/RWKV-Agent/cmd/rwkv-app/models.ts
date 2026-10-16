@@ -12,6 +12,91 @@ import * as api$0 from "../../api/models.js";
 // @ts-ignore: Unused imports
 import * as appstorage$0 from "../../internal/appstorage/models.js";
 
+/**
+ * AdapterEntry is one MiSS adapter ID on the deployment, joined with how this
+ * machine registered it, if it did. Several content versions can share an ID;
+ * generations bind the newest one.
+ */
+export class AdapterEntry {
+    "id": string;
+
+    /**
+     * Version is the version this machine registered last when the server
+     * still holds it, otherwise the only version listed. It is empty when the
+     * server holds several versions this machine cannot tell apart.
+     */
+    "version"?: string;
+    "versions": number;
+    "rank"?: number;
+    "alpha"?: number;
+
+    /**
+     * ServerPath / LocalPath say where the registration came from (see
+     * appstorage.AdapterRegistration); LocalAvailable reports whether the
+     * local file still exists for a re-upload.
+     */
+    "serverPath"?: string;
+    "localPath"?: string;
+    "localAvailable"?: boolean;
+
+    /** Creates a new AdapterEntry instance. */
+    constructor($$source: Partial<AdapterEntry> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("versions" in $$source)) {
+            this["versions"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AdapterEntry instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AdapterEntry {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AdapterEntry($$parsedSource as Partial<AdapterEntry>);
+    }
+}
+
+/**
+ * AdapterListing is the server list plus local records whose adapter the
+ * server no longer holds (registrations live in RAM and die with a restart).
+ */
+export class AdapterListing {
+    "adapters": AdapterEntry[];
+    "missing": AdapterEntry[];
+
+    /** Creates a new AdapterListing instance. */
+    constructor($$source: Partial<AdapterListing> = {}) {
+        if (!("adapters" in $$source)) {
+            this["adapters"] = [];
+        }
+        if (!("missing" in $$source)) {
+            this["missing"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AdapterListing instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AdapterListing {
+        const $$createField0_0 = $$createType1;
+        const $$createField1_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("adapters" in $$parsedSource) {
+            $$parsedSource["adapters"] = $$createField0_0($$parsedSource["adapters"]);
+        }
+        if ("missing" in $$parsedSource) {
+            $$parsedSource["missing"] = $$createField1_0($$parsedSource["missing"]);
+        }
+        return new AdapterListing($$parsedSource as Partial<AdapterListing>);
+    }
+}
+
 export class AppBootstrap {
     "status": api$0.Status;
     "config": api$0.Config;
@@ -62,13 +147,13 @@ export class AppBootstrap {
      * Creates a new AppBootstrap instance from a string or object.
      */
     static createFrom($$source: any = {}): AppBootstrap {
-        const $$createField0_0 = $$createType0;
-        const $$createField1_0 = $$createType1;
-        const $$createField3_0 = $$createType3;
-        const $$createField7_0 = $$createType5;
-        const $$createField8_0 = $$createType7;
-        const $$createField9_0 = $$createType9;
-        const $$createField10_0 = $$createType10;
+        const $$createField0_0 = $$createType2;
+        const $$createField1_0 = $$createType3;
+        const $$createField3_0 = $$createType5;
+        const $$createField7_0 = $$createType7;
+        const $$createField8_0 = $$createType9;
+        const $$createField9_0 = $$createType11;
+        const $$createField10_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("status" in $$parsedSource) {
             $$parsedSource["status"] = $$createField0_0($$parsedSource["status"]);
@@ -160,7 +245,7 @@ export class ConversationView {
      * Creates a new ConversationView instance from a string or object.
      */
     static createFrom($$source: any = {}): ConversationView {
-        const $$createField2_0 = $$createType12;
+        const $$createField2_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("messages" in $$parsedSource) {
             $$parsedSource["messages"] = $$createField2_0($$parsedSource["messages"]);
@@ -262,8 +347,8 @@ export class StateListing {
      * Creates a new StateListing instance from a string or object.
      */
     static createFrom($$source: any = {}): StateListing {
-        const $$createField0_0 = $$createType14;
-        const $$createField1_0 = $$createType14;
+        const $$createField0_0 = $$createType16;
+        const $$createField1_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("states" in $$parsedSource) {
             $$parsedSource["states"] = $$createField0_0($$parsedSource["states"]);
@@ -342,18 +427,20 @@ export class WorkspaceItem {
 }
 
 // Private type creation functions
-const $$createType0 = api$0.Status.createFrom;
-const $$createType1 = api$0.Config.createFrom;
-const $$createType2 = appstorage$0.SavedProvider.createFrom;
-const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = ConversationSummary.createFrom;
+const $$createType0 = AdapterEntry.createFrom;
+const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = api$0.Status.createFrom;
+const $$createType3 = api$0.Config.createFrom;
+const $$createType4 = appstorage$0.SavedProvider.createFrom;
 const $$createType5 = $Create.Array($$createType4);
-const $$createType6 = ConversationView.createFrom;
-const $$createType7 = $Create.Nullable($$createType6);
-const $$createType8 = WorkspaceItem.createFrom;
-const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = StoragePaths.createFrom;
-const $$createType11 = appstorage$0.DisplayMessage.createFrom;
-const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = StateEntry.createFrom;
+const $$createType6 = ConversationSummary.createFrom;
+const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = ConversationView.createFrom;
+const $$createType9 = $Create.Nullable($$createType8);
+const $$createType10 = WorkspaceItem.createFrom;
+const $$createType11 = $Create.Array($$createType10);
+const $$createType12 = StoragePaths.createFrom;
+const $$createType13 = appstorage$0.DisplayMessage.createFrom;
 const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = StateEntry.createFrom;
+const $$createType16 = $Create.Array($$createType15);

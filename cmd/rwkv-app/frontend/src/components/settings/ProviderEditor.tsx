@@ -2,6 +2,7 @@ import { Cloud, Cpu, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import { Field, GroupTitle, SaveStatus, SettingsPane } from './ui'
 import ProfileFooter from './ProfileFooter'
+import AdapterSection from './AdapterSection'
 import StateSection from './StateSection'
 import { derivedProviderLabel } from '../../state/draftValidation'
 
@@ -98,7 +99,7 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
           </>
         )}
       </section>
-      {manager.settingsTab === 'remote' && manager.remoteProtocol === 'cuda' && <StateSection manager={manager} />}
+      {manager.settingsTab === 'remote' && manager.remoteProtocol === 'cuda' && <><AdapterSection manager={manager} /><StateSection manager={manager} /></>}
     </SettingsPane>
   )
 }

@@ -135,7 +135,7 @@ func buildRemoteSource(config Config) (generatorSource, error) {
 		ChatThinking:   chatcompletions.ThinkingMode(config.ChatThinking),
 		ChatPromptMode: chatcompletions.PromptMode(config.ChatPromptMode),
 		ChatTokenLimit: chatcompletions.TokenLimitField(config.ChatTokenLimit),
-		StopTokens:     config.RWKVStopTokens, StateID: config.StateID,
+		StopTokens:     config.RWKVStopTokens, StateID: config.StateID, AdapterID: config.AdapterID,
 		Stream: config.Stream, BatchWait: time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,
 	})
 	if err != nil {
@@ -148,7 +148,8 @@ func buildRemoteSource(config Config) (generatorSource, error) {
 			Endpoint: provider.CompletionEndpoint(string(config.Provider), config.Endpoint),
 			Backend:  string(config.Provider), Message: "Remote model configured",
 			HeaderNames: names, HasAPIKey: strings.TrimSpace(credential) != "",
-			StateID: strings.TrimSpace(config.StateID),
+			StateID:   strings.TrimSpace(config.StateID),
+			AdapterID: strings.TrimSpace(config.AdapterID),
 		},
 	}, nil
 }

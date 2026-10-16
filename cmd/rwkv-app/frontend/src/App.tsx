@@ -196,6 +196,11 @@ export default function App() {
     setBusy(true)
     try { await manager.setRuntimeState(stateId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
   }
+  async function setAdapterNow(adapterId: string) {
+    if (busy) return
+    setBusy(true)
+    try { await manager.setRuntimeAdapter(adapterId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
+  }
   async function deleteProviderNow(id: string) {
     if (busy) return
     setBusy(true)
@@ -264,7 +269,7 @@ export default function App() {
       runningChat.current = call
       const result = await call
       runningChat.current = null
-      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
+      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.adapterId && `MiSS ${status.adapterId}`, status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
       const savedFiles = persisted.conversation?.messages.at(-1)?.files
@@ -348,7 +353,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}

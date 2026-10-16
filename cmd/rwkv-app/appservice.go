@@ -170,8 +170,11 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	if err := s.requireResolvedChanges(); err != nil {
 		return agentapi.Status{}, err
 	}
-	// 先确认 State 还在服务器上，失败时保留当前运行连接不动。
+	// 先确认 State 与 MiSS 适配器还在服务器上，失败时保留当前运行连接不动。
 	if err := s.verifyStateAvailable(ctx, config); err != nil {
+		return s.currentService().Status(), err
+	}
+	if err := s.verifyAdapterAvailable(ctx, config); err != nil {
 		return s.currentService().Status(), err
 	}
 	s.mu.Lock()
@@ -471,7 +474,7 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 		appstorage.DisplayMessage{
 			ID: messageID(active.ID, len(active.Messages)+1), Role: role, Content: content,
 			Files:      files,
-			Meta:       turnMeta(result, s.runtimeModelName(), s.runtimeStateID()),
+			Meta:       turnMeta(result, s.runtimeModelName(), s.runtimeAdapterID(), s.runtimeStateID()),
 			Trajectory: storedToolTrace(result),
 			Trace:      &result,
 			CreatedAt:  time.Now().UTC(),
@@ -500,9 +503,12 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 // configured provider.
 // turnMeta records what produced a turn: model and state can be switched
 // between turns, so each answer keeps its own.
-func turnMeta(result agentapi.Result, model, stateID string) string {
+func turnMeta(result agentapi.Result, model, adapterID, stateID string) string {
 	meta := fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000)
-	for _, part := range []string{model, stateID} {
+	if adapterID != "" {
+		adapterID = "MiSS " + adapterID
+	}
+	for _, part := range []string{model, adapterID, stateID} {
 		if part != "" {
 			meta += " · " + part
 		}

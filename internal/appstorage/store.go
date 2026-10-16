@@ -77,7 +77,10 @@ type State struct {
 	// StateUploads remembers which local file produced each uploaded state, so
 	// a state wiped by a deployment restart can be re-uploaded in one step.
 	StateUploads []StateUpload `json:"stateUploads,omitempty"`
-	UpdatedAt    time.Time     `json:"updatedAt"`
+	// AdapterRegistrations remembers how each MiSS adapter was registered, so
+	// one wiped by a deployment restart can be registered again in one step.
+	AdapterRegistrations []AdapterRegistration `json:"adapterRegistrations,omitempty"`
+	UpdatedAt            time.Time             `json:"updatedAt"`
 }
 
 // StateUpload links a server-assigned state_id to the local file it came from.
@@ -88,6 +91,18 @@ type StateUpload struct {
 	SHA256     string    `json:"sha256"`
 	SizeBytes  int64     `json:"sizeBytes"`
 	UploadedAt time.Time `json:"uploadedAt"`
+}
+
+// AdapterRegistration records where a registered MiSS adapter came from:
+// a path on the inference host (ServerPath) or a local file this machine
+// uploaded (LocalPath). Exactly one of the two is set.
+type AdapterRegistration struct {
+	Server       string    `json:"server"`
+	AdapterID    string    `json:"adapterId"`
+	Version      string    `json:"version"`
+	ServerPath   string    `json:"serverPath,omitempty"`
+	LocalPath    string    `json:"localPath,omitempty"`
+	RegisteredAt time.Time `json:"registeredAt"`
 }
 
 // maxStateUploads bounds the registry; the oldest records are dropped first.
@@ -511,6 +526,60 @@ func (s *Store) StateUploads(server string) ([]StateUpload, error) {
 	}
 	var records []StateUpload
 	for _, record := range value.StateUploads {
+		if record.Server == server {
+			records = append(records, record)
+		}
+	}
+	return records, nil
+}
+
+// RecordAdapterRegistration registers (or refreshes) the record for one
+// adapter ID; a newer registration of the same ID replaces the old record.
+func (s *Store) RecordAdapterRegistration(record AdapterRegistration) error {
+	value, err := s.LoadState()
+	if err != nil {
+		return err
+	}
+	kept := []AdapterRegistration{record}
+	for _, existing := range value.AdapterRegistrations {
+		if existing.Server == record.Server && existing.AdapterID == record.AdapterID {
+			continue
+		}
+		kept = append(kept, existing)
+	}
+	if len(kept) > maxStateUploads {
+		kept = kept[:maxStateUploads]
+	}
+	value.AdapterRegistrations = kept
+	return s.SaveState(value)
+}
+
+// ForgetAdapterRegistration drops the record for an adapter deleted from the
+// server.
+func (s *Store) ForgetAdapterRegistration(server, adapterID string) error {
+	value, err := s.LoadState()
+	if err != nil {
+		return err
+	}
+	kept := value.AdapterRegistrations[:0]
+	for _, existing := range value.AdapterRegistrations {
+		if existing.Server != server || existing.AdapterID != adapterID {
+			kept = append(kept, existing)
+		}
+	}
+	value.AdapterRegistrations = kept
+	return s.SaveState(value)
+}
+
+// AdapterRegistrations returns the registration records for one server,
+// newest first.
+func (s *Store) AdapterRegistrations(server string) ([]AdapterRegistration, error) {
+	value, err := s.LoadState()
+	if err != nil {
+		return nil, err
+	}
+	var records []AdapterRegistration
+	for _, record := range value.AdapterRegistrations {
 		if record.Server == server {
 			records = append(records, record)
 		}

@@ -62,6 +62,7 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
         const endpoint = runtime ? providerMeta(runtime) : hostOf(status.endpoint || '')
         const rows: [string, string, boolean?][] = [
           ['模型', status.model || '—'],
+          ['MiSS', status.adapterId || '基模', Boolean(status.adapterId)],
           ['State', status.stateId || '未加载', Boolean(status.stateId)],
           ['端点', endpoint || '—'],
         ]
@@ -71,7 +72,7 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
             <dl className="m-0 grid grid-cols-[46px_minmax(0,1fr)] gap-x-[10px] gap-y-[4px] text-xs">
               {rows.map(([label, value, mono]) => <div key={label} className="contents">
                 <dt className="text-ink-muted">{label}</dt>
-                <dd className={`m-0 truncate ${mono ? 'font-mono text-2xs leading-[1.8] text-ink' : label === 'State' ? 'text-ink-muted' : 'text-ink'}`} title={value}>{value}</dd>
+                <dd className={`m-0 truncate ${mono ? 'font-mono text-2xs leading-[1.8] text-ink' : label === 'State' || label === 'MiSS' ? 'text-ink-muted' : 'text-ink'}`} title={value}>{value}</dd>
               </div>)}
             </dl>
           </div>

@@ -58,10 +58,10 @@ export class AgentPromptPreview {
      * Creates a new AgentPromptPreview instance from a string or object.
      */
     static createFrom($$source: any = {}): AgentPromptPreview {
-        const $$createField2_0 = $$createType0;
+        const $$createField3_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("toolNames" in $$parsedSource) {
-            $$parsedSource["toolNames"] = $$createField2_0($$parsedSource["toolNames"]);
+            $$parsedSource["toolNames"] = $$createField3_0($$parsedSource["toolNames"]);
         }
         return new AgentPromptPreview($$parsedSource as Partial<AgentPromptPreview>);
     }
@@ -122,6 +122,10 @@ export class Config {
      * immutable so the measured transcript contract cannot be broken here.
      */
     "taskControl"?: string;
+
+    /**
+     * InjectSessionTime adds a separate context message after the system prompt.
+     */
     "injectSessionTime"?: boolean;
     "semanticNoTool"?: boolean | null;
     "decisionFakeThink"?: boolean;
@@ -148,6 +152,14 @@ export class Config {
      * this provider. Empty leaves the server's zero-initialized state in charge.
      */
     "stateId"?: string;
+
+    /**
+     * AdapterID binds a MiSS adapter registered on the rwkv_lightning server
+     * (POST /v1/adapters) to every generation. It composes with StateID: the
+     * adapter changes the weights, the state the starting context. Empty runs
+     * the bare base model.
+     */
+    "adapterId"?: string;
 
     /**
      * ProgressiveTools enables the optional capability Router. Nil defaults to
@@ -432,6 +444,12 @@ export class Status {
      * the zero-initialized state.
      */
     "stateId"?: string;
+
+    /**
+     * AdapterID is the MiSS adapter bound to every generation; empty means the
+     * base model's own weights.
+     */
+    "adapterId"?: string;
     "updatedAt": string;
 
     /** Creates a new Status instance. */

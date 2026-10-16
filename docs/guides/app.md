@@ -24,6 +24,17 @@ frontend and bind the same public Go API from `api/`.
   restart wipes its states, the editor offers a one-click re-upload, and
   connecting with a state the server no longer holds is refused up front. The
   running state is shown next to the model name and in each turn's metadata.
+- MiSS adapter management for the same connections, independent of the state
+  (a connection can use an adapter, a state, both, or neither): register an
+  adapter by a path on the inference host (`adapter-final.pth` or a checkpoint's
+  `training.pth`) or by uploading a local file, pick the adapter a connection
+  binds via `adapter_id`, and unregister it. Registrations live in the server's
+  RAM, so the app remembers each one's source and offers a one-click re-register
+  after a restart. Connecting is refused when the chosen adapter is gone or the
+  deployment has no `/v1/adapters` (an old build would ignore `adapter_id` and
+  answer as the base model). The running adapter has its own chip next to the
+  state chip. "Full thinking" now resolves `g1k` to the `g1k-think` preset (adds
+  `nudge=think`), the wire v2.0 adapters were trained on.
 - Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
   Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
   HTTP headers, and macOS system proxy support.
