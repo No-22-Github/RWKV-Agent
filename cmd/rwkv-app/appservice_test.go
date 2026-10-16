@@ -369,6 +369,30 @@ func TestRollbackLastTurnCutsCommittedTranscript(t *testing.T) {
 	}
 }
 
+func TestRollbackLastTurnSkipsToolResultsCommittedAsUserTurns(t *testing.T) {
+	t.Parallel()
+	// g1k (align=qwen36) commits tool results as user turns named after the tool.
+	conversation := appstorage.Conversation{
+		Messages: []appstorage.DisplayMessage{
+			{ID: "m1", Role: "user", Content: "查一下广州天气"},
+			{ID: "m2", Role: "assistant", Content: "广州明天毛毛雨"},
+		},
+		Transcript: []agentapi.ConversationMessage{
+			{Role: "user", Content: "查一下广州天气"},
+			{Role: "assistant", Content: `<tool_call>{"name":"get_weather","arguments":{"location":"广州"}}</tool_call>`},
+			{Role: "user", Name: "get_weather", Content: "<tool_response>{}</tool_response>"},
+			{Role: "assistant", Content: "广州明天毛毛雨"},
+		},
+	}
+	rolled, prompt, err := rollbackLastTurn(conversation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if prompt != "查一下广州天气" || len(rolled.Messages) != 0 || len(rolled.Transcript) != 0 {
+		t.Fatalf("rollback = %q %+v %+v", prompt, rolled.Messages, rolled.Transcript)
+	}
+}
+
 func TestRollbackLastTurnKeepsTranscriptForFailedTurn(t *testing.T) {
 	t.Parallel()
 	conversation := appstorage.Conversation{
