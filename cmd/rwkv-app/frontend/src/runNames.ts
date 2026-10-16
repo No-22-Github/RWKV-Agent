@@ -10,10 +10,10 @@ export function shortRunName(name: string, max = SHORT_NAME_CHARS): string {
   return trimmed.length > max ? `${trimmed.slice(0, max)}…` : trimmed
 }
 
-/* 元数据行按 " · " 分段，只缩短其中的长名字（步数、耗时、token 保持原样）。 */
-export function shortMeta(meta: string): string {
-  return meta.split(' · ').map((part) => {
-    const [label, name] = part.startsWith('MiSS ') ? ['MiSS ', part.slice(5)] : ['', part]
-    return /\s/.test(name) || name.length <= SHORT_NAME_CHARS ? part : label + shortRunName(name)
-  }).join(' · ')
+/*
+ * 回合元数据（后端写的「N 步 · X 秒 · 模型 · MiSS … · State」）只留步数与耗时：
+ * 模型、MiSS、State 输入框上方的芯片里已经有，每轮再列一遍太杂；完整内容放在悬停提示里。
+ */
+export function metaStats(meta: string | undefined): string[] {
+  return (meta || '').split(' · ').filter((part) => /^\d+ 步$|^[\d.]+ 秒$/.test(part.trim()))
 }

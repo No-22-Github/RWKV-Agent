@@ -27,7 +27,7 @@ import Wordmark from './components/Wordmark'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
 import { stepThoughts } from './components/LiveThought'
 import type { Thought } from './components/ToolActivity'
-import { shortMeta } from './runNames'
+import { metaStats } from './runNames'
 import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
@@ -565,7 +565,7 @@ function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, o
       {response?.role === 'error' && response.trace?.output && <div className="turn-answer text-md leading-[1.8] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.trace.output} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{response.content}</span></div>}
       {response && showFooter && <FileChangesPanel artifacts={response.files} changes={response.files?.length ? fileChanges : fallbackChanges} fallbackChanges={fallbackChanges} disabled={busy} onResolve={onResolveFiles} onOpen={onOpenFile} />}
-      {response && showFooter && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
+      {response && showFooter && <TurnActions response={response} meta={[formatTurnTime(time), ...metaStats(response.meta), stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} metaDetail={response.meta} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>
 }
@@ -612,7 +612,7 @@ function UserMessage({ content, canEdit, busy, onEdit }: { content: string; canE
 }
 
 // 回答下方的操作栏：图标按钮（悬停出提示）+ 右侧一行运行信息。
-function TurnActions({ response, meta, canRegenerate, busy, hasTrace, onRegenerate, onTrace }: { response: Message; meta: string; canRegenerate: boolean; busy: boolean; hasTrace: boolean; onRegenerate: () => void; onTrace: () => void }) {
+function TurnActions({ response, meta, metaDetail, canRegenerate, busy, hasTrace, onRegenerate, onTrace }: { response: Message; meta: string; metaDetail?: string; canRegenerate: boolean; busy: boolean; hasTrace: boolean; onRegenerate: () => void; onTrace: () => void }) {
   const [copied, setCopied] = useState(false)
   const { show } = useSnackbar()
   useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(timer) }, [copied])
@@ -622,7 +622,7 @@ function TurnActions({ response, meta, canRegenerate, busy, hasTrace, onRegenera
     {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
     {canRegenerate && <IconButton label={regenerateLabel} disabled={busy} onClick={onRegenerate}><RotateCcw size={15} /></IconButton>}
     {hasTrace && <IconButton label="查看轨迹" onClick={onTrace}><ListTree size={15} /></IconButton>}
-    {meta && <span className="ml-[10px] min-w-0 truncate font-mono text-2xs text-ink-ghost" title={meta}>{shortMeta(meta)}</span>}
+    {meta && <span className="ml-[10px] min-w-0 truncate font-mono text-2xs text-ink-ghost" title={metaDetail || meta}>{meta}</span>}
   </div>
 }
 
