@@ -1,0 +1,67 @@
+{
+  "id": "web-31428",
+  "description": "Asks the current same-city rate of a courier; the local note has an old price. DISTILL-CANARY-8e2e7bac",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10 元"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-ext-31428",
+    "ref_calls": 3,
+    "fixture_bytes": 41,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "东岸物流 运费",
+      "url": "https://dongan-express.example/rates",
+      "url_match": "dongan-express.example/rates",
+      "title": "东岸物流运费表",
+      "snippet": "东岸物流同城件 1 公斤以内 12 元，2026-09-01 起生效。",
+      "content": "东岸物流同城件 1 公斤以内 12 元，2026-09-01 起生效。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "ops/物流.md": "# 物流\n同城件 10 元（旧价）。\n"
+  },
+  "turns": [
+    {
+      "prompt": "东岸物流同城 1 公斤以内现在收多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "12 元"
+        ],
+        "output_excludes": [
+          "10 元"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "list_files"
+    ]
+  }
+}

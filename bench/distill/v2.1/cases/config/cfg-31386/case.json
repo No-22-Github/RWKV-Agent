@@ -1,0 +1,75 @@
+{
+  "id": "cfg-31386",
+  "description": "Asks the configured cache TTL in seconds; the web result shows a generic default. DISTILL-CANARY-c13faeb8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3600"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31386",
+    "ref_calls": 3,
+    "fixture_bytes": 63,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "redis ttl",
+      "url": "https://cache.example.dev/ttl-defaults",
+      "url_match": "cache.example.dev/ttl-defaults",
+      "title": "Redis TTL defaults",
+      "snippet": "A common session TTL default is 3600 seconds.",
+      "content": "A common session TTL default is 3600 seconds.\n",
+      "published_at": "2026-02-10"
+    }
+  ],
+  "files": {
+    "config/cache.toml": "[redis]\nmax_memory = \"512mb\"\nttl_seconds = 1800\n",
+    "config/db.toml": "[pg]\npool = 40\n"
+  },
+  "turns": [
+    {
+      "prompt": "缓存的过期时间我们设的是多少秒？",
+      "expect": {
+        "output_contains": [
+          "1800"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ],
+        "output_excludes": [
+          "3600"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

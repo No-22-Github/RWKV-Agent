@@ -1,0 +1,75 @@
+{
+  "id": "cfg-31420",
+  "description": "Asks which port the billing service uses; the internal port table has it. DISTILL-CANARY-eddf11eb",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9200"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31420",
+    "ref_calls": 3,
+    "fixture_bytes": 108,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "9200 端口",
+      "url": "https://ports.example.net/9200",
+      "url_match": "ports.example.net/9200",
+      "title": "Port 9200",
+      "snippet": "TCP 9200 is commonly used by Elasticsearch.",
+      "content": "TCP 9200 is commonly used by Elasticsearch.\n",
+      "published_at": "2025-11-05"
+    }
+  ],
+  "files": {
+    "service/ports.md": "# 端口表\n\n| 服务 | 端口 |\n|---|---|\n| gateway | 8000 |\n| billing | 8731 |\n| search | 9200 |\n",
+    "service/readme.md": "# 服务\n"
+  },
+  "turns": [
+    {
+      "prompt": "计费服务用哪个端口？",
+      "expect": {
+        "output_contains": [
+          "8731"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ],
+        "output_excludes": [
+          "Elasticsearch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

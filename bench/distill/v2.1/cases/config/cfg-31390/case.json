@@ -1,0 +1,62 @@
+{
+  "id": "cfg-31390",
+  "description": "Asks how many items the list page shows; features.json has it and the sample file differs. DISTILL-CANARY-a63b97e9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "20"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31390",
+    "ref_calls": 3,
+    "fixture_bytes": 95,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/features.json": "{\"dark_mode\": true, \"beta_search\": false, \"max_items_per_page\": 75}\n",
+    "config/features.sample.json": "{\"max_items_per_page\": 20}\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们列表页每页最多显示多少条？",
+      "expect": {
+        "output_contains": [
+          "75"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

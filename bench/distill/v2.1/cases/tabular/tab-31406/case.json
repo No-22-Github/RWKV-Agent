@@ -1,0 +1,53 @@
+{
+  "id": "tab-31406",
+  "description": "Asks the stock of an SKU; stock.csv has it and orders.csv has another number for the same SKU. DISTILL-CANARY-709742b3",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "60"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31406",
+    "ref_calls": 3,
+    "fixture_bytes": 48,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "inventory/stock.csv": "sku,qty\nA-10,340\nB-20,0\nC-30,55\n",
+    "inventory/orders.csv": "sku,qty\nA-10,60\n"
+  },
+  "turns": [
+    {
+      "prompt": "A-10 现在还有多少库存？",
+      "expect": {
+        "output_contains": [
+          "340"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

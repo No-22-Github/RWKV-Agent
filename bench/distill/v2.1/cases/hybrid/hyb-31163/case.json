@@ -1,0 +1,87 @@
+{
+  "id": "hyb-31163",
+  "description": "Count errors, update status doc, report. DISTILL-CANARY-13e6587a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-compound-63",
+    "ref_calls": 4,
+    "fixture_bytes": 115,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "运维/app.log": "10:01 ERROR a\n10:02 INFO b\n10:05 ERROR c\n10:09 ERROR d\n10:10 WARN e\n",
+    "运维/状态.md": "# 状态\n\n- 错误数：0\n- 负责人：小周\n"
+  },
+  "turns": [
+    {
+      "prompt": "数一下 运维/app.log 里 ERROR 有几条，把 运维/状态.md 里的“错误数”更新成这个数字，别的保持原样，最后也跟我说一声是几条。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ],
+        "output_contains_any": [
+          "3 条",
+          "3条",
+          "3 个",
+          "3个",
+          "3 张",
+          "3张",
+          "3 课时",
+          "3课时",
+          "共 3",
+          "共3",
+          "是 3",
+          "是3",
+          "为 3",
+          "：3",
+          ": 3",
+          "3 items",
+          "3 lines",
+          "3 SKU",
+          "3 are",
+          "are 3",
+          "is 3",
+          "total of 3",
+          "3 errors",
+          "3 out",
+          "三条"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "运维/app.log": {
+        "unchanged": true
+      },
+      "运维/状态.md": {
+        "equals": "# 状态\n\n- 错误数：3\n- 负责人：小周\n"
+      }
+    }
+  }
+}

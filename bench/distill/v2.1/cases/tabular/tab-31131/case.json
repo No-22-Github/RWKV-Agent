@@ -1,0 +1,59 @@
+{
+  "id": "tab-31131",
+  "description": "Markdown table with alignment row and zero padded codes. DISTILL-CANARY-44c23d12",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-format-31",
+    "ref_calls": 2,
+    "fixture_bytes": 54,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "商品/库存.csv": "code,name,stock\n5,耳机,12\n17,键盘,0\n102,鼠标,34\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 商品/库存.csv 做成 商品/库存.md 里的 Markdown 表：表头“| 编码 | 名称 | 库存 |”，分隔行写成“| ---: | :--- | ---: |”（编码和库存右对齐，名称左对齐），编码补成 5 位带前导 0，行顺序不变。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "商品/库存.csv": {
+        "unchanged": true
+      },
+      "商品/库存.md": {
+        "equals": "| 编码 | 名称 | 库存 |\n| ---: | :--- | ---: |\n| 00005 | 耳机 | 12 |\n| 00017 | 键盘 | 0 |\n| 00102 | 鼠标 | 34 |\n"
+      }
+    }
+  }
+}

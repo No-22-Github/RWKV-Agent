@@ -1,0 +1,62 @@
+{
+  "id": "doc-31376",
+  "description": "Asks how long support chats are retained without naming a file. DISTILL-CANARY-7dd36e7f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "30"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31376",
+    "ref_calls": 3,
+    "fixture_bytes": 150,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "legal/retention.md": "# Data retention\n\nCustomer invoices are kept for 7 years. Support chats are kept for 18 months.\n",
+    "legal/privacy.md": "# Privacy\n\nUsers may request deletion within 30 days.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How long do we keep support chats?",
+      "expect": {
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

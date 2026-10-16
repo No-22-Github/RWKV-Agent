@@ -1,0 +1,68 @@
+{
+  "id": "cfg-32327",
+  "description": "Find the database port that the top-level config only points to. DISTILL-CANARY-cd194e9e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21h-file-32327",
+    "ref_calls": 5,
+    "fixture_bytes": 4104,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "config.yaml": "# defaults moved, see conf.d/ (loaded in name order)\napp: shop\ndefaults:\n  grove_pearl_size: 39\n  delta_amber_size: 428\n  birch_pearl_level: 324\n  kelp_amber_mode: 605\n  nova_grove_name: 445\n  cedar_birch_mode: 264\n  pearl_flint_mode: 269\n  delta_delta_name: 892\n  flint_kelp_name: 857\n  onyx_cedar_name: 99\n  grove_grove_limit: 303\n  iris_ember_size: 791\n  iris_kelp_level: 10\n  lumen_grove_path: 134\n  iris_grove_mode: 194\n  grove_iris_level: 175\n  cedar_onyx_size: 2\n  onyx_haven_size: 486\n  amber_kelp_limit: 580\n  flint_maple_level: 442\n  cedar_amber_level: 895\n  maple_lumen_level: 220\n  ember_amber_path: 357\n  kelp_cedar_path: 653\n  cedar_lumen_name: 804\n  flint_birch_name: 549\n  nova_flint_size: 839\n  flint_maple_mode: 231\n  maple_pearl_name: 194\n  kelp_delta_size: 712\n  jade_onyx_limit: 869\n  maple_maple_level: 385\n  grove_nova_size: 181\n  cedar_maple_name: 477\n  grove_pearl_path: 98\n  iris_grove_size: 736\n  haven_flint_mode: 95\n  lumen_flint_mode: 531\n  jade_onyx_path: 454\n  amber_amber_size: 589\n  maple_ember_name: 591\n  grove_birch_name: 575\n  amber_iris_size: 29\n  delta_iris_level: 420\n  nova_jade_level: 366\n  haven_iris_limit: 605\n  iris_lumen_limit: 323\n  delta_flint_mode: 586\n  amber_flint_size: 91\n  cedar_kelp_mode: 444\n  pearl_amber_size: 738\n  iris_birch_name: 773\n  delta_iris_path: 513\n  jade_jade_name: 580\n  lumen_onyx_level: 690\n  amber_grove_path: 601\n  kelp_maple_mode: 581\n  grove_onyx_limit: 48\n  flint_onyx_limit: 412\n  cedar_lumen_level: 532\n  maple_delta_limit: 555\n  haven_onyx_level: 548\n  pearl_birch_size: 579\n  flint_nova_size: 686\n  pearl_nova_level: 888\n  pearl_onyx_level: 157\n  cedar_grove_name: 269\n  grove_kelp_limit: 402\n  nova_ember_level: 154\n  delta_iris_size: 685\n  birch_birch_path: 81\n  delta_pearl_path: 863\n  haven_grove_mode: 254\n  iris_delta_mode: 573\n  iris_amber_path: 691\n  cedar_pearl_path: 842\n  jade_ember_size: 721\n  iris_cedar_level: 96\n  cedar_amber_name: 863\n  ember_delta_name: 495\n  kelp_cedar_limit: 622\n  kelp_haven_level: 657\n  pearl_haven_limit: 189\n  onyx_ember_path: 277\n  kelp_cedar_level: 533\n",
+    "conf.d/10-db.yaml": "db:\n  host: pg-main.internal\n  port: 6432\n  pool: 20\n  amber_flint_mode: 311\n  birch_grove_mode: 155\n  maple_grove_name: 347\n  nova_birch_size: 681\n  delta_pearl_name: 389\n  maple_flint_mode: 218\n  maple_delta_mode: 306\n  cedar_pearl_level: 315\n  amber_haven_mode: 142\n  flint_amber_size: 661\n  iris_haven_path: 574\n  onyx_lumen_mode: 500\n  ember_iris_path: 224\n  ember_amber_mode: 553\n  lumen_nova_mode: 41\n  pearl_haven_path: 528\n  maple_onyx_mode: 487\n  pearl_jade_level: 594\n  flint_onyx_path: 241\n  ember_lumen_mode: 777\n  maple_flint_level: 765\n  ember_amber_name: 129\n  ember_lumen_level: 282\n  ember_nova_path: 410\n  delta_pearl_limit: 793\n",
+    "conf.d/20-cache.yaml": "cache:\n  host: redis-1.internal\n  port: 7379\n  jade_delta_size: 375\n  jade_flint_mode: 464\n  haven_flint_level: 325\n  jade_nova_size: 136\n  grove_ember_path: 671\n  lumen_kelp_limit: 607\n  lumen_birch_name: 765\n  grove_cedar_size: 834\n  amber_birch_path: 375\n  pearl_delta_name: 676\n  jade_ember_path: 611\n  grove_ember_name: 89\n  maple_onyx_limit: 403\n  lumen_birch_limit: 284\n  haven_amber_mode: 459\n  haven_birch_size: 351\n  flint_cedar_path: 876\n  amber_kelp_mode: 663\n  haven_iris_limit: 36\n  delta_jade_name: 793\n  haven_nova_size: 167\n  pearl_lumen_size: 372\n  grove_onyx_level: 662\n  pearl_delta_mode: 857\n  pearl_amber_limit: 892\n",
+    "conf.d/30-queue.yaml": "queue:\n  broker: mq-1.internal\n  amber_ember_size: 302\n  nova_maple_name: 14\n  pearl_ember_limit: 828\n  maple_pearl_level: 8\n  birch_grove_level: 24\n  cedar_maple_name: 508\n  onyx_maple_name: 584\n  nova_lumen_path: 506\n  nova_haven_name: 790\n  ember_pearl_level: 329\n  jade_grove_level: 887\n  nova_delta_name: 484\n  delta_pearl_limit: 483\n  amber_amber_limit: 126\n  cedar_ember_name: 681\n  grove_ember_level: 810\n  onyx_ember_size: 410\n  delta_haven_name: 124\n  maple_birch_path: 574\n  amber_birch_mode: 108\n  kelp_nova_path: 542\n  maple_onyx_size: 805\n  kelp_onyx_size: 295\n  nova_birch_mode: 827\n  nova_birch_size: 147\n  ember_flint_mode: 891\n  maple_jade_limit: 37\n  cedar_ember_limit: 706\n  jade_haven_mode: 4\n  ember_haven_level: 121\n"
+  },
+  "turns": [
+    {
+      "prompt": "这个项目里数据库的端口配的是多少？",
+      "expect": {
+        "output_contains": [
+          "6432"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "缓存那边的呢？",
+      "expect": {
+        "output_contains": [
+          "7379"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator",
+      "data_query"
+    ]
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "id": "cfg-32232",
+  "description": "Counts env files whose active LOG_LEVEL is exactly debug among commented and debug-sql look-alikes, then ranks teams. DISTILL-CANARY-cc89acee",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY",
+      "TR-TRUNC"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 34,
+      "TR-TRUNC": 50
+    },
+    "axes": [
+      "OBS",
+      "LNG"
+    ],
+    "level": "L2",
+    "family": "b21g-multifile-32232",
+    "ref_calls": 1,
+    "fixture_bytes": 3236,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21g"
+  },
+  "web_fixture": [],
+  "files": {
+    "envs/payments/payments-00.env": "APP=payments-00\nPORT=4281\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-01.env": "APP=payments-01\nPORT=5811\nLOG_LEVEL=info\n",
+    "envs/payments/payments-02.env": "APP=payments-02\nPORT=3002\nLOG_LEVEL=warn\n",
+    "envs/payments/payments-03.env": "APP=payments-03\nPORT=4632\nLOG_LEVEL=info\n",
+    "envs/payments/payments-04.env": "APP=payments-04\nPORT=4536\nLOG_LEVEL=info\n",
+    "envs/payments/payments-05.env": "APP=payments-05\nPORT=8976\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-06.env": "APP=payments-06\nPORT=3098\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-07.env": "APP=payments-07\nPORT=3952\nLOG_LEVEL=warn\n",
+    "envs/payments/payments-08.env": "APP=payments-08\nPORT=6503\nLOG_LEVEL=warn\n",
+    "envs/payments/payments-09.env": "APP=payments-09\nPORT=7262\n#LOG_LEVEL=debug\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-10.env": "APP=payments-10\nPORT=6541\nLOG_LEVEL=warn\n",
+    "envs/payments/payments-11.env": "APP=payments-11\nPORT=6034\nLOG_LEVEL=info\n",
+    "envs/payments/payments-12.env": "APP=payments-12\nPORT=8319\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-13.env": "APP=payments-13\nPORT=5445\n#LOG_LEVEL=debug\nLOG_LEVEL=info\n",
+    "envs/payments/payments-14.env": "APP=payments-14\nPORT=6150\nLOG_LEVEL=info\n",
+    "envs/payments/payments-15.env": "APP=payments-15\nPORT=6755\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-16.env": "APP=payments-16\nPORT=3403\n#LOG_LEVEL=debug\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-17.env": "APP=payments-17\nPORT=8773\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-18.env": "APP=payments-18\nPORT=8981\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-19.env": "APP=payments-19\nPORT=8746\nLOG_LEVEL=warn\n",
+    "envs/payments/payments-20.env": "APP=payments-20\nPORT=5234\nLOG_LEVEL=debug\n",
+    "envs/payments/payments-21.env": "APP=payments-21\nPORT=7205\nLOG_LEVEL=info\n",
+    "envs/payments/payments-22.env": "APP=payments-22\nPORT=7724\nLOG_LEVEL=info\n",
+    "envs/payments/payments-23.env": "APP=payments-23\nPORT=7918\nLOG_LEVEL=info\n",
+    "envs/payments/payments-24.env": "APP=payments-24\nPORT=3283\n#LOG_LEVEL=debug\nLOG_LEVEL=info\n",
+    "envs/payments/payments-25.env": "APP=payments-25\nPORT=8344\nLOG_LEVEL=info\n",
+    "envs/payments/payments-26.env": "APP=payments-26\nPORT=7466\nLOG_LEVEL=info\n",
+    "envs/search/search-00.env": "APP=search-00\nPORT=6255\nLOG_LEVEL=info\n",
+    "envs/search/search-01.env": "APP=search-01\nPORT=8535\nLOG_LEVEL=info\n",
+    "envs/search/search-02.env": "APP=search-02\nPORT=8360\nLOG_LEVEL=debug\n",
+    "envs/search/search-03.env": "APP=search-03\nPORT=3245\nLOG_LEVEL=warn\n",
+    "envs/search/search-04.env": "APP=search-04\nPORT=7331\nLOG_LEVEL=debug\n",
+    "envs/search/search-05.env": "APP=search-05\nPORT=7655\nLOG_LEVEL=debug\n",
+    "envs/search/search-06.env": "APP=search-06\nPORT=6448\nLOG_LEVEL=debug\n",
+    "envs/search/search-07.env": "APP=search-07\nPORT=8334\nLOG_LEVEL=debug\n",
+    "envs/search/search-08.env": "APP=search-08\nPORT=7460\nLOG_LEVEL=warn\n",
+    "envs/growth/growth-00.env": "APP=growth-00\nPORT=7219\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-01.env": "APP=growth-01\nPORT=3873\nLOG_LEVEL=info\n",
+    "envs/growth/growth-02.env": "APP=growth-02\nPORT=4755\nLOG_LEVEL=info\n",
+    "envs/growth/growth-03.env": "APP=growth-03\nPORT=6786\nLOG_LEVEL=info\n",
+    "envs/growth/growth-04.env": "APP=growth-04\nPORT=7193\n#LOG_LEVEL=debug\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-05.env": "APP=growth-05\nPORT=6171\n#LOG_LEVEL=debug\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-06.env": "APP=growth-06\nPORT=3932\n#LOG_LEVEL=debug\nLOG_LEVEL=warn\n",
+    "envs/growth/growth-07.env": "APP=growth-07\nPORT=4230\n#LOG_LEVEL=debug\nLOG_LEVEL=debug-sql\n",
+    "envs/growth/growth-08.env": "APP=growth-08\nPORT=3529\nLOG_LEVEL=info\n",
+    "envs/growth/growth-09.env": "APP=growth-09\nPORT=6787\nLOG_LEVEL=debug-sql\n",
+    "envs/growth/growth-10.env": "APP=growth-10\nPORT=7568\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-11.env": "APP=growth-11\nPORT=5127\nLOG_LEVEL=info\n",
+    "envs/growth/growth-12.env": "APP=growth-12\nPORT=6192\nLOG_LEVEL=warn\n",
+    "envs/growth/growth-13.env": "APP=growth-13\nPORT=6559\nLOG_LEVEL=info\n",
+    "envs/growth/growth-14.env": "APP=growth-14\nPORT=3354\nLOG_LEVEL=info\n",
+    "envs/growth/growth-15.env": "APP=growth-15\nPORT=5116\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-16.env": "APP=growth-16\nPORT=3715\nLOG_LEVEL=info\n",
+    "envs/growth/growth-17.env": "APP=growth-17\nPORT=5494\nLOG_LEVEL=warn\n",
+    "envs/growth/growth-18.env": "APP=growth-18\nPORT=7600\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-19.env": "APP=growth-19\nPORT=5546\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-20.env": "APP=growth-20\nPORT=7738\nLOG_LEVEL=debug\n",
+    "envs/growth/growth-21.env": "APP=growth-21\nPORT=7895\n#LOG_LEVEL=debug\nLOG_LEVEL=debug-sql\n",
+    "envs/growth/growth-22.env": "APP=growth-22\nPORT=6314\nLOG_LEVEL=info\n",
+    "envs/growth/growth-23.env": "APP=growth-23\nPORT=5814\nLOG_LEVEL=warn\n",
+    "envs/growth/growth-24.env": "APP=growth-24\nPORT=4792\nLOG_LEVEL=info\n",
+    "envs/growth/growth-25.env": "APP=growth-25\nPORT=8980\nLOG_LEVEL=info\n",
+    "envs/infra/infra-00.env": "APP=infra-00\nPORT=4826\nLOG_LEVEL=info\n",
+    "envs/infra/infra-01.env": "APP=infra-01\nPORT=8087\nLOG_LEVEL=info\n",
+    "envs/infra/infra-02.env": "APP=infra-02\nPORT=7396\nLOG_LEVEL=debug\n",
+    "envs/infra/infra-03.env": "APP=infra-03\nPORT=6914\nLOG_LEVEL=debug\n",
+    "envs/infra/infra-04.env": "APP=infra-04\nPORT=7108\nLOG_LEVEL=info\n",
+    "envs/infra/infra-05.env": "APP=infra-05\nPORT=7316\nLOG_LEVEL=info\n",
+    "envs/infra/infra-06.env": "APP=infra-06\nPORT=3797\nLOG_LEVEL=info\n",
+    "envs/infra/infra-07.env": "APP=infra-07\nPORT=8836\nLOG_LEVEL=info\n",
+    "envs/infra/infra-08.env": "APP=infra-08\nPORT=8439\nLOG_LEVEL=warn\n",
+    "envs/infra/infra-09.env": "APP=infra-09\nPORT=6866\nLOG_LEVEL=info\n",
+    "envs/infra/infra-10.env": "APP=infra-10\nPORT=5227\nLOG_LEVEL=debug-sql\n",
+    "envs/infra/infra-11.env": "APP=infra-11\nPORT=4098\n#LOG_LEVEL=debug\nLOG_LEVEL=info\n",
+    "envs/infra/infra-12.env": "APP=infra-12\nPORT=6502\n#LOG_LEVEL=debug\nLOG_LEVEL=info\n",
+    "envs/infra/infra-13.env": "APP=infra-13\nPORT=4677\nLOG_LEVEL=info\n"
+  },
+  "turns": [
+    {
+      "prompt": "envs/ has one folder per team full of .env files. How many files actually run with LOG_LEVEL=debug? A commented-out line or a value like debug-sql doesn't count.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "25"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Which team folder has the most of them, and how many?",
+      "expect": {
+        "output_contains": [
+          "10",
+          "payments"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "calculator",
+      "data_query"
+    ]
+  }
+}

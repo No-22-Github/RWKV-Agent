@@ -1,0 +1,53 @@
+{
+  "id": "doc-31372",
+  "description": "Asks about annual leave days as if it were general knowledge; the company policy file answers it. DISTILL-CANARY-dc343005",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "5"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31372",
+    "ref_calls": 3,
+    "fixture_bytes": 167,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/leave-policy.md": "# 请假制度\n\n年假：入职满一年 10 天，满五年 15 天。病假需提供医院证明。\n",
+    "hr/old-leave-2023.md": "# 2023 请假制度（作废）\n\n年假：入职满一年 5 天。\n"
+  },
+  "turns": [
+    {
+      "prompt": "入职满一年能休几天年假？",
+      "expect": {
+        "output_contains": [
+          "10"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

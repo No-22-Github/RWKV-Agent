@@ -1,0 +1,62 @@
+{
+  "id": "code-31012",
+  "description": "Adds one compiler flag to a single make target while tabs must survive. DISTILL-CANARY-43b07263",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31012",
+    "ref_calls": 4,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "Makefile": "CC = gcc\nCFLAGS = -O2 -Wall\n\nbuild:\n\t$(CC) $(CFLAGS) -o app main.c util.c\n\ndebug:\n\t$(CC) -O0 -g -Wall -o app_dbg main.c util.c\n\ntest:\n\t$(CC) $(CFLAGS) -o app_test test.c util.c\n\t./app_test\n\nclean:\n\trm -f app app_dbg app_test\n"
+  },
+  "turns": [
+    {
+      "prompt": "Makefile 里只有 test 目标需要加上 -fsanitize=address 编译选项，build 和 debug 保持不变。注意 Makefile 的命令行前面是制表符，别弄成空格。改完告诉我 test 目标现在两行是什么。",
+      "expect": {
+        "output_contains": [
+          "-fsanitize=address",
+          "app_test"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "Makefile": {
+        "equals": "CC = gcc\nCFLAGS = -O2 -Wall\n\nbuild:\n\t$(CC) $(CFLAGS) -o app main.c util.c\n\ndebug:\n\t$(CC) -O0 -g -Wall -o app_dbg main.c util.c\n\ntest:\n\t$(CC) $(CFLAGS) -fsanitize=address -o app_test test.c util.c\n\t./app_test\n\nclean:\n\trm -f app app_dbg app_test\n"
+      }
+    }
+  }
+}

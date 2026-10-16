@@ -1,0 +1,53 @@
+{
+  "id": "code-31402",
+  "description": "Asks the meaning of an error code written as if it were a public code; the project table defines it. DISTILL-CANARY-795daeb2",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "invalid input"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31402",
+    "ref_calls": 3,
+    "fixture_bytes": 141,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "core/errors.py": "ERROR_CODES = {\n    'E101': 'invalid input',\n    'E207': 'quota exceeded',\n    'E315': 'upstream unavailable',\n}\n",
+    "docs/errors.md": "# Errors\nSee core/errors.py\n"
+  },
+  "turns": [
+    {
+      "prompt": "错误码 E207 是什么意思？",
+      "expect": {
+        "output_contains": [
+          "quota exceeded"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

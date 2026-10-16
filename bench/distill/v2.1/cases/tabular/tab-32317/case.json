@@ -1,0 +1,65 @@
+{
+  "id": "tab-32317",
+  "description": "Count staff of one department in a pipe separated file. DISTILL-CANARY-24166b3e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21h-col-32317",
+    "ref_calls": 5,
+    "fixture_bytes": 6470,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "staff.txt": "emp_id|name|dept|salary_k\nE001|Kofi Larsen|研发|8\nE002|Ola Petrov|研发|28\nE003|Nadia Fenwick|市场|30\nE004|Ravi Castellano|研发|30\nE005|Ola Petrov|研发|10\nE006|Marek Silva|研发|21\nE007|Ines Marchetti|研发|21\nE008|Arjun Holm|财务|28\nE009|Nadia Fenwick|研发|8\nE010|Ola Petrov|研发|21\nE011|Nadia Fenwick|市场|18\nE012|Jonas Wirth|财务|10\nE013|Tomas Okafor|研发|12\nE014|Sana Duarte|财务|9\nE015|Ravi Castellano|市场|28\nE016|Marek Silva|财务|12\nE017|Yuki Bernard|研发|20\nE018|Lena Quartey|研发|13\nE019|Nadia Fenwick|市场|12\nE020|Yuki Bernard|研发|27\nE021|Marek Silva|研发|21\nE022|Sana Duarte|研发|14\nE023|Hana Brodsky|研发|21\nE024|Nadia Fenwick|市场|30\nE025|Arjun Holm|研发|29\nE026|Hana Brodsky|财务|8\nE027|Nadia Fenwick|市场|19\nE028|Yuki Bernard|市场|29\nE029|Hana Brodsky|研发|14\nE030|Kofi Larsen|研发|13\nE031|Yuki Bernard|研发|25\nE032|Ravi Castellano|市场|19\nE033|Ola Petrov|研发|22\nE034|Sana Duarte|研发|22\nE035|Arjun Holm|市场|26\nE036|Yuki Bernard|研发|26\nE037|Ola Petrov|市场|25\nE038|Ola Petrov|市场|30\nE039|Lena Quartey|研发|27\nE040|Ravi Castellano|研发|24\nE041|Ines Marchetti|市场|15\nE042|Kofi Larsen|财务|25\nE043|Ravi Castellano|市场|26\nE044|Elif Novak|市场|16\nE045|Hana Brodsky|研发|25\nE046|Elif Novak|研发|9\nE047|Tomas Okafor|研发|16\nE048|Nadia Fenwick|研发|13\nE049|Nadia Fenwick|研发|22\nE050|Lena Quartey|市场|29\nE051|Mei Lindqvist|研发|26\nE052|Elif Novak|财务|17\nE053|Nadia Fenwick|财务|28\nE054|Elif Novak|市场|9\nE055|Tomas Okafor|研发|8\nE056|Tomas Okafor|财务|10\nE057|Marek Silva|研发|21\nE058|Nadia Fenwick|市场|8\nE059|Yuki Bernard|市场|8\nE060|Ravi Castellano|财务|21\nE061|Nadia Fenwick|研发|19\nE062|Ines Marchetti|研发|9\nE063|Lena Quartey|研发|29\nE064|Kofi Larsen|市场|30\nE065|Ola Petrov|研发|22\nE066|Nadia Fenwick|研发|17\nE067|Lena Quartey|市场|28\nE068|Marek Silva|研发|19\nE069|Nadia Fenwick|研发|30\nE070|Ines Marchetti|市场|13\nE071|Ines Marchetti|市场|9\nE072|Elif Novak|研发|27\nE073|Marek Silva|市场|18\nE074|Marek Silva|市场|11\nE075|Yuki Bernard|研发|8\nE076|Lena Quartey|市场|21\nE077|Yuki Bernard|研发|9\nE078|Kofi Larsen|市场|19\nE079|Elif Novak|市场|11\nE080|Hana Brodsky|财务|8\nE081|Sana Duarte|财务|17\nE082|Tomas Okafor|研发|27\nE083|Yuki Bernard|财务|8\nE084|Sana Duarte|市场|30\nE085|Nadia Fenwick|财务|30\nE086|Arjun Holm|研发|15\nE087|Lena Quartey|研发|16\nE088|Jonas Wirth|市场|25\nE089|Lena Quartey|研发|17\nE090|Ravi Castellano|研发|24\nE091|Hana Brodsky|研发|15\nE092|Tomas Okafor|研发|27\nE093|Yuki Bernard|市场|11\nE094|Jonas Wirth|研发|24\nE095|Tomas Okafor|财务|16\nE096|Sana Duarte|市场|22\nE097|Elif Novak|财务|27\nE098|Lena Quartey|研发|29\nE099|Tomas Okafor|市场|22\nE100|Hana Brodsky|研发|24\nE101|Marek Silva|研发|23\nE102|Nadia Fenwick|市场|26\nE103|Jonas Wirth|研发|21\nE104|Ola Petrov|研发|10\nE105|Mei Lindqvist|研发|14\nE106|Kofi Larsen|财务|8\nE107|Marek Silva|研发|23\nE108|Arjun Holm|研发|14\nE109|Elif Novak|财务|20\nE110|Jonas Wirth|研发|10\nE111|Tomas Okafor|财务|28\nE112|Yuki Bernard|财务|24\nE113|Yuki Bernard|研发|18\nE114|Arjun Holm|研发|28\nE115|Ines Marchetti|研发|14\nE116|Marek Silva|财务|29\nE117|Ola Petrov|研发|9\nE118|Ola Petrov|财务|23\nE119|Nadia Fenwick|研发|19\nE120|Elif Novak|市场|8\nE121|Marek Silva|研发|12\nE122|Yuki Bernard|研发|18\nE123|Yuki Bernard|财务|24\nE124|Yuki Bernard|市场|29\nE125|Nadia Fenwick|财务|9\nE126|Ines Marchetti|财务|11\nE127|Lena Quartey|市场|8\nE128|Jonas Wirth|研发|30\nE129|Ravi Castellano|研发|27\nE130|Elif Novak|研发|27\nE131|Hana Brodsky|研发|25\nE132|Yuki Bernard|财务|21\nE133|Ines Marchetti|市场|29\nE134|Tomas Okafor|市场|21\nE135|Lena Quartey|研发|13\nE136|Yuki Bernard|研发|19\nE137|Lena Quartey|财务|9\nE138|Arjun Holm|市场|14\nE139|Kofi Larsen|财务|12\nE140|Kofi Larsen|研发|14\nE141|Nadia Fenwick|市场|26\nE142|Mei Lindqvist|研发|19\nE143|Lena Quartey|财务|25\nE144|Mei Lindqvist|市场|18\nE145|Tomas Okafor|财务|23\nE146|Hana Brodsky|财务|27\nE147|Tomas Okafor|市场|25\nE148|Hana Brodsky|市场|18\nE149|Marek Silva|市场|22\nE150|Kofi Larsen|市场|26\nE151|Kofi Larsen|研发|15\nE152|Sana Duarte|市场|30\nE153|Elif Novak|研发|24\nE154|Tomas Okafor|研发|12\nE155|Hana Brodsky|市场|19\nE156|Jonas Wirth|研发|16\nE157|Tomas Okafor|研发|22\nE158|Lena Quartey|财务|25\nE159|Lena Quartey|研发|8\nE160|Ola Petrov|研发|16\nE161|Tomas Okafor|研发|23\nE162|Nadia Fenwick|财务|13\nE163|Hana Brodsky|市场|10\nE164|Lena Quartey|财务|25\nE165|Tomas Okafor|市场|15\nE166|Mei Lindqvist|研发|8\nE167|Sana Duarte|研发|23\nE168|Ravi Castellano|研发|10\nE169|Tomas Okafor|市场|27\nE170|Ines Marchetti|市场|11\nE171|Ravi Castellano|市场|23\nE172|Hana Brodsky|研发|15\nE173|Ola Petrov|研发|15\nE174|Kofi Larsen|市场|25\nE175|Mei Lindqvist|研发|20\nE176|Marek Silva|财务|18\nE177|Yuki Bernard|财务|8\nE178|Yuki Bernard|市场|17\nE179|Ines Marchetti|财务|8\nE180|Marek Silva|市场|14\nE181|Kofi Larsen|市场|15\nE182|Jonas Wirth|财务|15\nE183|Nadia Fenwick|市场|30\nE184|Kofi Larsen|市场|25\nE185|Sana Duarte|研发|21\nE186|Lena Quartey|市场|23\nE187|Sana Duarte|市场|28\nE188|Nadia Fenwick|研发|26\nE189|Hana Brodsky|财务|28\nE190|Yuki Bernard|研发|25\nE191|Hana Brodsky|市场|19\nE192|Mei Lindqvist|研发|8\nE193|Mei Lindqvist|研发|30\nE194|Yuki Bernard|市场|13\nE195|Marek Silva|财务|16\nE196|Yuki Bernard|财务|17\nE197|Lena Quartey|研发|8\nE198|Tomas Okafor|财务|12\nE199|Ola Petrov|财务|14\nE200|Marek Silva|研发|26\nE201|Marek Silva|财务|27\nE202|Lena Quartey|研发|12\nE203|Yuki Bernard|研发|14\nE204|Ines Marchetti|财务|20\nE205|Sana Duarte|研发|27\nE206|Ravi Castellano|研发|14\nE207|Marek Silva|市场|30\nE208|Nadia Fenwick|研发|29\nE209|Lena Quartey|研发|19\nE210|Ines Marchetti|研发|22\nE211|Tomas Okafor|市场|8\nE212|Mei Lindqvist|市场|10\nE213|Marek Silva|财务|8\nE214|Tomas Okafor|财务|22\nE215|Ines Marchetti|财务|17\nE216|Ines Marchetti|研发|27\nE217|Marek Silva|研发|18\nE218|Lena Quartey|市场|18\nE219|Kofi Larsen|市场|23\nE220|Mei Lindqvist|市场|12\nE221|Nadia Fenwick|研发|15\nE222|Hana Brodsky|市场|12\nE223|Kofi Larsen|市场|24\nE224|Ravi Castellano|市场|23\nE225|Yuki Bernard|研发|21\nE226|Sana Duarte|研发|28\nE227|Elif Novak|研发|15\nE228|Yuki Bernard|市场|8\nE229|Hana Brodsky|研发|15\nE230|Ravi Castellano|研发|20\nE231|Arjun Holm|研发|12\nE232|Jonas Wirth|研发|28\n"
+  },
+  "turns": [
+    {
+      "prompt": "staff.txt 里研发部有多少人？",
+      "expect": {
+        "output_contains": [
+          "112"
+        ],
+        "output_excludes": [
+          "共 0",
+          "为 0",
+          "有 0 人"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "研发部的平均薪资（单位 k）是多少？保留一位小数。",
+      "expect": {
+        "output_contains": [
+          "19.1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

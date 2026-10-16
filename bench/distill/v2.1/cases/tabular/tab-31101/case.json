@@ -1,0 +1,59 @@
+{
+  "id": "tab-31101",
+  "description": "Summarize store sales by store into a new CSV sorted by total descending. DISTILL-CANARY-c0344528",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 141,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据/门店销售.csv": "门店,品类,金额\n东门,饮料,120\n西门,零食,80\n东门,零食,45\n北门,饮料,60\n西门,饮料,95\n东门,饮料,30\n北门,零食,25\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 数据/门店销售.csv 按门店汇总金额，写到 数据/门店汇总.csv：表头是“门店,总金额”，每店一行，总金额从高到低排，金额相同的按门店名排。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "数据/门店销售.csv": {
+        "unchanged": true
+      },
+      "数据/门店汇总.csv": {
+        "equals": "门店,总金额\n东门,195\n西门,175\n北门,85\n"
+      }
+    }
+  }
+}

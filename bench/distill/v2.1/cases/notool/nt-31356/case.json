@@ -1,0 +1,173 @@
+{
+  "id": "nt-31356",
+  "description": "Asks who attended 'the review' with two dated review notes. DISTILL-CANARY-d0723484",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "picks one candidate and answers without asking"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21d-clarify-31356",
+    "ref_calls": 3,
+    "fixture_bytes": 76,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "reviews/review-2026-09-08.md": "# Review 9/8\nAttendees: Tom, Lena\n",
+    "reviews/review-2026-09-15.md": "# Review 9/15\nAttendees: Priya, Tom, Marc\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who attended the review?",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ],
+        "output_contains_any": [
+          "确认",
+          "是否",
+          "要不要",
+          "请问",
+          "哪一个",
+          "哪个",
+          "哪份",
+          "哪些",
+          "哪天",
+          "哪套",
+          "哪种",
+          "哪条",
+          "哪段",
+          "哪次",
+          "哪年",
+          "哪月",
+          "你指",
+          "你是指",
+          "指的是",
+          "还是",
+          "具体",
+          "需要你",
+          "需要我",
+          "能否",
+          "能不能",
+          "可以吗",
+          "好吗",
+          "行吗",
+          "对吗",
+          "是不是",
+          "请告诉",
+          "请说明",
+          "请指明",
+          "请提供",
+          "请回复",
+          "请先",
+          "先确认",
+          "再动手",
+          "再删",
+          "再执行",
+          "再继续",
+          "再改",
+          "再覆盖",
+          "再替换",
+          "which",
+          "Which",
+          "confirm",
+          "Confirm",
+          "do you want",
+          "Do you want",
+          "should I",
+          "Should I",
+          "are you sure",
+          "Are you sure",
+          "before I",
+          "Before I",
+          "before proceeding",
+          "Before proceeding",
+          "shall I",
+          "Shall I",
+          "would you like",
+          "Would you like",
+          "did you mean",
+          "Did you mean",
+          "please specify",
+          "Please specify",
+          "could you tell",
+          "Could you tell",
+          "can you tell",
+          "Can you tell",
+          "let me know",
+          "Let me know",
+          "please tell",
+          "Please tell",
+          "clarify",
+          "Clarify",
+          "want me to",
+          "Want me to",
+          "proceed",
+          "Proceed",
+          "go ahead",
+          "Go ahead",
+          "sure you",
+          "ok to",
+          "OK to",
+          "okay to",
+          "Okay to",
+          "which one",
+          "what value",
+          "What value",
+          "what should",
+          "What should",
+          "need to know",
+          "Need to know",
+          "need you to",
+          "Need you to",
+          "tell me which",
+          "Tell me which",
+          "please let",
+          "Please let",
+          "please provide",
+          "Please provide",
+          "please confirm",
+          "Please confirm"
+        ],
+        "output_contains": [
+          "09-08",
+          "09-15"
+        ],
+        "output_excludes": []
+      }
+    },
+    {
+      "prompt": "The one on the 15th.",
+      "expect": {
+        "output_contains": [
+          "Priya"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

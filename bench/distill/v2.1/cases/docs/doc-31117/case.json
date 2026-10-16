@@ -1,0 +1,54 @@
+{
+  "id": "doc-31117",
+  "description": "Count changelog entries per version. DISTILL-CANARY-4db12acd",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "b21b-summary-17",
+    "ref_calls": 2,
+    "fixture_bytes": 104,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "readme/版本.md": "## v1.2.0\n- 修复登录闪退\n- 新增导出\n\n## v1.1.0\n- 优化启动速度\n\n## v1.0.0\n- 首个版本\n"
+  },
+  "turns": [
+    {
+      "prompt": "数一数 readme/版本.md 里每个版本有几条更新，写到 readme/版本统计.txt，一个版本一行，格式“v1.2.0：2 项”，顺序和原文一致。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "readme/版本.md": {
+        "unchanged": true
+      },
+      "readme/版本统计.txt": {
+        "equals": "v1.2.0：2 项\nv1.1.0：1 项\nv1.0.0：1 项\n"
+      }
+    }
+  }
+}

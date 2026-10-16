@@ -1,0 +1,68 @@
+{
+  "id": "cfg-31145",
+  "description": "Release sheet then change env and replicas. DISTILL-CANARY-fa2400a1",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "b21b-revise-45",
+    "ref_calls": 4,
+    "fixture_bytes": 42,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/版本.env": "APP=shop\nVER=1.8.2\nENV=staging\nREPLICAS=2\n"
+  },
+  "turns": [
+    {
+      "prompt": "读 部署/版本.env，写一份 部署/发布单.txt，四行：应用、版本、环境、副本，格式“应用: shop”（冒号后一个空格），值照抄。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "这是要上生产的，把环境改成 production，副本数改成 4。env 文件本身不要改。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "部署/版本.env": {
+        "unchanged": true
+      },
+      "部署/发布单.txt": {
+        "equals": "应用: shop\n版本: 1.8.2\n环境: production\n副本: 4\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "log-31396",
+  "description": "Asks this month's uptime so far with August and September reports present. DISTILL-CANARY-1e210049",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "99.91"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31396",
+    "ref_calls": 3,
+    "fixture_bytes": 149,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "status/uptime-2026-08.md": "# 8 月可用性\n\n全月可用性 99.91%，累计停机 40 分钟。\n",
+    "status/uptime-2026-09.md": "# 9 月可用性（截至 9/16）\n\n可用性 99.62%，累计停机 61 分钟。\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's our uptime this month so far?",
+      "expect": {
+        "output_contains": [
+          "99.62"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

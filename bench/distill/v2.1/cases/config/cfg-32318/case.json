@@ -1,0 +1,64 @@
+{
+  "id": "cfg-32318",
+  "description": "Read a yaml-style value with an equals-based lookup that finds nothing. DISTILL-CANARY-bc65abd9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21h-col-32318",
+    "ref_calls": 5,
+    "fixture_bytes": 1979,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "app.yaml": "limits:\n  birch_amber_path: 258\n  kelp_delta_size: 438\n  nova_lumen_limit: 307\n  cedar_pearl_mode: 171\n  iris_ember_size: 393\n  flint_pearl_path: 481\n  maple_amber_level: 274\n  flint_iris_size: 92\n  flint_grove_limit: 354\n  cedar_birch_mode: 368\n  cedar_cedar_mode: 137\n  grove_maple_path: 3\n  nova_lumen_level: 419\n  cedar_birch_size: 142\n  maple_flint_size: 316\n  amber_flint_name: 101\n  haven_iris_name: 463\n  cedar_kelp_limit: 6\n  delta_cedar_level: 305\n  lumen_nova_level: 432\nserver:\n  host: 10.2.0.7\n  max_conn: 800\n  idle_timeout: 45\ntracing:\n  iris_amber_path: 134\n  birch_nova_mode: 362\n  lumen_maple_limit: 252\n  delta_birch_path: 203\n  haven_onyx_size: 77\n  haven_jade_path: 184\n  onyx_lumen_mode: 266\n  lumen_nova_limit: 277\n  lumen_grove_level: 156\n  maple_grove_limit: 406\n  lumen_jade_mode: 320\n  lumen_haven_name: 383\n  pearl_cedar_size: 133\n  kelp_maple_limit: 173\n  grove_grove_name: 225\n  maple_nova_size: 163\n  ember_nova_level: 316\n  maple_ember_size: 86\n  birch_jade_size: 100\n  ember_grove_path: 238\n  jade_haven_size: 111\n  ember_kelp_level: 17\nstorage:\n  data_dir: /srv/data\n  max_conn: 120\nalerts:\n  flint_grove_level: 231\n  ember_kelp_limit: 333\n  onyx_ember_mode: 316\n  iris_delta_limit: 157\n  amber_jade_level: 294\n  onyx_pearl_size: 306\n  delta_grove_limit: 83\n  delta_pearl_level: 14\n  amber_grove_size: 272\n  iris_grove_limit: 37\n  jade_cedar_level: 305\n  amber_kelp_name: 419\n  kelp_birch_level: 230\n  amber_nova_path: 74\n  kelp_kelp_path: 318\n  onyx_jade_limit: 454\n  pearl_nova_limit: 93\n  iris_nova_level: 143\n  flint_jade_mode: 131\n  lumen_delta_level: 476\njobs:\n  iris_pearl_name: 49\n  pearl_lumen_size: 376\n  nova_jade_size: 278\n  amber_ember_level: 147\n  amber_grove_limit: 40\n  amber_nova_mode: 41\n  haven_kelp_level: 463\n  lumen_amber_path: 171\n  lumen_kelp_size: 286\n  amber_cedar_name: 236\n  ember_onyx_level: 140\n  delta_onyx_name: 135\n  grove_flint_name: 476\n  nova_haven_size: 439\n  lumen_haven_limit: 339\n  delta_pearl_level: 172\n"
+  },
+  "turns": [
+    {
+      "prompt": "app.yaml 里 server 下面的 max_conn 是多少？",
+      "expect": {
+        "output_contains": [
+          "800"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "storage 下面那个呢？",
+      "expect": {
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator",
+      "data_query"
+    ]
+  }
+}

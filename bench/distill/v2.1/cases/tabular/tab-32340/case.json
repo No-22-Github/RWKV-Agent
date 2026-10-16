@@ -1,0 +1,51 @@
+{
+  "id": "tab-32340",
+  "description": "Average of a column after a python one-liner is unavailable. DISTILL-CANARY-62e3e799",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21h-cmd-32340",
+    "ref_calls": 5,
+    "fixture_bytes": 1515,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "metrics.csv": "id,latency_ms\nm01,31\nm02,29\nm03,56\nm04,34\nm05,52\nm06,38\nm07,32\nm08,34\nm09,48\nm10,35\nm11,63\nm12,65\nm13,22\nm14,22\nm15,41\nm16,47\nm17,31\nm18,64\nm19,25\nm20,56\nm21,26\nm22,68\nm23,33\nm24,64\nm25,53\nm26,48\nm27,22\nm28,65\nm29,52\nm30,68\nm31,32\nm32,37\nm33,54\nm34,26\nm35,44\nm36,61\nm37,58\nm38,21\nm39,61\nm40,42\nm41,46\nm42,48\nm43,25\nm44,53\nm45,51\nm46,60\nm47,63\nm48,49\nm49,70\nm50,49\nm51,61\nm52,58\nm53,23\nm54,54\nm55,23\nm56,64\nm57,32\nm58,26\nm59,67\nm60,34\nm61,59\nm62,49\nm63,39\nm64,38\nm65,28\nm66,40\nm67,68\nm68,21\nm69,39\nm70,27\nm71,30\nm72,31\nm73,62\nm74,65\nm75,44\nm76,27\nm77,32\nm78,21\nm79,25\nm80,58\nm81,33\nm82,52\nm83,58\nm84,25\nm85,54\nm86,45\nm87,57\nm88,34\nm89,52\nm90,38\nm91,37\nm92,37\nm93,48\nm94,42\nm95,39\nm96,39\nm97,68\nm98,45\nm99,41\nm100,68\nm101,44\nm102,37\nm103,25\nm104,24\nm105,43\nm106,44\nm107,63\nm108,23\nm109,24\nm110,48\nm111,63\nm112,48\nm113,62\nm114,40\nm115,29\nm116,21\nm117,48\nm118,37\nm119,23\nm120,60\nm121,27\nm122,49\nm123,39\nm124,34\nm125,20\nm126,32\nm127,26\nm128,24\nm129,69\nm130,28\nm131,70\nm132,45\nm133,46\nm134,38\nm135,64\nm136,63\nm137,59\nm138,45\nm139,62\nm140,57\nm141,52\nm142,50\nm143,45\nm144,68\nm145,66\nm146,50\nm147,26\nm148,43\nm149,61\nm150,50\nm151,50\nm152,43\nm153,41\nm154,26\nm155,36\nm156,68\nm157,38\nm158,40\nm159,58\nm160,43\nm161,38\nm162,27\nm163,22\nm164,33\nm165,67\nm166,39\nm167,41\nm168,57\nm169,30\nm170,32\nm171,61\nm172,63\nm173,61\nm174,67\nm175,38\nm176,54\nm177,50\nm178,21\nm179,59\nm180,33\nm181,46\nm182,69\nm183,32\nm184,23\nm185,22\nm186,38\nm187,38\nm188,70\nm189,56\nm190,44\nm191,43\nm192,54\nm193,20\nm194,62\nm195,21\nm196,53\nm197,53\nm198,53\nm199,34\nm200,28\n"
+  },
+  "turns": [
+    {
+      "prompt": "Use a quick python one-liner to get the average latency_ms in metrics.csv and tell me the number.",
+      "expect": {
+        "output_contains": [
+          "44.2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

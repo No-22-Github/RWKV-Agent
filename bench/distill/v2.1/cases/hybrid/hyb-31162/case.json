@@ -1,0 +1,75 @@
+{
+  "id": "hyb-31162",
+  "description": "Compute order amount from price list, fill, report. DISTILL-CANARY-241711d5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-compound-62",
+    "ref_calls": 4,
+    "fixture_bytes": 104,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "报价/价目.csv": "品名,单价\n网线,12\n路由器,189\n交换机,320\n",
+    "报价/订单.txt": "客户: 华兴\n品名: 路由器\n数量: 6\n金额: \n"
+  },
+  "turns": [
+    {
+      "prompt": "订单文件 报价/订单.txt 的金额还空着，按价目表算好填上（金额冒号后面一个空格然后是数字），再回复我这单一共多少钱。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ],
+        "output_contains_any": [
+          "1134 元",
+          "1134元",
+          "1134 块",
+          "1134块",
+          "1134 yuan",
+          "¥1134",
+          "￥1134",
+          "共 1134",
+          "是 1134",
+          "为 1134",
+          "：1134",
+          ": 1134",
+          "1134 RMB",
+          "1134 CNY"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "报价/价目.csv": {
+        "unchanged": true
+      },
+      "报价/订单.txt": {
+        "equals": "客户: 华兴\n品名: 路由器\n数量: 6\n金额: 1134\n"
+      }
+    }
+  }
+}

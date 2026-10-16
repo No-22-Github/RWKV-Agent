@@ -1,0 +1,52 @@
+{
+  "id": "log-31419",
+  "description": "Asks when the migration happens and why it moved; the 9/15 meeting overrides the 9/8 plan. DISTILL-CANARY-00f2cfd6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "9 月 28 日"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31419",
+    "ref_calls": 3,
+    "fixture_bytes": 151,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/meeting-0915.md": "# 9/15 站会\n\n决定：数据库迁移推到 10 月 12 日，原因是压测未通过。\n",
+    "notes/meeting-0908.md": "# 9/8 站会\n\n决定：数据库迁移定在 9 月 28 日。\n"
+  },
+  "turns": [
+    {
+      "prompt": "When is the database migration happening, and why did it move?",
+      "expect": {
+        "output_contains": [
+          "10 月 12 日"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

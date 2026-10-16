@@ -1,0 +1,61 @@
+{
+  "id": "cfg-31002",
+  "description": "Switches one compose service to debug logging while two others share the same line. DISTILL-CANARY-fafd3ea5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31002",
+    "ref_calls": 4,
+    "fixture_bytes": 374,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "docker-compose.yml": "services:\n  web:\n    image: registry.local/shop-web:1.4.2\n    ports:\n      - \"8080:80\"\n    environment:\n      LOG_LEVEL: info\n      CACHE_TTL: 60\n  worker:\n    image: registry.local/shop-worker:1.4.2\n    environment:\n      LOG_LEVEL: info\n      CACHE_TTL: 60\n  scheduler:\n    image: registry.local/shop-sched:1.4.2\n    environment:\n      LOG_LEVEL: info\n      CACHE_TTL: 60\n"
+  },
+  "turns": [
+    {
+      "prompt": "In docker-compose.yml, switch only the worker service to LOG_LEVEL debug. The web and scheduler services stay at info. Tell me which line you changed.",
+      "expect": {
+        "output_contains": [
+          "debug",
+          "worker"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docker-compose.yml": {
+        "equals": "services:\n  web:\n    image: registry.local/shop-web:1.4.2\n    ports:\n      - \"8080:80\"\n    environment:\n      LOG_LEVEL: info\n      CACHE_TTL: 60\n  worker:\n    image: registry.local/shop-worker:1.4.2\n    environment:\n      LOG_LEVEL: debug\n      CACHE_TTL: 60\n  scheduler:\n    image: registry.local/shop-sched:1.4.2\n    environment:\n      LOG_LEVEL: info\n      CACHE_TTL: 60\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "tab-31072",
+  "description": "Edits qty then location columns of different csv rows. DISTILL-CANARY-ae133484",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31072",
+    "ref_calls": 5,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/stock.csv": "sku,name,qty,loc\nA-100,螺丝 M3,500,仓1\nA-101,螺丝 M4,350,仓1\nB-200,垫片,1200,仓2\nB-201,螺母 M3,0,仓2\n"
+  },
+  "turns": [
+    {
+      "prompt": "螺母 M3（B-201）到货了，库存改成 800。csv 其他行不动。",
+      "expect": {}
+    },
+    {
+      "prompt": "螺丝 M4 搬到仓3了，改它的仓位那一列，数量不变。改完把文件读回来检查列没错位，把这两行贴给我。",
+      "expect": {
+        "output_contains": [
+          "仓3",
+          "A-101"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "data/stock.csv": {
+        "equals": "sku,name,qty,loc\nA-100,螺丝 M3,500,仓1\nA-101,螺丝 M4,350,仓3\nB-200,垫片,1200,仓2\nB-201,螺母 M3,800,仓2\n"
+      }
+    }
+  }
+}

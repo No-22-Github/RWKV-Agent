@@ -1,0 +1,56 @@
+{
+  "id": "tab-32333",
+  "description": "Count enterprise accounts when plans are coded and described in a text file. DISTILL-CANARY-dd5a3aaf",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21h-term-32333",
+    "ref_calls": 4,
+    "fixture_bytes": 4383,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "accounts.csv": "account,plan,seats\nacct-001,FREE-1,1\nacct-002,FREE-1,30\nacct-003,FREE-1,32\nacct-004,ENT-A,34\nacct-005,PRO-2,31\nacct-006,PRO-2,7\nacct-007,PRO-2,19\nacct-008,ENT-B,24\nacct-009,FREE-1,10\nacct-010,FREE-1,17\nacct-011,FREE-1,39\nacct-012,FREE-1,18\nacct-013,PRO-2,35\nacct-014,ENT-A,2\nacct-015,ENT-A,4\nacct-016,FREE-1,14\nacct-017,FREE-1,2\nacct-018,PRO-2,19\nacct-019,ENT-B,26\nacct-020,ENT-B,17\nacct-021,ENT-A,29\nacct-022,FREE-1,30\nacct-023,FREE-1,22\nacct-024,FREE-1,23\nacct-025,PRO-2,2\nacct-026,ENT-A,32\nacct-027,ENT-A,35\nacct-028,ENT-B,16\nacct-029,PRO-2,13\nacct-030,ENT-B,31\nacct-031,ENT-B,26\nacct-032,FREE-1,13\nacct-033,ENT-A,19\nacct-034,FREE-1,14\nacct-035,FREE-1,22\nacct-036,PRO-2,1\nacct-037,FREE-1,25\nacct-038,ENT-B,28\nacct-039,ENT-A,34\nacct-040,FREE-1,26\nacct-041,PRO-2,32\nacct-042,ENT-B,21\nacct-043,FREE-1,29\nacct-044,ENT-A,16\nacct-045,PRO-2,5\nacct-046,PRO-2,28\nacct-047,FREE-1,23\nacct-048,PRO-2,24\nacct-049,ENT-B,37\nacct-050,FREE-1,27\nacct-051,PRO-2,5\nacct-052,ENT-B,37\nacct-053,PRO-2,3\nacct-054,PRO-2,37\nacct-055,ENT-A,15\nacct-056,FREE-1,40\nacct-057,FREE-1,13\nacct-058,ENT-A,21\nacct-059,PRO-2,17\nacct-060,FREE-1,19\nacct-061,ENT-B,15\nacct-062,ENT-A,40\nacct-063,FREE-1,7\nacct-064,ENT-A,31\nacct-065,ENT-A,36\nacct-066,FREE-1,15\nacct-067,ENT-B,37\nacct-068,ENT-A,40\nacct-069,PRO-2,39\nacct-070,FREE-1,26\nacct-071,FREE-1,2\nacct-072,PRO-2,39\nacct-073,ENT-B,27\nacct-074,ENT-A,34\nacct-075,FREE-1,35\nacct-076,FREE-1,35\nacct-077,ENT-A,34\nacct-078,ENT-B,14\nacct-079,FREE-1,4\nacct-080,PRO-2,10\nacct-081,FREE-1,9\nacct-082,FREE-1,5\nacct-083,ENT-A,13\nacct-084,PRO-2,1\nacct-085,FREE-1,17\nacct-086,FREE-1,33\nacct-087,ENT-A,27\nacct-088,ENT-A,21\nacct-089,ENT-B,32\nacct-090,ENT-B,25\nacct-091,ENT-A,22\nacct-092,FREE-1,38\nacct-093,ENT-A,31\nacct-094,FREE-1,21\nacct-095,PRO-2,31\nacct-096,ENT-B,22\nacct-097,FREE-1,37\nacct-098,PRO-2,2\nacct-099,ENT-B,28\nacct-100,ENT-A,4\nacct-101,FREE-1,8\nacct-102,PRO-2,25\nacct-103,FREE-1,1\nacct-104,ENT-A,29\nacct-105,PRO-2,31\nacct-106,FREE-1,38\nacct-107,FREE-1,20\nacct-108,FREE-1,14\nacct-109,FREE-1,4\nacct-110,PRO-2,8\nacct-111,FREE-1,12\nacct-112,PRO-2,8\nacct-113,ENT-B,20\nacct-114,PRO-2,21\nacct-115,PRO-2,7\nacct-116,ENT-A,22\nacct-117,FREE-1,9\nacct-118,FREE-1,22\nacct-119,PRO-2,19\nacct-120,PRO-2,27\nacct-121,FREE-1,3\nacct-122,FREE-1,31\nacct-123,FREE-1,6\nacct-124,PRO-2,28\nacct-125,PRO-2,35\nacct-126,PRO-2,3\nacct-127,ENT-B,30\nacct-128,FREE-1,15\nacct-129,PRO-2,27\nacct-130,FREE-1,23\nacct-131,ENT-B,11\nacct-132,FREE-1,17\nacct-133,ENT-B,40\nacct-134,PRO-2,2\nacct-135,FREE-1,27\nacct-136,FREE-1,29\nacct-137,ENT-B,35\nacct-138,PRO-2,21\nacct-139,FREE-1,20\nacct-140,ENT-A,30\nacct-141,FREE-1,19\nacct-142,PRO-2,12\nacct-143,PRO-2,2\nacct-144,FREE-1,29\nacct-145,FREE-1,35\nacct-146,PRO-2,8\nacct-147,PRO-2,5\nacct-148,PRO-2,14\nacct-149,PRO-2,33\nacct-150,PRO-2,26\nacct-151,ENT-B,28\nacct-152,ENT-A,18\nacct-153,ENT-A,6\nacct-154,PRO-2,38\nacct-155,ENT-A,18\nacct-156,FREE-1,29\nacct-157,PRO-2,12\nacct-158,FREE-1,17\nacct-159,PRO-2,14\nacct-160,PRO-2,2\nacct-161,FREE-1,7\nacct-162,FREE-1,39\nacct-163,FREE-1,37\nacct-164,ENT-A,31\nacct-165,FREE-1,25\nacct-166,PRO-2,31\nacct-167,PRO-2,8\nacct-168,PRO-2,31\nacct-169,FREE-1,40\nacct-170,FREE-1,1\nacct-171,ENT-B,15\nacct-172,ENT-A,27\nacct-173,FREE-1,6\nacct-174,ENT-A,22\nacct-175,PRO-2,34\nacct-176,PRO-2,17\nacct-177,ENT-A,15\nacct-178,PRO-2,3\nacct-179,ENT-A,39\nacct-180,PRO-2,37\nacct-181,ENT-B,31\nacct-182,PRO-2,31\nacct-183,PRO-2,29\nacct-184,ENT-A,1\nacct-185,PRO-2,1\nacct-186,ENT-A,24\nacct-187,FREE-1,15\nacct-188,ENT-B,29\nacct-189,PRO-2,37\nacct-190,ENT-B,30\nacct-191,FREE-1,8\nacct-192,FREE-1,9\nacct-193,FREE-1,21\nacct-194,FREE-1,20\nacct-195,FREE-1,23\nacct-196,PRO-2,11\nacct-197,ENT-B,15\nacct-198,PRO-2,17\nacct-199,FREE-1,5\nacct-200,FREE-1,5\nacct-201,PRO-2,18\nacct-202,FREE-1,21\nacct-203,PRO-2,20\nacct-204,PRO-2,11\nacct-205,FREE-1,18\nacct-206,PRO-2,24\nacct-207,PRO-2,8\nacct-208,FREE-1,8\nacct-209,FREE-1,5\nacct-210,ENT-B,24\nacct-211,ENT-B,5\nacct-212,ENT-A,2\nacct-213,FREE-1,16\nacct-214,FREE-1,5\nacct-215,ENT-B,18\nacct-216,PRO-2,16\nacct-217,FREE-1,25\nacct-218,FREE-1,36\nacct-219,PRO-2,26\nacct-220,FREE-1,19\nacct-221,FREE-1,7\nacct-222,FREE-1,36\nacct-223,PRO-2,6\nacct-224,FREE-1,9\nacct-225,FREE-1,20\nacct-226,ENT-A,40\nacct-227,ENT-B,26\nacct-228,ENT-B,15\nacct-229,ENT-B,3\nacct-230,ENT-A,7\nacct-231,PRO-2,22\nacct-232,FREE-1,1\nacct-233,PRO-2,16\nacct-234,ENT-A,28\nacct-235,FREE-1,15\n",
+    "plans.txt": "FREE-1 = free tier\nPRO-2 = professional\nENT-A = enterprise (standard)\nENT-B = enterprise (dedicated)\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many enterprise accounts are in accounts.csv?",
+      "expect": {
+        "output_contains": [
+          "75"
+        ],
+        "output_excludes": [
+          "is 0",
+          " 0 enterprise"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

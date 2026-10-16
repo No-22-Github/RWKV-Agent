@@ -1,0 +1,64 @@
+{
+  "id": "doc-31130",
+  "description": "Merge two day schedules. DISTILL-CANARY-8f4707b4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21b-format-30",
+    "ref_calls": 3,
+    "fixture_bytes": 65,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "课表/周一.txt": "08:00 数学\n09:00 语文\n10:30 英语\n",
+    "课表/周二.txt": "08:00 物理\n09:30 化学\n"
+  },
+  "turns": [
+    {
+      "prompt": "把周一、周二两份课表合并成 课表/总课表.csv，表头“星期,时间,课程”，先周一后周二，每天内部按时间顺序。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "课表/周一.txt": {
+        "unchanged": true
+      },
+      "课表/周二.txt": {
+        "unchanged": true
+      },
+      "课表/总课表.csv": {
+        "equals": "星期,时间,课程\n周一,08:00,数学\n周一,09:00,语文\n周一,10:30,英语\n周二,08:00,物理\n周二,09:30,化学\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "cfg-31010",
+  "description": "Bumps one dependency range in package.json with look-alike react entries. DISTILL-CANARY-9734f6c0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31010",
+    "ref_calls": 4,
+    "fixture_bytes": 267,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "package.json": "{\n  \"name\": \"lamp-ui\",\n  \"version\": \"0.8.3\",\n  \"scripts\": {\n    \"build\": \"vite build\",\n    \"test\": \"vitest run\"\n  },\n  \"dependencies\": {\n    \"react\": \"^18.2.0\",\n    \"react-dom\": \"^18.2.0\"\n  },\n  \"devDependencies\": {\n    \"vite\": \"^5.0.0\",\n    \"vitest\": \"^1.2.0\"\n  }\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "package.json 里把 vite 的版本范围改成 ^5.4.0，别的依赖和项目版本都不要变，注意别破坏 JSON 格式。改完告诉我改了哪一行。",
+      "expect": {
+        "output_contains": [
+          "^5.4.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "package.json": {
+        "equals": "{\n  \"name\": \"lamp-ui\",\n  \"version\": \"0.8.3\",\n  \"scripts\": {\n    \"build\": \"vite build\",\n    \"test\": \"vitest run\"\n  },\n  \"dependencies\": {\n    \"react\": \"^18.2.0\",\n    \"react-dom\": \"^18.2.0\"\n  },\n  \"devDependencies\": {\n    \"vite\": \"^5.4.0\",\n    \"vitest\": \"^1.2.0\"\n  }\n}\n"
+      }
+    }
+  }
+}

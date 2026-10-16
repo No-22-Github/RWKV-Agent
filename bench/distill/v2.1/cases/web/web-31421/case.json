@@ -1,0 +1,59 @@
+{
+  "id": "web-31421",
+  "description": "Asks the current stable version of an outside tool; fixture has it, workspace is unrelated. DISTILL-CANARY-ea1aff6d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "b21d-ext-31421",
+    "ref_calls": 3,
+    "fixture_bytes": 33,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "zentro",
+      "url": "https://zentro.example/releases",
+      "url_match": "zentro.example/releases",
+      "title": "Zentro releases",
+      "snippet": "Zentro 6.4.2 is the current stable release, published 2026-09-10.",
+      "content": "Zentro 6.4.2 is the current stable release, published 2026-09-10.\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "notes/todo.md": "# 待办\n- 周五前提交预算\n"
+  },
+  "turns": [
+    {
+      "prompt": "Zentro 现在的稳定版是多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "6.4.2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "list_files"
+    ]
+  }
+}

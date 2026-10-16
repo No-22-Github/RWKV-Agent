@@ -1,0 +1,63 @@
+{
+  "id": "tab-31115",
+  "description": "Join discounts onto a price list. DISTILL-CANARY-05a994d6",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-15",
+    "ref_calls": 3,
+    "fixture_bytes": 50,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "price/list.csv": "item,price\npen,2.5\nbook,18\nbag,64\n",
+    "price/discount.txt": "bag 20%\npen 10%\n"
+  },
+  "turns": [
+    {
+      "prompt": "Apply the discounts in price/discount.txt to price/list.csv and write price/final.csv with the header item,original,final. Keep the original price as written, give final to two decimals, and keep the list's row order. Items without a discount keep their price.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "price/list.csv": {
+        "unchanged": true
+      },
+      "price/discount.txt": {
+        "unchanged": true
+      },
+      "price/final.csv": {
+        "equals": "item,original,final\npen,2.5,2.25\nbook,18,18.00\nbag,64,51.20\n"
+      }
+    }
+  }
+}

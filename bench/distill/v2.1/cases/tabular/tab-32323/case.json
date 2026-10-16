@@ -1,0 +1,60 @@
+{
+  "id": "tab-32323",
+  "description": "Total orders where the obvious file only has a header and the real month file is named in the readme. DISTILL-CANARY-68d95681",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21h-file-32323",
+    "ref_calls": 5,
+    "fixture_bytes": 3906,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders.csv": "order_id,customer,amount\n",
+    "orders_2026-09.csv": "order_id,customer,amount\nA0600,Elif Novak,4\nA0601,Arjun Holm,2\nA0602,Ola Petrov,4\nA0603,Hana Brodsky,4\nA0604,Sana Duarte,2\nA0605,Yuki Bernard,1\nA0606,Arjun Holm,5\nA0607,Kofi Larsen,4\nA0608,Lena Quartey,3\nA0609,Ola Petrov,4\nA0610,Yuki Bernard,4\nA0611,Elif Novak,5\nA0612,Elif Novak,3\nA0613,Mei Lindqvist,4\nA0614,Marek Silva,3\nA0615,Hana Brodsky,4\nA0616,Marek Silva,1\nA0617,Lena Quartey,4\nA0618,Sana Duarte,1\nA0619,Arjun Holm,1\nA0620,Arjun Holm,5\nA0621,Sana Duarte,4\nA0622,Jonas Wirth,4\nA0623,Lena Quartey,1\nA0624,Nadia Fenwick,4\nA0625,Mei Lindqvist,1\nA0626,Elif Novak,1\nA0627,Kofi Larsen,3\nA0628,Hana Brodsky,4\nA0629,Jonas Wirth,3\nA0630,Ola Petrov,4\nA0631,Elif Novak,4\nA0632,Sana Duarte,2\nA0633,Ines Marchetti,5\nA0634,Kofi Larsen,2\nA0635,Ola Petrov,3\nA0636,Jonas Wirth,5\nA0637,Ines Marchetti,1\nA0638,Nadia Fenwick,4\nA0639,Mei Lindqvist,1\nA0640,Marek Silva,5\nA0641,Tomas Okafor,5\nA0642,Mei Lindqvist,4\nA0643,Nadia Fenwick,2\nA0644,Arjun Holm,1\nA0645,Ravi Castellano,3\nA0646,Ines Marchetti,4\nA0647,Ines Marchetti,1\nA0648,Hana Brodsky,2\nA0649,Ola Petrov,5\nA0650,Marek Silva,5\nA0651,Marek Silva,1\nA0652,Hana Brodsky,3\nA0653,Jonas Wirth,4\nA0654,Arjun Holm,4\nA0655,Hana Brodsky,5\nA0656,Arjun Holm,3\nA0657,Arjun Holm,4\nA0658,Lena Quartey,4\nA0659,Arjun Holm,1\nA0660,Kofi Larsen,5\nA0661,Hana Brodsky,4\nA0662,Ola Petrov,3\nA0663,Ola Petrov,4\nA0664,Tomas Okafor,5\nA0665,Marek Silva,3\nA0666,Mei Lindqvist,5\nA0667,Arjun Holm,5\nA0668,Yuki Bernard,1\nA0669,Yuki Bernard,1\nA0670,Hana Brodsky,4\nA0671,Ola Petrov,5\nA0672,Mei Lindqvist,4\nA0673,Hana Brodsky,5\nA0674,Mei Lindqvist,1\nA0675,Ola Petrov,3\nA0676,Yuki Bernard,3\nA0677,Jonas Wirth,2\nA0678,Marek Silva,3\nA0679,Sana Duarte,3\nA0680,Nadia Fenwick,5\nA0681,Mei Lindqvist,5\nA0682,Yuki Bernard,4\nA0683,Arjun Holm,3\nA0684,Elif Novak,3\nA0685,Elif Novak,3\nA0686,Mei Lindqvist,3\nA0687,Yuki Bernard,5\nA0688,Marek Silva,1\nA0689,Yuki Bernard,5\nA0690,Marek Silva,1\nA0691,Arjun Holm,4\nA0692,Marek Silva,4\nA0693,Yuki Bernard,2\nA0694,Lena Quartey,2\nA0695,Nadia Fenwick,4\nA0696,Yuki Bernard,1\nA0697,Tomas Okafor,4\nA0698,Lena Quartey,3\nA0699,Sana Duarte,2\nA0700,Arjun Holm,2\nA0701,Ola Petrov,2\nA0702,Tomas Okafor,1\nA0703,Mei Lindqvist,2\nA0704,Mei Lindqvist,3\nA0705,Jonas Wirth,2\nA0706,Yuki Bernard,5\nA0707,Hana Brodsky,5\nA0708,Mei Lindqvist,3\nA0709,Marek Silva,5\nA0710,Arjun Holm,1\nA0711,Sana Duarte,2\nA0712,Elif Novak,1\nA0713,Marek Silva,4\nA0714,Sana Duarte,3\nA0715,Elif Novak,1\nA0716,Tomas Okafor,3\nA0717,Mei Lindqvist,3\nA0718,Mei Lindqvist,5\nA0719,Ravi Castellano,4\nA0720,Tomas Okafor,1\nA0721,Kofi Larsen,5\nA0722,Marek Silva,2\nA0723,Sana Duarte,3\nA0724,Ines Marchetti,4\nA0725,Tomas Okafor,1\nA0726,Yuki Bernard,1\nA0727,Ines Marchetti,5\nA0728,Nadia Fenwick,3\nA0729,Ravi Castellano,1\nA0730,Yuki Bernard,2\nA0731,Hana Brodsky,1\nA0732,Tomas Okafor,1\nA0733,Marek Silva,4\nA0734,Kofi Larsen,1\nA0735,Arjun Holm,2\nA0736,Elif Novak,5\nA0737,Kofi Larsen,5\nA0738,Ola Petrov,3\nA0739,Ola Petrov,2\nA0740,Arjun Holm,3\nA0741,Yuki Bernard,3\nA0742,Arjun Holm,4\nA0743,Jonas Wirth,5\nA0744,Elif Novak,1\nA0745,Ola Petrov,1\nA0746,Arjun Holm,5\nA0747,Hana Brodsky,2\nA0748,Ola Petrov,2\nA0749,Ines Marchetti,2\nA0750,Ravi Castellano,3\nA0751,Hana Brodsky,3\nA0752,Hana Brodsky,3\nA0753,Elif Novak,2\nA0754,Sana Duarte,5\nA0755,Tomas Okafor,5\nA0756,Ines Marchetti,3\nA0757,Lena Quartey,4\nA0758,Ravi Castellano,1\nA0759,Nadia Fenwick,4\nA0760,Elif Novak,5\nA0761,Mei Lindqvist,5\nA0762,Arjun Holm,1\nA0763,Ines Marchetti,5\nA0764,Yuki Bernard,5\nA0765,Sana Duarte,5\nA0766,Ravi Castellano,4\nA0767,Ines Marchetti,5\nA0768,Mei Lindqvist,4\nA0769,Jonas Wirth,5\nA0770,Ola Petrov,4\nA0771,Ines Marchetti,1\nA0772,Elif Novak,2\nA0773,Ravi Castellano,3\nA0774,Ravi Castellano,4\nA0775,Elif Novak,2\nA0776,Ines Marchetti,5\nA0777,Sana Duarte,3\nA0778,Jonas Wirth,3\nA0779,Nadia Fenwick,1\n",
+    "README.md": "# data folder\norders.csv is only the empty template kept for the importer.\nLive orders are exported monthly: orders_2026-09.csv for this month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "订单一共有多少笔，总金额是多少？",
+      "expect": {
+        "output_contains": [
+          "180",
+          "565"
+        ],
+        "output_excludes": [
+          "共 0",
+          "为 0",
+          "0 笔"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

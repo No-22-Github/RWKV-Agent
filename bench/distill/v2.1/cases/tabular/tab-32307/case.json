@@ -1,0 +1,55 @@
+{
+  "id": "tab-32307",
+  "description": "Count delayed shipments where states are stored in capitals. DISTILL-CANARY-e7b90723",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21h-fmt-32307",
+    "ref_calls": 4,
+    "fixture_bytes": 5593,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "shipments.csv": "ref,port,state\nSH-5200,Rotterdam,RETURNED\nSH-5201,Antwerp,SHIPPED\nSH-5202,Hamburg,SHIPPED\nSH-5203,Hamburg,SHIPPED\nSH-5204,Antwerp,DELAYED\nSH-5205,Hamburg,SHIPPED\nSH-5206,Antwerp,SHIPPED\nSH-5207,Hamburg,SHIPPED\nSH-5208,Antwerp,DELAYED\nSH-5209,Hamburg,SHIPPED\nSH-5210,Gdynia,DELAYED\nSH-5211,Hamburg,RETURNED\nSH-5212,Hamburg,RETURNED\nSH-5213,Gdynia,RETURNED\nSH-5214,Gdynia,SHIPPED\nSH-5215,Rotterdam,SHIPPED\nSH-5216,Rotterdam,DELAYED\nSH-5217,Hamburg,DELAYED\nSH-5218,Hamburg,DELAYED\nSH-5219,Gdynia,DELAYED\nSH-5220,Hamburg,SHIPPED\nSH-5221,Gdynia,SHIPPED\nSH-5222,Antwerp,SHIPPED\nSH-5223,Rotterdam,DELAYED\nSH-5224,Rotterdam,SHIPPED\nSH-5225,Rotterdam,DELAYED\nSH-5226,Hamburg,DELAYED\nSH-5227,Hamburg,SHIPPED\nSH-5228,Rotterdam,DELAYED\nSH-5229,Hamburg,DELAYED\nSH-5230,Rotterdam,SHIPPED\nSH-5231,Rotterdam,SHIPPED\nSH-5232,Antwerp,DELAYED\nSH-5233,Hamburg,RETURNED\nSH-5234,Hamburg,DELAYED\nSH-5235,Rotterdam,DELAYED\nSH-5236,Rotterdam,DELAYED\nSH-5237,Hamburg,RETURNED\nSH-5238,Hamburg,SHIPPED\nSH-5239,Rotterdam,DELAYED\nSH-5240,Hamburg,SHIPPED\nSH-5241,Rotterdam,DELAYED\nSH-5242,Rotterdam,DELAYED\nSH-5243,Rotterdam,RETURNED\nSH-5244,Antwerp,SHIPPED\nSH-5245,Gdynia,SHIPPED\nSH-5246,Antwerp,SHIPPED\nSH-5247,Rotterdam,SHIPPED\nSH-5248,Hamburg,DELAYED\nSH-5249,Hamburg,DELAYED\nSH-5250,Antwerp,DELAYED\nSH-5251,Hamburg,RETURNED\nSH-5252,Gdynia,RETURNED\nSH-5253,Gdynia,SHIPPED\nSH-5254,Gdynia,SHIPPED\nSH-5255,Rotterdam,DELAYED\nSH-5256,Gdynia,SHIPPED\nSH-5257,Antwerp,SHIPPED\nSH-5258,Hamburg,DELAYED\nSH-5259,Rotterdam,DELAYED\nSH-5260,Antwerp,SHIPPED\nSH-5261,Antwerp,DELAYED\nSH-5262,Antwerp,RETURNED\nSH-5263,Antwerp,SHIPPED\nSH-5264,Antwerp,SHIPPED\nSH-5265,Gdynia,SHIPPED\nSH-5266,Hamburg,DELAYED\nSH-5267,Antwerp,DELAYED\nSH-5268,Gdynia,DELAYED\nSH-5269,Antwerp,SHIPPED\nSH-5270,Hamburg,SHIPPED\nSH-5271,Rotterdam,SHIPPED\nSH-5272,Rotterdam,DELAYED\nSH-5273,Gdynia,SHIPPED\nSH-5274,Rotterdam,DELAYED\nSH-5275,Hamburg,SHIPPED\nSH-5276,Gdynia,DELAYED\nSH-5277,Gdynia,DELAYED\nSH-5278,Rotterdam,DELAYED\nSH-5279,Rotterdam,RETURNED\nSH-5280,Hamburg,DELAYED\nSH-5281,Hamburg,SHIPPED\nSH-5282,Rotterdam,SHIPPED\nSH-5283,Hamburg,SHIPPED\nSH-5284,Gdynia,DELAYED\nSH-5285,Antwerp,SHIPPED\nSH-5286,Rotterdam,SHIPPED\nSH-5287,Antwerp,RETURNED\nSH-5288,Antwerp,SHIPPED\nSH-5289,Rotterdam,RETURNED\nSH-5290,Hamburg,DELAYED\nSH-5291,Hamburg,SHIPPED\nSH-5292,Gdynia,DELAYED\nSH-5293,Antwerp,SHIPPED\nSH-5294,Hamburg,SHIPPED\nSH-5295,Antwerp,SHIPPED\nSH-5296,Gdynia,SHIPPED\nSH-5297,Antwerp,SHIPPED\nSH-5298,Rotterdam,DELAYED\nSH-5299,Gdynia,RETURNED\nSH-5300,Rotterdam,SHIPPED\nSH-5301,Gdynia,DELAYED\nSH-5302,Hamburg,DELAYED\nSH-5303,Hamburg,DELAYED\nSH-5304,Hamburg,DELAYED\nSH-5305,Antwerp,SHIPPED\nSH-5306,Gdynia,SHIPPED\nSH-5307,Hamburg,DELAYED\nSH-5308,Antwerp,RETURNED\nSH-5309,Antwerp,SHIPPED\nSH-5310,Rotterdam,SHIPPED\nSH-5311,Hamburg,SHIPPED\nSH-5312,Hamburg,SHIPPED\nSH-5313,Gdynia,DELAYED\nSH-5314,Hamburg,SHIPPED\nSH-5315,Gdynia,SHIPPED\nSH-5316,Hamburg,DELAYED\nSH-5317,Gdynia,SHIPPED\nSH-5318,Rotterdam,RETURNED\nSH-5319,Hamburg,SHIPPED\nSH-5320,Rotterdam,DELAYED\nSH-5321,Rotterdam,DELAYED\nSH-5322,Hamburg,DELAYED\nSH-5323,Hamburg,DELAYED\nSH-5324,Antwerp,RETURNED\nSH-5325,Rotterdam,SHIPPED\nSH-5326,Antwerp,SHIPPED\nSH-5327,Gdynia,SHIPPED\nSH-5328,Antwerp,SHIPPED\nSH-5329,Gdynia,RETURNED\nSH-5330,Gdynia,SHIPPED\nSH-5331,Hamburg,RETURNED\nSH-5332,Antwerp,DELAYED\nSH-5333,Gdynia,RETURNED\nSH-5334,Rotterdam,DELAYED\nSH-5335,Rotterdam,SHIPPED\nSH-5336,Rotterdam,SHIPPED\nSH-5337,Hamburg,SHIPPED\nSH-5338,Hamburg,RETURNED\nSH-5339,Antwerp,SHIPPED\nSH-5340,Rotterdam,SHIPPED\nSH-5341,Hamburg,DELAYED\nSH-5342,Gdynia,DELAYED\nSH-5343,Antwerp,SHIPPED\nSH-5344,Gdynia,DELAYED\nSH-5345,Rotterdam,SHIPPED\nSH-5346,Hamburg,SHIPPED\nSH-5347,Antwerp,SHIPPED\nSH-5348,Rotterdam,SHIPPED\nSH-5349,Gdynia,SHIPPED\nSH-5350,Gdynia,SHIPPED\nSH-5351,Rotterdam,SHIPPED\nSH-5352,Hamburg,SHIPPED\nSH-5353,Gdynia,DELAYED\nSH-5354,Antwerp,SHIPPED\nSH-5355,Gdynia,DELAYED\nSH-5356,Antwerp,SHIPPED\nSH-5357,Rotterdam,SHIPPED\nSH-5358,Hamburg,DELAYED\nSH-5359,Gdynia,RETURNED\nSH-5360,Gdynia,DELAYED\nSH-5361,Rotterdam,DELAYED\nSH-5362,Rotterdam,DELAYED\nSH-5363,Gdynia,DELAYED\nSH-5364,Hamburg,DELAYED\nSH-5365,Rotterdam,DELAYED\nSH-5366,Rotterdam,SHIPPED\nSH-5367,Antwerp,SHIPPED\nSH-5368,Gdynia,DELAYED\nSH-5369,Antwerp,SHIPPED\nSH-5370,Hamburg,SHIPPED\nSH-5371,Hamburg,DELAYED\nSH-5372,Hamburg,SHIPPED\nSH-5373,Rotterdam,SHIPPED\nSH-5374,Rotterdam,SHIPPED\nSH-5375,Hamburg,SHIPPED\nSH-5376,Antwerp,SHIPPED\nSH-5377,Rotterdam,SHIPPED\nSH-5378,Antwerp,SHIPPED\nSH-5379,Antwerp,SHIPPED\nSH-5380,Antwerp,DELAYED\nSH-5381,Gdynia,SHIPPED\nSH-5382,Antwerp,SHIPPED\nSH-5383,Hamburg,SHIPPED\nSH-5384,Antwerp,SHIPPED\nSH-5385,Hamburg,DELAYED\nSH-5386,Gdynia,SHIPPED\nSH-5387,Rotterdam,RETURNED\nSH-5388,Hamburg,SHIPPED\nSH-5389,Rotterdam,RETURNED\nSH-5390,Gdynia,RETURNED\nSH-5391,Hamburg,SHIPPED\nSH-5392,Gdynia,SHIPPED\nSH-5393,Antwerp,SHIPPED\nSH-5394,Hamburg,SHIPPED\nSH-5395,Gdynia,SHIPPED\nSH-5396,Rotterdam,RETURNED\nSH-5397,Rotterdam,DELAYED\nSH-5398,Gdynia,RETURNED\nSH-5399,Antwerp,SHIPPED\nSH-5400,Rotterdam,SHIPPED\nSH-5401,Hamburg,DELAYED\nSH-5402,Rotterdam,RETURNED\nSH-5403,Antwerp,DELAYED\nSH-5404,Rotterdam,SHIPPED\nSH-5405,Rotterdam,SHIPPED\nSH-5406,Hamburg,DELAYED\nSH-5407,Hamburg,SHIPPED\nSH-5408,Gdynia,SHIPPED\nSH-5409,Antwerp,SHIPPED\nSH-5410,Hamburg,SHIPPED\nSH-5411,Gdynia,SHIPPED\nSH-5412,Rotterdam,RETURNED\nSH-5413,Hamburg,SHIPPED\nSH-5414,Antwerp,SHIPPED\nSH-5415,Rotterdam,SHIPPED\nSH-5416,Hamburg,SHIPPED\nSH-5417,Hamburg,DELAYED\nSH-5418,Antwerp,DELAYED\nSH-5419,Rotterdam,SHIPPED\nSH-5420,Rotterdam,SHIPPED\nSH-5421,Hamburg,SHIPPED\nSH-5422,Rotterdam,DELAYED\nSH-5423,Gdynia,DELAYED\nSH-5424,Gdynia,DELAYED\nSH-5425,Hamburg,DELAYED\nSH-5426,Antwerp,RETURNED\nSH-5427,Rotterdam,SHIPPED\n"
+  },
+  "turns": [
+    {
+      "prompt": "Could you tell me how many shipments in shipments.csv are delayed?",
+      "expect": {
+        "output_contains": [
+          "78"
+        ],
+        "output_excludes": [
+          " 0 shipments",
+          "is 0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

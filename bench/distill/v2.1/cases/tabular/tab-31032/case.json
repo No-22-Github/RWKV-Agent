@@ -1,0 +1,60 @@
+{
+  "id": "tab-31032",
+  "description": "Appends one JSON line to a jsonl file. DISTILL-CANARY-80301d93",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-append-31032",
+    "ref_calls": 3,
+    "fixture_bytes": 117,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/errors.jsonl": "{\"ts\":\"2026-09-15T08:00:00\",\"code\":500,\"path\":\"/api/pay\"}\n{\"ts\":\"2026-09-15T09:30:00\",\"code\":404,\"path\":\"/api/ship\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "data/errors.jsonl 追加一行记录，每行一个 JSON：ts 是 2026-09-16T08:30:00，code 502，path /api/pay。字段顺序同前面。追加后告诉我文件现在有几行记录。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "data/errors.jsonl": {
+        "contains": [
+          "{\"ts\":\"2026-09-15T08:00:00\",\"code\":500,\"path\":\"/api/pay\"}\n{\"ts\":\"2026-09-15T09:30:00\",\"code\":404,\"path\":\"/api/ship\"}\n",
+          "{\"ts\":\"2026-09-16T08:30:00\",\"code\":502,\"path\":\"/api/pay\"}"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "hyb-31156",
+  "description": "Merged plan lines then undo and append. DISTILL-CANARY-a22ba0af",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-undo-56",
+    "ref_calls": 4,
+    "fixture_bytes": 77,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "项目/计划.md": "# 计划\n\n- 9月：需求\n- 10月：开发\n- 11月：测试\n- 12月：上线\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 项目/计划.md 的上线时间提前到 11 月，测试和上线合并成一行。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "这样太赶了，撤销，恢复原来的四行。然后在最后加一行“- 1月：回顾”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "项目/计划.md": {
+        "equals": "# 计划\n\n- 9月：需求\n- 10月：开发\n- 11月：测试\n- 12月：上线\n- 1月：回顾\n"
+      }
+    }
+  }
+}

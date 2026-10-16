@@ -1,0 +1,59 @@
+{
+  "id": "log-31106",
+  "description": "Aggregate JSONL requests per path into a JSON file. DISTILL-CANARY-c2428ea6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-06",
+    "ref_calls": 2,
+    "fixture_bytes": 202,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "监控/请求.jsonl": "{\"path\":\"/a\",\"ms\":120,\"code\":200}\n{\"path\":\"/b\",\"ms\":340,\"code\":500}\n{\"path\":\"/a\",\"ms\":80,\"code\":200}\n{\"path\":\"/c\",\"ms\":50,\"code\":404}\n{\"path\":\"/b\",\"ms\":410,\"code\":200}\n{\"path\":\"/a\",\"ms\":100,\"code\":200}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Read 监控/请求.jsonl and write 监控/耗时.json: a JSON object keyed by path (sorted), each value {\"count\": n, \"avg_ms\": average as an integer (they all divide evenly)}. Indent with 2 spaces and end the file with a newline.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "监控/请求.jsonl": {
+        "unchanged": true
+      },
+      "监控/耗时.json": {
+        "equals": "{\n  \"/a\": {\n    \"count\": 3,\n    \"avg_ms\": 100\n  },\n  \"/b\": {\n    \"count\": 2,\n    \"avg_ms\": 375\n  },\n  \"/c\": {\n    \"count\": 1,\n    \"avg_ms\": 50\n  }\n}\n"
+      }
+    }
+  }
+}

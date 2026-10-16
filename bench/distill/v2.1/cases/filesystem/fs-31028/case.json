@@ -1,0 +1,66 @@
+{
+  "id": "fs-31028",
+  "description": "Appends two ignore rules to a short gitignore. DISTILL-CANARY-75fe85ed",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-append-31028",
+    "ref_calls": 3,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    ".gitignore": "node_modules/\ndist/\n*.log\n.env\n"
+  },
+  "turns": [
+    {
+      "prompt": "Please make git skip the .cache/ and coverage/ folders too. The current entries must stay. Tell me the full list of entries afterwards.",
+      "expect": {
+        "output_contains": [
+          ".env",
+          "coverage/"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      ".gitignore": {
+        "contains": [
+          "node_modules/\ndist/\n*.log\n.env\n",
+          ".cache/",
+          "coverage/"
+        ]
+      }
+    }
+  }
+}

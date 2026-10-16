@@ -1,0 +1,62 @@
+{
+  "id": "cfg-31384",
+  "description": "Asks the default listening port as if general knowledge; app.yaml holds it and the example file shows another. DISTILL-CANARY-eecf8f0b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "8080"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31384",
+    "ref_calls": 3,
+    "fixture_bytes": 78,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/app.yaml": "server:\n  port: 8443\n  max_body_mb: 25\n",
+    "config/app.example.yaml": "server:\n  port: 8080\n  max_body_mb: 10\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们服务默认监听哪个端口？",
+      "expect": {
+        "output_contains": [
+          "8443"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

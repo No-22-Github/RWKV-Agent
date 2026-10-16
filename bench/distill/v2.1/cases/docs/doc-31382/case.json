@@ -1,0 +1,62 @@
+{
+  "id": "doc-31382",
+  "description": "Asks the function length limit in our code standard; line length 100 is a near-miss. DISTILL-CANARY-7923931b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "100"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31382",
+    "ref_calls": 3,
+    "fixture_bytes": 116,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/code-style.md": "# 代码规范\n\n单行最大长度 100 个字符；函数不超过 60 行；提交信息用中文。\n",
+    "standards/readme.md": "# 规范目录\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们代码规范里函数最多可以有多少行？",
+      "expect": {
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

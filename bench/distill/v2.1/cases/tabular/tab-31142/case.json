@@ -1,0 +1,66 @@
+{
+  "id": "tab-31142",
+  "description": "Filter then uppercase names. DISTILL-CANARY-70f9ed4d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-revise-42",
+    "ref_calls": 4,
+    "fixture_bytes": 59,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "账号/users.csv": "id,name,role\n1,ann,admin\n2,bob,user\n3,cat,user\n4,dan,guest\n"
+  },
+  "turns": [
+    {
+      "prompt": "Copy 账号/users.csv to 账号/active.csv but leave out the guest accounts.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Also make the name column uppercase in that new file.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "账号/users.csv": {
+        "unchanged": true
+      },
+      "账号/active.csv": {
+        "equals": "id,name,role\n1,ANN,admin\n2,BOB,user\n3,CAT,user\n"
+      }
+    }
+  }
+}

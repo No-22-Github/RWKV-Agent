@@ -1,0 +1,52 @@
+{
+  "id": "doc-31377",
+  "description": "Asks which weekday releases go out; the release process file answers. DISTILL-CANARY-1ac5261b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "周四"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31377",
+    "ref_calls": 3,
+    "fixture_bytes": 142,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "release/process.md": "# 发布流程\n\n每周四 14:00 冻结代码，周五 10:00 发布。紧急修复走热修通道，需两人审批。\n",
+    "release/changelog.md": "# 变更\n- 3.8.1 热修\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们每周几发布？",
+      "expect": {
+        "output_contains": [
+          "周五"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

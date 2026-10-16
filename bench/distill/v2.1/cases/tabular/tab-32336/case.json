@@ -1,0 +1,57 @@
+{
+  "id": "tab-32336",
+  "description": "Count VIP members where VIP is defined as level L5 and above in the readme. DISTILL-CANARY-09078308",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21h-term-32336",
+    "ref_calls": 4,
+    "fixture_bytes": 4541,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "members.csv": "uid,name,level\nU001,Nadia Fenwick,L5\nU002,Marek Silva,L2\nU003,Mei Lindqvist,L2\nU004,Ines Marchetti,L6\nU005,Yuki Bernard,L2\nU006,Ravi Castellano,L6\nU007,Hana Brodsky,L2\nU008,Ola Petrov,L6\nU009,Lena Quartey,L2\nU010,Ravi Castellano,L2\nU011,Lena Quartey,L6\nU012,Ines Marchetti,L4\nU013,Hana Brodsky,L6\nU014,Jonas Wirth,L2\nU015,Arjun Holm,L4\nU016,Hana Brodsky,L2\nU017,Kofi Larsen,L2\nU018,Nadia Fenwick,L6\nU019,Mei Lindqvist,L2\nU020,Ravi Castellano,L2\nU021,Nadia Fenwick,L2\nU022,Ines Marchetti,L4\nU023,Mei Lindqvist,L6\nU024,Hana Brodsky,L2\nU025,Ines Marchetti,L4\nU026,Mei Lindqvist,L4\nU027,Ravi Castellano,L2\nU028,Ravi Castellano,L2\nU029,Nadia Fenwick,L6\nU030,Tomas Okafor,L2\nU031,Hana Brodsky,L5\nU032,Hana Brodsky,L2\nU033,Kofi Larsen,L2\nU034,Tomas Okafor,L4\nU035,Ola Petrov,L5\nU036,Lena Quartey,L4\nU037,Tomas Okafor,L6\nU038,Tomas Okafor,L2\nU039,Ines Marchetti,L4\nU040,Yuki Bernard,L5\nU041,Lena Quartey,L6\nU042,Elif Novak,L5\nU043,Ola Petrov,L4\nU044,Lena Quartey,L4\nU045,Elif Novak,L2\nU046,Ola Petrov,L2\nU047,Mei Lindqvist,L2\nU048,Jonas Wirth,L4\nU049,Lena Quartey,L2\nU050,Ola Petrov,L4\nU051,Sana Duarte,L5\nU052,Tomas Okafor,L4\nU053,Hana Brodsky,L2\nU054,Marek Silva,L5\nU055,Mei Lindqvist,L2\nU056,Marek Silva,L2\nU057,Ola Petrov,L5\nU058,Nadia Fenwick,L5\nU059,Tomas Okafor,L6\nU060,Yuki Bernard,L5\nU061,Marek Silva,L2\nU062,Ines Marchetti,L2\nU063,Ola Petrov,L6\nU064,Lena Quartey,L2\nU065,Mei Lindqvist,L2\nU066,Arjun Holm,L2\nU067,Sana Duarte,L5\nU068,Marek Silva,L2\nU069,Jonas Wirth,L4\nU070,Arjun Holm,L2\nU071,Sana Duarte,L2\nU072,Marek Silva,L5\nU073,Ola Petrov,L6\nU074,Elif Novak,L4\nU075,Nadia Fenwick,L2\nU076,Nadia Fenwick,L4\nU077,Hana Brodsky,L2\nU078,Marek Silva,L4\nU079,Marek Silva,L2\nU080,Marek Silva,L5\nU081,Marek Silva,L6\nU082,Tomas Okafor,L4\nU083,Sana Duarte,L5\nU084,Ines Marchetti,L2\nU085,Elif Novak,L2\nU086,Nadia Fenwick,L2\nU087,Sana Duarte,L2\nU088,Elif Novak,L2\nU089,Ines Marchetti,L2\nU090,Marek Silva,L5\nU091,Lena Quartey,L4\nU092,Ola Petrov,L5\nU093,Sana Duarte,L5\nU094,Mei Lindqvist,L2\nU095,Marek Silva,L2\nU096,Tomas Okafor,L4\nU097,Kofi Larsen,L5\nU098,Tomas Okafor,L4\nU099,Nadia Fenwick,L5\nU100,Lena Quartey,L4\nU101,Hana Brodsky,L2\nU102,Elif Novak,L4\nU103,Tomas Okafor,L2\nU104,Kofi Larsen,L6\nU105,Kofi Larsen,L4\nU106,Arjun Holm,L2\nU107,Yuki Bernard,L4\nU108,Tomas Okafor,L2\nU109,Marek Silva,L2\nU110,Arjun Holm,L2\nU111,Sana Duarte,L6\nU112,Sana Duarte,L6\nU113,Mei Lindqvist,L5\nU114,Elif Novak,L2\nU115,Tomas Okafor,L4\nU116,Yuki Bernard,L2\nU117,Jonas Wirth,L5\nU118,Tomas Okafor,L4\nU119,Marek Silva,L6\nU120,Jonas Wirth,L4\nU121,Marek Silva,L4\nU122,Marek Silva,L5\nU123,Mei Lindqvist,L2\nU124,Ravi Castellano,L5\nU125,Arjun Holm,L2\nU126,Ravi Castellano,L4\nU127,Ravi Castellano,L2\nU128,Yuki Bernard,L2\nU129,Yuki Bernard,L6\nU130,Hana Brodsky,L2\nU131,Kofi Larsen,L6\nU132,Kofi Larsen,L4\nU133,Hana Brodsky,L2\nU134,Marek Silva,L2\nU135,Hana Brodsky,L4\nU136,Kofi Larsen,L5\nU137,Lena Quartey,L5\nU138,Elif Novak,L5\nU139,Elif Novak,L2\nU140,Lena Quartey,L2\nU141,Ines Marchetti,L4\nU142,Lena Quartey,L4\nU143,Ravi Castellano,L4\nU144,Lena Quartey,L5\nU145,Arjun Holm,L4\nU146,Hana Brodsky,L2\nU147,Hana Brodsky,L6\nU148,Tomas Okafor,L2\nU149,Tomas Okafor,L5\nU150,Kofi Larsen,L2\nU151,Ravi Castellano,L2\nU152,Yuki Bernard,L4\nU153,Arjun Holm,L2\nU154,Nadia Fenwick,L2\nU155,Yuki Bernard,L2\nU156,Jonas Wirth,L5\nU157,Ola Petrov,L2\nU158,Lena Quartey,L2\nU159,Ravi Castellano,L2\nU160,Ola Petrov,L2\nU161,Lena Quartey,L2\nU162,Yuki Bernard,L4\nU163,Tomas Okafor,L2\nU164,Mei Lindqvist,L4\nU165,Tomas Okafor,L5\nU166,Sana Duarte,L4\nU167,Hana Brodsky,L2\nU168,Yuki Bernard,L5\nU169,Lena Quartey,L4\nU170,Yuki Bernard,L2\nU171,Yuki Bernard,L5\nU172,Elif Novak,L2\nU173,Elif Novak,L2\nU174,Tomas Okafor,L5\nU175,Mei Lindqvist,L2\nU176,Ola Petrov,L4\nU177,Arjun Holm,L5\nU178,Lena Quartey,L6\nU179,Ola Petrov,L4\nU180,Kofi Larsen,L5\nU181,Nadia Fenwick,L2\nU182,Sana Duarte,L5\nU183,Hana Brodsky,L2\nU184,Yuki Bernard,L2\nU185,Ravi Castellano,L4\nU186,Marek Silva,L4\nU187,Lena Quartey,L2\nU188,Ola Petrov,L2\nU189,Marek Silva,L2\nU190,Nadia Fenwick,L2\nU191,Lena Quartey,L2\nU192,Elif Novak,L2\nU193,Hana Brodsky,L2\nU194,Nadia Fenwick,L4\nU195,Arjun Holm,L2\nU196,Ines Marchetti,L4\nU197,Ravi Castellano,L6\nU198,Jonas Wirth,L5\nU199,Nadia Fenwick,L2\nU200,Jonas Wirth,L4\nU201,Sana Duarte,L2\nU202,Hana Brodsky,L2\nU203,Kofi Larsen,L6\nU204,Ola Petrov,L5\nU205,Elif Novak,L4\nU206,Ines Marchetti,L2\nU207,Ravi Castellano,L2\nU208,Kofi Larsen,L2\nU209,Nadia Fenwick,L2\nU210,Arjun Holm,L5\nU211,Ola Petrov,L5\nU212,Jonas Wirth,L2\nU213,Ola Petrov,L2\nU214,Arjun Holm,L4\nU215,Ines Marchetti,L6\n",
+    "README.md": "level: L1..L6. VIP means level 5 and above (L5, L6).\n"
+  },
+  "turns": [
+    {
+      "prompt": "members.csv 里有多少 VIP 会员？",
+      "expect": {
+        "output_contains": [
+          "65"
+        ],
+        "output_excludes": [
+          "共 0",
+          "为 0",
+          "有 0 位"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

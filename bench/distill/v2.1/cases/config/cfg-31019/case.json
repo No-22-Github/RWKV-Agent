@@ -1,0 +1,61 @@
+{
+  "id": "cfg-31019",
+  "description": "Changes the primary colour variable but not the same hex used directly in a rule. DISTILL-CANARY-d11cf802",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31019",
+    "ref_calls": 4,
+    "fixture_bytes": 212,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "settings/theme.css": ":root {\n  --primary: #2b6cb0;\n  --primary-dark: #2c5282;\n  --accent: #dd6b20;\n  --bg: #ffffff;\n}\n\n.btn-primary { background: var(--primary); }\n.btn-accent { background: var(--accent); }\n.link { color: #2b6cb0; }\n"
+  },
+  "turns": [
+    {
+      "prompt": "主题文件 settings/theme.css 里主色变量 --primary 换成 #1a7f64，只改变量定义这一行，别处用到同样色值的地方暂时不要改。改完告诉我改了哪一行。",
+      "expect": {
+        "output_contains": [
+          "#1a7f64"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "settings/theme.css": {
+        "equals": ":root {\n  --primary: #1a7f64;\n  --primary-dark: #2c5282;\n  --accent: #dd6b20;\n  --bg: #ffffff;\n}\n\n.btn-primary { background: var(--primary); }\n.btn-accent { background: var(--accent); }\n.link { color: #2b6cb0; }\n"
+      }
+    }
+  }
+}

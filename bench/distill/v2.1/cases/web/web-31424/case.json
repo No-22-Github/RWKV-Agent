@@ -1,0 +1,69 @@
+{
+  "id": "web-31424",
+  "description": "Asks which version fixes the security issue; the pinned local version is older. DISTILL-CANARY-7688c966",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3.8.0"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-ext-31424",
+    "ref_calls": 3,
+    "fixture_bytes": 67,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "mapleforge",
+      "url": "https://mapleforge.example/security",
+      "url_match": "mapleforge.example/security",
+      "title": "MapleForge security bulletin",
+      "snippet": "MapleForge 3.9.1 fixes CVE-2026-4417; all users should upgrade to 3.9.1.",
+      "content": "MapleForge 3.9.1 fixes CVE-2026-4417; all users should upgrade to 3.9.1.\n",
+      "published_at": "2026-09-11"
+    }
+  ],
+  "files": {
+    "deps/pins.txt": "mapleforge==3.8.0\n",
+    "deps/notes.md": "# 依赖笔记\n3.8.0 是当时的推荐版本。\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which MapleForge version fixes the newest security issue?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "3.9.1"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "3.8.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "list_files"
+    ]
+  }
+}

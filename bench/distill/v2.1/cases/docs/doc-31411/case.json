@@ -1,0 +1,66 @@
+{
+  "id": "doc-31411",
+  "description": "Asks the Pro plan monthly price; the 2026 list replaces the 2025 one and a web roundup shows another figure. DISTILL-CANARY-e6f34256",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "29"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31411",
+    "ref_calls": 3,
+    "fixture_bytes": 126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "pro plan price",
+      "url": "https://compare.example.com/saas-pricing",
+      "url_match": "compare.example.com/saas-pricing",
+      "title": "SaaS pricing roundup",
+      "snippet": "Pro tiers across the market cost about 25 per month.",
+      "content": "Pro tiers across the market cost about 25 per month.\n",
+      "published_at": "2026-02-03"
+    }
+  ],
+  "files": {
+    "pricing/plans-2025.md": "# Plans (2025)\n\nPro plan: 29 per month.\n",
+    "pricing/plans-2026.md": "# Plans (effective 2026-06-01)\n\nPro plan: 39 per month. Replaces the 2025 price list.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much does our Pro plan cost per month?",
+      "expect": {
+        "output_contains": [
+          "39"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "25"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

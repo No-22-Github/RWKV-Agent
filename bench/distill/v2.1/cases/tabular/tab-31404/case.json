@@ -1,0 +1,53 @@
+{
+  "id": "tab-31404",
+  "description": "Asks the monitor's price now; the current price file and an old one differ. DISTILL-CANARY-7c3ef1dc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2099"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31404",
+    "ref_calls": 3,
+    "fixture_bytes": 102,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/prices.csv": "sku,name,price\nK100,键盘,299\nM200,鼠标,129\nS300,显示器,1899\n",
+    "data/prices-old.csv": "sku,name,price\nS300,显示器,2099\n"
+  },
+  "turns": [
+    {
+      "prompt": "显示器现在卖多少钱？",
+      "expect": {
+        "output_contains": [
+          "1899"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

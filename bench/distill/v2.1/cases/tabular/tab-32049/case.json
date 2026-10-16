@@ -1,0 +1,60 @@
+{
+  "id": "tab-32049",
+  "description": "Reads a tab separated file and writes a comma separated mean per plate. DISTILL-CANARY-649fe7d8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "wrong file"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21e-write-32049",
+    "ref_calls": 4,
+    "fixture_bytes": 6359,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21e",
+    "sub": "write"
+  },
+  "web_fixture": [],
+  "files": {
+    "lab/od_readings.tsv": "sample\tplate\tod600\tdilution\toperator\nP0001\tA1\t0.710\t100\tri\nP0002\tB2\t1.130\t1\tmo\nP0003\tB1\t1.250\t100\tke\nP0004\tB2\t0.190\t100\tmo\nP0005\tA2\t0.530\t10\tke\nP0006\tA2\t0.540\t1\tmo\nP0007\tB2\t1.800\t10\tmo\nP0008\tA2\t0.750\t10\tke\nP0009\tB2\t0.380\t10\tke\nP0010\tA1\t0.100\t100\tke\nP0011\tB2\t0.270\t10\tri\nP0012\tB2\t0.940\t100\tke\nP0013\tA2\t0.150\t10\tri\nP0014\tA1\t1.440\t10\tri\nP0015\tA2\t1.150\t100\tke\nP0016\tB1\t0.950\t100\tri\nP0017\tB1\t0.820\t10\tke\nP0018\tB1\t1.500\t100\tri\nP0019\tB1\t1.590\t10\tke\nP0020\tB1\t0.280\t1\tke\nP0021\tB1\t0.840\t1\tri\nP0022\tA2\t1.810\t1\tmo\nP0023\tB2\t1.540\t10\tke\nP0024\tB2\t1.020\t1\tmo\nP0025\tA1\t0.320\t100\tri\nP0026\tA1\t1.360\t100\tke\nP0027\tA1\t1.340\t100\tri\nP0028\tB1\t0.430\t10\tri\nP0029\tB2\t1.900\t1\tri\nP0030\tA1\t0.750\t100\tke\nP0031\tA1\t0.680\t1\tke\nP0032\tA1\t0.590\t1\tke\nP0033\tA1\t0.090\t10\tke\nP0034\tA1\t1.400\t10\tmo\nP0035\tA2\t0.400\t100\tke\nP0036\tA2\t1.600\t1\tri\nP0037\tA1\t1.040\t1\tke\nP0038\tB2\t1.500\t10\tri\nP0039\tA1\t0.220\t10\tri\nP0040\tA1\t1.550\t1\tke\nP0041\tA1\t1.080\t1\tri\nP0042\tB2\t1.570\t10\tmo\nP0043\tA2\t0.370\t10\tri\nP0044\tB2\t0.360\t100\tri\nP0045\tA2\t1.900\t100\tri\nP0046\tB1\t0.450\t100\tke\nP0047\tB1\t1.890\t1\tke\nP0048\tB1\t0.520\t1\tke\nP0049\tB1\t1.250\t1\tmo\nP0050\tA1\t1.130\t100\tke\nP0051\tB1\t0.820\t1\tke\nP0052\tB1\t1.180\t10\tri\nP0053\tA1\t1.530\t1\tmo\nP0054\tA2\t1.320\t10\tri\nP0055\tA1\t0.170\t1\tri\nP0056\tA1\t1.810\t10\tmo\nP0057\tB1\t0.510\t100\tke\nP0058\tA1\t0.110\t100\tke\nP0059\tB1\t1.390\t100\tri\nP0060\tA1\t0.110\t10\tke\nP0061\tB1\t1.470\t100\tke\nP0062\tB1\t0.250\t100\tke\nP0063\tB1\t0.260\t100\tmo\nP0064\tB1\t0.750\t1\tke\nP0065\tA1\t1.100\t10\tmo\nP0066\tB1\t1.850\t10\tmo\nP0067\tA2\t1.100\t100\tke\nP0068\tA1\t0.800\t10\tmo\nP0069\tA2\t0.740\t1\tri\nP0070\tB2\t0.890\t10\tke\nP0071\tB1\t0.510\t10\tmo\nP0072\tB1\t1.220\t100\tri\nP0073\tB1\t0.680\t100\tke\nP0074\tA2\t1.650\t1\tri\nP0075\tA2\t1.800\t10\tri\nP0076\tA2\t0.990\t1\tke\nP0077\tA2\t1.290\t1\tri\nP0078\tB2\t0.770\t100\tri\nP0079\tB1\t1.200\t10\tke\nP0080\tA1\t0.600\t100\tke\nP0081\tA2\t1.050\t1\tmo\nP0082\tB1\t0.500\t10\tke\nP0083\tA1\t1.810\t100\tmo\nP0084\tB2\t0.310\t10\tke\nP0085\tA1\t1.630\t100\tke\nP0086\tA1\t0.870\t10\tke\nP0087\tB1\t1.080\t100\tri\nP0088\tB2\t0.430\t10\tmo\nP0089\tB1\t0.650\t100\tri\nP0090\tA1\t0.970\t10\tmo\nP0091\tA1\t1.530\t100\tmo\nP0092\tB1\t1.290\t10\tke\nP0093\tA1\t0.560\t1\tri\nP0094\tB1\t0.450\t10\tmo\nP0095\tA2\t1.680\t1\tri\nP0096\tA1\t0.360\t10\tke\nP0097\tA1\t1.350\t10\tri\nP0098\tB1\t1.350\t1\tke\nP0099\tA2\t0.910\t10\tri\nP0100\tB2\t0.180\t10\tmo\nP0101\tB2\t0.290\t100\tke\nP0102\tB2\t0.130\t100\tmo\nP0103\tB2\t1.860\t100\tke\nP0104\tA1\t0.310\t10\tri\nP0105\tB1\t0.630\t100\tri\nP0106\tB2\t1.070\t1\tke\nP0107\tA2\t0.840\t100\tke\nP0108\tB2\t0.660\t100\tmo\nP0109\tB2\t1.760\t10\tke\nP0110\tA1\t0.370\t10\tri\nP0111\tA1\t1.480\t100\tri\nP0112\tB1\t0.070\t100\tri\nP0113\tA1\t1.600\t1\tri\nP0114\tA2\t1.290\t1\tke\nP0115\tB1\t1.790\t1\tke\nP0116\tA2\t1.360\t10\tmo\nP0117\tB2\t0.820\t100\tri\nP0118\tB2\t1.690\t10\tke\nP0119\tA1\t1.560\t100\tmo\nP0120\tB2\t1.010\t100\tke\nP0121\tA2\t1.170\t10\tri\nP0122\tB1\t1.130\t10\tke\nP0123\tA1\t1.170\t10\tri\nP0124\tB2\t1.270\t10\tmo\nP0125\tA2\t0.440\t10\tri\nP0126\tB2\t1.100\t10\tmo\nP0127\tA1\t0.670\t100\tmo\nP0128\tB2\t0.070\t10\tke\nP0129\tB2\t1.800\t100\tri\nP0130\tA1\t0.460\t10\tri\nP0131\tA2\t1.200\t1\tke\nP0132\tA1\t0.800\t1\tmo\nP0133\tA1\t0.560\t1\tke\nP0134\tA1\t0.330\t10\tke\nP0135\tB2\t1.900\t100\tri\nP0136\tA1\t1.260\t10\tri\nP0137\tB1\t1.400\t10\tri\nP0138\tA1\t1.320\t100\tke\nP0139\tB2\t0.120\t100\tri\nP0140\tB1\t1.490\t10\tri\nP0141\tA1\t1.640\t10\tri\nP0142\tA1\t0.070\t100\tri\nP0143\tA2\t0.870\t1\tri\nP0144\tA1\t1.130\t10\tke\nP0145\tB2\t0.690\t100\tke\nP0146\tB2\t0.730\t10\tmo\nP0147\tB1\t1.550\t100\tmo\nP0148\tB1\t0.720\t1\tke\nP0149\tA2\t1.890\t100\tri\nP0150\tB2\t1.280\t1\tri\nP0151\tB2\t1.070\t100\tmo\nP0152\tA2\t1.850\t10\tri\nP0153\tA2\t0.370\t1\tke\nP0154\tB2\t1.560\t10\tri\nP0155\tA1\t0.130\t10\tmo\nP0156\tA2\t0.130\t10\tri\nP0157\tA1\t1.140\t1\tri\nP0158\tA1\t0.070\t1\tmo\nP0159\tA2\t0.640\t10\tri\nP0160\tA2\t1.730\t10\tri\nP0161\tB1\t0.900\t100\tmo\nP0162\tB1\t1.200\t100\tri\nP0163\tB2\t0.970\t10\tmo\nP0164\tB1\t0.680\t10\tmo\nP0165\tB2\t1.510\t100\tmo\nP0166\tA1\t0.270\t1\tmo\nP0167\tB1\t1.090\t10\tmo\nP0168\tA2\t0.320\t100\tmo\nP0169\tB2\t1.080\t100\tmo\nP0170\tA1\t0.120\t1\tri\nP0171\tA2\t0.070\t100\tri\nP0172\tB2\t0.590\t1\tke\nP0173\tB1\t0.480\t10\tmo\nP0174\tA2\t1.470\t1\tmo\nP0175\tB2\t1.900\t10\tri\nP0176\tB1\t1.220\t100\tke\nP0177\tA2\t1.870\t10\tke\nP0178\tA1\t0.270\t1\tke\nP0179\tA2\t0.880\t100\tmo\nP0180\tB2\t0.710\t10\tmo\nP0181\tB2\t0.930\t10\tri\nP0182\tA1\t0.710\t100\tmo\nP0183\tA2\t1.700\t100\tmo\nP0184\tA2\t0.050\t10\tke\nP0185\tA1\t0.050\t10\tri\nP0186\tA2\t1.270\t10\tri\nP0187\tB1\t0.700\t10\tke\nP0188\tB2\t0.390\t10\tmo\nP0189\tB2\t1.610\t100\tri\nP0190\tB2\t0.750\t10\tmo\nP0191\tA2\t0.710\t10\tri\nP0192\tA1\t0.970\t10\tke\nP0193\tA1\t0.230\t100\tri\nP0194\tB1\t0.250\t100\tke\nP0195\tA1\t1.120\t10\tri\nP0196\tB2\t1.700\t100\tke\nP0197\tB2\t0.270\t1\tke\nP0198\tB1\t1.780\t100\tmo\nP0199\tA1\t0.820\t10\tri\nP0200\tA2\t1.800\t10\tke\nP0201\tA2\t1.120\t1\tri\nP0202\tA1\t1.570\t1\tke\nP0203\tA1\t1.240\t10\tmo\nP0204\tB2\t1.260\t1\tmo\nP0205\tA1\t1.780\t1\tke\nP0206\tB1\t0.160\t10\tmo\nP0207\tB2\t0.670\t100\tmo\nP0208\tB2\t0.790\t10\tri\nP0209\tA1\t0.700\t1\tmo\nP0210\tA1\t1.670\t1\tmo\nP0211\tB1\t0.860\t10\tri\nP0212\tB2\t0.950\t10\tri\nP0213\tB2\t1.730\t1\tmo\nP0214\tA2\t1.710\t100\tke\nP0215\tA2\t1.380\t100\tri\nP0216\tB1\t0.980\t10\tke\nP0217\tA2\t0.940\t100\tri\nP0218\tA1\t1.000\t100\tri\nP0219\tA1\t1.000\t100\tke\nP0220\tB2\t1.590\t100\tke\nP0221\tB2\t1.180\t100\tke\nP0222\tB2\t0.050\t10\tmo\nP0223\tB1\t1.220\t10\tri\nP0224\tA2\t1.080\t10\tke\nP0225\tB1\t0.700\t1\tri\nP0226\tB2\t0.320\t100\tke\nP0227\tA2\t0.430\t100\tmo\nP0228\tB2\t0.540\t1\tri\nP0229\tA1\t0.700\t100\tmo\nP0230\tA1\t0.630\t100\tke\nP0231\tA2\t1.010\t1\tri\nP0232\tB1\t0.500\t1\tke\nP0233\tA1\t0.660\t10\tke\nP0234\tA2\t0.680\t1\tke\nP0235\tB2\t1.100\t1\tmo\nP0236\tB1\t0.810\t10\tke\nP0237\tA2\t0.530\t1\tmo\nP0238\tA1\t1.130\t10\tmo\nP0239\tA2\t1.140\t1\tri\nP0240\tA1\t1.620\t100\tke\nP0241\tB2\t0.080\t100\tke\nP0242\tB2\t1.090\t100\tke\nP0243\tB1\t0.850\t100\tmo\nP0244\tA2\t1.400\t1\tri\nP0245\tA2\t0.490\t10\tke\nP0246\tB2\t0.320\t10\tmo\nP0247\tA2\t1.440\t10\tke\nP0248\tA2\t1.520\t100\tke\nP0249\tA1\t1.640\t10\tmo\nP0250\tA2\t1.360\t10\tmo\nP0251\tA2\t0.270\t100\tri\nP0252\tA2\t1.290\t10\tke\nP0253\tB2\t1.330\t1\tke\nP0254\tA1\t0.360\t1\tke\nP0255\tB1\t0.980\t100\tmo\nP0256\tA1\t1.700\t1\tke\nP0257\tB2\t0.380\t1\tri\nP0258\tA1\t1.430\t100\tke\nP0259\tB2\t1.140\t100\tmo\nP0260\tA2\t1.340\t10\tke\nP0261\tB2\t0.710\t1\tke\nP0262\tA2\t0.580\t1\tke\nP0263\tB1\t0.450\t10\tmo\nP0264\tB1\t1.780\t10\tri\nP0265\tA2\t1.270\t1\tmo\nP0266\tA1\t0.570\t100\tke\nP0267\tA2\t1.670\t10\tri\nP0268\tB1\t1.630\t1\tmo\nP0269\tA1\t1.260\t100\tri\nP0270\tB2\t0.530\t1\tke\nP0271\tB1\t1.080\t100\tke\nP0272\tB2\t0.780\t10\tmo\nP0273\tB2\t0.920\t1\tke\nP0274\tB2\t0.390\t1\tri\nP0275\tB1\t1.590\t10\tmo\nP0276\tA2\t0.180\t1\tke\nP0277\tB2\t0.540\t1\tmo\nP0278\tA1\t1.270\t10\tmo\nP0279\tB2\t0.380\t100\tmo\nP0280\tA1\t0.180\t100\tmo\nP0281\tA2\t0.880\t1\tmo\nP0282\tB2\t0.300\t100\tmo\nP0283\tA1\t0.600\t1\tke\nP0284\tB2\t0.950\t100\tri\nP0285\tA1\t1.120\t10\tke\nP0286\tB1\t0.800\t1\tmo\nP0287\tA1\t0.550\t100\tke\nP0288\tB2\t1.650\t100\tke\nP0289\tB2\t0.500\t100\tke\nP0290\tB2\t1.870\t1\tri\nP0291\tA2\t0.710\t10\tri\nP0292\tA1\t0.080\t100\tri\nP0293\tA2\t0.420\t1\tmo\nP0294\tA2\t0.670\t10\tmo\nP0295\tB1\t0.590\t100\tke\nP0296\tB2\t0.950\t100\tri\nP0297\tA2\t1.490\t1\tmo\nP0298\tB2\t0.950\t1\tri\nP0299\tA1\t0.380\t100\tke\nP0300\tA1\t0.580\t100\tri\n"
+  },
+  "turns": [
+    {
+      "prompt": "lab/od_readings.tsv holds plate readings. Write lab/plate_means.csv (comma separated, header plate,mean_od600) with the mean od600 per plate to 3 decimals, plates in alphabetical order.",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator",
+      "data_query"
+    ]
+  },
+  "expect": {
+    "files": {
+      "lab/plate_means.csv": {
+        "equals": "plate,mean_od600\nA1,0.874\nA2,1.038\nB1,0.957\nB2,0.930\n"
+      },
+      "lab/od_readings.tsv": {
+        "unchanged": true
+      }
+    }
+  }
+}

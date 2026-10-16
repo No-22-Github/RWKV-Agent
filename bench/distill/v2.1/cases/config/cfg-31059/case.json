@@ -1,0 +1,64 @@
+{
+  "id": "cfg-31059",
+  "description": "Adds a yaml list item with exact indentation. DISTILL-CANARY-659c8941",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31059",
+    "ref_calls": 5,
+    "fixture_bytes": 128,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/service.yaml": "service:\n  name: notifier\n  env:\n    - name: MODE\n      value: prod\n    - name: REGION\n      value: eu-west\n  ports:\n    - 9000\n"
+  },
+  "turns": [
+    {
+      "prompt": "In deploy/service.yaml, add one more env entry RETRIES with the string value \"3\" after REGION, same indentation style as the others. Read the file back to make sure the YAML still lines up, then show me the env section.",
+      "expect": {
+        "output_contains": [
+          "RETRIES",
+          "REGION"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/service.yaml": {
+        "equals": "service:\n  name: notifier\n  env:\n    - name: MODE\n      value: prod\n    - name: REGION\n      value: eu-west\n    - name: RETRIES\n      value: \"3\"\n  ports:\n    - 9000\n"
+      }
+    }
+  }
+}

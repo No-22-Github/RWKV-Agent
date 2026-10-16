@@ -1,0 +1,68 @@
+{
+  "id": "tab-31134",
+  "description": "Product totals then rename header and re-sort. DISTILL-CANARY-e9ec0ed4",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-revise-34",
+    "ref_calls": 4,
+    "fixture_bytes": 96,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "销量/月度.csv": "月份,产品,件数\n7月,甲,120\n7月,乙,80\n8月,甲,150\n8月,乙,60\n9月,甲,90\n9月,乙,110\n"
+  },
+  "turns": [
+    {
+      "prompt": "汇总 销量/月度.csv 里每个产品三个月的总件数，写到 销量/产品合计.csv，表头“产品,合计”，按产品名排。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "改一下：表头换成英文“产品,Total”不要变，只把“合计”改成 Total；然后行改成按总件数从多到少排，一样多的按产品名。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "销量/月度.csv": {
+        "unchanged": true
+      },
+      "销量/产品合计.csv": {
+        "equals": "产品,Total\n甲,360\n乙,250\n"
+      }
+    }
+  }
+}

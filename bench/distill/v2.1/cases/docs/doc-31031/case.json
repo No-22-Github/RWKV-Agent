@@ -1,0 +1,62 @@
+{
+  "id": "doc-31031",
+  "description": "Adds a new month block to a release-notes file. DISTILL-CANARY-c471fd14",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-append-31031",
+    "ref_calls": 3,
+    "fixture_bytes": 101,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "release/notes-2026.txt": "== 2026-07 ==\nship: search v2\nfix: cart rounding\n\n== 2026-08 ==\nship: dark mode\nfix: login redirect\n\n"
+  },
+  "turns": [
+    {
+      "prompt": "release/notes-2026.txt 末尾新开一段 2026-09，写两条：ship: export center、fix: timezone drift，段头格式和 7、8 月一样。之前的月份不动。告诉我现在文件有几个月份段。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "release/notes-2026.txt": {
+        "contains": [
+          "== 2026-07 ==\nship: search v2\nfix: cart rounding\n\n== 2026-08 ==\nship: dark mode\nfix: login redirect\n\n",
+          "== 2026-09 ==",
+          "ship: export center",
+          "fix: timezone drift"
+        ]
+      }
+    }
+  }
+}

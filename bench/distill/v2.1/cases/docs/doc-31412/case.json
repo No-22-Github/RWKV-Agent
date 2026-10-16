@@ -1,0 +1,62 @@
+{
+  "id": "doc-31412",
+  "description": "Asks the yearly health-check budget with a v1 and a v2 benefits file. DISTILL-CANARY-337a4bbe",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "800"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31412",
+    "ref_calls": 3,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/benefits-v1.md": "# 福利 v1\n\n每年体检预算 800 元。\n",
+    "hr/benefits-v2.md": "# 福利 v2（2026-01 生效）\n\n每年体检预算 1500 元，取代 v1。\n"
+  },
+  "turns": [
+    {
+      "prompt": "公司每年给多少体检预算？",
+      "expect": {
+        "output_contains": [
+          "1500"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

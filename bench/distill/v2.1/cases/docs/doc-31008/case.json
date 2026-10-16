@@ -1,0 +1,69 @@
+{
+  "id": "doc-31008",
+  "description": "Updates one row of a markdown price table, keeping column count and notes. DISTILL-CANARY-5ac80f26",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b21a-point-31008",
+    "ref_calls": 4,
+    "fixture_bytes": 344,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "pricing.md": "# 价格表（2026 年）\n\n| 套餐 | 月付 | 年付 | 席位上限 |\n| --- | --- | --- | --- |\n| 基础版 | 49 | 490 | 5 |\n| 团队版 | 149 | 1490 | 25 |\n| 企业版 | 399 | 3990 | 200 |\n\n## 说明\n\n- 年付相当于月付 10 个月\n- 团队版席位上限 25，超出每席位 8 元/月\n- 企业版席位上限 200，超出请联系销售\n"
+  },
+  "turns": [
+    {
+      "prompt": "价格表里团队版月付涨到 169，年付按 10 个月算对应改掉，席位上限不变。说明里没提价格，不用动。改完告诉我这一行现在是什么。",
+      "expect": {
+        "output_contains": [
+          "1690"
+        ]
+      }
+    },
+    {
+      "prompt": "企业版也涨：月付 429，年付同样按 10 个月算。表格列数别弄乱。改完把两行都告诉我。",
+      "expect": {
+        "output_contains": [
+          "4290"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pricing.md": {
+        "equals": "# 价格表（2026 年）\n\n| 套餐 | 月付 | 年付 | 席位上限 |\n| --- | --- | --- | --- |\n| 基础版 | 49 | 490 | 5 |\n| 团队版 | 169 | 1690 | 25 |\n| 企业版 | 429 | 4290 | 200 |\n\n## 说明\n\n- 年付相当于月付 10 个月\n- 团队版席位上限 25，超出每席位 8 元/月\n- 企业版席位上限 200，超出请联系销售\n"
+      }
+    }
+  }
+}

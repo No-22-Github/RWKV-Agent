@@ -1,0 +1,68 @@
+{
+  "id": "log-31138",
+  "description": "Visitor counts then format change. DISTILL-CANARY-c169d74d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-revise-38",
+    "ref_calls": 4,
+    "fixture_bytes": 100,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "访客/记录.log": "2026-09-14 张三 来访\n2026-09-14 李四 来访\n2026-09-15 张三 来访\n2026-09-16 王五 来访\n"
+  },
+  "turns": [
+    {
+      "prompt": "统计 访客/记录.log 里每个人来访几次，写到 访客/统计.txt，每行“姓名: 次数”，按姓名排。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "格式我想换一下：冒号改成等号，两边不要空格，写成“张三=2”，顺序改成次数多的在前，一样多按姓名。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "访客/记录.log": {
+        "unchanged": true
+      },
+      "访客/统计.txt": {
+        "equals": "张三=2\n李四=1\n王五=1\n"
+      }
+    }
+  }
+}

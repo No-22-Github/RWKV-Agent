@@ -1,0 +1,76 @@
+{
+  "id": "doc-31371",
+  "description": "Asks 'what is our API rate limit' with no mention of files; only docs/api.md holds it. DISTILL-CANARY-e31e9678",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "120"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31371",
+    "ref_calls": 3,
+    "fixture_bytes": 182,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "限流",
+      "url": "https://blog.example.org/rate-limits",
+      "url_match": "blog.example.org/rate-limits",
+      "title": "常见 API 限流策略",
+      "snippet": "多数公共 API 默认每分钟 100 次请求。",
+      "content": "多数公共 API 默认每分钟 100 次请求。\n",
+      "published_at": "2026-03-02"
+    }
+  ],
+  "files": {
+    "docs/api.md": "# API 使用说明\n\n限流：每个 API key 每分钟最多 600 次请求，超出返回 429。\n",
+    "docs/legacy-api.md": "# 旧版 API\n\n限流：每分钟最多 120 次。该版本已下线。\n",
+    "README.md": "# 接口文档\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们的 API 限流是多少？",
+      "expect": {
+        "output_contains": [
+          "600"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ],
+        "output_excludes": [
+          "100"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

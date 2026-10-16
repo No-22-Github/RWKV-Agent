@@ -1,0 +1,59 @@
+{
+  "id": "tab-31105",
+  "description": "Category totals with two decimals and a total row. DISTILL-CANARY-1ead1066",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-05",
+    "ref_calls": 2,
+    "fixture_bytes": 151,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "账本/9月.csv": "日期,类别,金额\n2026-09-01,餐饮,36.5\n2026-09-02,交通,12\n2026-09-03,餐饮,48.5\n2026-09-05,购物,199\n2026-09-07,交通,8\n2026-09-09,餐饮,25\n"
+  },
+  "turns": [
+    {
+      "prompt": "根据 账本/9月.csv 做一份按类别的合计，写到 账本/9月汇总.csv。表头“类别,合计”，类别按拼音/字典序排好，金额统一保留两位小数，最后加一行“总计”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "账本/9月.csv": {
+        "unchanged": true
+      },
+      "账本/9月汇总.csv": {
+        "equals": "类别,合计\n交通,20.00\n购物,199.00\n餐饮,110.00\n总计,329.00\n"
+      }
+    }
+  }
+}

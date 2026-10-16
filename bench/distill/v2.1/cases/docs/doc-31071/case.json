@@ -1,0 +1,71 @@
+{
+  "id": "doc-31071",
+  "description": "Ticks checklist boxes and appends a new open item. DISTILL-CANARY-ff1ef0d9",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31071",
+    "ref_calls": 5,
+    "fixture_bytes": 126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "plan/checklist.md": "# 上线检查清单\n\n- [x] 数据库备份\n- [x] 灰度配置\n- [ ] 通知客服\n- [ ] 关闭旧入口\n- [ ] 更新状态页\n"
+  },
+  "turns": [
+    {
+      "prompt": "清单里“通知客服”做完了，帮我打上勾，别的不动。",
+      "expect": {
+        "output_contains": [
+          "通知客服"
+        ]
+      }
+    },
+    {
+      "prompt": "“更新状态页”也做完了，打勾；然后在清单最后加一项未完成的“复盘会议”。改完读回来告诉我还剩几项没完成。",
+      "expect": {
+        "output_contains": [
+          "复盘会议"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "plan/checklist.md": {
+        "equals": "# 上线检查清单\n\n- [x] 数据库备份\n- [x] 灰度配置\n- [x] 通知客服\n- [ ] 关闭旧入口\n- [x] 更新状态页\n- [ ] 复盘会议\n"
+      }
+    }
+  }
+}

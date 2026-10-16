@@ -1,0 +1,60 @@
+{
+  "id": "web-31422",
+  "description": "Asks a vendor's current seat price; only the web fixture has it. DISTILL-CANARY-7fde4af4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "b21d-ext-31422",
+    "ref_calls": 3,
+    "fixture_bytes": 15,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "quillbase",
+      "url": "https://docs.quillbase.example/pricing",
+      "url_match": "docs.quillbase.example/pricing",
+      "title": "Quillbase pricing",
+      "snippet": "Quillbase Team plan costs 18 USD per seat per month as of September 2026.",
+      "content": "Quillbase Team plan costs 18 USD per seat per month as of September 2026.\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "README.md": "# 采购笔记\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillbase 团队版每个席位每月多少美元？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "18 USD"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "list_files"
+    ]
+  }
+}

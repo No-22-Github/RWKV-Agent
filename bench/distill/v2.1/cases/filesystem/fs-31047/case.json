@@ -1,0 +1,71 @@
+{
+  "id": "fs-31047",
+  "description": "Fixes a year in the source file and leaves the build output. DISTILL-CANARY-35eaca11",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21a-exclude-31047",
+    "ref_calls": 5,
+    "fixture_bytes": 162,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/NOTES.md": "构建产物在 dist/，由 build 脚本生成，不要手改；源文件在 src/。\n",
+    "site/src/header.html": "<h1>Pine Studio</h1>\n<p>Since 2019</p>\n",
+    "site/dist/header.html": "<h1>Pine Studio</h1><p>Since 2019</p>\n"
+  },
+  "turns": [
+    {
+      "prompt": "网站页头里的成立年份写错了，应该是 2018 不是 2019。请改一下，先看看 site/NOTES.md。告诉我你改了哪个文件，以及为什么没改另一个。",
+      "expect": {
+        "output_contains": [
+          "2018",
+          "dist"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "site/NOTES.md": {
+        "unchanged": true
+      },
+      "site/src/header.html": {
+        "equals": "<h1>Pine Studio</h1>\n<p>Since 2018</p>\n"
+      },
+      "site/dist/header.html": {
+        "unchanged": true
+      }
+    }
+  }
+}

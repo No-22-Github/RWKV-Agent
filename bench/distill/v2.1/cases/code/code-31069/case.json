@@ -1,0 +1,71 @@
+{
+  "id": "code-31069",
+  "description": "Edits a shell script twice keeping quoting and loop syntax. DISTILL-CANARY-c31fa7f2",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31069",
+    "ref_calls": 5,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "tools/clean.sh": "#!/bin/sh\nset -e\nTARGET=/var/cache/app\nfor f in $TARGET/*.tmp; do\n  rm -f \"$f\"\ndone\necho cleaned\n"
+  },
+  "turns": [
+    {
+      "prompt": "Update tools/clean.sh so the last line prints the target dir too: echo \"cleaned $TARGET\" (double quotes, variable kept literal in the file).",
+      "expect": {
+        "output_contains": [
+          "cleaned $TARGET"
+        ]
+      }
+    },
+    {
+      "prompt": "Also make the loop remove *.cache files instead of *.tmp. Re-read the script afterwards to check the loop is intact, and show me the final script.",
+      "expect": {
+        "output_contains": [
+          "*.cache",
+          "done"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "tools/clean.sh": {
+        "equals": "#!/bin/sh\nset -e\nTARGET=/var/cache/app\nfor f in $TARGET/*.cache; do\n  rm -f \"$f\"\ndone\necho \"cleaned $TARGET\"\n"
+      }
+    }
+  }
+}

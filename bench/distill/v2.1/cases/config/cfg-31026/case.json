@@ -1,0 +1,59 @@
+{
+  "id": "cfg-31026",
+  "description": "Appends one dependency line. DISTILL-CANARY-98e2b3cc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-append-31026",
+    "ref_calls": 3,
+    "fixture_bytes": 43,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "requirements.txt": "flask==3.0.2\ngunicorn==21.2.0\nredis==5.0.1\n"
+  },
+  "turns": [
+    {
+      "prompt": "requirements.txt 里加上 sentry-sdk==1.40.0，其他依赖保持不变。加完告诉我现在一共几个依赖。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "requirements.txt": {
+        "contains": [
+          "flask==3.0.2\ngunicorn==21.2.0\nredis==5.0.1\n",
+          "sentry-sdk==1.40.0"
+        ]
+      }
+    }
+  }
+}

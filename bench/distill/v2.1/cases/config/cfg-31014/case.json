@@ -1,0 +1,65 @@
+{
+  "id": "cfg-31014",
+  "description": "Two values in one toml table with same-valued neighbours, two turns. DISTILL-CANARY-12b9a110",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b21a-point-31014",
+    "ref_calls": 4,
+    "fixture_bytes": 219,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/limits.toml": "[global]\nmax_connections = 500\nidle_timeout = 60\n\n[tenant.free]\nmax_connections = 20\nidle_timeout = 60\n\n[tenant.pro]\nmax_connections = 100\nidle_timeout = 60\n\n[tenant.enterprise]\nmax_connections = 500\nidle_timeout = 120\n"
+  },
+  "turns": [
+    {
+      "prompt": "app/limits.toml: Pro tenants now get max_connections 200. Leave every other tenant alone.",
+      "expect": {}
+    },
+    {
+      "prompt": "Also set the Pro tenant's idle_timeout to 90. Then tell me what the whole [tenant.pro] table looks like now.",
+      "expect": {
+        "output_contains": [
+          "idle_timeout = 90",
+          "max_connections = 200"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "app/limits.toml": {
+        "equals": "[global]\nmax_connections = 500\nidle_timeout = 60\n\n[tenant.free]\nmax_connections = 20\nidle_timeout = 60\n\n[tenant.pro]\nmax_connections = 200\nidle_timeout = 90\n\n[tenant.enterprise]\nmax_connections = 500\nidle_timeout = 120\n"
+      }
+    }
+  }
+}

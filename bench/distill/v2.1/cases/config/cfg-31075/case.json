@@ -1,0 +1,73 @@
+{
+  "id": "cfg-31075",
+  "description": "Deletes the last JSON array element (dropping the trailing comma) then edits another. DISTILL-CANARY-c9943012",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31075",
+    "ref_calls": 5,
+    "fixture_bytes": 142,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "settings/rules.json": "{\n  \"rules\": [\n    {\"name\": \"spam\", \"action\": \"drop\"},\n    {\"name\": \"bulk\", \"action\": \"delay\"},\n    {\"name\": \"phish\", \"action\": \"drop\"}\n  ]\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "settings/rules.json 把最后一条 phish 规则删掉。删掉后前一条后面不能留逗号，JSON 要保持合法。",
+      "expect": {
+        "output_contains": [
+          "phish"
+        ]
+      }
+    },
+    {
+      "prompt": "再把 bulk 的 action 从 delay 改成 drop。完事后读回来检查 JSON 合法，告诉我现在剩几条规则、各自的动作。",
+      "expect": {
+        "output_contains": [
+          "spam",
+          "bulk",
+          "drop"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "settings/rules.json": {
+        "equals": "{\n  \"rules\": [\n    {\"name\": \"spam\", \"action\": \"drop\"},\n    {\"name\": \"bulk\", \"action\": \"drop\"}\n  ]\n}\n"
+      }
+    }
+  }
+}

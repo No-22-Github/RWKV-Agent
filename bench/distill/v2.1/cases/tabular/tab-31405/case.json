@@ -1,0 +1,62 @@
+{
+  "id": "tab-31405",
+  "description": "Asks the east region's Q3 target; the actuals file holds a near-miss figure. DISTILL-CANARY-062aedc9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "1500"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31405",
+    "ref_calls": 3,
+    "fixture_bytes": 96,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/targets.csv": "region,q3_target\nnorth,1200\nsouth,950\neast,1430\n",
+    "sales/actuals.csv": "region,q3_actual\nnorth,1010\nsouth,990\neast,1500\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the Q3 target for the east region?",
+      "expect": {
+        "output_contains": [
+          "1430"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

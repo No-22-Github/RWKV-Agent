@@ -1,0 +1,59 @@
+{
+  "id": "tab-31111",
+  "description": "Attendance anomalies per person. DISTILL-CANARY-a691a1ee",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-11",
+    "ref_calls": 2,
+    "fixture_bytes": 161,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "考勤/9月.csv": "姓名,日期,状态\n张三,09-01,迟到\n李四,09-01,正常\n张三,09-02,正常\n王五,09-02,缺勤\n张三,09-03,迟到\n李四,09-03,迟到\n王五,09-04,缺勤\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 考勤/9月.csv 里有迟到或缺勤的人列出来，写到 考勤/异常名单.csv：表头“姓名,迟到,缺勤”，次数合计多的排前面，合计一样按姓名排。状态是“正常”的不用管。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "考勤/9月.csv": {
+        "unchanged": true
+      },
+      "考勤/异常名单.csv": {
+        "equals": "姓名,迟到,缺勤\n张三,2,0\n王五,0,2\n李四,1,0\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "code-31006",
+  "description": "Changes the reports database timeout in a settings module with three TIMEOUT: 20 entries. DISTILL-CANARY-3f83125d",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31006",
+    "ref_calls": 4,
+    "fixture_bytes": 284,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/settings.py": "# runtime settings\nDEBUG = False\nALLOWED_HOSTS = ['localhost']\n\nDATABASES = {\n    'default': {\n        'NAME': 'orders',\n        'TIMEOUT': 20,\n    },\n    'reports': {\n        'NAME': 'reports',\n        'TIMEOUT': 20,\n    },\n}\n\nHTTP_RETRY = {\n    'TIMEOUT': 20,\n    'MAX_TRIES': 3,\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "The reports database in src/settings.py keeps timing out on big exports. Raise its TIMEOUT to 120, and leave the orders database and HTTP_RETRY as they are. Which lines did you change?",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/settings.py": {
+        "equals": "# runtime settings\nDEBUG = False\nALLOWED_HOSTS = ['localhost']\n\nDATABASES = {\n    'default': {\n        'NAME': 'orders',\n        'TIMEOUT': 20,\n    },\n    'reports': {\n        'NAME': 'reports',\n        'TIMEOUT': 120,\n    },\n}\n\nHTTP_RETRY = {\n    'TIMEOUT': 20,\n    'MAX_TRIES': 3,\n}\n"
+      }
+    }
+  }
+}

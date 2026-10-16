@@ -1,0 +1,64 @@
+{
+  "id": "cfg-32306",
+  "description": "Read a setting whose key is capitalised differently from the user's spelling. DISTILL-CANARY-37544b4e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21h-fmt-32306",
+    "ref_calls": 5,
+    "fixture_bytes": 2087,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "relay.conf": "# service tuning\nHaven_Jade_Path = 628\nKelp_Ember_Size = 602\nIris_Amber_Level = 422\nEmber_Onyx_Mode = 248\nIris_Delta_Name = 584\nOnyx_Kelp_Name = 692\nJade_Maple_Name = 701\nGrove_Kelp_Name = 752\nGrove_Kelp_Path = 877\nDelta_Birch_Size = 437\nBirch_Birch_Mode = 154\nPearl_Maple_Level = 442\nLumen_Haven_Path = 216\nJade_Delta_Size = 790\nKelp_Grove_Path = 736\nOnyx_Lumen_Mode = 255\nGrove_Nova_Level = 759\nIris_Kelp_Limit = 622\nNova_Lumen_Level = 508\nKelp_Haven_Name = 436\nAmber_Grove_Name = 867\nPearl_Ember_Level = 52\nPearl_Jade_Path = 632\nIris_Kelp_Size = 711\nJade_Iris_Limit = 285\nOnyx_Delta_Mode = 234\nDelta_Amber_Size = 128\nOnyx_Lumen_Limit = 291\nLumen_Grove_Limit = 404\nMaple_Flint_Limit = 631\nOnyx_Flint_Limit = 193\nAmber_Kelp_Limit = 690\nEmber_Birch_Limit = 310\nCedar_Nova_Mode = 422\nOnyx_Flint_Mode = 207\nDelta_Pearl_Mode = 428\nHaven_Amber_Name = 190\nJade_Maple_Level = 318\nMaple_Amber_Path = 770\nAmber_Cedar_Name = 183\nTimeout_Seconds = 135\nIris_Delta_Path = 748\nBirch_Pearl_Limit = 539\nLumen_Haven_Limit = 694\nPearl_Grove_Size = 773\nLumen_Iris_Mode = 896\nPearl_Cedar_Path = 348\nBirch_Kelp_Size = 418\nBirch_Amber_Level = 209\nHaven_Nova_Limit = 105\nLumen_Flint_Size = 16\nDelta_Pearl_Name = 38\nMaple_Cedar_Limit = 322\nLumen_Amber_Name = 103\nNova_Birch_Path = 65\nHaven_Haven_Level = 524\nEmber_Flint_Path = 677\nKelp_Delta_Size = 102\nFlint_Nova_Limit = 674\nIris_Onyx_Name = 239\nDelta_Grove_Name = 212\nOnyx_Birch_Name = 99\nLumen_Maple_Name = 720\nHaven_Cedar_Size = 795\nFlint_Amber_Name = 516\nCedar_Birch_Size = 7\nOnyx_Kelp_Level = 818\nOnyx_Nova_Size = 413\nJade_Kelp_Name = 635\nEmber_Nova_Limit = 33\nFlint_Cedar_Path = 725\nRetry_Limit = 15\nKelp_Nova_Level = 559\nHaven_Nova_Name = 682\nMaple_Amber_Mode = 528\nAmber_Amber_Name = 64\nEmber_Amber_Name = 719\nPearl_Cedar_Size = 841\nEmber_Haven_Name = 303\nKelp_Haven_Level = 188\nGrove_Cedar_Mode = 772\nIris_Iris_Level = 587\nBirch_Nova_Limit = 339\nMaple_Kelp_Level = 866\nPearl_Grove_Name = 162\nFlint_Ember_Size = 201\nIris_Lumen_Mode = 239\nIris_Haven_Size = 553\nAmber_Delta_Size = 618\nNova_Cedar_Size = 539\nCedar_Iris_Level = 133\nHaven_Lumen_Size = 614\n"
+  },
+  "turns": [
+    {
+      "prompt": "relay.conf 里 timeout_seconds 配的是多少？",
+      "expect": {
+        "output_contains": [
+          "135"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "那 retry_limit 呢？",
+      "expect": {
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator",
+      "data_query"
+    ]
+  }
+}

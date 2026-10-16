@@ -1,0 +1,65 @@
+{
+  "id": "tab-31118",
+  "description": "Merge two classes into one ranking. DISTILL-CANARY-e8e10aaf",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-18",
+    "ref_calls": 3,
+    "fixture_bytes": 126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "成绩/一班.csv": "学号,姓名,分数\n101,赵一,88\n102,钱二,92\n103,孙三,75\n",
+    "成绩/二班.csv": "学号,姓名,分数\n201,周四,95\n202,吴五,67\n203,郑六,88\n"
+  },
+  "turns": [
+    {
+      "prompt": "把一班二班的成绩合起来排个总榜，写到 成绩/总榜.csv：表头“名次,班级,姓名,分数”，分数高的在前，同分按姓名排，名次从 1 连续编号（同分也不并列）。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "成绩/一班.csv": {
+        "unchanged": true
+      },
+      "成绩/二班.csv": {
+        "unchanged": true
+      },
+      "成绩/总榜.csv": {
+        "equals": "名次,班级,姓名,分数\n1,二班,周四,95\n2,一班,钱二,92\n3,一班,赵一,88\n4,二班,郑六,88\n5,一班,孙三,75\n6,二班,吴五,67\n"
+      }
+    }
+  }
+}

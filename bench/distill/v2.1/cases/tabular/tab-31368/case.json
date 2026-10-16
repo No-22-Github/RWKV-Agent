@@ -1,0 +1,53 @@
+{
+  "id": "tab-31368",
+  "description": "Asks to total expenses with one real file and a stale .bak copy. DISTILL-CANARY-0bfa00d5",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "the value of the stray file"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-solo-31368",
+    "ref_calls": 3,
+    "fixture_bytes": 69,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "finance/expenses-q3.csv": "item,cost\nlaptops,2100\ntravel,3300\ntraining,1250\n",
+    "finance/expenses-q3.csv.bak": "item,cost\nlaptops,0\n"
+  },
+  "turns": [
+    {
+      "prompt": "Total the expenses.",
+      "expect": {
+        "output_contains": [
+          "6650"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

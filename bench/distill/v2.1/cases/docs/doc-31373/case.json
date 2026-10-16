@@ -1,0 +1,62 @@
+{
+  "id": "doc-31373",
+  "description": "Asks for the escalation response limit without naming a document. DISTILL-CANARY-9e7ef7e4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "30"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31373",
+    "ref_calls": 3,
+    "fixture_bytes": 196,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/oncall.md": "# 值班手册\n\n夜间告警先打电话给值班人，5 分钟内无人响应再升级给 SRE 主管。\n升级响应时限：15 分钟。\n",
+    "ops/runbook-db.md": "# 数据库手册\n\n主库故障切换时限 30 分钟。\n"
+  },
+  "turns": [
+    {
+      "prompt": "告警升级后多少分钟内必须响应？",
+      "expect": {
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

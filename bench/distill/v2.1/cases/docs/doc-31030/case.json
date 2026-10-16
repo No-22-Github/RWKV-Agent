@@ -1,0 +1,60 @@
+{
+  "id": "doc-31030",
+  "description": "Appends the fourth numbered item. DISTILL-CANARY-8a16a124",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-append-31030",
+    "ref_calls": 3,
+    "fixture_bytes": 61,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/ideas.txt": "1. 做一个离线模式\n2. 支持夜间主题\n3. 导出 PDF\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 notes/ideas.txt 的想法清单后面接着写第 4 条“接入日历提醒”，编号接着前面排。前三条留着。写好告诉我清单现在有几条。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "notes/ideas.txt": {
+        "contains": [
+          "1. 做一个离线模式\n2. 支持夜间主题\n3. 导出 PDF\n",
+          "4. 接入日历提醒"
+        ]
+      }
+    }
+  }
+}

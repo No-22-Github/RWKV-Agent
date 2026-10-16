@@ -1,0 +1,68 @@
+{
+  "id": "doc-31034",
+  "description": "Updates an API base URL in config, code and docs. DISTILL-CANARY-1ab497d3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-multi-31034",
+    "ref_calls": 6,
+    "fixture_bytes": 254,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/config.yaml": "api_base: https://api.v1.nimbus.example/v1\ntimeout: 10\n",
+    "app/client.js": "const BASE = 'https://api.v1.nimbus.example/v1';\nexport const get = (p) => fetch(BASE + p);\n",
+    "docs/api.md": "# API\n\n基础地址：https://api.v1.nimbus.example/v1\n示例：GET https://api.v1.nimbus.example/v1/users\n"
+  },
+  "turns": [
+    {
+      "prompt": "The API moved from https://api.v1.nimbus.example/v1 to https://api.v2.nimbus.example/v2. Update every place that mentions the old address in config.yaml, client.js and docs/api.md, then check nothing still says v1. Tell me how many places you changed.",
+      "expect": {
+        "output_contains": [
+          "v2"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "app/config.yaml": {
+        "equals": "api_base: https://api.v2.nimbus.example/v2\ntimeout: 10\n"
+      },
+      "app/client.js": {
+        "equals": "const BASE = 'https://api.v2.nimbus.example/v2';\nexport const get = (p) => fetch(BASE + p);\n"
+      },
+      "docs/api.md": {
+        "equals": "# API\n\n基础地址：https://api.v2.nimbus.example/v2\n示例：GET https://api.v2.nimbus.example/v2/users\n"
+      }
+    }
+  }
+}

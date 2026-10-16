@@ -1,0 +1,78 @@
+{
+  "id": "cfg-31033",
+  "description": "Changes a port across four files and leaves an archive file. DISTILL-CANARY-0d1bc771",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-multi-31033",
+    "ref_calls": 6,
+    "fixture_bytes": 284,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/prod.env": "SERVICE_PORT=8080\nHEALTH_URL=http://localhost:8080/health\n",
+    "ops/k8s-svc.yaml": "kind: Service\nspec:\n  ports:\n  - port: 8080\n    targetPort: 8080\n",
+    "ops/readme.txt": "服务默认端口 8080，健康检查走 /health。\n监控脚本在 ops/probe.sh。\n",
+    "ops/probe.sh": "#!/bin/sh\ncurl -fs http://localhost:8080/health || exit 1\n",
+    "ops/archive-old.env": "SERVICE_PORT=8080\n"
+  },
+  "turns": [
+    {
+      "prompt": "服务端口从 8080 改成 9090，ops 目录下 prod.env、k8s-svc.yaml、readme.txt、probe.sh 里用到的都要一起改。archive-old.env 是旧档，别碰。改完告诉我每个文件改了几处。",
+      "expect": {
+        "output_contains": [
+          "9090",
+          "archive-old.env"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ops/prod.env": {
+        "equals": "SERVICE_PORT=9090\nHEALTH_URL=http://localhost:9090/health\n"
+      },
+      "ops/k8s-svc.yaml": {
+        "equals": "kind: Service\nspec:\n  ports:\n  - port: 9090\n    targetPort: 9090\n"
+      },
+      "ops/readme.txt": {
+        "equals": "服务默认端口 9090，健康检查走 /health。\n监控脚本在 ops/probe.sh。\n"
+      },
+      "ops/probe.sh": {
+        "equals": "#!/bin/sh\ncurl -fs http://localhost:9090/health || exit 1\n"
+      },
+      "ops/archive-old.env": {
+        "unchanged": true
+      }
+    }
+  }
+}

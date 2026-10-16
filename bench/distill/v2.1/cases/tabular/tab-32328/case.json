@@ -1,0 +1,58 @@
+{
+  "id": "tab-32328",
+  "description": "Sum units where the top-level report is cleared and the data live in an exports folder. DISTILL-CANARY-edcc872e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21h-file-32328",
+    "ref_calls": 5,
+    "fixture_bytes": 1941,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "report.csv": "week,region,units\n",
+    "exports/2026-09/report_wk2.csv": "week,region,units\nW01,east,2\nW02,north,3\nW03,south,2\nW04,south,6\nW05,south,5\nW06,north,3\nW07,east,3\nW08,north,2\nW09,south,3\nW10,east,6\nW11,north,1\nW12,east,4\nW13,north,5\nW14,east,1\nW15,south,6\nW16,south,6\nW17,north,2\nW18,south,1\nW19,south,3\nW20,north,3\nW21,east,1\nW22,south,1\nW23,east,2\nW24,north,4\nW25,north,2\nW26,north,6\nW27,east,6\nW28,east,6\nW29,south,6\nW30,south,3\nW31,north,3\nW32,north,2\nW33,east,5\nW34,north,4\nW35,south,6\nW36,south,1\nW37,north,1\nW38,east,1\nW39,north,1\nW40,east,6\nW41,south,5\nW42,east,2\nW43,north,3\nW44,north,3\nW45,south,6\nW46,south,5\nW47,south,2\nW48,north,4\nW49,east,2\nW50,east,2\nW51,north,1\nW52,east,1\nW53,east,5\nW54,north,4\nW55,south,6\nW56,south,5\nW57,east,4\nW58,north,1\nW59,north,6\nW60,east,1\nW61,east,5\nW62,north,6\nW63,north,2\nW64,south,1\nW65,south,5\nW66,south,6\nW67,south,1\nW68,north,6\nW69,east,5\nW70,east,3\nW71,east,6\nW72,south,2\nW73,east,5\nW74,south,1\nW75,east,2\nW76,east,3\nW77,north,2\nW78,east,3\nW79,north,3\nW80,south,2\nW81,north,5\nW82,east,4\nW83,south,4\nW84,south,5\nW85,east,5\nW86,south,2\nW87,south,6\nW88,east,3\nW89,north,4\nW90,north,3\nW91,south,6\nW92,north,2\nW93,south,4\nW94,north,6\nW95,north,4\nW96,south,2\nW97,north,2\nW98,south,6\nW99,north,2\nW100,south,4\nW101,north,2\nW102,south,6\nW103,south,1\nW104,south,5\nW105,south,3\nW106,south,1\nW107,east,1\nW108,north,1\nW109,north,4\nW110,north,6\nW111,south,2\nW112,east,6\nW113,north,3\nW114,south,3\nW115,south,2\nW116,south,4\nW117,south,6\nW118,east,6\nW119,east,6\nW120,east,4\nW121,south,4\nW122,east,2\nW123,north,2\nW124,east,4\nW125,north,6\nW126,north,5\nW127,east,1\nW128,north,1\nW129,east,6\nW130,south,5\nW131,north,1\nW132,east,5\nW133,south,1\nW134,south,5\nW135,north,2\nW136,east,1\nW137,south,1\nW138,south,3\nW139,north,4\nW140,east,3\nW141,south,2\nW142,east,2\nW143,north,4\nW144,north,4\nW145,east,5\nW146,north,3\nW147,north,3\nW148,south,2\nW149,north,2\nW150,east,3\n",
+    "exports/NOTE.txt": "report.csv in the top folder is cleared after every upload. Look in exports/<month>/ for the data.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total of units in the report?",
+      "expect": {
+        "output_contains": [
+          "514"
+        ],
+        "output_excludes": [
+          "is 0",
+          "total of 0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

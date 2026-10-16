@@ -1,0 +1,54 @@
+{
+  "id": "tab-32321",
+  "description": "Count distinct values of a column when the real header is on line 4. DISTILL-CANARY-d1bc731c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21h-col-32321",
+    "ref_calls": 4,
+    "fixture_bytes": 4337,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "regional_scores.csv": "# export 2026-09-14 by finance-bot\n# do not edit by hand\n# columns follow\nrid,region,score\nR001,north,84\nR002,south,38\nR003,east,20\nR004,west,73\nR005,coast,68\nR006,inland,43\nR007,delta,42\nR008,ridge,30\nR009,plains,52\nR010,harbor,70\nR011,valley,59\nR012,north,45\nR013,south,26\nR014,east,46\nR015,west,61\nR016,coast,23\nR017,inland,35\nR018,delta,60\nR019,ridge,58\nR020,plains,53\nR021,harbor,63\nR022,valley,80\nR023,north,33\nR024,south,60\nR025,east,54\nR026,west,24\nR027,coast,41\nR028,inland,22\nR029,delta,78\nR030,ridge,21\nR031,plains,39\nR032,harbor,61\nR033,valley,78\nR034,north,71\nR035,south,88\nR036,east,69\nR037,west,63\nR038,coast,23\nR039,inland,74\nR040,delta,69\nR041,delta,79\nR042,inland,66\nR043,delta,80\nR044,coast,66\nR045,north,21\nR046,east,71\nR047,east,70\nR048,inland,57\nR049,east,71\nR050,coast,86\nR051,delta,45\nR052,valley,40\nR053,coast,79\nR054,valley,61\nR055,north,58\nR056,plains,30\nR057,east,48\nR058,west,79\nR059,plains,40\nR060,coast,36\nR061,plains,55\nR062,ridge,35\nR063,east,46\nR064,south,81\nR065,delta,71\nR066,delta,82\nR067,plains,25\nR068,south,83\nR069,valley,89\nR070,west,83\nR071,harbor,37\nR072,ridge,75\nR073,plains,56\nR074,valley,41\nR075,inland,87\nR076,valley,80\nR077,north,56\nR078,ridge,37\nR079,plains,82\nR080,coast,71\nR081,valley,40\nR082,delta,74\nR083,valley,38\nR084,north,68\nR085,harbor,50\nR086,coast,34\nR087,valley,74\nR088,west,34\nR089,south,43\nR090,valley,71\nR091,delta,30\nR092,valley,26\nR093,harbor,39\nR094,west,73\nR095,plains,72\nR096,west,72\nR097,inland,63\nR098,west,62\nR099,east,32\nR100,harbor,71\nR101,north,51\nR102,valley,82\nR103,inland,21\nR104,coast,59\nR105,west,77\nR106,south,48\nR107,coast,68\nR108,west,48\nR109,ridge,40\nR110,harbor,72\nR111,east,37\nR112,plains,82\nR113,valley,39\nR114,east,58\nR115,west,83\nR116,coast,39\nR117,inland,47\nR118,coast,73\nR119,coast,63\nR120,delta,44\nR121,north,64\nR122,east,82\nR123,south,79\nR124,delta,55\nR125,south,43\nR126,ridge,57\nR127,south,77\nR128,south,90\nR129,west,67\nR130,east,44\nR131,ridge,68\nR132,coast,37\nR133,east,34\nR134,plains,65\nR135,east,49\nR136,coast,44\nR137,plains,73\nR138,east,58\nR139,east,49\nR140,coast,76\nR141,coast,73\nR142,valley,65\nR143,north,50\nR144,inland,79\nR145,delta,37\nR146,south,30\nR147,harbor,66\nR148,inland,84\nR149,north,80\nR150,inland,66\nR151,east,21\nR152,harbor,26\nR153,plains,22\nR154,north,60\nR155,plains,50\nR156,inland,61\nR157,valley,68\nR158,ridge,33\nR159,south,38\nR160,east,32\nR161,north,46\nR162,delta,82\nR163,plains,62\nR164,west,67\nR165,west,66\nR166,coast,20\nR167,north,85\nR168,plains,46\nR169,ridge,44\nR170,plains,85\nR171,valley,28\nR172,inland,82\nR173,delta,55\nR174,harbor,65\nR175,east,30\nR176,north,47\nR177,delta,70\nR178,east,70\nR179,harbor,25\nR180,delta,84\nR181,delta,74\nR182,harbor,61\nR183,delta,81\nR184,valley,28\nR185,west,33\nR186,delta,31\nR187,south,40\nR188,west,90\nR189,delta,34\nR190,west,67\nR191,plains,77\nR192,plains,88\nR193,plains,73\nR194,east,21\nR195,north,57\nR196,inland,52\nR197,plains,69\nR198,delta,50\nR199,west,41\nR200,ridge,77\nR201,south,48\nR202,plains,22\nR203,south,26\nR204,delta,24\nR205,valley,47\nR206,coast,84\nR207,south,86\nR208,north,88\nR209,north,60\nR210,harbor,28\nR211,delta,51\nR212,coast,62\nR213,plains,30\nR214,south,43\nR215,plains,60\nR216,south,85\nR217,south,55\nR218,plains,70\nR219,south,71\nR220,coast,69\nR221,delta,20\nR222,valley,86\nR223,coast,22\nR224,delta,79\nR225,coast,56\nR226,harbor,90\nR227,plains,43\nR228,ridge,52\nR229,south,31\nR230,inland,49\nR231,west,61\nR232,plains,74\nR233,south,35\nR234,harbor,88\nR235,ridge,25\nR236,west,79\nR237,harbor,31\nR238,east,69\nR239,east,80\nR240,coast,57\nR241,south,38\nR242,valley,84\nR243,plains,66\nR244,inland,75\nR245,ridge,66\nR246,harbor,41\nR247,south,52\nR248,delta,74\nR249,ridge,53\nR250,west,25\nR251,inland,31\nR252,plains,89\nR253,east,66\nR254,ridge,22\nR255,coast,77\nR256,west,59\nR257,harbor,21\nR258,south,70\nR259,inland,32\nR260,harbor,82\nR261,south,24\nR262,east,90\nR263,south,68\nR264,coast,79\nR265,plains,21\nR266,east,64\nR267,west,28\nR268,south,32\nR269,east,48\nR270,south,27\nR271,south,47\nR272,north,29\nR273,delta,58\nR274,plains,23\nR275,plains,23\nR276,harbor,44\nR277,ridge,36\nR278,inland,41\nR279,north,38\nR280,harbor,90\nR281,harbor,61\nR282,harbor,83\nR283,north,23\nR284,west,76\nR285,coast,72\nR286,coast,20\nR287,south,87\nR288,coast,62\nR289,south,67\nR290,harbor,50\nR291,harbor,25\nR292,west,50\nR293,west,51\nR294,south,85\nR295,west,59\nR296,plains,30\nR297,valley,82\nR298,north,62\nR299,south,42\nR300,ridge,25\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many different regions appear in regional_scores.csv?",
+      "expect": {
+        "output_contains": [
+          "11"
+        ],
+        "output_excludes": [
+          "is 0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

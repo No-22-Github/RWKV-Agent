@@ -1,0 +1,79 @@
+{
+  "id": "hyb-31165",
+  "description": "Find peak month, compute bill, append line, report. DISTILL-CANARY-580cb6be",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-compound-65",
+    "ref_calls": 4,
+    "fixture_bytes": 61,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "账单/用电.csv": "月份,度数\n7月,310\n8月,420\n9月,380\n",
+    "账单/备忘.txt": "电价: 0.6 元/度\n"
+  },
+  "turns": [
+    {
+      "prompt": "找出用电最多的月份，按备忘里的电价算出那个月电费，在 账单/备忘.txt 末尾补一行“8月最贵: 252 元”这种格式（月份和金额换成你算出来的），然后告诉我是哪个月、多少钱。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ],
+        "output_contains": [
+          "8月"
+        ],
+        "output_contains_any": [
+          "252 元",
+          "252元",
+          "252 块",
+          "252块",
+          "252 yuan",
+          "¥252",
+          "￥252",
+          "共 252",
+          "是 252",
+          "为 252",
+          "：252",
+          ": 252",
+          "252 RMB",
+          "252 CNY"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "账单/用电.csv": {
+        "unchanged": true
+      },
+      "账单/备忘.txt": {
+        "equals": "电价: 0.6 元/度\n8月最贵: 252 元\n"
+      }
+    }
+  }
+}

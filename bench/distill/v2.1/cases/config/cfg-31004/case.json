@@ -1,0 +1,57 @@
+{
+  "id": "cfg-31004",
+  "description": "Edits a nested replica pool size among three same-valued pool_size keys. DISTILL-CANARY-4301f221",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31004",
+    "ref_calls": 4,
+    "fixture_bytes": 205,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/app.yaml": "app:\n  name: ledger\n  mode: production\ndatabase:\n  pool_size: 10\n  replica:\n    pool_size: 10\n    lag_alert_seconds: 30\ncache:\n  pool_size: 10\n  ttl_seconds: 300\nlimits:\n  rate_per_minute: 120\n  burst: 20\n"
+  },
+  "turns": [
+    {
+      "prompt": "config/app.yaml 里数据库只读副本（replica）的连接池大小改成 25。主库和缓存的 pool_size 不要变。完成后说明改了哪一行，行号是多少。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/app.yaml": {
+        "equals": "app:\n  name: ledger\n  mode: production\ndatabase:\n  pool_size: 10\n  replica:\n    pool_size: 25\n    lag_alert_seconds: 30\ncache:\n  pool_size: 10\n  ttl_seconds: 300\nlimits:\n  rate_per_minute: 120\n  burst: 20\n"
+      }
+    }
+  }
+}

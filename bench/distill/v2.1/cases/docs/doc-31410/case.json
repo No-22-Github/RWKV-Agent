@@ -1,0 +1,61 @@
+{
+  "id": "doc-31410",
+  "description": "Asks the company's office address now; a 2024 note and a 2026 relocation note disagree. DISTILL-CANARY-cb64a8c1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "中关村南大街 18 号"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31410",
+    "ref_calls": 3,
+    "fixture_bytes": 210,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "office/address-2024.md": "# 办公地址（2024）\n\n北京市海淀区中关村南大街 18 号 6 层。\n",
+    "office/address-2026.md": "# 办公地址（2026-07 起）\n\n自 2026 年 7 月起搬迁至 上海市浦东新区张江路 88 号。2024 年的地址作废。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们公司现在的办公地址在哪？",
+      "expect": {
+        "output_contains": [
+          "上海市浦东新区张江路 88 号"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

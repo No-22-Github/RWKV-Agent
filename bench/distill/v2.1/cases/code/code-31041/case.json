@@ -1,0 +1,73 @@
+{
+  "id": "code-31041",
+  "description": "Bumps a version in a VERSION file and three places in pages. DISTILL-CANARY-6ac74926",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-multi-31041",
+    "ref_calls": 6,
+    "fixture_bytes": 136,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "web/index.html": "<title>Maple Notes v1.9</title>\n<footer>Maple Notes 1.9</footer>\n",
+    "web/about.html": "<p>当前版本：1.9</p>\n",
+    "VERSION": "1.9.0\n",
+    "web/archive.html": "<p>历史：1.8 已停止维护。</p>\n"
+  },
+  "turns": [
+    {
+      "prompt": "发 2.0 了。VERSION 文件改成 2.0.0，网页 index.html 的标题和页脚、about.html 的当前版本都改成 2.0。archive.html 是历史页，不改。改完告诉我改动清单。",
+      "expect": {
+        "output_contains": [
+          "2.0.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "web/index.html": {
+        "equals": "<title>Maple Notes v2.0</title>\n<footer>Maple Notes 2.0</footer>\n"
+      },
+      "web/about.html": {
+        "equals": "<p>当前版本：2.0</p>\n"
+      },
+      "VERSION": {
+        "equals": "2.0.0\n"
+      },
+      "web/archive.html": {
+        "unchanged": true
+      }
+    }
+  }
+}

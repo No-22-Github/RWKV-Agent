@@ -1,0 +1,58 @@
+{
+  "id": "tab-31122",
+  "description": "Department summary from JSON to CSV. DISTILL-CANARY-bc2602a1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-format-22",
+    "ref_calls": 2,
+    "fixture_bytes": 148,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/people.json": "[{\"name\":\"Ann\",\"dept\":\"ops\",\"age\":31},{\"name\":\"Ben\",\"dept\":\"dev\",\"age\":45},{\"name\":\"Cy\",\"dept\":\"dev\",\"age\":28},{\"name\":\"Di\",\"dept\":\"ops\",\"age\":39}]\n"
+  },
+  "turns": [
+    {
+      "prompt": "From hr/people.json build hr/dept.csv with columns dept,count,oldest (the name of the oldest person in the department). Departments in alphabetical order, header line first, no spaces after commas.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "hr/people.json": {
+        "unchanged": true
+      },
+      "hr/dept.csv": {
+        "equals": "dept,count,oldest\ndev,2,Ben\nops,2,Di\n"
+      }
+    }
+  }
+}

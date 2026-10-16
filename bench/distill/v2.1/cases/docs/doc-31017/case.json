@@ -1,0 +1,57 @@
+{
+  "id": "doc-31017",
+  "description": "Edits one observation window in a runbook where 30 minutes repeats three times. DISTILL-CANARY-3fdde35d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21a-point-31017",
+    "ref_calls": 4,
+    "fixture_bytes": 286,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/runbook.md": "# 发布手册\n\n## 步骤 1：冻结\n\n在发布前一天 18:00 冻结主干。\n\n## 步骤 2：灰度\n\n灰度比例 5%，观察 30 分钟。\n\n## 步骤 3：全量\n\n灰度无异常后全量，观察 30 分钟。\n\n## 步骤 4：回滚\n\n如果错误率超过 2%，在 30 分钟内回滚。\n"
+  },
+  "turns": [
+    {
+      "prompt": "发布手册里“步骤 2：灰度”的观察时间从 30 分钟改成 45 分钟，其他步骤里的 30 分钟都是别的含义，不要改。改完告诉我改了第几行。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docs/runbook.md": {
+        "equals": "# 发布手册\n\n## 步骤 1：冻结\n\n在发布前一天 18:00 冻结主干。\n\n## 步骤 2：灰度\n\n灰度比例 5%，观察 45 分钟。\n\n## 步骤 3：全量\n\n灰度无异常后全量，观察 30 分钟。\n\n## 步骤 4：回滚\n\n如果错误率超过 2%，在 30 分钟内回滚。\n"
+      }
+    }
+  }
+}

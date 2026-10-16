@@ -1,0 +1,62 @@
+{
+  "id": "tab-31418",
+  "description": "Asks R&D's Q4 budget with 2025 and 2026 budget tables. DISTILL-CANARY-7a6605d3",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "780000"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31418",
+    "ref_calls": 3,
+    "fixture_bytes": 80,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "budget/2026.csv": "dept,q4_budget\nmarketing,240000\nrnd,910000\nops,330000\n",
+    "budget/2025.csv": "dept,q4_budget\nrnd,780000\n"
+  },
+  "turns": [
+    {
+      "prompt": "研发部 Q4 预算是多少？",
+      "expect": {
+        "output_contains": [
+          "910000"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

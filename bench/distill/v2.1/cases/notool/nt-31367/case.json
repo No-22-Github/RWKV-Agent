@@ -1,0 +1,53 @@
+{
+  "id": "nt-31367",
+  "description": "Asks to summarise the meeting note when one real note and a blank template exist. DISTILL-CANARY-40a997ba",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "the value of the stray file"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-solo-31367",
+    "ref_calls": 3,
+    "fixture_bytes": 87,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "minutes/0912-财务.md": "# 财务例会 9/12\n决定：Q4 预算总额 380 万。\n",
+    "minutes/template.md": "# 会议纪要模板\n决定：\n"
+  },
+  "turns": [
+    {
+      "prompt": "把那份会议纪要总结一下，预算是多少？",
+      "expect": {
+        "output_contains": [
+          "380"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

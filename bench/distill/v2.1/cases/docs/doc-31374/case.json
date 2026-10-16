@@ -1,0 +1,75 @@
+{
+  "id": "doc-31374",
+  "description": "Asks for the daily meal allowance as a general question; the expense policy file gives the company figure. DISTILL-CANARY-7bddfd98",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "60"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31374",
+    "ref_calls": 3,
+    "fixture_bytes": 142,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [
+    {
+      "query_match": "meal allowance",
+      "url": "https://travel.example.net/per-diem",
+      "url_match": "travel.example.net/per-diem",
+      "title": "Typical business per diem",
+      "snippet": "Typical per diem for meals is 60 per day.",
+      "content": "Typical per diem for meals is 60 per day.\n",
+      "published_at": "2026-05-12"
+    }
+  ],
+  "files": {
+    "policies/expense.md": "# Expense policy\n\nMeals are reimbursed up to 85 per day. Hotel cap is 220 per night.\n",
+    "policies/travel.md": "# Travel policy\n\nBook economy for flights under 6 hours.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the daily meal allowance for business trips?",
+      "expect": {
+        "output_contains": [
+          "85"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ],
+        "output_excludes": [
+          "60"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

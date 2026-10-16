@@ -1,0 +1,52 @@
+{
+  "id": "doc-31381",
+  "description": "Asks which afternoon of the week has no meetings. DISTILL-CANARY-92a7ad33",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "周五下午"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31381",
+    "ref_calls": 3,
+    "fixture_bytes": 120,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "team/working-hours.md": "# 工作时间\n\n核心协作时段 10:00-16:00，每周三下午为无会议时间。\n",
+    "team/holidays.md": "# 节假日\n国庆放假 7 天。\n"
+  },
+  "turns": [
+    {
+      "prompt": "咱们每周哪天下午不开会？",
+      "expect": {
+        "output_contains": [
+          "周三下午"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "doc-31027",
+  "description": "Appends a section then adds a bullet to it. DISTILL-CANARY-c143c5af",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b21a-append-31027",
+    "ref_calls": 3,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "meeting/2026-09-weekly.md": "# 9 月周会纪要\n\n## 09-02\n- 确认预算\n- 小李负责排期\n\n## 09-09\n- 评审了新方案\n- 下周开始联调\n\n"
+  },
+  "turns": [
+    {
+      "prompt": "今天的周会纪要要加到 meeting/2026-09-weekly.md 末尾，小标题用“## 09-16”，两条：联调完成 70%、小王负责压测。前面两周的别动。加完后告诉我文件里现在有几周的纪要。",
+      "expect": {}
+    },
+    {
+      "prompt": "还要补一条到刚加的 09-16 里：“下周三评审排期”。补完后只回复这一周现在有哪几条。",
+      "expect": {
+        "output_contains": [
+          "下周三评审排期",
+          "压测"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "meeting/2026-09-weekly.md": {
+        "contains": [
+          "# 9 月周会纪要\n\n## 09-02\n- 确认预算\n- 小李负责排期\n\n## 09-09\n- 评审了新方案\n- 下周开始联调\n\n",
+          "## 09-16",
+          "- 联调完成 70%",
+          "- 小王负责压测",
+          "- 下周三评审排期"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "doc-31152",
+  "description": "Step deleted then restore and reword. DISTILL-CANARY-8b7759e6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-undo-52",
+    "ref_calls": 4,
+    "fixture_bytes": 67,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/说明.md": "# 安装说明\n\n1. 下载安装包\n2. 双击运行\n3. 重启电脑\n"
+  },
+  "turns": [
+    {
+      "prompt": "把说明里的最后一步删掉，文件是 文档/说明.md。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "删得不对，不要删。恢复原样，但第 3 步的内容改成“点击完成”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/说明.md": {
+        "equals": "# 安装说明\n\n1. 下载安装包\n2. 双击运行\n3. 点击完成\n"
+      }
+    }
+  }
+}

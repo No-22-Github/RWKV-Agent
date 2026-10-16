@@ -1,0 +1,58 @@
+{
+  "id": "log-31112",
+  "description": "5xx counts per IP. DISTILL-CANARY-a6b79a65",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-summary-12",
+    "ref_calls": 2,
+    "fixture_bytes": 158,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/access.log": "10.0.0.1 GET /home 200\n10.0.0.2 GET /api 500\n10.0.0.1 POST /api 200\n10.0.0.3 GET /home 200\n10.0.0.2 GET /api 502\n10.0.0.2 GET /home 200\n10.0.0.3 GET /api 500\n"
+  },
+  "turns": [
+    {
+      "prompt": "In logs/access.log, count the 5xx responses per client IP and save them to logs/5xx_by_ip.txt, one line per IP as \"<ip> <count>\", highest count first, ties by IP. IPs with no 5xx are left out.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "logs/access.log": {
+        "unchanged": true
+      },
+      "logs/5xx_by_ip.txt": {
+        "equals": "10.0.0.2 2\n10.0.0.3 1\n"
+      }
+    }
+  }
+}

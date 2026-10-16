@@ -1,0 +1,53 @@
+{
+  "id": "doc-31379",
+  "description": "Asks the purchase amount above which CEO approval is needed. DISTILL-CANARY-b45fe9a8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "5000"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31379",
+    "ref_calls": 3,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "finance/approval.md": "# 审批权限\n\n单笔 5000 元以内部门经理审批；5000 至 50000 元需财务总监；超过 50000 元需 CEO。\n",
+    "finance/faq.md": "# 报销常见问题\n\n发票抬头必须与公司全称一致。\n"
+  },
+  "turns": [
+    {
+      "prompt": "超过多少钱的采购要 CEO 批准？",
+      "expect": {
+        "output_contains": [
+          "50000"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

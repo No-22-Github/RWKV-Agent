@@ -1,0 +1,71 @@
+{
+  "id": "code-31057",
+  "description": "Adds a schema field in the source and leaves the generated typescript. DISTILL-CANARY-f8cdf43c",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21a-exclude-31057",
+    "ref_calls": 5,
+    "fixture_bytes": 207,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "api/schema.yaml": "Order:\n  fields:\n    - id\n    - total\n",
+    "api/Order.generated.ts": "// AUTO-GENERATED from schema.yaml. DO NOT EDIT.\nexport interface Order { id: string; total: number }\n",
+    "api/README.md": "改字段请改 schema.yaml，然后重新生成 *.generated.ts。\n"
+  },
+  "turns": [
+    {
+      "prompt": "Order needs a currency field. Do whatever the README says is the right place to change it, and tell me what I need to run afterwards (you can't run the generator yourself).",
+      "expect": {
+        "output_contains": [
+          "schema.yaml",
+          "currency"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "api/schema.yaml": {
+        "equals": "Order:\n  fields:\n    - id\n    - total\n    - currency\n"
+      },
+      "api/Order.generated.ts": {
+        "unchanged": true
+      },
+      "api/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

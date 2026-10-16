@@ -1,0 +1,72 @@
+{
+  "id": "cfg-31062",
+  "description": "Two turns: extends a toml array then flips a flag. DISTILL-CANARY-00efea33",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-verify-31062",
+    "ref_calls": 5,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/features.toml": "[flags]\nbeta_ui = true\nnew_search = false\n\n[regions]\nenabled = [\"cn\", \"us\", \"jp\"]\ndefault = \"cn\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "config/features.toml 的启用地区列表加上 sg（保持数组写法，别丢引号和逗号）。",
+      "expect": {
+        "output_contains": [
+          "sg"
+        ]
+      }
+    },
+    {
+      "prompt": "再把 new_search 打开，改完读一遍文件确认两处都对，告诉我最终的这两行。",
+      "expect": {
+        "output_contains": [
+          "new_search = true",
+          "\"sg\""
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/features.toml": {
+        "equals": "[flags]\nbeta_ui = true\nnew_search = true\n\n[regions]\nenabled = [\"cn\", \"us\", \"jp\", \"sg\"]\ndefault = \"cn\"\n"
+      }
+    }
+  }
+}

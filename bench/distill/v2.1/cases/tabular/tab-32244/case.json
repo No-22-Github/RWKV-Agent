@@ -1,0 +1,83 @@
+{
+  "id": "tab-32244",
+  "description": "Ranks products by units times price then writes the top three to a text file in a second turn. DISTILL-CANARY-2ce56942",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "b21g-writeout-32244",
+    "ref_calls": 1,
+    "fixture_bytes": 5797,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21g"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/week.csv": "product,units,price\nFir,4,24\nAlder,9,34\nGinkgo,9,16\nElm,7,15\nBirch,3,26\nAlder,4,53\nCedar,6,9\nGinkgo,6,63\nCedar,5,78\nCedar,1,67\nHazel,2,13\nGinkgo,7,40\nAlder,7,66\nFir,2,26\nHazel,2,72\nIronwood,7,44\nIronwood,2,16\nIronwood,7,34\nAlder,6,61\nIronwood,5,69\nFir,9,65\nHazel,4,74\nDogwood,4,10\nBirch,2,37\nAlder,7,18\nIronwood,5,35\nDogwood,8,7\nDogwood,6,56\nGinkgo,9,19\nBirch,9,14\nElm,1,12\nIronwood,1,73\nIronwood,4,44\nFir,4,23\nCedar,2,30\nAlder,4,61\nHazel,4,58\nBirch,1,60\nIronwood,1,74\nGinkgo,9,11\nIronwood,1,52\nBirch,3,48\nElm,3,44\nDogwood,6,38\nDogwood,1,61\nBirch,2,30\nElm,5,72\nAlder,3,5\nGinkgo,3,64\nCedar,7,51\nElm,9,34\nHazel,4,14\nGinkgo,1,74\nIronwood,8,61\nDogwood,2,7\nHazel,2,51\nFir,2,23\nElm,5,22\nDogwood,3,77\nAlder,8,17\nCedar,8,78\nAlder,2,55\nIronwood,4,66\nDogwood,3,10\nGinkgo,3,48\nFir,3,14\nGinkgo,1,57\nHazel,6,40\nIronwood,8,6\nElm,1,62\nAlder,1,67\nCedar,1,20\nIronwood,8,64\nDogwood,3,75\nIronwood,1,16\nDogwood,2,43\nIronwood,6,63\nAlder,8,17\nFir,1,57\nGinkgo,6,54\nFir,7,45\nHazel,3,38\nIronwood,5,23\nCedar,3,61\nIronwood,7,27\nCedar,9,74\nIronwood,7,64\nBirch,6,75\nElm,4,72\nCedar,7,41\nCedar,8,51\nGinkgo,9,31\nAlder,5,22\nAlder,2,16\nBirch,1,48\nHazel,4,65\nElm,5,79\nElm,5,9\nDogwood,8,36\nGinkgo,3,23\nDogwood,7,13\nFir,7,41\nBirch,4,12\nHazel,7,66\nDogwood,1,74\nElm,4,11\nDogwood,5,51\nIronwood,8,56\nDogwood,3,11\nIronwood,2,11\nIronwood,3,49\nFir,1,79\nHazel,9,35\nHazel,7,5\nAlder,5,22\nCedar,1,15\nBirch,5,78\nBirch,2,57\nFir,8,70\nCedar,9,75\nBirch,4,72\nHazel,3,26\nIronwood,4,22\nIronwood,9,10\nDogwood,3,76\nElm,2,43\nCedar,8,77\nElm,6,56\nIronwood,3,70\nBirch,6,48\nGinkgo,4,36\nGinkgo,6,63\nFir,9,48\nIronwood,7,55\nElm,3,76\nElm,2,78\nCedar,2,58\nElm,1,54\nGinkgo,3,32\nIronwood,8,36\nHazel,1,60\nIronwood,6,70\nHazel,7,76\nCedar,8,17\nElm,8,71\nGinkgo,2,23\nHazel,6,73\nIronwood,3,7\nElm,2,17\nDogwood,3,32\nHazel,6,8\nBirch,8,21\nDogwood,6,6\nCedar,4,73\nCedar,6,43\nDogwood,2,48\nCedar,1,7\nHazel,5,66\nCedar,5,76\nIronwood,8,33\nDogwood,5,46\nIronwood,8,78\nBirch,6,27\nBirch,4,7\nBirch,1,69\nFir,9,32\nCedar,6,50\nHazel,4,41\nHazel,6,72\nCedar,6,59\nBirch,2,30\nAlder,5,5\nElm,6,66\nHazel,2,29\nDogwood,7,70\nFir,8,9\nIronwood,4,23\nFir,3,62\nBirch,3,53\nElm,9,76\nGinkgo,1,45\nCedar,9,10\nGinkgo,9,32\nBirch,6,29\nDogwood,5,14\nGinkgo,5,18\nCedar,9,8\nHazel,5,43\nDogwood,3,12\nAlder,3,22\nFir,9,48\nBirch,7,63\nCedar,4,80\nIronwood,4,63\nIronwood,3,66\nGinkgo,7,11\nBirch,7,17\nIronwood,9,54\nIronwood,5,45\nAlder,8,28\nDogwood,9,36\nGinkgo,2,73\nAlder,9,74\nFir,6,60\nAlder,5,67\nHazel,3,60\nIronwood,6,57\nIronwood,7,73\nDogwood,5,66\nDogwood,3,12\nCedar,3,36\nDogwood,8,80\nCedar,1,16\nFir,2,36\nFir,9,74\nDogwood,8,26\nGinkgo,1,52\nBirch,3,5\nDogwood,1,16\nFir,8,34\nElm,2,6\nGinkgo,4,77\nDogwood,8,45\nBirch,8,8\nFir,6,60\nDogwood,1,46\nDogwood,1,26\nIronwood,3,75\nGinkgo,3,36\nAlder,9,58\nFir,1,80\nDogwood,9,72\nCedar,5,50\nElm,5,24\nBirch,4,12\nGinkgo,3,60\nElm,2,77\nCedar,3,26\nAlder,4,35\nCedar,7,27\nHazel,1,45\nGinkgo,3,48\nIronwood,3,6\nGinkgo,3,28\nGinkgo,1,71\nElm,2,52\nElm,3,67\nGinkgo,1,52\nBirch,9,57\nAlder,9,61\nDogwood,8,61\nAlder,3,15\nBirch,1,53\nAlder,9,35\nBirch,4,36\nFir,3,68\nDogwood,8,33\nFir,2,22\nHazel,4,34\nAlder,2,43\nElm,2,69\nBirch,4,36\nGinkgo,1,79\nGinkgo,4,51\nElm,1,43\nFir,2,70\nFir,5,64\nAlder,6,38\nGinkgo,2,30\nAlder,3,59\nCedar,2,43\nDogwood,4,10\nIronwood,8,70\nAlder,3,46\nGinkgo,9,50\nFir,3,24\nDogwood,8,54\nIronwood,4,21\nHazel,4,53\nDogwood,3,61\nHazel,7,44\nDogwood,7,41\nHazel,2,30\nFir,9,32\nElm,5,19\nBirch,4,24\nHazel,3,74\nFir,3,69\nFir,4,73\nIronwood,7,25\nElm,4,51\nCedar,7,11\nHazel,8,37\nIronwood,4,48\nCedar,1,23\nIronwood,6,28\nIronwood,3,12\nAlder,2,23\nAlder,1,63\nHazel,8,80\nElm,5,66\nFir,9,36\nCedar,1,26\nAlder,3,27\nBirch,5,62\nAlder,1,51\nCedar,8,75\nElm,4,35\nGinkgo,7,14\nBirch,1,66\nIronwood,7,17\nDogwood,6,32\nFir,2,35\nIronwood,9,32\nHazel,7,39\nFir,4,30\nElm,2,26\nElm,1,77\nHazel,5,80\nIronwood,6,21\nElm,3,64\nHazel,6,61\nElm,2,39\nElm,3,39\nGinkgo,7,70\nElm,6,29\nHazel,6,54\nFir,6,52\nFir,5,13\nCedar,9,10\nElm,1,14\nCedar,8,64\nElm,8,38\nFir,5,44\nElm,3,9\nHazel,8,43\nBirch,3,63\nElm,5,38\nHazel,6,79\nElm,9,5\nElm,2,24\nIronwood,3,21\nCedar,6,67\nCedar,4,52\nDogwood,6,16\nCedar,8,29\nGinkgo,3,6\nCedar,8,14\nBirch,5,63\nDogwood,8,73\nDogwood,6,76\nElm,6,72\nFir,1,42\nCedar,2,6\nGinkgo,8,11\nBirch,6,17\nIronwood,4,52\nFir,3,67\nElm,4,66\nElm,9,53\nElm,3,33\nFir,9,36\nAlder,5,27\nIronwood,6,58\nFir,9,51\nCedar,4,77\nFir,1,25\nBirch,1,66\nHazel,3,22\nCedar,6,6\nHazel,9,61\nFir,6,12\nElm,9,24\nHazel,6,46\nGinkgo,8,59\nBirch,8,10\nCedar,5,28\nAlder,5,63\nFir,6,30\nCedar,1,38\nElm,9,73\nDogwood,9,80\nElm,3,48\nGinkgo,7,52\nDogwood,6,76\nGinkgo,5,69\nDogwood,5,52\nIronwood,3,55\nFir,1,11\nElm,2,20\nElm,6,74\nAlder,7,36\nDogwood,6,64\nAlder,3,40\nDogwood,4,64\nIronwood,2,60\nBirch,6,11\nGinkgo,1,59\nCedar,8,40\nElm,9,6\nIronwood,5,67\nCedar,9,55\nDogwood,9,42\nBirch,7,79\nFir,1,64\nIronwood,2,67\nElm,9,30\nBirch,4,67\nHazel,3,37\nHazel,7,34\nCedar,3,44\nFir,8,61\nIronwood,4,24\nCedar,6,61\nElm,3,39\nGinkgo,2,62\nBirch,2,36\nDogwood,7,80\nElm,8,53\nHazel,1,67\nElm,6,29\nElm,7,8\nElm,6,47\nDogwood,2,76\nGinkgo,3,16\nElm,3,58\nBirch,9,41\nCedar,1,54\nAlder,3,17\nGinkgo,7,25\nFir,7,68\nGinkgo,2,47\nFir,9,75\nIronwood,2,9\nCedar,9,34\nFir,3,33\nAlder,4,54\nHazel,6,56\nHazel,8,57\nFir,9,75\nFir,6,17\nAlder,8,52\nCedar,5,71\nElm,9,44\nDogwood,9,6\nIronwood,8,79\nDogwood,7,61\nAlder,3,6\nDogwood,9,69\nElm,5,13\nDogwood,2,45\nCedar,2,19\nCedar,8,20\nAlder,8,27\nDogwood,2,27\nElm,8,38\nCedar,3,61\nAlder,7,25\nCedar,8,76\nElm,5,23\nHazel,1,14\nFir,5,44\nHazel,4,24\nAlder,8,28\nDogwood,9,68\nFir,5,5\nElm,9,61\nBirch,7,18\nBirch,8,23\nAlder,1,80\nHazel,8,77\nFir,2,71\nBirch,5,33\nGinkgo,1,27\nFir,8,9\nHazel,3,26\nElm,3,52\nFir,5,35\nGinkgo,1,39\nElm,6,6\nIronwood,7,56\nAlder,4,56\nFir,8,46\nIronwood,8,54\nDogwood,9,15\nHazel,4,14\nHazel,5,42\nBirch,2,49\nHazel,1,36\nHazel,5,45\nCedar,1,54\nCedar,7,24\nBirch,4,73\nBirch,9,39\nAlder,1,65\nFir,4,7\nCedar,8,25\nElm,2,54\nElm,3,61\nCedar,4,26\nAlder,2,16\nBirch,2,32\nElm,5,27\nDogwood,5,70\nCedar,8,42\nGinkgo,7,10\nDogwood,5,56\nBirch,8,13\nAlder,2,67\nHazel,9,41\nElm,2,19\nElm,8,65\nGinkgo,8,52\nElm,8,80\nBirch,4,14\nHazel,9,72\nElm,5,53\nIronwood,5,67\nElm,3,55\nIronwood,4,66\n",
+    "report/.keep": "\n"
+  },
+  "turns": [
+    {
+      "prompt": "sales/week.csv has one sale per row (units sold at price each). Which product earned the most this week, and how much? Revenue is units times price, summed per product.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "15259",
+          "Elm"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Good. Write the top 3 products by revenue to report/top3.txt, one per line in the form `1. Name: revenue`, best first.",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "calculator",
+      "data_query"
+    ]
+  },
+  "expect": {
+    "files": {
+      "sales/week.csv": {
+        "unchanged": true
+      },
+      "report/.keep": {
+        "unchanged": true
+      },
+      "report/top3.txt": {
+        "equals": "1. Elm: 15259\n2. Dogwood: 14775\n3. Ironwood: 14577\n"
+      }
+    }
+  }
+}

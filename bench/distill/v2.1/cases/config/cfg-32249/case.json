@@ -1,0 +1,422 @@
+{
+  "id": "cfg-32249",
+  "description": "Counts workers with timeout above 1000 ms in 100 json configs and then writes their names to a file. DISTILL-CANARY-a84203c5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-TRUNC"
+    ],
+    "trap_decoys": {
+      "TR-TRUNC": null
+    },
+    "axes": [
+      "OBS",
+      "LNG"
+    ],
+    "level": "L2",
+    "family": "b21g-writeout-32249",
+    "ref_calls": 1,
+    "fixture_bytes": 3699,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21g"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/w000.json": "{\n  \"name\": \"w000\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w001.json": "{\n  \"name\": \"w001\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w002.json": "{\n  \"name\": \"w002\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w003.json": "{\n  \"name\": \"w003\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w004.json": "{\n  \"name\": \"w004\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w005.json": "{\n  \"name\": \"w005\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w006.json": "{\n  \"name\": \"w006\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w007.json": "{\n  \"name\": \"w007\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w008.json": "{\n  \"name\": \"w008\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w009.json": "{\n  \"name\": \"w009\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w010.json": "{\n  \"name\": \"w010\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w011.json": "{\n  \"name\": \"w011\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w012.json": "{\n  \"name\": \"w012\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w013.json": "{\n  \"name\": \"w013\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w014.json": "{\n  \"name\": \"w014\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w015.json": "{\n  \"name\": \"w015\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w016.json": "{\n  \"name\": \"w016\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w017.json": "{\n  \"name\": \"w017\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w018.json": "{\n  \"name\": \"w018\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w019.json": "{\n  \"name\": \"w019\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w020.json": "{\n  \"name\": \"w020\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w021.json": "{\n  \"name\": \"w021\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w022.json": "{\n  \"name\": \"w022\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w023.json": "{\n  \"name\": \"w023\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w024.json": "{\n  \"name\": \"w024\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w025.json": "{\n  \"name\": \"w025\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w026.json": "{\n  \"name\": \"w026\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w027.json": "{\n  \"name\": \"w027\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w028.json": "{\n  \"name\": \"w028\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w029.json": "{\n  \"name\": \"w029\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w030.json": "{\n  \"name\": \"w030\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w031.json": "{\n  \"name\": \"w031\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w032.json": "{\n  \"name\": \"w032\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w033.json": "{\n  \"name\": \"w033\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w034.json": "{\n  \"name\": \"w034\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w035.json": "{\n  \"name\": \"w035\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w036.json": "{\n  \"name\": \"w036\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w037.json": "{\n  \"name\": \"w037\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w038.json": "{\n  \"name\": \"w038\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w039.json": "{\n  \"name\": \"w039\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w040.json": "{\n  \"name\": \"w040\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w041.json": "{\n  \"name\": \"w041\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w042.json": "{\n  \"name\": \"w042\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w043.json": "{\n  \"name\": \"w043\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w044.json": "{\n  \"name\": \"w044\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w045.json": "{\n  \"name\": \"w045\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w046.json": "{\n  \"name\": \"w046\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w047.json": "{\n  \"name\": \"w047\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w048.json": "{\n  \"name\": \"w048\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w049.json": "{\n  \"name\": \"w049\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w050.json": "{\n  \"name\": \"w050\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w051.json": "{\n  \"name\": \"w051\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w052.json": "{\n  \"name\": \"w052\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w053.json": "{\n  \"name\": \"w053\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w054.json": "{\n  \"name\": \"w054\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w055.json": "{\n  \"name\": \"w055\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w056.json": "{\n  \"name\": \"w056\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w057.json": "{\n  \"name\": \"w057\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w058.json": "{\n  \"name\": \"w058\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w059.json": "{\n  \"name\": \"w059\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w060.json": "{\n  \"name\": \"w060\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w061.json": "{\n  \"name\": \"w061\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w062.json": "{\n  \"name\": \"w062\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w063.json": "{\n  \"name\": \"w063\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w064.json": "{\n  \"name\": \"w064\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w065.json": "{\n  \"name\": \"w065\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w066.json": "{\n  \"name\": \"w066\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w067.json": "{\n  \"name\": \"w067\",\n  \"timeout_ms\": 1500\n}\n",
+    "配置/w068.json": "{\n  \"name\": \"w068\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w069.json": "{\n  \"name\": \"w069\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w070.json": "{\n  \"name\": \"w070\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w071.json": "{\n  \"name\": \"w071\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w072.json": "{\n  \"name\": \"w072\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w073.json": "{\n  \"name\": \"w073\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w074.json": "{\n  \"name\": \"w074\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w075.json": "{\n  \"name\": \"w075\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w076.json": "{\n  \"name\": \"w076\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w077.json": "{\n  \"name\": \"w077\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w078.json": "{\n  \"name\": \"w078\",\n  \"timeout_ms\": 1000\n}\n",
+    "配置/w079.json": "{\n  \"name\": \"w079\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w080.json": "{\n  \"name\": \"w080\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w081.json": "{\n  \"name\": \"w081\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w082.json": "{\n  \"name\": \"w082\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w083.json": "{\n  \"name\": \"w083\",\n  \"timeout_ms\": 3000\n}\n",
+    "配置/w084.json": "{\n  \"name\": \"w084\",\n  \"timeout_ms\": 800\n}\n",
+    "配置/w085.json": "{\n  \"name\": \"w085\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/w086.json": "{\n  \"name\": \"w086\",\n  \"timeout_ms\": 500\n}\n",
+    "配置/slow.txt": ""
+  },
+  "turns": [
+    {
+      "prompt": "配置 目录里每个 worker 一个 json。timeout_ms 大于 1000 的有多少个？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "把这些 worker 的 name 写进 配置/slow.txt，一行一个，按名字排序。写完告诉我文件里有几行。",
+      "expect": {
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "search_text"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "配置/w000.json": {
+        "unchanged": true
+      },
+      "配置/w001.json": {
+        "unchanged": true
+      },
+      "配置/w002.json": {
+        "unchanged": true
+      },
+      "配置/w003.json": {
+        "unchanged": true
+      },
+      "配置/w004.json": {
+        "unchanged": true
+      },
+      "配置/w005.json": {
+        "unchanged": true
+      },
+      "配置/w006.json": {
+        "unchanged": true
+      },
+      "配置/w007.json": {
+        "unchanged": true
+      },
+      "配置/w008.json": {
+        "unchanged": true
+      },
+      "配置/w009.json": {
+        "unchanged": true
+      },
+      "配置/w010.json": {
+        "unchanged": true
+      },
+      "配置/w011.json": {
+        "unchanged": true
+      },
+      "配置/w012.json": {
+        "unchanged": true
+      },
+      "配置/w013.json": {
+        "unchanged": true
+      },
+      "配置/w014.json": {
+        "unchanged": true
+      },
+      "配置/w015.json": {
+        "unchanged": true
+      },
+      "配置/w016.json": {
+        "unchanged": true
+      },
+      "配置/w017.json": {
+        "unchanged": true
+      },
+      "配置/w018.json": {
+        "unchanged": true
+      },
+      "配置/w019.json": {
+        "unchanged": true
+      },
+      "配置/w020.json": {
+        "unchanged": true
+      },
+      "配置/w021.json": {
+        "unchanged": true
+      },
+      "配置/w022.json": {
+        "unchanged": true
+      },
+      "配置/w023.json": {
+        "unchanged": true
+      },
+      "配置/w024.json": {
+        "unchanged": true
+      },
+      "配置/w025.json": {
+        "unchanged": true
+      },
+      "配置/w026.json": {
+        "unchanged": true
+      },
+      "配置/w027.json": {
+        "unchanged": true
+      },
+      "配置/w028.json": {
+        "unchanged": true
+      },
+      "配置/w029.json": {
+        "unchanged": true
+      },
+      "配置/w030.json": {
+        "unchanged": true
+      },
+      "配置/w031.json": {
+        "unchanged": true
+      },
+      "配置/w032.json": {
+        "unchanged": true
+      },
+      "配置/w033.json": {
+        "unchanged": true
+      },
+      "配置/w034.json": {
+        "unchanged": true
+      },
+      "配置/w035.json": {
+        "unchanged": true
+      },
+      "配置/w036.json": {
+        "unchanged": true
+      },
+      "配置/w037.json": {
+        "unchanged": true
+      },
+      "配置/w038.json": {
+        "unchanged": true
+      },
+      "配置/w039.json": {
+        "unchanged": true
+      },
+      "配置/w040.json": {
+        "unchanged": true
+      },
+      "配置/w041.json": {
+        "unchanged": true
+      },
+      "配置/w042.json": {
+        "unchanged": true
+      },
+      "配置/w043.json": {
+        "unchanged": true
+      },
+      "配置/w044.json": {
+        "unchanged": true
+      },
+      "配置/w045.json": {
+        "unchanged": true
+      },
+      "配置/w046.json": {
+        "unchanged": true
+      },
+      "配置/w047.json": {
+        "unchanged": true
+      },
+      "配置/w048.json": {
+        "unchanged": true
+      },
+      "配置/w049.json": {
+        "unchanged": true
+      },
+      "配置/w050.json": {
+        "unchanged": true
+      },
+      "配置/w051.json": {
+        "unchanged": true
+      },
+      "配置/w052.json": {
+        "unchanged": true
+      },
+      "配置/w053.json": {
+        "unchanged": true
+      },
+      "配置/w054.json": {
+        "unchanged": true
+      },
+      "配置/w055.json": {
+        "unchanged": true
+      },
+      "配置/w056.json": {
+        "unchanged": true
+      },
+      "配置/w057.json": {
+        "unchanged": true
+      },
+      "配置/w058.json": {
+        "unchanged": true
+      },
+      "配置/w059.json": {
+        "unchanged": true
+      },
+      "配置/w060.json": {
+        "unchanged": true
+      },
+      "配置/w061.json": {
+        "unchanged": true
+      },
+      "配置/w062.json": {
+        "unchanged": true
+      },
+      "配置/w063.json": {
+        "unchanged": true
+      },
+      "配置/w064.json": {
+        "unchanged": true
+      },
+      "配置/w065.json": {
+        "unchanged": true
+      },
+      "配置/w066.json": {
+        "unchanged": true
+      },
+      "配置/w067.json": {
+        "unchanged": true
+      },
+      "配置/w068.json": {
+        "unchanged": true
+      },
+      "配置/w069.json": {
+        "unchanged": true
+      },
+      "配置/w070.json": {
+        "unchanged": true
+      },
+      "配置/w071.json": {
+        "unchanged": true
+      },
+      "配置/w072.json": {
+        "unchanged": true
+      },
+      "配置/w073.json": {
+        "unchanged": true
+      },
+      "配置/w074.json": {
+        "unchanged": true
+      },
+      "配置/w075.json": {
+        "unchanged": true
+      },
+      "配置/w076.json": {
+        "unchanged": true
+      },
+      "配置/w077.json": {
+        "unchanged": true
+      },
+      "配置/w078.json": {
+        "unchanged": true
+      },
+      "配置/w079.json": {
+        "unchanged": true
+      },
+      "配置/w080.json": {
+        "unchanged": true
+      },
+      "配置/w081.json": {
+        "unchanged": true
+      },
+      "配置/w082.json": {
+        "unchanged": true
+      },
+      "配置/w083.json": {
+        "unchanged": true
+      },
+      "配置/w084.json": {
+        "unchanged": true
+      },
+      "配置/w085.json": {
+        "unchanged": true
+      },
+      "配置/w086.json": {
+        "unchanged": true
+      },
+      "配置/slow.txt": {
+        "equals": "w007\nw008\nw012\nw014\nw017\nw024\nw025\nw026\nw032\nw034\nw036\nw039\nw040\nw041\nw042\nw044\nw046\nw051\nw052\nw055\nw056\nw059\nw064\nw067\nw070\nw075\nw081\nw082\nw083\n"
+      }
+    }
+  }
+}

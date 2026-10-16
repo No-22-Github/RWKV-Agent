@@ -1,0 +1,88 @@
+{
+  "id": "hyb-31169",
+  "description": "Fill progress sheet from outline and report total hours. DISTILL-CANARY-45961d82",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-compound-69",
+    "ref_calls": 3,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "课程/大纲.md": "# 大纲\n\n第一章 基础 (2 课时)\n第二章 进阶 (3 课时)\n第三章 实战 (5 课时)\n",
+    "课程/进度.csv": "章,课时,完成\n"
+  },
+  "turns": [
+    {
+      "prompt": "根据 课程/大纲.md 往 课程/进度.csv 里补三行（表头已有，保留），列是章、课时、完成，课时写数字，完成都填“否”。然后告诉我总课时。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ],
+        "output_contains_any": [
+          "10 条",
+          "10条",
+          "10 个",
+          "10个",
+          "10 张",
+          "10张",
+          "10 课时",
+          "10课时",
+          "共 10",
+          "共10",
+          "是 10",
+          "是10",
+          "为 10",
+          "：10",
+          ": 10",
+          "10 items",
+          "10 lines",
+          "10 SKU",
+          "10 are",
+          "are 10",
+          "is 10",
+          "total of 10",
+          "10 errors",
+          "10 out",
+          "总课时 10",
+          "总计 10"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "课程/大纲.md": {
+        "unchanged": true
+      },
+      "课程/进度.csv": {
+        "equals": "章,课时,完成\n第一章,2,否\n第二章,3,否\n第三章,5,否\n"
+      }
+    }
+  }
+}

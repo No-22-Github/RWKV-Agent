@@ -1,0 +1,61 @@
+{
+  "id": "log-31391",
+  "description": "Asks about last week's order failure like a casual question; the incident write-up has cause and duration. DISTILL-CANARY-358320dd",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9 分钟"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31391",
+    "ref_calls": 3,
+    "fixture_bytes": 226,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "incidents/2026-09-12.md": "# 9/12 故障复盘\n\n原因：数据库连接池耗尽，上限 40 被订单批处理占满。\n影响：下单失败持续 23 分钟。\n",
+    "incidents/2026-08-30.md": "# 8/30 故障复盘\n\n原因：CDN 证书过期。\n影响：图片加载失败 9 分钟。\n"
+  },
+  "turns": [
+    {
+      "prompt": "上周那次下单失败是怎么回事，持续了多久？",
+      "expect": {
+        "output_contains": [
+          "23 分钟"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "web_search"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

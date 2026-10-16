@@ -1,0 +1,58 @@
+{
+  "id": "log-32326",
+  "description": "Count errors of yesterday where the user guesses a plain app.log name. DISTILL-CANARY-b68bfc6a",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21h-file-32326",
+    "ref_calls": 5,
+    "fixture_bytes": 8981,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/app-2026-09-15.log": "13:10:44 INFO batch ok\n13:07:05 INFO batch ok\n15:27:37 INFO batch ok\n00:23:00 INFO disk 91%\n03:24:45 INFO peer lost\n21:19:27 WARN disk 91%\n10:17:56 ERROR disk 91%\n07:12:55 ERROR batch ok\n05:29:12 ERROR peer lost\n22:01:37 INFO peer lost\n13:48:57 INFO peer lost\n17:06:59 INFO batch ok\n14:03:59 ERROR disk 91%\n13:42:08 ERROR disk 91%\n22:29:59 INFO disk 91%\n15:48:02 ERROR disk 91%\n13:31:05 ERROR peer lost\n11:15:43 INFO peer lost\n16:35:19 INFO disk 91%\n22:08:25 INFO peer lost\n00:55:37 INFO peer lost\n03:11:44 INFO batch ok\n07:43:40 ERROR peer lost\n21:13:34 INFO peer lost\n03:38:45 INFO peer lost\n04:28:08 INFO batch ok\n17:42:09 ERROR peer lost\n14:17:07 INFO peer lost\n12:49:38 INFO peer lost\n07:03:35 INFO peer lost\n12:07:27 ERROR batch ok\n10:50:21 ERROR disk 91%\n15:41:34 ERROR batch ok\n08:40:24 INFO peer lost\n12:31:04 ERROR disk 91%\n13:05:50 ERROR batch ok\n23:22:00 ERROR disk 91%\n18:31:28 INFO batch ok\n05:10:28 ERROR peer lost\n06:23:35 ERROR batch ok\n04:18:29 INFO peer lost\n12:34:57 INFO peer lost\n15:55:31 ERROR peer lost\n02:09:26 INFO batch ok\n08:00:41 INFO peer lost\n21:15:05 INFO peer lost\n16:56:34 ERROR batch ok\n18:14:08 ERROR disk 91%\n05:42:13 INFO batch ok\n10:30:07 INFO peer lost\n03:09:47 INFO peer lost\n02:31:51 ERROR batch ok\n00:06:26 INFO peer lost\n22:42:00 ERROR disk 91%\n00:15:09 INFO batch ok\n06:17:41 INFO disk 91%\n02:32:22 INFO disk 91%\n00:30:59 WARN peer lost\n17:49:21 INFO peer lost\n12:04:29 INFO peer lost\n19:06:48 WARN disk 91%\n15:50:54 INFO disk 91%\n12:01:26 INFO peer lost\n18:20:08 INFO batch ok\n23:50:31 INFO disk 91%\n10:26:25 WARN peer lost\n06:06:02 ERROR disk 91%\n14:33:59 INFO peer lost\n06:29:57 INFO peer lost\n14:06:28 WARN disk 91%\n11:08:57 INFO batch ok\n08:17:02 WARN peer lost\n11:05:37 INFO peer lost\n03:51:09 INFO disk 91%\n05:07:30 INFO batch ok\n15:01:01 INFO peer lost\n00:19:19 INFO disk 91%\n20:01:34 ERROR batch ok\n21:48:55 ERROR disk 91%\n01:09:19 INFO peer lost\n16:18:32 INFO peer lost\n14:42:23 INFO disk 91%\n09:05:47 INFO peer lost\n09:37:14 INFO disk 91%\n16:08:13 INFO peer lost\n18:13:19 INFO batch ok\n05:35:21 WARN batch ok\n21:07:35 ERROR peer lost\n01:09:22 INFO peer lost\n05:27:44 ERROR peer lost\n15:25:05 INFO disk 91%\n01:51:04 INFO disk 91%\n15:57:14 ERROR disk 91%\n19:25:20 ERROR batch ok\n21:42:53 INFO disk 91%\n20:52:07 ERROR batch ok\n15:10:19 INFO peer lost\n01:28:31 INFO disk 91%\n15:36:09 INFO peer lost\n07:18:06 INFO batch ok\n16:14:49 ERROR peer lost\n14:39:44 INFO peer lost\n01:12:40 INFO peer lost\n22:07:39 INFO peer lost\n23:56:45 ERROR disk 91%\n04:40:25 INFO peer lost\n19:28:25 INFO batch ok\n01:53:31 INFO disk 91%\n23:50:23 INFO batch ok\n13:53:54 INFO disk 91%\n11:52:23 WARN batch ok\n03:09:34 INFO disk 91%\n12:35:32 INFO disk 91%\n02:31:24 INFO peer lost\n11:22:21 INFO peer lost\n16:43:30 WARN disk 91%\n13:10:56 INFO batch ok\n11:47:28 INFO batch ok\n16:42:30 ERROR disk 91%\n21:32:39 ERROR disk 91%\n20:08:27 INFO peer lost\n10:17:14 INFO batch ok\n11:59:53 ERROR peer lost\n22:21:28 ERROR disk 91%\n19:26:03 ERROR batch ok\n07:47:36 INFO disk 91%\n20:46:15 INFO disk 91%\n10:32:19 INFO peer lost\n11:21:57 INFO batch ok\n08:16:22 WARN batch ok\n10:21:35 INFO peer lost\n10:22:13 INFO batch ok\n09:31:48 ERROR peer lost\n02:10:51 ERROR batch ok\n03:59:07 INFO peer lost\n11:10:28 INFO batch ok\n01:49:28 INFO batch ok\n18:03:09 ERROR disk 91%\n20:35:37 INFO batch ok\n15:46:01 WARN batch ok\n21:26:04 INFO disk 91%\n12:00:50 WARN batch ok\n09:20:41 INFO peer lost\n15:48:40 ERROR peer lost\n10:29:55 INFO batch ok\n02:03:07 INFO peer lost\n18:36:52 ERROR peer lost\n10:28:13 ERROR batch ok\n14:00:52 ERROR peer lost\n12:19:26 INFO disk 91%\n00:47:41 INFO peer lost\n08:25:08 INFO batch ok\n05:47:46 ERROR peer lost\n11:53:33 INFO batch ok\n13:19:52 ERROR batch ok\n19:44:55 WARN batch ok\n02:38:36 ERROR peer lost\n18:38:37 INFO batch ok\n20:33:15 ERROR batch ok\n18:56:23 INFO batch ok\n14:06:23 INFO batch ok\n00:06:33 INFO batch ok\n22:41:18 ERROR disk 91%\n09:02:20 INFO peer lost\n10:51:06 ERROR peer lost\n16:08:04 ERROR peer lost\n17:32:35 ERROR disk 91%\n17:40:46 INFO batch ok\n06:24:31 ERROR disk 91%\n17:57:44 INFO disk 91%\n13:13:01 ERROR peer lost\n05:41:48 INFO disk 91%\n19:18:37 WARN peer lost\n01:47:03 ERROR peer lost\n22:17:05 WARN peer lost\n11:45:54 INFO peer lost\n14:34:47 ERROR batch ok\n17:13:54 INFO batch ok\n02:48:53 ERROR peer lost\n02:15:53 WARN batch ok\n17:08:24 INFO peer lost\n16:23:15 INFO peer lost\n04:14:46 INFO batch ok\n11:32:03 INFO batch ok\n17:49:52 INFO peer lost\n13:58:37 INFO disk 91%\n11:29:03 WARN peer lost\n02:30:17 INFO peer lost\n08:50:23 INFO peer lost\n05:17:16 WARN disk 91%\n07:58:42 INFO peer lost\n23:50:54 INFO disk 91%\n09:53:57 WARN batch ok\n22:14:35 INFO peer lost\n19:08:08 INFO peer lost\n01:29:26 ERROR disk 91%\n15:08:46 INFO peer lost\n02:39:49 INFO batch ok\n02:00:18 ERROR batch ok\n23:54:58 ERROR batch ok\n03:21:57 INFO batch ok\n00:00:13 INFO peer lost\n06:12:16 ERROR batch ok\n13:12:39 ERROR disk 91%\n14:14:34 WARN peer lost\n21:04:20 INFO disk 91%\n01:25:02 ERROR disk 91%\n23:59:23 ERROR peer lost\n20:27:43 ERROR disk 91%\n06:24:14 INFO peer lost\n22:19:02 ERROR peer lost\n05:02:08 INFO batch ok\n11:52:42 ERROR disk 91%\n08:21:46 WARN peer lost\n20:30:28 INFO batch ok\n21:30:42 WARN peer lost\n04:15:01 ERROR peer lost\n22:42:32 ERROR batch ok\n00:20:15 WARN batch ok\n09:05:58 INFO peer lost\n12:30:07 INFO batch ok\n21:02:47 ERROR disk 91%\n08:41:29 INFO disk 91%\n16:46:53 WARN batch ok\n23:43:44 INFO peer lost\n20:50:57 ERROR batch ok\n04:05:44 INFO batch ok\n09:18:21 INFO peer lost\n11:05:31 ERROR disk 91%\n18:46:09 ERROR peer lost\n14:09:04 ERROR peer lost\n10:49:53 ERROR peer lost\n16:04:30 INFO batch ok\n03:11:05 INFO disk 91%\n22:07:24 ERROR batch ok\n20:07:35 INFO batch ok\n08:01:31 INFO batch ok\n02:19:34 INFO batch ok\n20:01:10 INFO batch ok\n16:55:49 ERROR peer lost\n03:53:20 INFO peer lost\n13:22:29 INFO disk 91%\n10:53:37 INFO batch ok\n19:25:57 INFO peer lost\n23:25:43 ERROR peer lost\n14:02:50 ERROR batch ok\n03:01:35 WARN disk 91%\n10:36:03 INFO batch ok\n23:05:30 ERROR peer lost\n21:26:56 INFO peer lost\n23:12:17 WARN peer lost\n20:11:25 INFO batch ok\n14:58:13 INFO peer lost\n11:21:04 ERROR disk 91%\n00:14:29 ERROR batch ok\n11:08:39 INFO disk 91%\n20:08:18 INFO batch ok\n19:06:58 ERROR peer lost\n17:08:11 INFO batch ok\n22:45:22 INFO batch ok\n02:14:01 INFO peer lost\n10:20:28 INFO peer lost\n12:45:07 INFO disk 91%\n18:44:10 INFO batch ok\n00:44:07 ERROR peer lost\n05:37:50 INFO batch ok\n04:34:29 INFO batch ok\n15:14:38 ERROR peer lost\n02:10:14 INFO peer lost\n17:53:11 INFO batch ok\n22:35:04 INFO batch ok\n03:11:44 WARN batch ok\n21:13:43 INFO peer lost\n09:48:56 INFO peer lost\n08:20:34 INFO disk 91%\n00:18:51 INFO peer lost\n17:26:04 INFO batch ok\n22:29:38 INFO batch ok\n05:05:56 INFO peer lost\n08:42:46 INFO disk 91%\n07:35:18 INFO peer lost\n13:45:40 INFO peer lost\n09:30:07 INFO disk 91%\n06:35:07 INFO batch ok\n18:59:21 ERROR disk 91%\n17:01:13 INFO peer lost\n11:55:19 INFO disk 91%\n10:29:24 INFO peer lost\n21:54:45 ERROR batch ok\n02:13:27 INFO batch ok\n19:33:25 INFO disk 91%\n20:20:38 INFO batch ok\n00:39:14 WARN batch ok\n17:03:19 WARN peer lost\n12:31:23 INFO disk 91%\n22:10:02 ERROR peer lost\n07:57:52 ERROR batch ok\n00:35:03 INFO disk 91%\n08:00:27 INFO batch ok\n05:23:02 ERROR disk 91%\n02:55:04 INFO batch ok\n19:18:13 WARN batch ok\n03:21:03 INFO disk 91%\n04:06:12 ERROR batch ok\n05:18:38 WARN disk 91%\n06:59:28 INFO peer lost\n20:14:02 ERROR peer lost\n12:04:00 INFO disk 91%\n18:32:29 INFO peer lost\n17:53:35 INFO disk 91%\n09:49:56 ERROR batch ok\n14:34:26 ERROR peer lost\n22:10:16 INFO disk 91%\n05:56:55 ERROR batch ok\n14:51:11 ERROR disk 91%\n23:48:55 INFO batch ok\n08:33:43 INFO batch ok\n01:19:38 ERROR peer lost\n13:16:01 INFO peer lost\n06:43:17 INFO disk 91%\n16:25:47 INFO peer lost\n10:35:54 INFO disk 91%\n22:27:21 INFO peer lost\n20:46:12 INFO batch ok\n16:52:17 INFO batch ok\n03:02:49 ERROR batch ok\n13:53:49 INFO peer lost\n16:51:22 INFO batch ok\n01:48:33 ERROR disk 91%\n16:34:34 INFO peer lost\n02:18:57 INFO batch ok\n17:02:56 INFO disk 91%\n15:08:39 ERROR disk 91%\n05:57:40 ERROR disk 91%\n01:52:54 ERROR batch ok\n11:42:12 ERROR peer lost\n11:14:22 ERROR peer lost\n23:08:17 ERROR batch ok\n20:49:58 WARN peer lost\n01:12:41 ERROR batch ok\n03:40:30 INFO peer lost\n13:11:39 INFO batch ok\n16:49:41 ERROR disk 91%\n01:22:47 ERROR disk 91%\n14:04:59 INFO peer lost\n15:49:30 INFO disk 91%\n17:30:52 INFO disk 91%\n23:21:19 WARN disk 91%\n18:27:59 INFO peer lost\n00:05:08 INFO batch ok\n14:14:30 INFO disk 91%\n21:30:44 INFO peer lost\n22:15:29 INFO peer lost\n12:56:23 INFO peer lost\n04:14:55 WARN batch ok\n20:56:06 WARN peer lost\n01:25:34 INFO disk 91%\n20:39:24 INFO peer lost\n12:53:04 INFO batch ok\n15:18:58 ERROR batch ok\n00:19:51 INFO batch ok\n23:46:53 ERROR batch ok\n14:59:33 ERROR peer lost\n20:39:34 ERROR peer lost\n21:11:31 INFO batch ok\n14:56:47 INFO disk 91%\n08:34:28 INFO peer lost\n07:26:44 INFO peer lost\n03:57:12 ERROR batch ok\n01:17:41 ERROR disk 91%\n09:02:55 WARN disk 91%\n20:45:33 INFO peer lost\n11:11:36 INFO disk 91%\n18:07:06 INFO disk 91%\n18:53:01 INFO batch ok\n11:45:19 INFO peer lost\n05:42:28 INFO peer lost\n14:06:45 INFO peer lost\n",
+    "logs/app-2026-09-16.log": "00:00:01 INFO rotated\n"
+  },
+  "turns": [
+    {
+      "prompt": "昨天的日志里有多少条 ERROR？日志在 logs 目录下。",
+      "expect": {
+        "output_contains": [
+          "114"
+        ],
+        "output_excludes": [
+          "共 0",
+          "为 0",
+          "有 0 条"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

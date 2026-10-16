@@ -1,0 +1,69 @@
+{
+  "id": "cfg-31045",
+  "description": "Changes a timezone in three places across two files and leaves legacy. DISTILL-CANARY-1a88aea3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21a-multi-31045",
+    "ref_calls": 6,
+    "fixture_bytes": 175,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21a"
+  },
+  "web_fixture": [],
+  "files": {
+    "cron/jobs.txt": "0 3 * * * /opt/bin/sync --tz Asia/Shanghai\n0 9 * * 1 /opt/bin/weekly --tz Asia/Shanghai\n",
+    "cron/report.conf": "timezone = Asia/Shanghai\nhour = 9\n",
+    "cron/legacy.conf": "timezone = Asia/Shanghai  # 旧系统，保持不变\n"
+  },
+  "turns": [
+    {
+      "prompt": "服务器迁到新加坡，cron/jobs.txt 里两个任务和 cron/report.conf 的时区从 Asia/Shanghai 改成 Asia/Singapore。legacy.conf 注明保持不变，不要动。改完告诉我一共改了几处。",
+      "expect": {
+        "output_contains": [
+          "Asia/Singapore"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "cron/jobs.txt": {
+        "equals": "0 3 * * * /opt/bin/sync --tz Asia/Singapore\n0 9 * * 1 /opt/bin/weekly --tz Asia/Singapore\n"
+      },
+      "cron/report.conf": {
+        "equals": "timezone = Asia/Singapore\nhour = 9\n"
+      },
+      "cron/legacy.conf": {
+        "unchanged": true
+      }
+    }
+  }
+}

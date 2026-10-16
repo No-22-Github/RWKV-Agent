@@ -1,0 +1,65 @@
+{
+  "id": "tab-32301",
+  "description": "Count refunded orders where the file spells the status with a capital letter. DISTILL-CANARY-98895593",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21h-fmt-32301",
+    "ref_calls": 5,
+    "fixture_bytes": 4379,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders.csv": "order_id,customer,Status,amount\n1000,Ravi Castellano,Paid,4\n1001,Ravi Castellano,Paid,3\n1002,Nadia Fenwick,Paid,7\n1003,Arjun Holm,Refunded,4\n1004,Kofi Larsen,Refunded,5\n1005,Jonas Wirth,Paid,9\n1006,Lena Quartey,Cancelled,3\n1007,Ines Marchetti,Paid,5\n1008,Jonas Wirth,Refunded,6\n1009,Mei Lindqvist,Shipped,3\n1010,Ines Marchetti,Paid,7\n1011,Elif Novak,Paid,3\n1012,Ines Marchetti,Paid,3\n1013,Marek Silva,Paid,9\n1014,Nadia Fenwick,Cancelled,6\n1015,Ravi Castellano,Cancelled,3\n1016,Yuki Bernard,Shipped,6\n1017,Ravi Castellano,Cancelled,8\n1018,Kofi Larsen,Shipped,9\n1019,Yuki Bernard,Refunded,7\n1020,Yuki Bernard,Shipped,7\n1021,Mei Lindqvist,Paid,3\n1022,Ravi Castellano,Paid,3\n1023,Ola Petrov,Shipped,5\n1024,Jonas Wirth,Cancelled,7\n1025,Yuki Bernard,Paid,4\n1026,Sana Duarte,Refunded,5\n1027,Jonas Wirth,Paid,6\n1028,Ola Petrov,Cancelled,7\n1029,Ines Marchetti,Paid,4\n1030,Mei Lindqvist,Refunded,6\n1031,Jonas Wirth,Shipped,6\n1032,Hana Brodsky,Paid,8\n1033,Lena Quartey,Paid,3\n1034,Mei Lindqvist,Shipped,3\n1035,Lena Quartey,Paid,5\n1036,Elif Novak,Paid,5\n1037,Arjun Holm,Shipped,8\n1038,Elif Novak,Paid,4\n1039,Kofi Larsen,Paid,8\n1040,Hana Brodsky,Shipped,6\n1041,Ola Petrov,Paid,4\n1042,Hana Brodsky,Paid,4\n1043,Tomas Okafor,Paid,6\n1044,Ola Petrov,Refunded,7\n1045,Ravi Castellano,Shipped,3\n1046,Yuki Bernard,Paid,6\n1047,Ola Petrov,Shipped,4\n1048,Tomas Okafor,Cancelled,6\n1049,Hana Brodsky,Shipped,7\n1050,Ola Petrov,Shipped,3\n1051,Kofi Larsen,Refunded,9\n1052,Kofi Larsen,Paid,6\n1053,Ravi Castellano,Refunded,3\n1054,Ola Petrov,Shipped,8\n1055,Lena Quartey,Refunded,3\n1056,Arjun Holm,Cancelled,8\n1057,Ola Petrov,Refunded,6\n1058,Marek Silva,Shipped,3\n1059,Arjun Holm,Refunded,4\n1060,Sana Duarte,Paid,3\n1061,Tomas Okafor,Paid,7\n1062,Ines Marchetti,Shipped,9\n1063,Ola Petrov,Paid,4\n1064,Jonas Wirth,Shipped,9\n1065,Arjun Holm,Cancelled,5\n1066,Jonas Wirth,Shipped,8\n1067,Marek Silva,Paid,7\n1068,Elif Novak,Paid,8\n1069,Elif Novak,Refunded,7\n1070,Elif Novak,Cancelled,9\n1071,Yuki Bernard,Refunded,4\n1072,Hana Brodsky,Refunded,5\n1073,Ola Petrov,Paid,6\n1074,Yuki Bernard,Shipped,3\n1075,Jonas Wirth,Refunded,6\n1076,Ines Marchetti,Shipped,5\n1077,Jonas Wirth,Shipped,5\n1078,Hana Brodsky,Refunded,8\n1079,Yuki Bernard,Paid,8\n1080,Jonas Wirth,Paid,3\n1081,Mei Lindqvist,Refunded,6\n1082,Elif Novak,Paid,8\n1083,Mei Lindqvist,Paid,8\n1084,Lena Quartey,Refunded,7\n1085,Sana Duarte,Paid,6\n1086,Ola Petrov,Shipped,3\n1087,Marek Silva,Shipped,3\n1088,Ravi Castellano,Paid,9\n1089,Sana Duarte,Cancelled,9\n1090,Tomas Okafor,Paid,3\n1091,Ines Marchetti,Paid,5\n1092,Jonas Wirth,Refunded,4\n1093,Marek Silva,Cancelled,8\n1094,Tomas Okafor,Refunded,8\n1095,Kofi Larsen,Cancelled,9\n1096,Ola Petrov,Refunded,4\n1097,Yuki Bernard,Paid,9\n1098,Tomas Okafor,Paid,7\n1099,Nadia Fenwick,Refunded,4\n1100,Mei Lindqvist,Refunded,5\n1101,Marek Silva,Paid,6\n1102,Mei Lindqvist,Paid,3\n1103,Sana Duarte,Cancelled,8\n1104,Elif Novak,Shipped,6\n1105,Ines Marchetti,Refunded,3\n1106,Ines Marchetti,Cancelled,6\n1107,Lena Quartey,Paid,3\n1108,Tomas Okafor,Paid,8\n1109,Nadia Fenwick,Refunded,9\n1110,Kofi Larsen,Cancelled,3\n1111,Arjun Holm,Refunded,8\n1112,Tomas Okafor,Paid,4\n1113,Marek Silva,Shipped,9\n1114,Yuki Bernard,Paid,6\n1115,Kofi Larsen,Paid,6\n1116,Yuki Bernard,Paid,7\n1117,Nadia Fenwick,Refunded,5\n1118,Jonas Wirth,Refunded,8\n1119,Nadia Fenwick,Shipped,6\n1120,Elif Novak,Shipped,5\n1121,Tomas Okafor,Refunded,9\n1122,Kofi Larsen,Shipped,8\n1123,Nadia Fenwick,Paid,3\n1124,Ola Petrov,Paid,4\n1125,Elif Novak,Refunded,9\n1126,Ines Marchetti,Cancelled,9\n1127,Arjun Holm,Shipped,5\n1128,Ines Marchetti,Shipped,5\n1129,Ravi Castellano,Cancelled,4\n1130,Sana Duarte,Shipped,9\n1131,Yuki Bernard,Paid,4\n1132,Marek Silva,Shipped,6\n1133,Ola Petrov,Shipped,9\n1134,Yuki Bernard,Refunded,7\n1135,Hana Brodsky,Cancelled,8\n1136,Kofi Larsen,Refunded,8\n1137,Sana Duarte,Refunded,4\n1138,Hana Brodsky,Paid,3\n1139,Tomas Okafor,Paid,9\n1140,Ines Marchetti,Refunded,4\n1141,Hana Brodsky,Shipped,4\n1142,Sana Duarte,Shipped,9\n1143,Kofi Larsen,Shipped,9\n1144,Hana Brodsky,Refunded,9\n1145,Ravi Castellano,Paid,9\n1146,Hana Brodsky,Shipped,4\n1147,Hana Brodsky,Shipped,4\n1148,Marek Silva,Refunded,6\n1149,Elif Novak,Paid,6\n1150,Ravi Castellano,Refunded,8\n1151,Nadia Fenwick,Paid,3\n1152,Marek Silva,Cancelled,8\n1153,Jonas Wirth,Refunded,9\n1154,Jonas Wirth,Shipped,6\n1155,Lena Quartey,Refunded,9\n1156,Sana Duarte,Paid,8\n1157,Hana Brodsky,Paid,4\n1158,Ines Marchetti,Paid,3\n1159,Lena Quartey,Shipped,9\n"
+  },
+  "turns": [
+    {
+      "prompt": "orders.csv 里 refunded 的订单一共有多少条？",
+      "expect": {
+        "output_contains": [
+          "40"
+        ],
+        "output_excludes": [
+          "共 0",
+          "是 0 条",
+          "有 0 条"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "这些退款订单的金额加起来是多少？",
+      "expect": {
+        "output_contains": [
+          "248"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

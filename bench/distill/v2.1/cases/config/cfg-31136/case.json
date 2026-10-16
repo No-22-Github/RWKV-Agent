@@ -1,0 +1,68 @@
+{
+  "id": "cfg-31136",
+  "description": "Copy ini then adjust twice. DISTILL-CANARY-338eb510",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "b21b-revise-36",
+    "ref_calls": 4,
+    "fixture_bytes": 40,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "设置/默认.ini": "theme=light\nlang=zh\nfont=14\nautosave=on\n"
+  },
+  "turns": [
+    {
+      "prompt": "以 设置/默认.ini 为底，复制一份到 设置/我的.ini，把主题改成 dark，字号改成 16。默认那份别动。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "再加一行 proxy=off 放在最后，字号还是太小，改成 18 吧。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "设置/默认.ini": {
+        "unchanged": true
+      },
+      "设置/我的.ini": {
+        "equals": "theme=dark\nlang=zh\nfont=18\nautosave=on\nproxy=off\n"
+      }
+    }
+  }
+}

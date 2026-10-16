@@ -1,0 +1,53 @@
+{
+  "id": "code-31413",
+  "description": "Asks the default page size; the changelog shows it changed in the newest release. DISTILL-CANARY-505074c1",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "50"
+    },
+    "axes": [
+      "DEC",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21d-local-31413",
+    "ref_calls": 3,
+    "fixture_bytes": 126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "api/changelog.md": "# Changelog\n\n## 4.2.0 (2026-09-01)\n- default page size 100 (was 50)\n\n## 4.1.0\n- default page size 50\n",
+    "api/overview.md": "# Overview\nsee changelog\n"
+  },
+  "turns": [
+    {
+      "prompt": "接口默认每页返回多少条？",
+      "expect": {
+        "output_contains": [
+          "100"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "web_search"
+    ]
+  }
+}

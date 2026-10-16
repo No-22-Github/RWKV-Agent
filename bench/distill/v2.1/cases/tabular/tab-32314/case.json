@@ -1,0 +1,59 @@
+{
+  "id": "tab-32314",
+  "description": "Total quantity for a warehouse in a semicolon separated file. DISTILL-CANARY-e4034c3d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "0"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21h-col-32314",
+    "ref_calls": 4,
+    "fixture_bytes": 3154,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21h"
+  },
+  "web_fixture": [],
+  "files": {
+    "stock.csv": "sku;warehouse;qty\nSK-001;Gdansk;3\nSK-002;Gdansk;8\nSK-003;Bremen;1\nSK-004;Bremen;2\nSK-005;Gdansk;3\nSK-006;Turin;3\nSK-007;Bremen;7\nSK-008;Gdansk;7\nSK-009;Gdansk;3\nSK-010;Bremen;4\nSK-011;Bremen;1\nSK-012;Turin;8\nSK-013;Gdansk;7\nSK-014;Bremen;4\nSK-015;Bremen;1\nSK-016;Bremen;7\nSK-017;Turin;7\nSK-018;Gdansk;5\nSK-019;Gdansk;5\nSK-020;Turin;2\nSK-021;Turin;1\nSK-022;Bremen;9\nSK-023;Bremen;5\nSK-024;Turin;8\nSK-025;Bremen;6\nSK-026;Bremen;6\nSK-027;Gdansk;1\nSK-028;Gdansk;3\nSK-029;Bremen;1\nSK-030;Gdansk;7\nSK-031;Bremen;2\nSK-032;Bremen;3\nSK-033;Gdansk;5\nSK-034;Bremen;9\nSK-035;Gdansk;2\nSK-036;Bremen;9\nSK-037;Gdansk;5\nSK-038;Gdansk;3\nSK-039;Turin;9\nSK-040;Bremen;1\nSK-041;Turin;1\nSK-042;Turin;8\nSK-043;Bremen;8\nSK-044;Gdansk;4\nSK-045;Gdansk;1\nSK-046;Turin;7\nSK-047;Bremen;7\nSK-048;Turin;9\nSK-049;Gdansk;3\nSK-050;Bremen;9\nSK-051;Turin;4\nSK-052;Turin;1\nSK-053;Bremen;8\nSK-054;Turin;9\nSK-055;Turin;3\nSK-056;Turin;3\nSK-057;Bremen;2\nSK-058;Gdansk;9\nSK-059;Bremen;5\nSK-060;Gdansk;6\nSK-061;Gdansk;3\nSK-062;Turin;2\nSK-063;Turin;4\nSK-064;Bremen;4\nSK-065;Bremen;6\nSK-066;Bremen;8\nSK-067;Bremen;8\nSK-068;Bremen;7\nSK-069;Turin;5\nSK-070;Gdansk;2\nSK-071;Gdansk;7\nSK-072;Bremen;2\nSK-073;Bremen;9\nSK-074;Bremen;4\nSK-075;Turin;4\nSK-076;Turin;5\nSK-077;Turin;9\nSK-078;Bremen;9\nSK-079;Bremen;1\nSK-080;Turin;1\nSK-081;Gdansk;5\nSK-082;Bremen;2\nSK-083;Bremen;7\nSK-084;Gdansk;6\nSK-085;Bremen;6\nSK-086;Turin;2\nSK-087;Gdansk;6\nSK-088;Gdansk;6\nSK-089;Bremen;9\nSK-090;Turin;9\nSK-091;Bremen;6\nSK-092;Turin;2\nSK-093;Bremen;1\nSK-094;Gdansk;1\nSK-095;Bremen;4\nSK-096;Turin;1\nSK-097;Bremen;7\nSK-098;Turin;4\nSK-099;Gdansk;3\nSK-100;Turin;6\nSK-101;Gdansk;4\nSK-102;Bremen;1\nSK-103;Bremen;7\nSK-104;Gdansk;4\nSK-105;Gdansk;8\nSK-106;Turin;2\nSK-107;Bremen;9\nSK-108;Bremen;5\nSK-109;Gdansk;9\nSK-110;Turin;7\nSK-111;Turin;4\nSK-112;Bremen;5\nSK-113;Bremen;9\nSK-114;Turin;9\nSK-115;Turin;7\nSK-116;Gdansk;1\nSK-117;Bremen;8\nSK-118;Gdansk;5\nSK-119;Turin;3\nSK-120;Gdansk;1\nSK-121;Gdansk;7\nSK-122;Bremen;6\nSK-123;Gdansk;4\nSK-124;Gdansk;4\nSK-125;Gdansk;7\nSK-126;Bremen;7\nSK-127;Bremen;1\nSK-128;Turin;6\nSK-129;Bremen;2\nSK-130;Bremen;9\nSK-131;Bremen;5\nSK-132;Turin;8\nSK-133;Turin;4\nSK-134;Gdansk;3\nSK-135;Gdansk;4\nSK-136;Gdansk;8\nSK-137;Turin;1\nSK-138;Bremen;4\nSK-139;Turin;1\nSK-140;Bremen;2\nSK-141;Turin;7\nSK-142;Bremen;8\nSK-143;Gdansk;2\nSK-144;Turin;5\nSK-145;Turin;9\nSK-146;Gdansk;5\nSK-147;Gdansk;3\nSK-148;Gdansk;9\nSK-149;Gdansk;4\nSK-150;Turin;2\nSK-151;Bremen;9\nSK-152;Bremen;7\nSK-153;Bremen;3\nSK-154;Turin;7\nSK-155;Bremen;9\nSK-156;Bremen;7\nSK-157;Turin;4\nSK-158;Turin;1\nSK-159;Turin;5\nSK-160;Turin;7\nSK-161;Turin;5\nSK-162;Turin;3\nSK-163;Turin;5\nSK-164;Turin;2\nSK-165;Turin;3\nSK-166;Gdansk;6\nSK-167;Turin;4\nSK-168;Gdansk;9\nSK-169;Bremen;2\nSK-170;Gdansk;7\nSK-171;Gdansk;8\nSK-172;Gdansk;2\nSK-173;Gdansk;6\nSK-174;Turin;7\nSK-175;Bremen;1\nSK-176;Turin;3\nSK-177;Gdansk;1\nSK-178;Gdansk;2\nSK-179;Turin;9\nSK-180;Bremen;3\nSK-181;Gdansk;2\nSK-182;Gdansk;2\nSK-183;Turin;3\nSK-184;Bremen;6\nSK-185;Gdansk;5\nSK-186;Turin;7\nSK-187;Turin;6\nSK-188;Turin;2\nSK-189;Turin;7\nSK-190;Turin;8\nSK-191;Bremen;7\nSK-192;Bremen;1\nSK-193;Bremen;4\nSK-194;Bremen;1\nSK-195;Gdansk;3\nSK-196;Bremen;7\nSK-197;Gdansk;1\nSK-198;Bremen;9\nSK-199;Bremen;9\nSK-200;Gdansk;2\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total quantity held in the Gdansk warehouse according to stock.csv?",
+      "expect": {
+        "output_contains": [
+          "277"
+        ],
+        "output_excludes": [
+          "is 0",
+          "total of 0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator",
+      "data_query"
+    ]
+  }
+}

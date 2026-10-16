@@ -1,0 +1,47 @@
+{
+  "id": "log-31365",
+  "description": "Asks for the error count when exactly one log exists. DISTILL-CANARY-6ac108dc",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "b21d-solo-31365",
+    "ref_calls": 3,
+    "fixture_bytes": 1222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21d"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/app.log": "2026-09-16 08:00:00 INFO request served\n2026-09-16 08:01:37 ERROR db connection reset\n2026-09-16 08:03:14 INFO health check ok\n2026-09-16 08:04:51 ERROR disk quota warning escalated\n2026-09-16 08:06:28 INFO job finished\n2026-09-16 08:08:05 ERROR upstream timeout\n2026-09-16 08:09:42 INFO request served\n2026-09-16 08:11:19 ERROR payment declined by bank\n2026-09-16 08:12:56 INFO health check ok\n2026-09-16 08:14:33 ERROR invalid token\n2026-09-16 08:16:10 INFO job finished\n2026-09-16 08:17:47 ERROR db connection reset\n2026-09-16 08:19:24 INFO request served\n2026-09-16 08:21:01 ERROR disk quota warning escalated\n2026-09-16 08:22:38 INFO health check ok\n2026-09-16 08:24:15 ERROR upstream timeout\n2026-09-16 08:25:52 INFO job finished\n2026-09-16 08:27:29 ERROR payment declined by bank\n2026-09-16 08:29:06 INFO request served\n2026-09-16 08:30:43 ERROR invalid token\n2026-09-16 08:32:20 INFO health check ok\n2026-09-16 08:33:57 ERROR db connection reset\n2026-09-16 08:35:34 INFO job finished\n2026-09-16 08:37:11 ERROR disk quota warning escalated\n2026-09-16 08:38:48 INFO request served\n2026-09-16 08:40:25 ERROR upstream timeout\n2026-09-16 08:42:02 INFO health check ok\n2026-09-16 08:43:39 ERROR payment declined by bank\n"
+  },
+  "turns": [
+    {
+      "prompt": "统计一下报错有多少条。",
+      "expect": {
+        "output_contains": [
+          "14"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text"
+    ]
+  }
+}

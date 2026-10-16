@@ -1,0 +1,64 @@
+{
+  "id": "hyb-31160",
+  "description": "Merged trip days then restored, Friday changed. DISTILL-CANARY-bda46639",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21b-undo-60",
+    "ref_calls": 4,
+    "fixture_bytes": 84,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21b"
+  },
+  "web_fixture": [],
+  "files": {
+    "日历/周计划.csv": "星期,事项\n周一,例会\n周二,评审\n周三,出差\n周四,出差\n周五,复盘\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 日历/周计划.csv 里连着两天的出差合成一天，只保留周三。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "不行，周四也得留着出差，恢复。周五的复盘改成团建就行。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "日历/周计划.csv": {
+        "equals": "星期,事项\n周一,例会\n周二,评审\n周三,出差\n周四,出差\n周五,团建\n"
+      }
+    }
+  }
+}
