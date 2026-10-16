@@ -26,6 +26,14 @@ describe('thoughts in the activity card', () => {
     expect(within(first).getAllByText('The user wants the weather.').length).toBeGreaterThan(0)
   })
 
+  it('shows the live preview only while the card is collapsed', () => {
+    const thought = { step: 1, text: 'The user wants the weather in Guangzhou and Chengdu.' }
+    render(<ToolActivity calls={[]} thoughts={[thought]} running liveThought={thought.text} />)
+    expect(screen.getByTestId('live-thought')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /正在思考/ }))
+    expect(screen.queryByTestId('live-thought')).not.toBeInTheDocument()
+  })
+
   it('renders nothing live before the model thinks', () => {
     const { container } = render(<LiveThought text="  " />)
     expect(container).toBeEmptyDOMElement()

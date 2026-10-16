@@ -25,7 +25,7 @@ import SettingsPage from './components/SettingsPage'
 import PixelLoader from './components/PixelLoader'
 import Wordmark from './components/Wordmark'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
-import { LiveThought, stepThoughts } from './components/LiveThought'
+import { stepThoughts } from './components/LiveThought'
 import type { Thought } from './components/ToolActivity'
 import { shortMeta } from './runNames'
 import TrajectoryView from './trajectory/TrajectoryView'
@@ -556,9 +556,8 @@ function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, o
   return <article className={`mb-[42px] conversation-turn${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter animate-turn-enter motion-reduce:animate-none' : ''}`} data-testid={`conversation-turn-${index}`}>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <UserMessage content={turn.user.content} canEdit={last} busy={busy} onEdit={onEditLast} />}
-      {(calls.length > 0 || thoughts.length > 0) && <ToolActivity calls={calls} thoughts={thoughts} running={pending && !liveAnswer} liveLabel={liveLabel} />}
+      {(calls.length > 0 || thoughts.length > 0) && <ToolActivity calls={calls} thoughts={thoughts} running={pending && !liveAnswer} liveLabel={liveLabel} liveThought={pending ? liveThoughts.find((thought) => thought.step === liveModelStep)?.text : ''} />}
       {pending && !liveAnswer && calls.length === 0 && thoughts.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
-      {pending && !liveAnswer && <LiveThought text={liveThoughts.find((thought) => thought.step === liveModelStep)?.text || ''} />}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} immediate={immediate} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>

@@ -3,6 +3,7 @@ import { Brain, ChevronRight, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import AnimatedToolIcon from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
+import { LiveThought } from './LiveThought'
 import { isKnownTool, toolRunning, toolSummary, toolVerb } from '../i18n/toolLabels'
 import type { Step } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SubagentTrace, ToolTrace } from '../trajectory-types'
@@ -161,9 +162,11 @@ type Props = {
   running?: boolean
   /** 运行中摘要行的文字（如「步骤 3 · 正在决定下一步」）；不传则用最新调用。 */
   liveLabel?: string
+  /** 正在生成的这一步的思考：卡片收起时在摘要行下露最后两行；展开后由思考行自己显示，不重复。 */
+  liveThought?: string
 }
 
-export default function ToolActivity({ calls, thoughts = [], running = false, liveLabel }: Props) {
+export default function ToolActivity({ calls, thoughts = [], running = false, liveLabel, liveThought = '' }: Props) {
   const [open, setOpen] = useState(false)
   // 本次挂载期间跑过的卡片，结束时才播定格动画；历史回合挂载时就是完成态。
   const ranHere = useRef(running)
@@ -190,6 +193,7 @@ export default function ToolActivity({ calls, thoughts = [], running = false, li
         : <span className="min-w-0 truncate">{summary}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
       <ChevronRight size={15} className={`flex-none transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
+    {running && !open && liveThought && <div className="mt-[6px]"><LiveThought text={liveThought} /></div>}
     <ActivityDisclosure open={open}><div className="tool-activity-panel mt-[10px] overflow-hidden rounded-xl border border-line bg-card-bg">
       {timeline.map((entry) => entry.kind === 'thought'
         ? <ThoughtRow key={`thought${entry.thought.step}`} thought={entry.thought} live={running && entry === latestEntry} />
@@ -252,12 +256,14 @@ function GroupRow({ group }: { group: CallGroup }) {
 /* 思考行：收起时一行显示思考开头，展开看全文；正在写的那段思考图标会动。 */
 function ThoughtRow({ thought, live }: { thought: Thought; live: boolean }) {
   const [open, setOpen] = useState(false)
-  const preview = thought.text.replace(/\s+/g, ' ').trim()
+  const flat = thought.text.replace(/\s+/g, ' ').trim()
+  // 正在写的思考显示最新的一截，展开卡片时也看得到它在往前走；写完的显示开头。
+  const preview = live && flat.length > 60 ? `…${flat.slice(-60)}` : flat
   return <div className="border-b border-line last:border-b-0" data-testid="thought-row">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex w-full min-w-0 items-center gap-[10px] border-0 bg-transparent px-[14px] py-[10px] text-left transition-colors hover:bg-surface-active">
       <Brain size={15} className={`flex-none text-ink-muted ${live ? 'animate-pulse motion-reduce:animate-none' : ''}`} />
       <span className="flex-none text-ink-muted">思考</span>
-      <span className={`min-w-0 truncate text-ink-soft ${live ? 'shimmer-text' : ''}`} title={preview}>{preview}</span>
+      <span className={`min-w-0 truncate text-ink-soft ${live ? 'shimmer-text' : ''}`} title={flat}>{preview}</span>
       <span className="flex-1" />
       <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
