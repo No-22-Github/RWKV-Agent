@@ -462,3 +462,38 @@ func TestWebFetchHasContent(t *testing.T) {
 		}
 	}
 }
+
+func TestWebFetchReportsPagesTheProviderDropped(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
+		_, _ = writer.Write([]byte(`{"results":[{"url":"https://example.com/ok/","raw_content":"body"}],"failed_results":[{"url":"https://example.com/gone"}]}`))
+	}))
+	defer server.Close()
+	fetch, err := NewTavilyFetchProvider(TavilyConfig{APIKey: "k", Endpoint: server.URL, HTTPClient: server.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, err := WebTools(WebOptions{Fetch: fetch})[1].Execute(context.Background(),
+		json.RawMessage(`{"urls":["https://example.com/ok","https://example.com/gone"]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := value.(map[string]any)
+	pages := result["pages"].([]WebFetchResult)
+	if len(pages) != 2 || pages[1].URL != "https://example.com/gone" || pages[1].Content != "" || pages[1].SourceID != "page-2" {
+		t.Fatalf("pages = %+v", pages)
+	}
+	if result["note"] != partialWebFetchNote {
+		t.Fatalf("note = %v", result["note"])
+	}
+}
+
+func TestFillMissingPagesLeavesRedirectsAlone(t *testing.T) {
+	t.Parallel()
+	results := []WebFetchResult{{SourceID: "page-1", URL: "https://example.com/final", Content: "body"}}
+	got := fillMissingPages([]string{"https://example.com/start"}, results)
+	if len(got) != 1 {
+		t.Fatalf("redirected page was refilled: %+v", got)
+	}
+}

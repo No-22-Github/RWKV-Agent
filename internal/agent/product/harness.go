@@ -241,7 +241,7 @@ func markdownPostToolHook(name string, _ json.RawMessage, value any, _ error) st
 	switch name {
 	case "web_fetch":
 		if !tools.WebFetchHasContent(value) {
-			return "NEXT: No page content came back. Fetch one different URL, or answer the user directly and say the page could not be read."
+			return "NEXT: 页面没有返回正文。可以换一个网址再抓；没有别的网址就直接告诉用户页面读不到，不要编造。"
 		}
 		return "NEXT: Use the fetched page content above and answer the user directly now. Do not call web_search or web_fetch again."
 	case "spawn_agents":

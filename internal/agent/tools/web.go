@@ -209,8 +209,9 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 // "tell the user ..." phrasings in English were sometimes echoed verbatim as
 // the final answer and a flat "do not search again" invited a made-up date.
 const (
-	emptyWebSearchNote = "没有搜到任何结果。同样的关键词再搜也不会有结果。最多换一种说法再搜一次；还是没有，就直接告诉用户没查到。不要编造。"
-	emptyWebFetchNote  = "这个页面没有返回任何正文。同一个网址再抓也不会有内容。如果有别的网址可以换一个；没有就直接告诉用户页面读不到。不要编造页面内容。"
+	emptyWebSearchNote  = "没有搜到任何结果。同样的关键词再搜也不会有结果。最多换一种说法再搜一次；还是没有，就直接告诉用户没查到。不要编造。"
+	emptyWebFetchNote   = "这个页面没有返回任何正文。同一个网址再抓也不会有内容。如果有别的网址可以换一个；没有就直接告诉用户页面读不到。不要编造页面内容。"
+	partialWebFetchNote = "有的页面没有返回任何正文（content 为空），同一个网址再抓也不会有内容。只根据有正文的页面回答，并告诉用户哪个页面读不到。不要编造读不到的页面内容。"
 )
 
 // WebFetchHasContent reports whether a web_fetch result carries any page text.
@@ -288,6 +289,7 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	if err != nil {
 		return nil, err
 	}
+	results = fillMissingPages(args.URLs, results)
 	// Share one token budget across the fetched pages, in URL order. A page
 	// that fits entirely leaves its remainder for later pages; a page that
 	// exhausts the budget is rune-sliced and flagged.
@@ -323,8 +325,52 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	value := map[string]any{"pages": results}
 	if !WebFetchHasContent(value) {
 		value["note"] = emptyWebFetchNote
+	} else if blankPages(results) > 0 {
+		value["note"] = partialWebFetchNote
 	}
 	return value, nil
+}
+
+// fillMissingPages gives every requested URL a page entry. Tavily drops the
+// URLs it could not extract, which left the model unable to tell a failed page
+// from one it never asked for. Only a short result list is filled: when the
+// counts match, a returned URL that differs from the request is a redirect,
+// not a failure.
+func fillMissingPages(requested []string, results []WebFetchResult) []WebFetchResult {
+	if len(results) >= len(requested) {
+		return results
+	}
+	returned := make(map[string]bool, len(results))
+	for _, page := range results {
+		returned[pageKey(page.URL)] = true
+	}
+	for _, pageURL := range requested {
+		if returned[pageKey(pageURL)] {
+			continue
+		}
+		returned[pageKey(pageURL)] = true
+		results = append(results, WebFetchResult{
+			SourceID: fmt.Sprintf("page-%d", len(results)+1),
+			URL:      pageURL,
+		})
+	}
+	return results
+}
+
+func pageKey(pageURL string) string {
+	return strings.ToLower(strings.TrimRight(strings.TrimSpace(pageURL), "/"))
+}
+
+// blankPages counts pages that came back without text. A page emptied by the
+// shared token budget is flagged truncated and does not count.
+func blankPages(pages []WebFetchResult) int {
+	count := 0
+	for _, page := range pages {
+		if !page.Truncated && strings.TrimSpace(page.Content) == "" {
+			count++
+		}
+	}
+	return count
 }
 
 type BraveConfig struct {

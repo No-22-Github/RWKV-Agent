@@ -45,14 +45,14 @@ func TestWebFixtureFetchError(t *testing.T) {
 		}
 	})
 
-	t.Run("a miss without any entry keeps the not-found page", func(t *testing.T) {
+	t.Run("a miss without any entry is absent, as with Tavily", func(t *testing.T) {
 		results, err := provider.Fetch(context.Background(), tools.WebFetchRequest{
 			URLs: []string{"https://status.example.com/unknown"},
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(results) != 1 || results[0].Content != "[fixture] no page matched this URL." {
+		if len(results) != 0 {
 			t.Fatalf("results = %+v", results)
 		}
 	})

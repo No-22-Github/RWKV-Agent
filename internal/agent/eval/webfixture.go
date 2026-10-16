@@ -84,7 +84,7 @@ func (f webFixtureProviders) Fetch(
 	request tools.WebFetchRequest,
 ) ([]tools.WebFetchResult, error) {
 	results := make([]tools.WebFetchResult, 0, len(request.URLs))
-	for index, pageURL := range request.URLs {
+	for _, pageURL := range request.URLs {
 		lowered := strings.ToLower(pageURL)
 		// The most specific match wins, not the first one declared. One
 		// fixture URL is routinely a prefix of another — ".../desk-rates" and
@@ -106,14 +106,15 @@ func (f webFixtureProviders) Fetch(
 		if best >= 0 && f.entries[best].Error != "" {
 			return nil, fmt.Errorf("%s", f.entries[best].Error)
 		}
-		content := "[fixture] no page matched this URL."
-		if best >= 0 {
-			content = f.entries[best].Content
+		if best < 0 {
+			// Like Tavily, an unextractable URL is simply absent from the
+			// response; web_fetch then reports it as a blank page.
+			continue
 		}
 		results = append(results, tools.WebFetchResult{
-			SourceID: fmt.Sprintf("page-%d", index+1),
+			SourceID: fmt.Sprintf("page-%d", len(results)+1),
 			URL:      pageURL,
-			Content:  content,
+			Content:  f.entries[best].Content,
 		})
 	}
 	return results, nil

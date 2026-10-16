@@ -89,7 +89,7 @@ func TestTaskControlComposition(t *testing.T) {
 func TestMarkdownPostToolHookEmptyFetchAllowsRecovery(t *testing.T) {
 	empty := map[string]any{"pages": []tools.WebFetchResult{{URL: "https://example.com", Content: ""}}}
 	hook := markdownPostToolHook("web_fetch", nil, empty, nil)
-	if strings.Contains(hook, "fetched page content") || !strings.Contains(hook, "could not be read") {
+	if strings.Contains(hook, "fetched page content") || !strings.Contains(hook, "读不到") {
 		t.Fatalf("empty fetch hook = %q", hook)
 	}
 	full := map[string]any{"pages": []tools.WebFetchResult{{Content: "body"}}}
