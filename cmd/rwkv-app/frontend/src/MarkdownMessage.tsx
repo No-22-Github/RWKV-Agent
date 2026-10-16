@@ -154,7 +154,7 @@ const markdownComponents: Components = {
   },
   table({ children, node: _node, ...props }) {
     return (
-      <div className="overflow-x-auto">
+      <div className="md-table overflow-x-auto">
         <table {...props}>{children}</table>
       </div>
     )
@@ -171,17 +171,12 @@ const markdownComponents: Components = {
 
 export default function MarkdownMessage({ content, streaming, staticChars = 0 }: MarkdownMessageProps) {
   const blocks = splitTopLevelBlocks(content)
-  let plainCount = 0
   let cursor = 0
 
   return (
     <div className={`md-markdown${streaming ? ' stream-blocks' : ''}`}>
       {blocks.map((block, index) => {
-        const isPlain = isPlainParagraph(block)
-        if (isPlain) plainCount++
-        // 首个普通段落作为引言不编号，其后的论点从 1 开始编号（对齐设计稿的「引言 + 编号论点」）
-        const numbered = isPlain && plainCount > 1
-        const pointNumber = plainCount - 1
+        // 段落原样显示，不自动编号：编号只来自模型自己写的有序列表，否则会给普通段落凭空加 1、2、3。
         const start = Math.max(cursor, content.indexOf(block, cursor))
         cursor = start + block.length
         // 整块都在恢复进度之内：不拆字、不做块级淡入；跨越边界的块只把前半截标成静态。
@@ -199,14 +194,7 @@ export default function MarkdownMessage({ content, streaming, staticChars = 0 }:
         )
 
         const staticClass = streaming && start < staticChars ? 'stream-static' : undefined
-        if (!numbered) return <div key={index} className={staticClass}>{markdown}</div>
-
-        return (
-          <div key={index} className={`grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px] answer-para${staticClass ? ` ${staticClass}` : ''}`}>
-            <span className="answer-para-num text-md font-bold leading-[1.95] text-brand">{pointNumber}</span>
-            <div className="min-w-0">{markdown}</div>
-          </div>
-        )
+        return <div key={index} className={staticClass}>{markdown}</div>
       })}
     </div>
   )
@@ -249,18 +237,6 @@ function splitTopLevelBlocks(content: string): string[] {
 
 function isStandaloneBoldHeading(line: string): boolean {
   return /^(?:\*\*[^*\n]+\*\*|__[^_\n]+__)[ \t]*$/.test(line)
-}
-
-function isPlainParagraph(block: string): boolean {
-  const trimmed = block.trim()
-  if (!trimmed) return false
-  if (isStandaloneBoldHeading(block)) return false
-  if (/^(#{1,6})\s/.test(trimmed)) return false
-  if (/^([-*+]|\d+[.)])\s+/.test(trimmed)) return false
-  if (/^```|^~~~/.test(trimmed)) return false
-  if (/^>\s?/.test(trimmed)) return false
-  if (/^\s*\|/.test(trimmed) || trimmed.includes('\n|')) return false
-  return true
 }
 
 function CodeBlock({ className, code }: CodeBlockProps) {

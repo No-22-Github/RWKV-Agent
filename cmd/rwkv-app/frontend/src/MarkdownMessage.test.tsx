@@ -15,13 +15,19 @@ describe('MarkdownMessage', () => {
       for (const title of ['近期天气', '热门景点', '出游建议']) {
         const heading = [...container.querySelectorAll('strong')].find((node) => node.textContent === title)!
         expect(heading).toBeDefined()
-        expect(heading.closest('li, ul, ol, .answer-para')).toBeNull()
+        expect(heading.closest('li, ul, ol')).toBeNull()
       }
       expect(container.querySelector('ol > li > ul')).toHaveTextContent('门票：免费')
       expect(container.querySelector('ol > li > ul > li > ul')).toHaveTextContent('历史展厅')
       expect(container.querySelector('ol > li > ul')).toHaveTextContent('馆内展览')
       unmount()
     }
+  })
+
+  it('does not number plain paragraphs the model did not number', () => {
+    const { container } = render(<MarkdownMessage content={'两地天气如下：\n\n| 项目 | 广州 |\n|---|---|\n| 最高气温 | 33°C |\n\n最高气温差 **11°C**。\n\n建议带伞。'} />)
+    expect(container.querySelector('ol')).toBeNull()
+    expect([...container.querySelectorAll('p')].map((node) => node.textContent)).toEqual(['两地天气如下：', '最高气温差 11°C。', '建议带伞。'])
   })
 
   it('preserves bold-looking lines inside fenced code', () => {

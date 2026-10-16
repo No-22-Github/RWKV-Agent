@@ -17,6 +17,8 @@
 .turn-answer .md-markdown ul.contains-task-list { list-style: none; }
 .turn-answer .md-markdown li::marker { color: var(--ink-muted); }
 
+.turn-answer .md-markdown .md-table { margin: 6px 0 14px; }
+
 .turn-answer .md-markdown table { width: 100%; border-top: 1.5px solid var(--ink); border-collapse: collapse; font-size: 13px; line-height: 1.55; }
 
 .turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line-soft); padding: 8px 10px; text-align: left; }
@@ -24,8 +26,6 @@
 .turn-answer .md-markdown th { color: var(--ink-muted); font-size: 10.5px; font-weight: 500; text-transform: uppercase; }
 
 .turn-answer .md-markdown code:not(pre code) { color: var(--brand); font: 12px var(--mono); }
-
-.turn-answer .md-markdown .answer-para p { margin-bottom: 0; }
 
 /* 黑白单色主题里链接是唯一的彩色：不加颜色和下划线时它和正文完全一样，看不出能点。 */
 .turn-answer .md-markdown a { color: var(--link); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; transition: color 120ms, text-decoration-color 120ms; }
