@@ -138,7 +138,8 @@ function bootstrapWithRunningProvider(config: Partial<Config> = {}, profile: Par
 
 /* 等 Bootstrap 的档案列表真正水合（模型徽标渲染）再打开设置，否则会走新建草稿分支。 */
 async function waitRuntimeReady() {
-  await screen.findAllByText('rwkv7-test')
+  // 芯片显示缩短后的名字（去掉 rwkv7- 前缀），完整名在悬停提示里。
+  await waitFor(() => expect(document.querySelector('button[title^="rwkv7-test"]')).not.toBeNull())
 }
 
 function switchToRemoteProvider() {
@@ -191,7 +192,8 @@ describe('App', () => {
 
     const modelChipSelector = `button[title^="${model}"]`
     await waitFor(() => expect(container.querySelector(modelChipSelector)).not.toBeNull())
-    expect(container.querySelector(modelChipSelector)).toHaveTextContent(model)
+    // 芯片只显示认得出是哪个的前半段，完整名留在悬停提示里。
+    expect(container.querySelector(modelChipSelector)).toHaveTextContent('g1i-13.3b-20260805…')
   })
 
   it('opens the settings page from the sidebar', () => {

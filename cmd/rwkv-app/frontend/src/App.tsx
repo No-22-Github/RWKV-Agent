@@ -26,6 +26,7 @@ import PixelLoader from './components/PixelLoader'
 import Wordmark from './components/Wordmark'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
 import ThinkingTrail, { LiveThought } from './components/ThinkingTrail'
+import { shortMeta } from './runNames'
 import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
@@ -616,7 +617,7 @@ function TurnActions({ response, meta, canRegenerate, busy, hasTrace, onRegenera
     {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
     {canRegenerate && <IconButton label={regenerateLabel} disabled={busy} onClick={onRegenerate}><RotateCcw size={15} /></IconButton>}
     {hasTrace && <IconButton label="查看轨迹" onClick={onTrace}><ListTree size={15} /></IconButton>}
-    {meta && <span className="ml-[10px] min-w-0 truncate font-mono text-2xs text-ink-ghost">{meta}</span>}
+    {meta && <span className="ml-[10px] min-w-0 truncate font-mono text-2xs text-ink-ghost" title={meta}>{shortMeta(meta)}</span>}
   </div>
 }
 

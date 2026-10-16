@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Folder, Globe, Layers, Loader2, Network, Puzzle, Search } from 'lucide-react'
 import { ModelState, Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { shortRunName } from '../runNames'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import RunConfigDropdown from './RunConfigDropdown'
@@ -43,10 +44,10 @@ export default function RunChips(props: Props) {
   return <div className="flex min-w-0 flex-wrap items-center gap-[6px]">
     <div className="relative min-w-0">
       {/* 模型标签：完整信息放在悬停提示与弹出菜单里，标签本身只认得出「是哪个」。 */}
-      <button type="button" className={`${chipClass} max-w-[260px]`} data-run-config-trigger aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
+      <button type="button" className={`${chipClass} max-w-[200px]`} data-run-config-trigger aria-label={status.model ? `运行配置：${status.model}` : '运行配置'} aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
         title={[status.model || '运行配置', ready && status.adapterId ? `MiSS：${status.adapterId}` : '', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
         {loading ? <Loader2 size={11} className="animate-spin-fast motion-reduce:animate-none flex-none" /> : <span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-ghost'}`} />}
-        <span className="truncate text-ink">{status.model || '选择模型'}</span>
+        <span className="truncate text-ink">{status.model ? shortRunName(status.model) : '选择模型'}</span>
         <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
       </button>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} providers={providers} runtimeProviderId={runtimeProviderId} onActivate={props.onActivate} onOpenSettings={props.onOpenSettings} />
@@ -150,9 +151,9 @@ function RemotePickerChip({ config, current, busy, onSelect, onManage, icon, kin
   const filtered = options?.filter((option) => `${option.label} ${option.id}`.toLocaleLowerCase().includes(search))
 
   return <div ref={ref} className="relative min-w-0">
-    <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `${kind}：${current}` : `未使用 ${kind}`} className={`${chipClass} max-w-[220px]`}>
+    <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `${kind}：${current}` : `未使用 ${kind}`} className={`${chipClass} max-w-[180px]`}>
       {icon}
-      <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current || chipNone}</span>
+      <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current ? shortRunName(current) : chipNone}</span>
       <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
     </button>
     {mounted && createPortal(<div ref={menuRef} inert={!open} style={placement} className={`fixed z-[60] flex origin-bottom-left flex-col overflow-hidden rounded-xl border border-line bg-paper-wash py-[4px] shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
