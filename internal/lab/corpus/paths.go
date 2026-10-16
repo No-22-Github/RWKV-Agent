@@ -50,6 +50,10 @@ type Action struct {
 	Tool      string // empty for a final answer
 	Final     bool
 	Reasoning string // the teacher's thinking for this step; not part of the path's identity
+	// Context marks an action kept only as context (v2.1 --keep-recovery): a
+	// tool call that errored or was rejected. Render replays it, so the
+	// student sees the error or rejection, but its span is not trained.
+	Context bool
 }
 
 // Trajectory is one case's actions, in order.
@@ -125,6 +129,16 @@ func NormalizeArguments(name string, arguments *lab.OrderedMap) *lab.OrderedMap 
 
 // Extract returns the actions of one passing run, or an Unclean reason.
 func Extract(run CaseRun) (Trajectory, error) {
+	return ExtractWith(run, false)
+}
+
+// ExtractWith is Extract with v2.1's keepRecovery: a tool call that errored
+// or was rejected stays in the path as a context-only action instead of
+// dropping the run, and a final answer from the answer stage (the harness
+// disabled the tools: duplicate or same-tool rescue, step budget) is kept and
+// trained. These are the recovery paths the student needs: change the call
+// after an error, answer from the evidence once the tools are gone.
+func ExtractWith(run CaseRun, keepRecovery bool) (Trajectory, error) {
 	if run.Retries > 0 {
 		return nil, Unclean("protocol retry")
 	}
@@ -134,7 +148,8 @@ func Extract(run CaseRun) (Trajectory, error) {
 			return nil, Unclean("turn without steps")
 		}
 		for index, step := range result.Steps {
-			if step.Stage != agent.StageDecision {
+			answerStage := keepRecovery && step.Stage == agent.StageAnswer && step.ActionType == "final"
+			if step.Stage != agent.StageDecision && !answerStage {
 				stage := string(step.Stage)
 				if stage == "" {
 					stage = "None"
@@ -143,8 +158,9 @@ func Extract(run CaseRun) (Trajectory, error) {
 			}
 			switch step.ActionType {
 			case "tool":
-				if (step.ToolError != "" && !fixturePageError(step) && !fixtureWeatherMiss(result.Steps, index)) ||
-					step.ToolRejected != "" || !step.ToolExecuted {
+				failed := (step.ToolError != "" && !fixturePageError(step) && !fixtureWeatherMiss(result.Steps, index)) ||
+					step.ToolRejected != "" || !step.ToolExecuted
+				if failed && !keepRecovery {
 					return nil, Unclean("tool error or rejection")
 				}
 				arguments, err := orderedArguments(step.ToolArguments)
@@ -156,7 +172,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 				if err != nil {
 					return nil, err
 				}
-				actions = append(actions, Action{Text: text, Tool: name, Reasoning: step.ReasoningContent})
+				actions = append(actions, Action{Text: text, Tool: name, Reasoning: step.ReasoningContent, Context: failed})
 			case "final":
 				if index != len(result.Steps)-1 {
 					return nil, Unclean("final before the last step")
@@ -222,7 +238,11 @@ type candidate struct {
 // teacher. A run whose path cannot be extracted (runner error, tool errors)
 // is still dropped.
 func Collect(runDirs []string, includeFailed ...bool) (map[string]*CaseStats, []string, error) {
-	keepFailed := len(includeFailed) > 0 && includeFailed[0]
+	return CollectWith(runDirs, len(includeFailed) > 0 && includeFailed[0], false)
+}
+
+// CollectWith is Collect with ExtractWith's keepRecovery.
+func CollectWith(runDirs []string, keepFailed, keepRecovery bool) (map[string]*CaseStats, []string, error) {
 	stats := map[string]*CaseStats{}
 	var order []string
 	for runIndex, runDir := range runDirs {
@@ -249,7 +269,7 @@ func Collect(runDirs []string, includeFailed ...bool) (map[string]*CaseStats, []
 			if run.Passed {
 				stat.Passed++
 			}
-			path, err := Extract(run)
+			path, err := ExtractWith(run, keepRecovery)
 			if err != nil {
 				stat.Drops.Add(err.Error())
 				continue
@@ -307,11 +327,14 @@ type PathsArgs struct {
 	// IncludeFailed keeps failing runs' clean paths after the passing ones
 	// (see Collect); render's --require-pass re-judges them.
 	IncludeFailed bool
+	// KeepRecovery keeps paths with tool errors, rejections or an answer-stage
+	// final (see ExtractWith); the failed calls become unsupervised context.
+	KeepRecovery bool
 }
 
 // RunPaths is the `corpus paths` command.
 func RunPaths(args PathsArgs) int {
-	stats, order, err := Collect(args.Run, args.IncludeFailed)
+	stats, order, err := CollectWith(args.Run, args.IncludeFailed, args.KeepRecovery)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
@@ -323,10 +346,12 @@ func RunPaths(args PathsArgs) int {
 		kept := Select(stat, args.MaxPerCase)
 		for number, path := range kept {
 			texts := make([]string, 0, len(path))
+			supervised := make([]bool, 0, len(path))
 			for _, action := range path {
 				texts = append(texts, action.Text)
+				supervised = append(supervised, !action.Context)
 			}
-			entry := Entry(PathID(caseID, number+1), texts, nil)
+			entry := Entry(PathID(caseID, number+1), texts, supervised)
 			for i, action := range path {
 				entry.Outputs[i].Reasoning = action.Reasoning
 			}

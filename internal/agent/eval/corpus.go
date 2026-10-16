@@ -285,10 +285,14 @@ func BuildCorpusSteps(calls []ModelCallTrace, turns []int, entry ScriptEntry) ([
 				prompt := strings.TrimSuffix(call.Request.Prompt, withheldThinkOpening)
 				next := calls[index+1].Request.Prompt
 				if !strings.HasPrefix(next, prompt) {
-					return nil, fmt.Errorf("transcript is not append-only after generation %d", index+1)
-				}
-				block := assistantBlock(next[len(prompt):])
-				if compareAction(block, action) == actionDiffers {
+					// A rescue (duplicate or same-tool streak) rewrites the
+					// system block with the tool-less control, so the next
+					// prompt is no longer an extension. Each step row stands
+					// on its own prompt; only require the action written back.
+					if !strings.Contains(next, action) {
+						return nil, fmt.Errorf("transcript is not append-only after generation %d", index+1)
+					}
+				} else if block := assistantBlock(next[len(prompt):]); compareAction(block, action) == actionDiffers {
 					return nil, fmt.Errorf("generation %d written back as %q, script action %q",
 						index+1, strings.TrimSpace(block), action)
 				}

@@ -65,6 +65,8 @@ func pathsFlagSet(args *PathsArgs, runs *stringList) *flag.FlagSet {
 	fs.IntVar(&args.MaxPerCase, "max-per-case", 2, "paths to keep per case")
 	fs.BoolVar(&args.IncludeFailed, "include-failed", false,
 		"also keep clean paths of runs that failed the case expectations, after the passing ones; render --require-pass re-judges them against the (fixed) cases")
+	fs.BoolVar(&args.KeepRecovery, "keep-recovery", false,
+		"v2.1: keep paths with tool errors or rejections (those calls replay as untrained context) and answer-stage finals after the harness disabled the tools")
 	return fs
 }
 
