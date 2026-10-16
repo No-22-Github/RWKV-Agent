@@ -259,7 +259,6 @@ function ThoughtRow({ thought, live }: { thought: Thought; live: boolean }) {
       <span className="flex-none text-ink-muted">思考</span>
       <span className={`min-w-0 truncate text-ink-soft ${live ? 'shimmer-text' : ''}`} title={preview}>{preview}</span>
       <span className="flex-1" />
-      <span className="flex-none font-mono text-2xs text-ink-ghost">步骤 {thought.step}</span>
       <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
     <ActivityDisclosure open={open}><div className="border-t border-line-soft bg-paper-soft px-[14px] py-[12px]">
