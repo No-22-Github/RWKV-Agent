@@ -1,0 +1,82 @@
+{
+  "id": "hyb-33338",
+  "description": "Round-trip group train fare in yen converted to dollars with a second page's exchange rate. DISTILL-CANARY-bb403b02",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-calc-38",
+    "ref_calls": 6,
+    "fixture_bytes": 44,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "rail",
+      "url_match": "koyo-rail.example.jp/fares",
+      "url": "https://koyo-rail.example.jp/fares",
+      "title": "Kōyō Rail fares",
+      "snippet": "Fare table in yen.",
+      "content": "Adult one-way Tokyo-Nagano: 7,480 JPY\nChild one-way: 3,740 JPY\n",
+      "published_at": "2026-07-30"
+    },
+    {
+      "query_match": "exchange",
+      "url_match": "rates.tradedesk.example/usd-jpy",
+      "url": "https://rates.tradedesk.example/usd-jpy",
+      "title": "USD/JPY today",
+      "snippet": "Spot rate.",
+      "content": "USD/JPY: 1 USD = 150 JPY (2026-09-15)\n",
+      "published_at": "2026-09-15"
+    }
+  ],
+  "files": {
+    "trip/group.txt": "adults: 4\nchildren: 2\ndirection: round trip\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our group is described in trip/group.txt. Work out the round-trip train cost on Kōyō Rail in US dollars, using their fare table and today's USD/JPY rate from rates.tradedesk.example.",
+      "expect": {
+        "output_contains_any": [
+          "498.67"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "trip/group.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

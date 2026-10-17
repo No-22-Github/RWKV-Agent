@@ -1,0 +1,70 @@
+{
+  "id": "web-33059",
+  "description": "Find the deprecation/removal timeline and replacement for a fictional product (Ferrule Test). DISTILL-CANARY-fccd629e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-dp-33059",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Ferrule Test",
+      "url": "https://ferrule-test.example/docs/migrating-to-8",
+      "url_match": "ferrule-test.example/docs/migrating-to-8",
+      "title": "Migrating to 8",
+      "snippet": "Changes in Ferrule 8.",
+      "content": "# Migrating to Ferrule 8\n\n`expectAsync` is deprecated in 8.0 and removed in 9.0. Replace with `await expect(...).resolves`. `--legacy-runner` is removed in 8.0 already.\n",
+      "published_at": "2026-06-18"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "In Ferrule Test, is `expectAsync` deprecated or already removed?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "9.0"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "And --legacy-runner?",
+      "expect": {
+        "output_contains": [
+          "8.0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

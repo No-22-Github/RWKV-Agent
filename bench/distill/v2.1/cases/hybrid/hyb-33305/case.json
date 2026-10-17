@@ -1,0 +1,87 @@
+{
+  "id": "hyb-33305",
+  "description": "Bump a toolchain channel, then the Docker base image, to the stable release shown on the project blog. DISTILL-CANARY-bacb4799",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-web_edit-05",
+    "ref_calls": 6,
+    "fixture_bytes": 145,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Rust toolchain",
+      "url_match": "forge-lang.dev/blog/releases",
+      "url": "https://forge-lang.dev/blog/releases",
+      "title": "Forge toolchain releases",
+      "snippet": "Release channels for the toolchain.",
+      "content": "# Toolchain releases\n\nStable: 1.82.0\nBeta: 1.83.0-beta.2\nNightly: 1.84.0-nightly\n\nStable ships every six weeks.\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "files": {
+    "rust-toolchain.toml": "[toolchain]\nchannel = \"1.78.0\"\ncomponents = [\"rustfmt\", \"clippy\"]\n",
+    "Dockerfile": "FROM rust:1.78.0-slim AS build\nWORKDIR /app\nCOPY . .\nRUN cargo build --release\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bump rust-toolchain.toml to the stable toolchain release listed at forge-lang.dev/blog/releases.",
+      "expect": {
+        "output_contains": [
+          "1.82.0"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "Good. The Dockerfile base image should use that same release too, please update it.",
+      "expect": {
+        "output_contains": [
+          "1.82.0"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "rust-toolchain.toml": {
+        "equals": "[toolchain]\nchannel = \"1.82.0\"\ncomponents = [\"rustfmt\", \"clippy\"]\n"
+      },
+      "Dockerfile": {
+        "equals": "FROM rust:1.82.0-slim AS build\nWORKDIR /app\nCOPY . .\nRUN cargo build --release\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "code-33545",
+  "description": "Go loop runs one past the end. DISTILL-CANARY-1e70b7e3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-fix-33545",
+    "ref_calls": 4,
+    "fixture_bytes": 597,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "internal/pad/pad.go": "package pad\n\n// Cells returns every index of s.\nfunc Cells(s string) []int {\n\tvar out []int\n\tfor i := 0; i <= len(s); i++ {\n\t\tout = append(out, i)\n\t}\n\treturn out\n}\n\n// Last returns the final byte.\nfunc Last(s string) byte {\n\treturn s[len(s)-1]\n}\n",
+    "internal/pad/pad_test.go": "package pad\n\n// Cells(\"ab\") must be [0 1]\n",
+    "internal/render/r.go": "package render\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc FormatCell0(id int) string {\n\treturn fmt.Sprintf(\"cell-%04d\", id)\n}\n\nfunc NormalizeCell1(s string) string {\n\treturn strings.ToLower(strings.TrimSpace(s))\n}\n\nfunc FormatRow2(id int) string {\n\treturn fmt.Sprintf(\"row-%04d\", id)\n}\n\n",
+    "main.go": "package main\n\nfunc main() {}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cells(\"ab\") returns three indexes and a caller panics on the last one. Fix the loop bound in internal/pad/pad.go, leave Last alone, then read the file back and tell me which line you changed.",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "internal/pad/pad.go": {
+        "equals": "package pad\n\n// Cells returns every index of s.\nfunc Cells(s string) []int {\n\tvar out []int\n\tfor i := 0; i < len(s); i++ {\n\t\tout = append(out, i)\n\t}\n\treturn out\n}\n\n// Last returns the final byte.\nfunc Last(s string) byte {\n\treturn s[len(s)-1]\n}\n"
+      },
+      "internal/pad/pad_test.go": {
+        "unchanged": true
+      },
+      "internal/render/r.go": {
+        "unchanged": true
+      },
+      "main.go": {
+        "unchanged": true
+      }
+    }
+  }
+}

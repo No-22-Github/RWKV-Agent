@@ -1,0 +1,70 @@
+{
+  "id": "web-33063",
+  "description": "Find the deprecation/removal timeline and replacement for a fictional product (Brackwater Maps API). DISTILL-CANARY-e44e6eb4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-dp-33063",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Brackwater Maps API",
+      "url": "https://brackwater.example/dev/legacy-geocode",
+      "url_match": "brackwater.example/dev/legacy-geocode",
+      "title": "Legacy geocoder shutdown",
+      "snippet": "Shutdown notice.",
+      "content": "# Legacy geocoder shutdown\n\nThe v1 geocoder (/geo/v1) stops answering on 2026-11-30. Requests after that date return HTTP 410. The v2 geocoder is a drop-in replacement for forward lookups, but reverse lookups moved to /geo/v2/reverse.\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Brackwater's legacy geocoder: when does it stop working and what status code will we see afterwards?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "410"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Where do reverse lookups go?",
+      "expect": {
+        "output_contains": [
+          "/geo/v2/reverse"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

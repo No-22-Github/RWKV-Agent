@@ -1,0 +1,78 @@
+{
+  "id": "doc-33227",
+  "description": "Payment terms csv then an added supplier row. DISTILL-CANARY-df75b4e5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21k-extract-27",
+    "ref_calls": 5,
+    "fixture_bytes": 284,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "采购/供应商条款.md": "# 供应商付款条款\n\n- 恒达电子：到货后 30 天内付清，逾期每日万分之五。\n- 晨光文具：月结，次月 15 日前付款。\n- 凯瑞包装：预付 50%，余款到货后 7 天内付清。\n- 蓝海物流：每季度结算一次，季末后 20 天内付款。\n"
+  },
+  "turns": [
+    {
+      "prompt": "从 采购/供应商条款.md 整理一个付款期限的 CSV，写到 采购/付款期限.csv，表头“供应商,期限”，期限用“到货后30天内”这种短写法（月结的写原文里的日期）。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "再加一行：新供应商 远景科技，期限写“到货后15天内”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "采购/供应商条款.md": {
+        "unchanged": true
+      },
+      "采购/付款期限.csv": {
+        "contains": [
+          "供应商,期限",
+          "恒达电子,",
+          "30天",
+          "晨光文具,",
+          "次月15日前",
+          "凯瑞包装,",
+          "7天",
+          "蓝海物流,",
+          "20天",
+          "远景科技,",
+          "15天"
+        ]
+      }
+    }
+  }
+}

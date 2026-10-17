@@ -1,0 +1,55 @@
+{
+  "id": "log-33764",
+  "description": "Timeouts written in three spellings. DISTILL-CANARY-43b77ae5",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-count-33764",
+    "ref_calls": 4,
+    "fixture_bytes": 4511,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "uploads.log": "08:00:07 download ok\n08:03:14 upload ok\n08:05:50 upload retry\n08:08:46 upload timed out\n08:11:44 upload timeout\n08:14:21 upload timeout\n08:17:09 upload ok\n08:20:01 UPLOAD TIMEOUT\n08:23:28 upload ok\n08:25:47 download ok\n08:28:42 upload ok\n08:32:05 UPLOAD TIMEOUT\n08:34:36 UPLOAD TIMEOUT\n08:37:20 upload ok\n08:40:23 download ok\n08:43:16 upload timeout\n08:45:44 upload retry\n08:48:47 UPLOAD TIMEOUT\n08:51:35 UPLOAD TIMEOUT\n08:54:21 upload ok\n08:57:33 upload ok\n09:00:00 upload timed out\n09:02:58 upload timeout\n09:06:00 UPLOAD TIMEOUT\n09:08:54 upload retry\n09:11:52 UPLOAD TIMEOUT\n09:14:40 upload retry\n09:17:37 upload ok\n09:20:37 upload timeout\n09:23:22 upload ok\n09:25:42 upload ok\n09:28:53 upload ok\n09:31:36 upload timed out\n09:34:22 upload retry\n09:37:15 upload timeout\n09:40:34 upload timed out\n09:43:02 download ok\n09:46:03 upload ok\n09:48:54 upload retry\n09:51:34 download ok\n09:54:25 upload ok\n09:57:21 upload ok\n10:00:30 UPLOAD TIMEOUT\n10:03:07 upload ok\n10:05:42 upload ok\n10:09:12 upload ok\n10:11:43 upload retry\n10:14:32 download ok\n10:17:25 upload timeout\n10:20:30 upload ok\n10:23:22 upload ok\n10:26:20 upload ok\n10:28:53 upload ok\n10:31:57 UPLOAD TIMEOUT\n10:34:30 upload ok\n10:37:23 upload timeout\n10:40:21 upload timeout\n10:43:17 download ok\n10:45:56 upload ok\n10:48:49 UPLOAD TIMEOUT\n10:51:50 upload retry\n10:54:24 UPLOAD TIMEOUT\n10:57:39 upload ok\n11:00:30 upload ok\n11:03:29 upload retry\n11:06:11 upload ok\n11:09:11 upload retry\n11:11:33 upload ok\n11:14:42 upload ok\n11:17:20 UPLOAD TIMEOUT\n11:20:35 upload timeout\n11:23:26 UPLOAD TIMEOUT\n11:26:02 download ok\n11:28:45 upload ok\n11:31:40 upload ok\n11:34:18 upload timeout\n11:37:37 upload ok\n11:40:21 upload ok\n11:43:31 upload ok\n11:46:13 UPLOAD TIMEOUT\n11:48:57 upload ok\n11:51:39 UPLOAD TIMEOUT\n11:54:33 upload timeout\n11:57:17 download ok\n12:00:21 upload ok\n12:03:05 upload ok\n12:05:50 upload timeout\n12:08:38 upload ok\n12:11:48 upload timeout\n12:14:44 download ok\n12:17:32 upload ok\n12:20:00 upload timed out\n12:22:56 upload retry\n12:26:14 upload timed out\n12:29:00 upload ok\n12:31:33 upload retry\n12:34:41 upload timed out\n12:37:21 upload ok\n12:40:39 upload timeout\n12:43:01 upload timeout\n12:45:45 upload retry\n12:48:51 upload retry\n12:51:51 upload timed out\n12:54:33 UPLOAD TIMEOUT\n12:57:22 upload ok\n13:00:05 upload ok\n13:03:15 upload ok\n13:05:46 upload ok\n13:08:53 upload ok\n13:11:49 download ok\n13:14:43 upload retry\n13:17:37 upload ok\n13:20:28 upload retry\n13:23:06 upload ok\n13:26:14 upload ok\n13:28:42 upload retry\n13:31:49 upload timeout\n13:34:31 upload retry\n13:37:36 UPLOAD TIMEOUT\n13:40:28 UPLOAD TIMEOUT\n13:42:55 upload ok\n13:45:58 upload timeout\n13:49:02 upload retry\n13:51:29 UPLOAD TIMEOUT\n13:54:17 upload ok\n13:57:20 upload timeout\n14:00:23 upload ok\n14:03:19 upload timeout\n14:06:04 download ok\n14:08:46 upload ok\n14:12:01 upload timeout\n14:14:31 upload retry\n14:17:12 upload timeout\n14:20:30 upload ok\n14:23:26 download ok\n14:25:44 upload retry\n14:29:01 upload timeout\n14:31:58 upload retry\n14:34:51 upload ok\n14:37:09 upload timeout\n14:40:11 upload timed out\n14:43:28 upload ok\n14:46:09 upload ok\n14:49:05 upload timeout\n14:51:26 upload ok\n14:54:46 upload ok\n14:57:13 UPLOAD TIMEOUT\n15:00:19 upload ok\n15:03:03 download ok\n15:05:51 upload ok\n15:08:48 upload timeout\n15:11:48 download ok\n15:14:37 download ok\n15:17:23 upload ok\n15:20:29 upload ok\n15:23:13 upload ok\n15:25:48 upload ok\n15:28:50 upload timeout\n15:31:35 upload retry\n15:34:30 upload retry\n15:37:37 upload ok\n15:40:19 UPLOAD TIMEOUT\n15:43:25 UPLOAD TIMEOUT\n15:45:45 upload ok\n15:48:42 UPLOAD TIMEOUT\n15:51:36 upload ok\n15:54:26 upload ok\n15:57:31 upload ok\n16:00:34 download ok\n16:03:05 upload timeout\n16:06:02 download ok\n16:08:47 upload ok\n16:11:25 upload ok\n16:14:26 upload ok\n16:17:23 UPLOAD TIMEOUT\n16:20:01 upload timed out\n16:23:08 upload timeout\n16:26:14 upload ok\n16:29:03 upload ok\n16:32:00 upload ok\n16:34:51 upload ok\n16:37:26 upload timed out\n16:40:16 upload ok\n16:43:17 upload retry\n16:46:22 upload ok\n16:48:40 upload ok\n16:51:43 upload ok\n16:54:31 upload ok\n16:57:41 upload timeout\n17:00:11 upload ok\n17:03:06 upload ok\n17:05:55 upload ok\n17:09:12 UPLOAD TIMEOUT\n17:11:37 upload timed out\n17:14:40 upload timeout\n17:17:25 download ok\n17:20:29 upload ok\n17:22:51 UPLOAD TIMEOUT\n17:25:44 upload ok\n17:28:51 UPLOAD TIMEOUT\n17:31:49 upload ok\n17:34:30 upload timeout\n17:37:44 upload retry\n17:40:07 upload timeout\n17:43:14 download ok\n17:45:51 upload timeout\n17:48:57 upload ok\n17:51:44 download ok\n17:54:36 upload timeout\n17:57:19 upload timed out\n"
+  },
+  "turns": [
+    {
+      "prompt": "uploads.log 里上传超时一共出现了多少次？（超时有几种写法：timeout、TIMEOUT、timed out，都算）",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "75"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "code-33558",
+  "description": "Pad and Trunc results for given inputs. DISTILL-CANARY-d65ce7ed",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-READONLY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": "ab",
+      "TR-NEARNAME": "ab"
+    },
+    "axes": [
+      "OBS",
+      "CON",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-explain-33558",
+    "ref_calls": 2,
+    "fixture_bytes": 376,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "strutil/pad.go": "package strutil\n\n// Pad right-pads s with '*' up to width w; longer strings are returned unchanged.\nfunc Pad(s string, w int) string {\n\tfor len(s) < w {\n\t\ts += \"*\"\n\t}\n\treturn s\n}\n\n// Trunc cuts s to at most n bytes.\nfunc Trunc(s string, n int) string {\n\tif len(s) <= n {\n\t\treturn s\n\t}\n\treturn s[:n]\n}\n",
+    "strutil/doc.go": "package strutil\n",
+    "cmd/demo/main.go": "package main\n\nfunc main() {}\n",
+    "go.mod": "module example.com/s\n\ngo 1.22\n"
+  },
+  "turns": [
+    {
+      "prompt": "What do Pad and Trunc in strutil/pad.go do? What does Pad(\"ab\", 5) return, and what does Trunc(\"abcdef\", 4) return? Just reading, no edits please.",
+      "expect": {
+        "output_contains": [
+          "ab***",
+          "abcd"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "strutil/pad.go": {
+        "unchanged": true
+      },
+      "strutil/doc.go": {
+        "unchanged": true
+      },
+      "cmd/demo/main.go": {
+        "unchanged": true
+      },
+      "go.mod": {
+        "unchanged": true
+      }
+    }
+  }
+}

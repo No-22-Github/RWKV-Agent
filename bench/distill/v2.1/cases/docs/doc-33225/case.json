@@ -1,0 +1,59 @@
+{
+  "id": "doc-33225",
+  "description": "Numbered list of FAQ questions. DISTILL-CANARY-084eefe6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-25",
+    "ref_calls": 3,
+    "fixture_bytes": 322,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "帮助/常见问题.md": "# 常见问题\n\n## 怎么修改绑定手机号？\n进入“设置-账号安全”，验证旧手机后即可更换。\n\n## 忘记密码怎么办？\n在登录页点“找回密码”，按提示验证。\n\n## 可以同时登录几台设备？\n最多 3 台。\n\n## 发票多久能开出？\n提交申请后 3 个工作日内。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 帮助/常见问题.md 里所有的问题抽出来，编号列在新文件 帮助/问题目录.md 里，每行“1. 问题原文”，不要答案。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "帮助/常见问题.md": {
+        "unchanged": true
+      },
+      "帮助/问题目录.md": {
+        "equals": "1. 怎么修改绑定手机号？\n2. 忘记密码怎么办？\n3. 可以同时登录几台设备？\n4. 发票多久能开出？\n"
+      }
+    }
+  }
+}

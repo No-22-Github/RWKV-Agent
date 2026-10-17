@@ -1,0 +1,80 @@
+{
+  "id": "doc-33207",
+  "description": "Training notice then retitle and move a part into a tips section. DISTILL-CANARY-d3560924",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21k-draft-07",
+    "ref_calls": 5,
+    "fixture_bytes": 303,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "培训/安排.txt": "新员工培训\n日期：9月28日、9月29日\n地点：三楼培训室\n讲师：9月28日 钱峰（制度与安全），9月29日 蒋云（系统操作）\n自带：笔记本电脑、工牌\n午餐：公司统一提供，12:00 开始\n",
+    "培训/往期.md": "# 往期通知（8月）\n\n日期：8月24日\n地点：二楼会议室\n"
+  },
+  "turns": [
+    {
+      "prompt": "起草一份新员工培训通知，信息在 培训/安排.txt，写入 培训/通知.md。往期的不要参考。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "改一下：标题用“# 新员工入职培训通知”；另外把“自带”那条单独拎出来，放在最后一节“## 温馨提示”里。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "培训/安排.txt": {
+        "unchanged": true
+      },
+      "培训/往期.md": {
+        "unchanged": true
+      },
+      "培训/通知.md": {
+        "contains": [
+          "# 新员工入职培训通知",
+          "9月28日",
+          "9月29日",
+          "三楼培训室",
+          "钱峰",
+          "蒋云",
+          "## 温馨提示",
+          "笔记本电脑",
+          "12:00"
+        ]
+      }
+    }
+  }
+}

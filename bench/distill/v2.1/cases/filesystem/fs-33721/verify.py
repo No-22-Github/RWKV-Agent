@@ -1,0 +1,8 @@
+# DISTILL-CANARY-bcbaeb49 : distillation case
+import hashlib, json
+case = json.load(open("case.json"))
+files = case["files"]
+_pin = hashlib.sha256(json.dumps(files, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+assert _pin == '0beda4874f00372185aaac8bf6c63c35ec560137e346de883096fe011925f880', "fixture changed"
+answers=[]
+print(json.dumps({"expected_contains_any": ["没有", "不存在", "未找到", "找不到", "没找到", "不在", "没发现", "未发现", "查不到", "缺少", "并无", "没看到", "不见", "not found", "no such", "does not exist", "doesn't exist", "not exist", "no file", "missing", "couldn't find", "could not find", "isn't there", "not present", "don't see", "did not find", "didn't find", "cannot find", "can't find", "there is no", "there's no", "no match", "absent", "not exist", "doesn't contain", "does not contain", "no identical", "no duplicate", "none", "nothing", "no two", "not identical", "are all different", "all different", "不重复", "没有重复", "各不相同", "都不一样", "都不同", "没有相同", "无重复", "Not found", "No such", "Does not exist", "Doesn't exist", "Not exist", "No file", "Missing", "Couldn't find", "Could not find", "Isn't there", "Not present", "Don't see", "Did not find", "Didn't find", "Cannot find", "Can't find", "There is no", "There's no", "No match", "Absent", "Not exist", "Doesn't contain", "Does not contain", "No identical", "No duplicate", "None", "Nothing", "No two", "Not identical", "Are all different", "All different", "doesn’t exist", "couldn’t find", "isn’t there", "don’t see", "didn’t find", "can’t find", "there’s no", "doesn’t contain", "Doesn’t exist", "Couldn’t find", "Isn’t there", "Don’t see", "Didn’t find", "Can’t find", "There’s no", "Doesn’t contain"]}, ensure_ascii=False))

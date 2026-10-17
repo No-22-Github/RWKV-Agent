@@ -1,0 +1,79 @@
+{
+  "id": "hyb-33356",
+  "description": "Quote the platform requirement in the README and compare with the vendor's requirements page; then switch to Windows. DISTILL-CANARY-4aa84213",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-comp-56",
+    "ref_calls": 5,
+    "fixture_bytes": 78,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Basalt",
+      "url_match": "basalt-ide.dev/requirements",
+      "url": "https://basalt-ide.dev/requirements",
+      "title": "Basalt 系统要求",
+      "snippet": "各平台最低系统要求。",
+      "content": "# 系统要求\n\n| 平台 | 最低版本 | 内存 |\n|---|---|---|\n| macOS | 13 | 8 GB |\n| Windows | 10 (22H2) | 8 GB |\n| Linux | glibc 2.31 | 4 GB |\n",
+      "published_at": "2026-08-19"
+    }
+  ],
+  "files": {
+    "README.md": "# 内部工具链\n\n开发机要求：macOS 12 或更新。\n编辑器：Basalt\n"
+  },
+  "turns": [
+    {
+      "prompt": "README.md 里写的开发机系统要求是什么？Basalt 官网上 macOS 的最低版本又是多少？我们的要求够不够？",
+      "expect": {
+        "output_contains": [
+          "macOS 12"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "补充一下，有几个同事用 Windows。Basalt 对 Windows 的最低版本要求是什么？",
+      "expect": {
+        "output_contains": [
+          "10 (22H2)"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

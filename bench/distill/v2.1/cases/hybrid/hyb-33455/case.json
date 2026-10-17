@@ -1,0 +1,65 @@
+{
+  "id": "hyb-33455",
+  "description": "Strips comments and blank lines from a hosts list, then asks to bring back only the comments in place. DISTILL-CANARY-48df5075",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33455",
+    "ref_calls": 5,
+    "fixture_bytes": 76,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "hosts.txt": "# 主机表\n10.0.0.1 gw\n\n# 数据库\n10.0.0.5 db1\n\n# 缓存\n10.0.0.9 cache1\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 hosts.txt 里的注释行和空行都删掉，只留主机记录。",
+      "expect": {
+        "output_contains": [
+          "10.0.0.5"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "注释行还是要的，恢复它们（放回原位），空行不用恢复。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "hosts.txt": {
+        "equals": "# 主机表\n10.0.0.1 gw\n# 数据库\n10.0.0.5 db1\n# 缓存\n10.0.0.9 cache1\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "code-33556",
+  "description": "Token bucket: after a burst of 7 requests at t=0 how many pass. DISTILL-CANARY-7487576c",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": "7",
+      "TR-DECOY": "7"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21n-explain-33556",
+    "ref_calls": 3,
+    "fixture_bytes": 687,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "limiter/bucket.js": "// token bucket: refills 2 tokens per second, holds at most 5\nconst CAP = 5;\nconst RATE = 2;\n\nexport function makeBucket() {\n  return { tokens: CAP, last: 0 };\n}\n\nexport function allow(b, nowSec) {\n  b.tokens = Math.min(CAP, b.tokens + (nowSec - b.last) * RATE);\n  b.last = nowSec;\n  if (b.tokens >= 1) {\n    b.tokens -= 1;\n    return true;\n  }\n  return false;\n}\n",
+    "limiter/use.js": "import { makeBucket, allow } from './bucket.js';\n\nexport const b = makeBucket();\nexport const ok = (t) => allow(b, t);\n",
+    "limiter/util.js": "export function sumTick0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport function sumTick1(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport const tickLabel2 = (id) => `tick-${id}`;\n\n"
+  },
+  "turns": [
+    {
+      "prompt": "limiter/bucket.js 是在做什么？如果在第 0 秒连续发 7 个请求，会放行几个？只解释，别改文件。",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    },
+    {
+      "prompt": "那再等 1 秒（第 1 秒）连发 4 个，放行几个？",
+      "expect": {
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "limiter/bucket.js": {
+        "unchanged": true
+      },
+      "limiter/use.js": {
+        "unchanged": true
+      },
+      "limiter/util.js": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "fs-33711",
+  "description": "Duplicates hidden behind different extensions; count of redundant files. DISTILL-CANARY-af8e05e4",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21p-dup-33711",
+    "ref_calls": 5,
+    "fixture_bytes": 10620,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "draft/ch1.txt": "chapter quartz river river harbor\nthistle ember oyster river zephyr ridge fjord quartz\nkettle quill juniper orbit orbit stone delta quill\ndelta delta lantern willow pixel quartz harbor lantern\nthistle orbit thistle lantern maple orbit lamp\nsaddle pebble meadow quartz grain harbor ridge quartz\nfjord nectar nectar kettle harbor orbit\nhollow pebble lantern cedar yarrow willow velvet\ncedar delta nectar kettle\norbit harbor stone pebble river juniper quill pebble\nember river nectar kettle willow saddle\ncedar quartz nectar quartz ivory quartz zephyr nectar\norbit harbor willow velvet cedar delta\nsaddle kettle orbit pixel\npixel maple ivory ridge quartz quill ridge\nlantern saddle ember ridge hollow\nzephyr juniper ridge fjord yarrow umber umber\nzephyr pixel thistle ember pebble ridge\npixel alpha river kettle juniper ivory kettle\nstone yarrow grain\nharbor pixel pixel river cedar velvet\nridge saddle fjord orbit\nember velvet harbor delta\nnectar delta stone kettle orbit river\nember stone lamp kettle alpha\nyarrow grain juniper umber zephyr\nriver oyster juniper quill zephyr stone nectar saddle\nhollow quartz umber ember yarrow quill lantern\npebble cedar quill meadow pebble\nalpha lantern lantern kettle\nstone harbor grain velvet\ngrain quill willow lantern\nvelvet fjord orbit lantern zephyr velvet\nriver pixel stone oyster\nember maple harbor\nkettle river grain grain maple ember\npixel cedar pixel nectar kettle maple river lantern\nyarrow delta lamp ivory willow\nnectar umber kettle alpha\nlamp velvet ivory nectar meadow stone oyster\nember saddle river meadow thistle yarrow\nlamp zephyr quill meadow velvet juniper lantern\nfjord river pixel\njuniper hollow fjord stone stone grain ridge fjord\norbit stone thistle river alpha yarrow\nriver stone umber yarrow pixel pebble\nridge lamp grain kettle quartz grain hollow stone\number grain quill\nharbor ridge ember fjord oyster stone lantern\npebble orbit delta river ember cedar kettle saddle\npixel delta ivory zephyr umber\npebble nectar thistle stone juniper\nmaple ember alpha quill velvet\nyarrow em\n",
+    "draft/old/ch1_final.md": "chapter quartz river river harbor\nthistle ember oyster river zephyr ridge fjord quartz\nkettle quill juniper orbit orbit stone delta quill\ndelta delta lantern willow pixel quartz harbor lantern\nthistle orbit thistle lantern maple orbit lamp\nsaddle pebble meadow quartz grain harbor ridge quartz\nfjord nectar nectar kettle harbor orbit\nhollow pebble lantern cedar yarrow willow velvet\ncedar delta nectar kettle\norbit harbor stone pebble river juniper quill pebble\nember river nectar kettle willow saddle\ncedar quartz nectar quartz ivory quartz zephyr nectar\norbit harbor willow velvet cedar delta\nsaddle kettle orbit pixel\npixel maple ivory ridge quartz quill ridge\nlantern saddle ember ridge hollow\nzephyr juniper ridge fjord yarrow umber umber\nzephyr pixel thistle ember pebble ridge\npixel alpha river kettle juniper ivory kettle\nstone yarrow grain\nharbor pixel pixel river cedar velvet\nridge saddle fjord orbit\nember velvet harbor delta\nnectar delta stone kettle orbit river\nember stone lamp kettle alpha\nyarrow grain juniper umber zephyr\nriver oyster juniper quill zephyr stone nectar saddle\nhollow quartz umber ember yarrow quill lantern\npebble cedar quill meadow pebble\nalpha lantern lantern kettle\nstone harbor grain velvet\ngrain quill willow lantern\nvelvet fjord orbit lantern zephyr velvet\nriver pixel stone oyster\nember maple harbor\nkettle river grain grain maple ember\npixel cedar pixel nectar kettle maple river lantern\nyarrow delta lamp ivory willow\nnectar umber kettle alpha\nlamp velvet ivory nectar meadow stone oyster\nember saddle river meadow thistle yarrow\nlamp zephyr quill meadow velvet juniper lantern\nfjord river pixel\njuniper hollow fjord stone stone grain ridge fjord\norbit stone thistle river alpha yarrow\nriver stone umber yarrow pixel pebble\nridge lamp grain kettle quartz grain hollow stone\number grain quill\nharbor ridge ember fjord oyster stone lantern\npebble orbit delta river ember cedar kettle saddle\npixel delta ivory zephyr umber\npebble nectar thistle stone juniper\nmaple ember alpha quill velvet\nyarrow em\n",
+    "draft/old/outline.txt": "outline maple cedar fjord\ngrain lamp pebble\nquill harbor zephyr lantern\nwillow quill stone\nlantern alpha pebble yarrow alpha cedar yarrow\nember alpha ridge fjord quartz maple meadow\nriver lamp pixel harbor river umber hollow thistle\nhollow velvet cedar\nyarrow ridge lamp\nquartz cedar willow zephyr\npebble willow quill grain\nlantern river lamp kettle ivory\nvelvet zephyr velvet\nriver alpha maple willow umber lantern nectar\nlantern ember orbit ivory juniper stone\nzephyr orbit meadow willow thistle saddle\nquill pixel cedar velvet velvet quartz quill\nvelvet ridge stone cedar\nalpha kettle quartz saddle alpha harbor ridge cedar\number maple thistle quill cedar\nivory maple cedar lantern nectar kettle maple hollow\nzephyr alpha quill kettle grain cedar pixel kettle\noyster juniper lamp fjord cedar pebble hollow\nmeadow lantern hollow\nlantern velvet velvet\nyarrow meadow meadow nectar zephyr oyster river\nivory orbit kettle zephyr ivory kettle saddle\noyster zephyr meadow delta pixel quill harbor cedar\ncedar hollow saddle kettle saddle quill\nquill quartz pebble pebble grain delta orbit nectar\nnectar saddle thistle lamp fjord cedar quartz\ndelta delta nectar ember fjord\number umber\n",
+    "draft/outline_v2.md": "outline maple cedar fjord\ngrain lamp pebble\nquill harbor zephyr lantern\nwillow quill stone\nlantern alpha pebble yarrow alpha cedar yarrow\nember alpha ridge fjord quartz maple meadow\nriver lamp pixel harbor river umber hollow thistle\nhollow velvet cedar\nyarrow ridge lamp\nquartz cedar willow zephyr\npebble willow quill grain\nlantern river lamp kettle ivory\nvelvet zephyr velvet\nriver alpha maple willow umber lantern nectar\nlantern ember orbit ivory juniper stone\nzephyr orbit meadow willow thistle saddle\nquill pixel cedar velvet velvet quartz quill\nvelvet ridge stone cedar\nalpha kettle quartz saddle alpha harbor ridge cedar\number maple thistle quill cedar\nivory maple cedar lantern nectar kettle maple hollow\nzephyr alpha quill kettle grain cedar pixel kettle\noyster juniper lamp fjord cedar pebble hollow\nmeadow lantern hollow\nlantern velvet velvet\nyarrow meadow meadow nectar zephyr oyster river\nivory orbit kettle zephyr ivory kettle saddle\noyster zephyr meadow delta pixel quill harbor cedar\ncedar hollow saddle kettle saddle quill\nquill quartz pebble pebble grain delta orbit nectar\nnectar saddle thistle lamp fjord cedar quartz\ndelta delta nectar ember fjord\number umber\n",
+    "draft/outline_v3.md": "outline meple cedar fjord\ngrain lamp pebble\nquill harbor zephyr lantern\nwillow quill stone\nlantern alpha pebble yarrow alpha cedar yarrow\nember alpha ridge fjord quartz maple meadow\nriver lamp pixel harbor river umber hollow thistle\nhollow velvet cedar\nyarrow ridge lamp\nquartz cedar willow zephyr\npebble willow quill grain\nlantern river lamp kettle ivory\nvelvet zephyr velvet\nriver alpha maple willow umber lantern nectar\nlantern ember orbit ivory juniper stone\nzephyr orbit meadow willow thistle saddle\nquill pixel cedar velvet velvet quartz quill\nvelvet ridge stone cedar\nalpha kettle quartz saddle alpha harbor ridge cedar\number maple thistle quill cedar\nivory maple cedar lantern nectar kettle maple hollow\nzephyr alpha quill kettle grain cedar pixel kettle\noyster juniper lamp fjord cedar pebble hollow\nmeadow lantern hollow\nlantern velvet velvet\nyarrow meadow meadow nectar zephyr oyster river\nivory orbit kettle zephyr ivory kettle saddle\noyster zephyr meadow delta pixel quill harbor cedar\ncedar hollow saddle kettle saddle quill\nquill quartz pebble pebble grain delta orbit nectar\nnectar saddle thistle lamp fjord cedar quartz\ndelta delta nectar ember fjord\number umber\n",
+    "draft/old/ch2.txt": "chapter pixel harbor velvet juniper yarrow\npebble lantern maple\npebble ivory orbit meadow kettle lamp quill oyster\nsaddle pebble zephyr oyster quartz lantern thistle\nharbor willow quartz lantern\nalpha alpha meadow pebble fjord saddle quill\nmaple thistle oyster delta quartz\nriver river ivory ivory pixel\ndelta pixel hollow velvet harbor meadow quill\nnectar willow velvet stone quill\nhollow fjord oyster thistle kettle quartz\nyarrow delta lamp maple meadow thistle cedar\nzephyr lamp orbit thistle alpha\norbit grain umber lantern velvet lantern\nvelvet pixel maple ridge orbit\nhollow saddle grain kettle delta quartz hollow harbor\nmeadow zephyr grain\nalpha fjord velvet alpha delta yarrow yarrow\nharbor alpha quill umber thistle\nsaddle quill juniper maple oyster thistle cedar quartz\njuniper pebble quartz\ngrain pebble saddle alpha cedar quill\nfjord ivory nectar harbor kettle lamp pebble\nmeadow lantern ivory cedar thistle ember maple\nfjord nectar velvet river saddle harbor maple maple\nriver hollow oyster pebble maple meadow thistle pixel\npixel lantern kettle hollow harbor\nivory delta grain orbit\nriver cedar juniper lantern\nridge thistle hollow quartz meadow lantern pixel grain\nmaple quartz lamp\npebble ivory umber lantern quill\nvelvet cedar saddle\ndelta cedar harbor orbit orbit fjord\npebble kettle hollow\nfjord fjord nectar zephyr willow\nivory maple ridge quartz ridge meadow hollow umber\nharbor yarrow zephyr lantern alpha thistle fjord\nivory lamp quartz\nridge willow velvet\ngrain pebble stone\n",
+    "draft/ch2.txt": "chapter pebble quill cedar quartz\npixel saddle alpha zephyr quill delta\ngrain grain grain velvet willow willow\ncedar nectar quill cedar lamp zephyr cedar\nmeadow stone juniper grain\nlamp yarrow pixel grain harbor delta stone\ncedar pixel lamp delta\ncedar river ridge\norbit fjord zephyr meadow ridge quill\npebble lantern maple lamp cedar ridge yarrow willow\nyarrow meadow cedar nectar oyster ridge\ngrain saddle meadow grain pixel oyster stone delta\nthistle oyster lantern maple lantern cedar\nwillow yarrow meadow willow orbit fjord umber\nivory delta cedar yarrow kettle quartz\nthistle lantern maple lantern\nivory orbit meadow yarrow oyster umber yarrow cedar\norbit saddle alpha delta delta pebble grain orbit\nkettle nectar pixel\njuniper delta stone orbit willow yarrow delta hollow\nstone pixel cedar thistle juniper stone stone\noyster willow oyster\ngrain kettle ivory maple\npixel stone cedar juniper\ndelta river velvet lantern nectar velvet yarrow ridge\ngrain stone quartz stone orbit\nvelvet ember willow\nstone river lamp lantern stone yarrow thistle cedar\nkettle oyster lamp pebble meadow\nfjord oyster oyster thistle quartz oyster\nhollow yarrow umber hollow lamp hollow\nvelvet kettle thistle nectar maple meadow orbit\nharbor river harbor juniper maple umber fjord\nmaple umber harbor river cedar\nharbor quartz grain nectar pebble delta\nzephyr velvet ivory\nlantern oyster quill maple ivory\nvelvet cedar lantern oyster pebble\nquill meadow maple alpha velvet lamp maple\nthistle alpha willow oyster river l\n"
+  },
+  "turns": [
+    {
+      "prompt": "draft 里有多少个文件是别的文件的完全重复（内容一样）？每组保留一份，其余算重复。",
+      "expect": {
+        "output_contains_any": [
+          "2 个",
+          "2个",
+          "两个",
+          "2 files",
+          "two files",
+          "2 redundant",
+          "2 duplicate",
+          "2 extra",
+          "two redundant",
+          "two duplicate",
+          "2 copies",
+          "two extra"
+        ]
+      }
+    },
+    {
+      "prompt": "具体是哪几个文件重复了？",
+      "expect": {
+        "output_contains": [
+          "ch1_final.md",
+          "outline_v2.md"
+        ],
+        "output_excludes": [
+          "outline_v3.md 和",
+          "ch2.txt 和"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

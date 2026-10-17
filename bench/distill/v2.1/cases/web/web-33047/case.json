@@ -1,0 +1,71 @@
+{
+  "id": "web-33047",
+  "description": "Explain a vendor error message using the vendor's reference page (Harrow Storage). DISTILL-CANARY-8eda23b1",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33047",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Harrow Storage",
+      "url": "https://harrowstorage.example/docs/errors/E4012",
+      "url_match": "harrowstorage.example/docs/errors/E4012",
+      "title": "Error E4012",
+      "snippet": "Error code reference.",
+      "content": "# E4012: bucket quota exceeded\n\nThe bucket has reached its object quota (default 1,000,000). Delete unused objects or request a quota increase from Settings > Limits. Writes fail until usage drops below the quota.\n",
+      "published_at": "2026-08-01"
+    },
+    {
+      "query_match": "Harrow Storage",
+      "url": "https://harrowstorage.example/docs/errors/E4013",
+      "url_match": "harrowstorage.example/docs/errors/E4013",
+      "title": "Error E4013",
+      "snippet": "Error code reference.",
+      "content": "# E4013: request rate limited\n\nToo many requests per second. Retry with exponential backoff.\n",
+      "published_at": "2026-08-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Harrow Storage keeps throwing 'E4012' when I upload. What does it mean and how do I fix it?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "quota"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

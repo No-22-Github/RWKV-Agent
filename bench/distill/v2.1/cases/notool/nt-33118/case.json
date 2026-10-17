@@ -1,0 +1,55 @@
+{
+  "id": "nt-33118",
+  "description": "Explain SQL query pasted. DISTILL-CANARY-909654d8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "code_help",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-code-33118",
+    "ref_calls": 0,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "code"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 星火教育 workspace\n\nNotes and small tables live here (batch item 33118).\n",
+    "misc/todo-96.txt": "- check shelf 8\n- reorder item 14\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我看看这条 SQL 是什么意思：\n```sql\nSELECT dept, COUNT(*) AS n FROM staff WHERE active = 1 GROUP BY dept HAVING COUNT(*) > 5 ORDER BY n DESC;\n```",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "HAVING"
+        ],
+        "output_contains_any": [
+          "分组",
+          "每个部门",
+          "按部门",
+          "各部门"
+        ],
+        "output_format": [
+          "zh"
+        ]
+      }
+    }
+  ]
+}

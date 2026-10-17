@@ -1,0 +1,46 @@
+{
+  "id": "nt-33153",
+  "description": "2400 L to m3. DISTILL-CANARY-411e0133",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-unit-33153",
+    "ref_calls": 0,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "unit"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pine Studio workspace\n\nNotes and small tables live here (batch item 33153).\n",
+    "misc/todo-50.txt": "- check shelf 4\n- reorder item 19\n"
+  },
+  "turns": [
+    {
+      "prompt": "水箱容量 2400 升，合多少立方米？",
+      "expect": {
+        "tools": [],
+        "expected_number": 2.4,
+        "expected_number_in_text": true,
+        "tolerance": 0.001
+      }
+    }
+  ]
+}

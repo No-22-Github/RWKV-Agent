@@ -1,0 +1,83 @@
+{
+  "id": "web-33010",
+  "description": "Summarize a fictional site page whose snippet is vague (Copperleaf Pay). DISTILL-CANARY-94687917",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33010",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Copperleaf Pay",
+      "url": "https://copperleaf-pay.example/legal/fees-2027",
+      "url_match": "copperleaf-pay.example/legal/fees-2027",
+      "title": "Fee schedule effective January",
+      "snippet": "Overview; details are in the page body.",
+      "content": "# Fee schedule\n\nDomestic card payments: 1.9% + 0.25 per transaction. International cards: 3.2%. Refunds no longer return the fixed fee. Payouts are weekly by default; instant payout costs 1%, capped at 10. Disputes cost 15 per case, refunded if won.\n",
+      "published_at": "2026-09-25"
+    },
+    {
+      "query_match": "Copperleaf",
+      "url": "https://copperleaf-pay.example/help/disputes",
+      "url_match": "copperleaf-pay.example/help/disputes",
+      "title": "Disputes - Copperleaf Pay",
+      "snippet": "How disputes work.",
+      "content": "# Disputes\n\nYou have 7 days to submit evidence after a dispute opens. Missing the deadline loses the case automatically.\n",
+      "published_at": "2026-09-26"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Read the Copperleaf Pay fee schedule and give me a short summary of what it costs.",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "1.9",
+          "3.2"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "What's the deadline if a customer disputes a payment? Their disputes page should say.",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

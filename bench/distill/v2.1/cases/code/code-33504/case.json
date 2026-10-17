@@ -1,0 +1,79 @@
+{
+  "id": "code-33504",
+  "description": "Shell variable BACKUP_KEEP_DAYS assignment line. DISTILL-CANARY-fe1ac44f",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "scripts/backup.sh"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-locate-33504",
+    "ref_calls": 3,
+    "fixture_bytes": 870,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "scripts/env.sh": "#!/usr/bin/env bash\n# deploy helper\nset -euo pipefail\n\nexport ZONE_EU=a\nexport ZONE_US=b\nexport ZONE_AP=a\nexport ZONE_SA=c\n\nBACKUP_KEEP_DAYS=14\nBACKUP_KEEP_COUNT=30\n\n",
+    "scripts/backup.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_dump_0() {\n  echo \"[$(date +%H:%M)] dump step 0: $*\"\n}\n\nlog_ship_1() {\n  echo \"[$(date +%H:%M)] ship step 1: $*\"\n}\n\nlog_dump_2() {\n  echo \"[$(date +%H:%M)] dump step 2: $*\"\n}\n\n\n# retention: BACKUP_KEEP_DAYS (see env.sh)\nfind /var/bk -mtime +\"$BACKUP_KEEP_DAYS\" -delete\n",
+    "scripts/restore.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_unpack_0() {\n  echo \"[$(date +%H:%M)] unpack step 0: $*\"\n}\n\nlog_fetch_1() {\n  echo \"[$(date +%H:%M)] fetch step 1: $*\"\n}\n\n",
+    "ops/crontab.yml": "nightly_0:\n  enabled: false\n  interval: 86\n\nweekly_1:\n  enabled: false\n  interval: 16\n\nnightly_2:\n  enabled: true\n  interval: 86\n\n# BACKUP_KEEP_DAYS is set in env.sh, not here\n",
+    "README.md": "# ops\nSet BACKUP_KEEP_DAYS before the nightly run.\n"
+  },
+  "turns": [
+    {
+      "prompt": "备份脚本保留几天的备份？这个值 BACKUP_KEEP_DAYS 是在哪个文件的第几行设置的？",
+      "expect": {
+        "output_contains": [
+          "scripts/env.sh",
+          "10",
+          "14"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "scripts/env.sh": {
+        "unchanged": true
+      },
+      "scripts/backup.sh": {
+        "unchanged": true
+      },
+      "scripts/restore.sh": {
+        "unchanged": true
+      },
+      "ops/crontab.yml": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

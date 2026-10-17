@@ -1,0 +1,70 @@
+{
+  "id": "web-33046",
+  "description": "Find the current stable release among mixed pre-release/old pages (Spindle Queue). DISTILL-CANARY-ed6e27d9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33046",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Spindle Queue",
+      "url": "https://spindlequeue.example/docs/versions",
+      "url_match": "spindlequeue.example/docs/versions",
+      "title": "Versions - Spindle Queue",
+      "snippet": "Supported versions.",
+      "content": "# Versions\n\nCurrent: 0.18.2. The 0.17 line receives security fixes only until 2026-12.\n",
+      "published_at": "2026-08-22"
+    },
+    {
+      "query_match": "Spindle Queue",
+      "url": "https://spindlequeue.example/blog/0-19",
+      "url_match": "spindlequeue.example/blog/0-19",
+      "title": "0.19 coming soon",
+      "snippet": "Teaser for 0.19.",
+      "content": "0.19 enters feature freeze next week. Not yet released; do not use in production.\n",
+      "published_at": "2026-09-17"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Spindle Queue 现在能用于生产的版本是哪个？我看到有篇文章提到 0.19。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "0.18.2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

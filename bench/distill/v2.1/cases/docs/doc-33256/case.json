@@ -1,0 +1,64 @@
+{
+  "id": "doc-33256",
+  "description": "Overdue office invoice vs travel invoice. DISTILL-CANARY-3822c0f0",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-56",
+    "ref_calls": 2,
+    "fixture_bytes": 507,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "财务/发票与报销.md": "# 发票与报销规则\n\n1. 发票抬头须为公司全称，税号错误的发票不予报销。\n2. 发票开具日期超过 90 天的，不予报销；因特殊原因逾期的，须总监书面说明。\n3. 单张发票金额超过 5000 元的，须同时附合同或订单。\n4. 电子发票须打印并签字，同一张电子发票不得重复报销。\n5. 差旅类发票的报销时限为返回后 10 个工作日，不适用第 2 条的 90 天规则。\n6. 餐饮发票每人每餐不超过 150 元。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我手上有一张办公用品的发票，开了 100 天了，还能直接报销吗？按规定超过多少天就不行了？",
+      "expect": {
+        "output_contains": [
+          "90"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "如果是出差的车票发票呢？时限是多久？",
+      "expect": {
+        "output_contains": [
+          "10"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines"
+    ]
+  }
+}

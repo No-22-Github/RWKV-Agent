@@ -1,0 +1,60 @@
+{
+  "id": "doc-33223",
+  "description": "Items over 100 yuan as a bullet file. DISTILL-CANARY-00b53b17",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-23",
+    "ref_calls": 4,
+    "fixture_bytes": 177,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "价格/报价.txt": "办公用品报价单\n签字笔 一盒12支 38元\n A4纸 一箱5包 160元\n 文件夹 单个 4元\n碎纸机 一台 520元\n订书机 单个 36元\n 激光打印机 一台 1850元\n"
+  },
+  "turns": [
+    {
+      "prompt": "从 价格/报价.txt 里挑出价格超过 100 元的品目，写到 价格/贵重物品.md，每行“- 品名：价格元”（比如“- 碎纸机：520元”），顺序同原文。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "价格/报价.txt": {
+        "unchanged": true
+      },
+      "价格/贵重物品.md": {
+        "equals": "- A4纸：160元\n- 碎纸机：520元\n- 激光打印机：1850元\n"
+      }
+    }
+  }
+}

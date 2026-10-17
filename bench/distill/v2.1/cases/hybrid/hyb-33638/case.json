@@ -1,0 +1,54 @@
+{
+  "id": "hyb-33638",
+  "description": "Multi-turn shared-flat costs: equal split, then a pro-rated share for someone away. DISTILL-CANARY-1b7ddd65",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "1585.57"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-38",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "三人合租，本月房租 4350，水电 286.7，网费 99，平均每人多少？保留两位小数。",
+      "expect": {
+        "expected_number": 1578.57,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    },
+    {
+      "prompt": "如果甲出差 9 天没住（这个月按 30 天算），他的房租按天数折算只付 21/30，水电网费照旧三人平分，他这个月该付多少？两位小数。",
+      "expect": {
+        "expected_number": 1143.57,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

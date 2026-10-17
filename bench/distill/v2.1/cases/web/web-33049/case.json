@@ -1,0 +1,73 @@
+{
+  "id": "web-33049",
+  "description": "Explain a vendor error message using the vendor's reference page (Tessel API). DISTILL-CANARY-aaf74cc9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33049",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tessel API",
+      "url": "https://tessel-api.example/reference/errors",
+      "url_match": "tessel-api.example/reference/errors",
+      "title": "API error reference - Tessel",
+      "snippet": "Errors returned by the Tessel API.",
+      "content": "# Errors\n\n401 invalid_token: the token expired or was revoked. Create a new token in the dashboard.\n403 scope_missing: the token lacks the required scope; the response lists missing scopes.\n429 slow_down: you exceeded 120 requests per minute.\n422 bad_cursor: the pagination cursor is older than 10 minutes.\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Our Tessel API calls return 422 with 'bad_cursor'. What does that mean?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "10 minutes",
+          "10 min",
+          "ten minutes",
+          "10-minute"
+        ]
+      }
+    },
+    {
+      "prompt": "OK, and what would a 429 slow_down mean for us - what's the cap?",
+      "expect": {
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

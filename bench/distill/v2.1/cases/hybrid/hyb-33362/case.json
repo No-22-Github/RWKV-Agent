@@ -1,0 +1,84 @@
+{
+  "id": "hyb-33362",
+  "description": "Count ERROR lines and look up 429; then WARN lines and 503. DISTILL-CANARY-22798f86",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-comp-62",
+    "ref_calls": 6,
+    "fixture_bytes": 5814,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "http status",
+      "url_match": "httpref.example.dev/status",
+      "url": "https://httpref.example.dev/status",
+      "title": "HTTP status reference",
+      "snippet": "Meaning of common status codes.",
+      "content": "# Status codes\n\n429 Too Many Requests: the client sent too many requests in a given time window; slow down and retry later.\n503 Service Unavailable: the server cannot handle the request right now, often due to overload or maintenance.\n",
+      "published_at": "2026-04-02"
+    }
+  ],
+  "files": {
+    "logs/app.log": "2026-09-15 INFO request 0\n2026-09-15 INFO request 1\n2026-09-15 INFO request 2\n2026-09-15 INFO request 3\n2026-09-15 WARN request 4\n2026-09-15 INFO request 5\n2026-09-15 INFO request 6\n2026-09-15 ERROR request 7\n2026-09-15 INFO request 8\n2026-09-15 INFO request 9\n2026-09-15 WARN request 10\n2026-09-15 INFO request 11\n2026-09-15 ERROR request 12\n2026-09-15 ERROR request 13\n2026-09-15 ERROR request 14\n2026-09-15 INFO request 15\n2026-09-15 INFO request 16\n2026-09-15 INFO request 17\n2026-09-15 ERROR request 18\n2026-09-15 INFO request 19\n2026-09-15 INFO request 20\n2026-09-15 INFO request 21\n2026-09-15 ERROR request 22\n2026-09-15 INFO request 23\n2026-09-15 ERROR request 24\n2026-09-15 INFO request 25\n2026-09-15 WARN request 26\n2026-09-15 INFO request 27\n2026-09-15 INFO request 28\n2026-09-15 INFO request 29\n2026-09-15 INFO request 30\n2026-09-15 INFO request 31\n2026-09-15 ERROR request 32\n2026-09-15 WARN request 33\n2026-09-15 WARN request 34\n2026-09-15 INFO request 35\n2026-09-15 INFO request 36\n2026-09-15 INFO request 37\n2026-09-15 INFO request 38\n2026-09-15 WARN request 39\n2026-09-15 INFO request 40\n2026-09-15 INFO request 41\n2026-09-15 INFO request 42\n2026-09-15 INFO request 43\n2026-09-15 WARN request 44\n2026-09-15 INFO request 45\n2026-09-15 INFO request 46\n2026-09-15 WARN request 47\n2026-09-15 WARN request 48\n2026-09-15 INFO request 49\n2026-09-15 WARN request 50\n2026-09-15 WARN request 51\n2026-09-15 WARN request 52\n2026-09-15 ERROR request 53\n2026-09-15 INFO request 54\n2026-09-15 INFO request 55\n2026-09-15 INFO request 56\n2026-09-15 ERROR request 57\n2026-09-15 INFO request 58\n2026-09-15 INFO request 59\n2026-09-15 ERROR request 60\n2026-09-15 WARN request 61\n2026-09-15 INFO request 62\n2026-09-15 ERROR request 63\n2026-09-15 INFO request 64\n2026-09-15 ERROR request 65\n2026-09-15 INFO request 66\n2026-09-15 ERROR request 67\n2026-09-15 ERROR request 68\n2026-09-15 INFO request 69\n2026-09-15 INFO request 70\n2026-09-15 ERROR request 71\n2026-09-15 INFO request 72\n2026-09-15 ERROR request 73\n2026-09-15 WARN request 74\n2026-09-15 WARN request 75\n2026-09-15 INFO request 76\n2026-09-15 WARN request 77\n2026-09-15 ERROR request 78\n2026-09-15 INFO request 79\n2026-09-15 INFO request 80\n2026-09-15 ERROR request 81\n2026-09-15 INFO request 82\n2026-09-15 INFO request 83\n2026-09-15 ERROR request 84\n2026-09-15 INFO request 85\n2026-09-15 ERROR request 86\n2026-09-15 WARN request 87\n2026-09-15 ERROR request 88\n2026-09-15 INFO request 89\n2026-09-15 INFO request 90\n2026-09-15 INFO request 91\n2026-09-15 INFO request 92\n2026-09-15 WARN request 93\n2026-09-15 WARN request 94\n2026-09-15 INFO request 95\n2026-09-15 INFO request 96\n2026-09-15 WARN request 97\n2026-09-15 INFO request 98\n2026-09-15 INFO request 99\n2026-09-15 INFO request 100\n2026-09-15 ERROR request 101\n2026-09-15 INFO request 102\n2026-09-15 ERROR request 103\n2026-09-15 INFO request 104\n2026-09-15 INFO request 105\n2026-09-15 INFO request 106\n2026-09-15 WARN request 107\n2026-09-15 INFO request 108\n2026-09-15 WARN request 109\n2026-09-15 WARN request 110\n2026-09-15 INFO request 111\n2026-09-15 INFO request 112\n2026-09-15 INFO request 113\n2026-09-15 ERROR request 114\n2026-09-15 INFO request 115\n2026-09-15 ERROR request 116\n2026-09-15 ERROR request 117\n2026-09-15 INFO request 118\n2026-09-15 INFO request 119\n2026-09-15 INFO request 120\n2026-09-15 INFO request 121\n2026-09-15 INFO request 122\n2026-09-15 ERROR request 123\n2026-09-15 INFO request 124\n2026-09-15 INFO request 125\n2026-09-15 INFO request 126\n2026-09-15 INFO request 127\n2026-09-15 INFO request 128\n2026-09-15 INFO request 129\n2026-09-15 INFO request 130\n2026-09-15 INFO request 131\n2026-09-15 ERROR request 132\n2026-09-15 ERROR request 133\n2026-09-15 WARN request 134\n2026-09-15 ERROR request 135\n2026-09-15 INFO request 136\n2026-09-15 INFO request 137\n2026-09-15 WARN request 138\n2026-09-15 INFO request 139\n2026-09-15 WARN request 140\n2026-09-15 INFO request 141\n2026-09-15 INFO request 142\n2026-09-15 INFO request 143\n2026-09-15 INFO request 144\n2026-09-15 INFO request 145\n2026-09-15 WARN request 146\n2026-09-15 INFO request 147\n2026-09-15 INFO request 148\n2026-09-15 INFO request 149\n2026-09-15 INFO request 150\n2026-09-15 ERROR request 151\n2026-09-15 WARN request 152\n2026-09-15 INFO request 153\n2026-09-15 INFO request 154\n2026-09-15 INFO request 155\n2026-09-15 ERROR request 156\n2026-09-15 INFO request 157\n2026-09-15 INFO request 158\n2026-09-15 INFO request 159\n2026-09-15 INFO request 160\n2026-09-15 INFO request 161\n2026-09-15 WARN request 162\n2026-09-15 INFO request 163\n2026-09-15 INFO request 164\n2026-09-15 ERROR request 165\n2026-09-15 ERROR request 166\n2026-09-15 INFO request 167\n2026-09-15 INFO request 168\n2026-09-15 INFO request 169\n2026-09-15 INFO request 170\n2026-09-15 ERROR request 171\n2026-09-15 ERROR request 172\n2026-09-15 INFO request 173\n2026-09-15 WARN request 174\n2026-09-15 WARN request 175\n2026-09-15 INFO request 176\n2026-09-15 ERROR request 177\n2026-09-15 WARN request 178\n2026-09-15 WARN request 179\n2026-09-15 INFO request 180\n2026-09-15 ERROR request 181\n2026-09-15 INFO request 182\n2026-09-15 INFO request 183\n2026-09-15 INFO request 184\n2026-09-15 WARN request 185\n2026-09-15 ERROR request 186\n2026-09-15 ERROR request 187\n2026-09-15 ERROR request 188\n2026-09-15 INFO request 189\n2026-09-15 INFO request 190\n2026-09-15 INFO request 191\n2026-09-15 INFO request 192\n2026-09-15 INFO request 193\n2026-09-15 INFO request 194\n2026-09-15 INFO request 195\n2026-09-15 INFO request 196\n2026-09-15 INFO request 197\n2026-09-15 INFO request 198\n2026-09-15 INFO request 199\n2026-09-15 INFO request 200\n2026-09-15 INFO request 201\n2026-09-15 INFO request 202\n2026-09-15 INFO request 203\n2026-09-15 INFO request 204\n2026-09-15 INFO request 205\n2026-09-15 INFO request 206\n2026-09-15 ERROR request 207\n2026-09-15 ERROR request 208\n2026-09-15 INFO request 209\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many ERROR lines are in logs/app.log, and what does the HTTP status reference at httpref.example.dev say 429 means?",
+      "expect": {
+        "output_contains": [
+          "44",
+          "Too Many Requests"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "Same for WARN lines, and what does 503 mean on that reference?",
+      "expect": {
+        "output_contains": [
+          "34",
+          "Service Unavailable"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "logs/app.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

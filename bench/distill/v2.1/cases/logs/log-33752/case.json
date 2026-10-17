@@ -1,0 +1,55 @@
+{
+  "id": "log-33752",
+  "description": "Half-open window with events exactly on both boundaries. DISTILL-CANARY-2159399b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-window-33752",
+    "ref_calls": 4,
+    "fixture_bytes": 5538,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "auth.log": "11:40:27 login_ok user=u160\n11:40:53 logout user=u760\n11:40:55 login_ok user=u928\n11:41:16 logout user=u399\n11:41:36 login_failed user=u299\n11:42:20 login_ok user=u772\n11:43:08 login_ok user=u953\n11:44:16 login_ok user=u494\n11:44:40 login_failed user=u282\n11:44:42 login_ok user=u613\n11:45:12 login_failed user=u245\n11:45:33 login_failed user=u569\n11:45:54 login_ok user=u670\n11:45:58 login_ok user=u994\n11:46:35 login_ok user=u820\n11:46:40 logout user=u786\n11:46:46 logout user=u109\n11:47:10 logout user=u527\n11:47:15 login_ok user=u232\n11:47:23 login_ok user=u635\n11:47:43 login_ok user=u880\n11:47:56 logout user=u124\n11:48:10 login_failed user=u343\n11:48:39 login_ok user=u110\n11:48:46 login_failed user=u146\n11:49:33 login_ok user=u911\n11:49:44 login_ok user=u617\n11:49:47 logout user=u816\n11:49:51 login_ok user=u599\n11:50:00 login_ok user=u574\n11:50:00 login_ok user=u574\n11:50:20 login_ok user=u722\n11:51:13 login_ok user=u336\n11:51:18 login_ok user=u676\n11:51:59 login_ok user=u754\n11:52:33 login_failed user=u601\n11:52:37 login_ok user=u613\n11:52:40 logout user=u931\n11:52:42 login_failed user=u966\n11:52:56 login_ok user=u409\n11:53:39 login_ok user=u632\n11:53:51 login_ok user=u571\n11:54:31 logout user=u247\n11:54:36 logout user=u375\n11:55:02 logout user=u153\n11:55:15 login_failed user=u765\n11:55:19 login_failed user=u797\n11:55:23 logout user=u196\n11:55:40 login_failed user=u202\n11:55:43 login_ok user=u654\n11:55:44 login_failed user=u306\n11:55:48 login_ok user=u738\n11:56:19 login_ok user=u747\n11:56:20 login_ok user=u985\n11:56:34 login_ok user=u980\n11:56:41 login_failed user=u298\n11:57:19 logout user=u555\n11:57:24 login_ok user=u651\n11:57:33 logout user=u978\n11:57:49 login_ok user=u141\n11:57:56 login_ok user=u756\n11:58:23 login_ok user=u165\n11:58:54 login_ok user=u831\n11:58:57 login_failed user=u231\n11:59:37 login_failed user=u814\n12:00:00 login_failed user=u200\n12:00:00 login_failed user=u664\n12:00:03 login_ok user=u957\n12:01:09 login_ok user=u829\n12:01:22 login_ok user=u761\n12:01:44 login_ok user=u202\n12:01:52 login_ok user=u423\n12:02:03 login_ok user=u860\n12:02:16 login_failed user=u867\n12:02:53 login_ok user=u981\n12:04:09 login_ok user=u602\n12:04:29 logout user=u306\n12:04:36 login_ok user=u309\n12:04:59 logout user=u732\n12:05:05 login_ok user=u293\n12:05:29 logout user=u934\n12:05:33 login_ok user=u643\n12:06:22 login_ok user=u994\n12:07:01 login_ok user=u488\n12:07:50 login_failed user=u208\n12:08:14 login_ok user=u236\n12:08:18 logout user=u739\n12:08:22 login_ok user=u825\n12:08:32 login_ok user=u445\n12:08:32 login_failed user=u879\n12:08:36 logout user=u426\n12:09:18 logout user=u440\n12:09:39 login_ok user=u481\n12:09:47 login_ok user=u355\n12:09:56 login_ok user=u232\n12:10:46 login_ok user=u883\n12:12:17 login_ok user=u493\n12:12:19 logout user=u922\n12:12:21 login_ok user=u466\n12:12:34 login_ok user=u123\n12:12:46 login_ok user=u123\n12:12:54 login_failed user=u174\n12:13:16 login_failed user=u991\n12:13:39 login_failed user=u952\n12:14:38 logout user=u749\n12:14:39 logout user=u144\n12:14:59 login_failed user=u719\n12:16:25 login_ok user=u420\n12:16:28 logout user=u759\n12:16:43 login_ok user=u432\n12:16:59 login_ok user=u176\n12:17:02 login_ok user=u637\n12:17:06 logout user=u171\n12:17:31 logout user=u776\n12:18:35 login_ok user=u867\n12:18:44 logout user=u397\n12:19:04 login_ok user=u978\n12:19:08 login_failed user=u546\n12:19:25 login_ok user=u576\n12:20:54 login_ok user=u214\n12:21:39 login_ok user=u922\n12:21:55 logout user=u411\n12:24:08 login_ok user=u289\n12:24:17 login_ok user=u527\n12:24:43 login_ok user=u960\n12:25:12 login_ok user=u476\n12:25:24 login_ok user=u184\n12:25:43 login_ok user=u824\n12:25:49 login_failed user=u718\n12:26:16 logout user=u835\n12:26:54 login_ok user=u103\n12:27:18 login_ok user=u458\n12:27:32 login_ok user=u478\n12:28:27 login_ok user=u421\n12:28:32 logout user=u346\n12:28:55 login_failed user=u756\n12:29:13 login_ok user=u336\n12:29:32 login_ok user=u219\n12:29:39 logout user=u274\n12:29:59 login_failed user=u234\n12:30:00 login_failed user=u993\n12:30:00 login_failed user=u358\n12:30:00 login_failed user=u768\n12:30:07 login_ok user=u866\n12:30:08 login_ok user=u865\n12:30:38 logout user=u525\n12:31:36 login_ok user=u538\n12:31:53 logout user=u386\n12:32:19 logout user=u446\n12:32:26 login_ok user=u516\n12:33:14 logout user=u307\n12:33:14 login_ok user=u130\n12:33:19 logout user=u680\n12:33:25 login_ok user=u117\n12:33:50 login_ok user=u430\n12:33:53 login_failed user=u289\n12:34:07 login_ok user=u210\n12:34:31 login_ok user=u379\n12:35:35 login_failed user=u529\n12:36:20 logout user=u516\n12:36:39 login_ok user=u406\n12:36:46 login_ok user=u639\n12:37:08 login_failed user=u643\n12:37:21 login_failed user=u196\n12:37:33 login_ok user=u790\n12:38:17 logout user=u198\n12:38:18 login_failed user=u889\n12:38:46 login_failed user=u936\n12:39:00 login_ok user=u605\n12:39:33 login_ok user=u303\n12:39:39 login_failed user=u819\n12:39:51 login_failed user=u126\n12:40:04 login_ok user=u927\n12:40:14 login_ok user=u704\n12:40:27 login_ok user=u922\n12:40:32 login_ok user=u365\n12:40:52 logout user=u287\n12:40:56 login_failed user=u151\n12:41:01 login_ok user=u842\n12:42:12 logout user=u324\n12:43:08 login_ok user=u849\n12:43:45 login_ok user=u907\n12:43:52 login_ok user=u383\n12:43:56 login_ok user=u845\n12:44:36 login_ok user=u968\n12:44:59 login_ok user=u576\n12:46:02 login_ok user=u241\n12:46:27 logout user=u397\n12:46:46 logout user=u144\n12:46:58 login_ok user=u479\n12:47:23 login_failed user=u221\n12:47:43 logout user=u747\n12:48:15 login_ok user=u499\n12:48:21 login_ok user=u287\n12:48:26 login_ok user=u153\n"
+  },
+  "turns": [
+    {
+      "prompt": "Count the login_failed events in auth.log from 12:00:00 up to but not including 12:30:00.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "13"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

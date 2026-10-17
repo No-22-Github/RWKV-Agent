@@ -1,0 +1,82 @@
+{
+  "id": "code-33526",
+  "description": "Which file has the most FIXME comments. DISTILL-CANARY-94236597",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "api/auth.js"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-count-33526",
+    "ref_calls": 4,
+    "fixture_bytes": 1538,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "api/users.js": "export function sumReq0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// FIXME: double encode\n}\n\nexport function sumReq1(xs) {\n// FIXME: leaks handle\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\n// FIXME: double encode\nexport const resLabel2 = (id) => `res-${id}`;\n\n",
+    "api/orders.js": "export function sumRes0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// FIXME: leaks handle\n}\n\nexport function slugRes1(text) {\n// FIXME: n+1 query\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n// FIXME: no timeout\nexport function sumRes2(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n// FIXME: no timeout\n\n\n// FIXME: race on retry",
+    "api/search.js": "export function sumReq0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// FIXME: leaks handle\n}\n\nexport function sumRes1(xs) {\n// FIXME: n+1 query\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport function slugRes2(text) {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n",
+    "api/health.js": "export function sumReq0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport function slugReq1(text) {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nexport function sumReq2(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\n",
+    "api/auth.js": "export const resLabel0 = (id) => `res-${id}`;\n\n// FIXME: race on retry\nexport function slugRes1(text) {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n// FIXME: double encode\n\nexport function sumRes2(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// FIXME: double encode\n}\n\n\n// FIXME: no timeout\nconst FIXME_LEVEL = 3;\n",
+    "README.md": "FIXME list lives in the issue tracker.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which file under api/ has the most FIXME comments, and how many? A FIXME_LEVEL constant is not a marker.",
+      "expect": {
+        "output_contains": [
+          "api/orders.js",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "api/users.js": {
+        "unchanged": true
+      },
+      "api/orders.js": {
+        "unchanged": true
+      },
+      "api/search.js": {
+        "unchanged": true
+      },
+      "api/health.js": {
+        "unchanged": true
+      },
+      "api/auth.js": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

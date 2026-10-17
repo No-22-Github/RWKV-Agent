@@ -1,0 +1,94 @@
+{
+  "id": "hyb-33375",
+  "description": "List price per seat, then the discount from a linked education page applied to a 20-seat order. DISTILL-CANARY-5b2ad0e8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-multi-75",
+    "ref_calls": 5,
+    "fixture_bytes": 14,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tideline",
+      "url_match": "tideline-edu.com/pricing",
+      "url": "https://tideline-edu.com/pricing",
+      "title": "Tideline pricing",
+      "snippet": "Plans for teams.",
+      "content": "# Tideline pricing\n\nPro: 120 yuan per seat per year\nEducation customers: see https://tideline-edu.com/education\n",
+      "published_at": "2026-09-03"
+    },
+    {
+      "query_match": "Tideline",
+      "url_match": "tideline-edu.com/education",
+      "url": "https://tideline-edu.com/education",
+      "title": "Tideline education offer",
+      "snippet": "Discounts for schools.",
+      "content": "# Education offer\n\nSchools and universities get 30% off list price.\n",
+      "published_at": "2026-09-03"
+    }
+  ],
+  "files": {
+    "readme.txt": "tideline eval\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tideline 的 Pro 版每个席位一年多少钱？价格页在 tideline-edu.com/pricing。",
+      "expect": {
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "我们是学校，要买 20 个席位。看看他们对教育机构有没有优惠，按优惠价算一年总共多少？",
+      "expect": {
+        "output_contains_any": [
+          "1680",
+          "1,680"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "readme.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

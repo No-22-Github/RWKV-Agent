@@ -1,0 +1,84 @@
+{
+  "id": "code-33541",
+  "description": "clampPage returns total+1 beyond the last page. DISTILL-CANARY-54ff5848",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-fix-33541",
+    "ref_calls": 6,
+    "fixture_bytes": 900,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/paging.ts": "// paging helpers\nexport const SIZE_0 = 29;\nexport const SIZE_1 = 26;\nexport const SIZE_2 = 19;\nexport const SIZE_3 = 15;\nexport const SIZE_4 = 29;\nexport const SIZE_5 = 41;\nexport const SIZE_6 = 49;\nexport const SIZE_7 = 23;\nexport const SIZE_8 = 40;\nexport const SIZE_9 = 22;\n\nexport function clampPage(page: number, total: number): number {\n  if (page < 1) return 1;\n  if (page > total) return total + 1;\n  return page;\n}\n\nexport function pageCount(items: number, size: number): number {\n  return Math.ceil(items / size);\n}\n\n",
+    "src/list.ts": "import { clampPage } from './paging';\n\nexport const show = (p: number, t: number) => clampPage(p, t);\n",
+    "src/util.ts": "export function slugRow0(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nexport const rowLabel1 = (id: number): string => `row-${id}`;\n\nexport const pageLabel2 = (id: number): string => `page-${id}`;\n\n",
+    "tests/paging.md": "clampPage(9, 5) must be 5, not 6\n"
+  },
+  "turns": [
+    {
+      "prompt": "Asking for a page past the end gives total + 1 instead of the last page. Fix clampPage in src/paging.ts, change only what is wrong, then read it back and tell me the line number.",
+      "expect": {
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Thanks. Does pageCount have the same kind of problem? Just tell me, don't edit.",
+      "expect": {
+        "output_contains": [
+          "pageCount"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/paging.ts": {
+        "equals": "// paging helpers\nexport const SIZE_0 = 29;\nexport const SIZE_1 = 26;\nexport const SIZE_2 = 19;\nexport const SIZE_3 = 15;\nexport const SIZE_4 = 29;\nexport const SIZE_5 = 41;\nexport const SIZE_6 = 49;\nexport const SIZE_7 = 23;\nexport const SIZE_8 = 40;\nexport const SIZE_9 = 22;\n\nexport function clampPage(page: number, total: number): number {\n  if (page < 1) return 1;\n  if (page > total) return total;\n  return page;\n}\n\nexport function pageCount(items: number, size: number): number {\n  return Math.ceil(items / size);\n}\n\n"
+      },
+      "src/list.ts": {
+        "unchanged": true
+      },
+      "src/util.ts": {
+        "unchanged": true
+      },
+      "tests/paging.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

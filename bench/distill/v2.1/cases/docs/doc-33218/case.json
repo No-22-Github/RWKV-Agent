@@ -1,0 +1,86 @@
+{
+  "id": "doc-33218",
+  "description": "Invitation draft from the current plan then add a request line. DISTILL-CANARY-a73dba37",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21k-draft-18",
+    "ref_calls": 5,
+    "fixture_bytes": 248,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/trip.txt": "Team offsite plan\nDate: 2026-11-06 (Friday)\nVenue: Lakeside Lodge, 2 hours by coach\nCoach leaves HQ at 08:15 sharp\nBudget cap: 85 per person\nDietary forms due to Rosa Ibarra by 2026-10-23\n",
+    "notes/older-plan.txt": "Offsite draft (cancelled)\nDate: 2026-10-30\nVenue: Pine Hill\n"
+  },
+  "turns": [
+    {
+      "prompt": "Write an invitation email draft for the offsite and save it to notes/invite.md. The older plan was cancelled, so use only the current one.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Add a line at the end asking people to reply with their t-shirt size by 2026-10-27.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "notes/trip.txt": {
+        "unchanged": true
+      },
+      "notes/older-plan.txt": {
+        "unchanged": true
+      },
+      "notes/invite.md": {
+        "contains": [
+          "2026-11-06",
+          "Lakeside Lodge",
+          "08:15",
+          "85",
+          "Rosa Ibarra",
+          "2026-10-23",
+          "t-shirt size",
+          "2026-10-27"
+        ]
+      }
+    }
+  }
+}

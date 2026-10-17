@@ -1,0 +1,72 @@
+{
+  "id": "log-33737",
+  "description": "Expired TLS certificate seen in three logs; the earliest warning and the recovery time. DISTILL-CANARY-100aa0a9",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-rootcause-33737",
+    "ref_calls": 6,
+    "fixture_bytes": 8348,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "gateway.log": "2026-03-02 08:08:16 INFO  gw: GET /static/app.js 200 64ms\n2026-03-02 08:10:34 DEBUG gw: POST /api/v2/login 200 45ms\n2026-03-02 08:11:29 INFO  gw: GET /api/v2/users 200 61ms\n2026-03-02 08:18:26 DEBUG gw: GET /api/v2/users 200 32ms\n2026-03-02 08:22:39 INFO  gw: GET /static/app.js 200 78ms\n2026-03-02 08:27:45 INFO  gw: GET /static/app.js 200 70ms\n2026-03-02 08:33:57 DEBUG gw: GET /static/app.js 200 34ms\n2026-03-02 08:36:01 INFO  gw: GET /static/app.js 200 47ms\n2026-03-02 08:38:25 INFO  gw: POST /api/v2/login 200 86ms\n2026-03-02 08:38:48 INFO  gw: GET /api/v2/users 200 82ms\n2026-03-02 08:44:24 INFO  gw: GET /static/app.js 200 54ms\n2026-03-02 08:46:49 DEBUG gw: GET /api/v2/users 200 46ms\n2026-03-02 08:47:51 INFO  gw: GET /api/v2/users 200 16ms\n2026-03-02 08:49:12 INFO  gw: POST /api/v2/login 200 80ms\n2026-03-02 08:51:15 DEBUG gw: POST /api/v2/login 200 85ms\n2026-03-02 08:55:49 INFO  gw: GET /api/v2/users 200 81ms\n2026-03-02 08:55:56 INFO  gw: GET /static/app.js 200 89ms\n2026-03-02 09:01:12 INFO  gw: POST /api/v2/login 200 9ms\n2026-03-02 09:01:57 DEBUG gw: GET /api/v2/users 200 47ms\n2026-03-02 09:05:01 INFO  gw: GET /static/app.js 200 20ms\n2026-03-02 09:07:22 INFO  gw: GET /api/v2/users 200 17ms\n2026-03-02 09:14:06 DEBUG gw: GET /static/app.js 200 38ms\n2026-03-02 09:16:00 DEBUG gw: GET /api/v2/users 200 9ms\n2026-03-02 09:17:13 DEBUG gw: GET /static/app.js 200 2ms\n2026-03-02 09:19:25 INFO  gw: GET /static/app.js 200 69ms\n2026-03-02 09:20:43 INFO  gw: GET /api/v2/users 200 20ms\n2026-03-02 09:36:47 INFO  gw: GET /api/v2/users 200 29ms\n2026-03-02 09:48:24 INFO  gw: POST /api/v2/login 200 14ms\n2026-03-02 09:52:00 INFO  gw: GET /api/v2/users 200 84ms\n2026-03-02 09:57:35 INFO  gw: GET /static/app.js 200 18ms\n2026-03-02 10:00:03 ERROR gw: tls handshake failed: peer reports certificate expired (cn=api.example.test)\n2026-03-02 10:00:09 ERROR gw: tls handshake failed: certificate expired\n2026-03-02 10:04:35 INFO  gw: GET /static/app.js 200 36ms\n2026-03-02 10:06:03 INFO  gw: GET /api/v2/users 200 46ms\n2026-03-02 10:10:39 INFO  gw: POST /api/v2/login 200 34ms\n2026-03-02 10:11:39 INFO  gw: POST /api/v2/login 200 9ms\n2026-03-02 10:20:44 INFO  gw: reloaded certificate cn=api.example.test notAfter=2027-03-02\n2026-03-02 10:26:12 INFO  gw: GET /api/v2/users 200 30ms\n2026-03-02 10:28:49 INFO  gw: POST /api/v2/login 200 34ms\n2026-03-02 10:29:26 INFO  gw: GET /api/v2/users 200 30ms\n2026-03-02 10:37:36 INFO  gw: GET /api/v2/users 200 20ms\n2026-03-02 10:39:06 INFO  gw: GET /static/app.js 200 17ms\n2026-03-02 10:44:19 INFO  gw: GET /static/app.js 200 66ms\n2026-03-02 10:44:33 INFO  gw: POST /api/v2/login 200 58ms\n2026-03-02 10:47:18 INFO  gw: GET /api/v2/users 200 7ms\n2026-03-02 11:00:15 INFO  gw: GET /api/v2/users 200 9ms\n2026-03-02 11:02:09 INFO  gw: GET /api/v2/users 200 70ms\n2026-03-02 11:08:31 INFO  gw: GET /api/v2/users 200 61ms\n2026-03-02 11:09:01 INFO  gw: POST /api/v2/login 200 47ms\n2026-03-02 11:10:08 INFO  gw: GET /static/app.js 200 86ms\n2026-03-02 11:16:15 INFO  gw: GET /api/v2/users 200 41ms\n2026-03-02 11:27:30 INFO  gw: POST /api/v2/login 200 45ms\n2026-03-02 11:28:50 INFO  gw: GET /api/v2/users 200 9ms\n2026-03-02 11:33:47 INFO  gw: POST /api/v2/login 200 38ms\n2026-03-02 11:35:48 INFO  gw: GET /static/app.js 200 71ms\n2026-03-02 11:42:45 INFO  gw: GET /api/v2/users 200 28ms\n2026-03-02 11:53:32 INFO  gw: GET /api/v2/users 200 73ms\n2026-03-02 11:59:27 INFO  gw: GET /static/app.js 200 55ms\n",
+    "certmon.log": "2026-03-02 07:55:00 WARN  certmon: certificate cn=api.example.test expires in 5 minutes (notAfter=2026-03-02T10:00:00Z)\n2026-03-02 08:03:41 INFO  certmon: scan: 111 certificates checked\n2026-03-02 08:13:31 DEBUG certmon: ocsp stapling refreshed\n2026-03-02 08:16:27 INFO  certmon: ocsp stapling refreshed\n2026-03-02 08:23:31 INFO  certmon: scan: 102 certificates checked\n2026-03-02 08:24:42 INFO  certmon: scan: 544 certificates checked\n2026-03-02 08:34:54 INFO  certmon: scan: 667 certificates checked\n2026-03-02 08:53:37 INFO  certmon: scan: 571 certificates checked\n2026-03-02 09:00:00 WARN  certmon: certificate cn=old-admin.example.test expires in 29 days\n2026-03-02 09:01:38 INFO  certmon: ocsp stapling refreshed\n2026-03-02 09:06:25 INFO  certmon: ocsp stapling refreshed\n2026-03-02 09:09:01 INFO  certmon: inventory sync ok\n2026-03-02 09:25:57 INFO  certmon: scan: 673 certificates checked\n2026-03-02 09:32:08 INFO  certmon: inventory sync ok\n2026-03-02 09:33:46 INFO  certmon: ocsp stapling refreshed\n2026-03-02 09:44:02 INFO  certmon: inventory sync ok\n2026-03-02 09:52:04 INFO  certmon: ocsp stapling refreshed\n2026-03-02 09:52:58 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:00:02 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:02:56 DEBUG certmon: ocsp stapling refreshed\n2026-03-02 10:06:54 INFO  certmon: inventory sync ok\n2026-03-02 10:11:48 INFO  certmon: inventory sync ok\n2026-03-02 10:12:23 DEBUG certmon: scan: 843 certificates checked\n2026-03-02 10:13:56 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:15:30 INFO  certmon: renewal request accepted for cn=api.example.test\n2026-03-02 10:28:34 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:31:43 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:36:18 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:38:49 INFO  certmon: scan: 554 certificates checked\n2026-03-02 10:39:08 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:39:27 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:44:04 INFO  certmon: scan: 486 certificates checked\n2026-03-02 10:46:04 DEBUG certmon: ocsp stapling refreshed\n2026-03-02 10:48:22 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:49:02 INFO  certmon: ocsp stapling refreshed\n2026-03-02 10:50:02 INFO  certmon: scan: 917 certificates checked\n2026-03-02 10:51:02 INFO  certmon: inventory sync ok\n2026-03-02 10:59:16 DEBUG certmon: ocsp stapling refreshed\n2026-03-02 11:17:13 INFO  certmon: scan: 139 certificates checked\n2026-03-02 11:23:15 INFO  certmon: inventory sync ok\n2026-03-02 11:29:18 INFO  certmon: inventory sync ok\n2026-03-02 11:35:56 INFO  certmon: ocsp stapling refreshed\n2026-03-02 11:42:01 INFO  certmon: ocsp stapling refreshed\n",
+    "client.log": "2026-03-02 08:00:54 INFO  cli: client 714 connected\n2026-03-02 08:03:43 INFO  cli: client 625 connected\n2026-03-02 08:09:03 INFO  cli: client 581 connected\n2026-03-02 08:11:50 INFO  cli: retry budget ok\n2026-03-02 08:14:09 INFO  cli: poll cycle 826 done\n2026-03-02 08:16:05 DEBUG cli: poll cycle 519 done\n2026-03-02 08:18:48 INFO  cli: client 517 connected\n2026-03-02 08:23:27 INFO  cli: retry budget ok\n2026-03-02 08:28:36 INFO  cli: client 130 connected\n2026-03-02 08:31:09 INFO  cli: poll cycle 432 done\n2026-03-02 08:39:35 INFO  cli: retry budget ok\n2026-03-02 08:41:14 INFO  cli: poll cycle 351 done\n2026-03-02 08:55:58 INFO  cli: retry budget ok\n2026-03-02 08:58:30 INFO  cli: client 549 connected\n2026-03-02 09:00:05 DEBUG cli: poll cycle 463 done\n2026-03-02 09:03:02 INFO  cli: retry budget ok\n2026-03-02 09:17:38 INFO  cli: client 131 connected\n2026-03-02 09:27:14 INFO  cli: retry budget ok\n2026-03-02 09:44:17 DEBUG cli: poll cycle 709 done\n2026-03-02 10:00:12 ERROR cli: request to api.example.test failed: SSL routines: certificate verify failed\n2026-03-02 10:00:30 ERROR cli: retry 3/3 failed, giving up\n2026-03-02 10:18:44 INFO  cli: retry budget ok\n2026-03-02 10:19:24 INFO  cli: poll cycle 324 done\n2026-03-02 10:21:00 INFO  cli: request to api.example.test ok\n2026-03-02 10:28:04 DEBUG cli: poll cycle 75 done\n2026-03-02 10:32:21 DEBUG cli: retry budget ok\n2026-03-02 10:40:29 DEBUG cli: client 642 connected\n2026-03-02 10:41:17 DEBUG cli: client 535 connected\n2026-03-02 10:43:12 INFO  cli: client 671 connected\n2026-03-02 10:46:57 DEBUG cli: client 747 connected\n2026-03-02 10:55:21 INFO  cli: poll cycle 989 done\n2026-03-02 10:56:01 INFO  cli: client 660 connected\n2026-03-02 10:56:39 INFO  cli: client 751 connected\n2026-03-02 11:06:43 INFO  cli: poll cycle 940 done\n2026-03-02 11:16:12 INFO  cli: client 905 connected\n2026-03-02 11:17:32 DEBUG cli: retry budget ok\n2026-03-02 11:24:22 DEBUG cli: poll cycle 383 done\n2026-03-02 11:24:57 INFO  cli: retry budget ok\n2026-03-02 11:42:45 INFO  cli: retry budget ok\n2026-03-02 11:46:07 INFO  cli: poll cycle 316 done\n2026-03-02 11:48:19 INFO  cli: client 620 connected\n2026-03-02 11:53:09 INFO  cli: poll cycle 769 done\n2026-03-02 11:53:31 DEBUG cli: retry budget ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "Clients were unable to reach the API this morning. Using the three logs here, what was the root cause, and at what time did the failures start?",
+      "expect": {
+        "output_contains": [
+          "10:00"
+        ],
+        "output_contains_any": [
+          "certificate",
+          "cert",
+          "TLS",
+          "SSL",
+          "expired",
+          "证书"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "When was it fixed?",
+      "expect": {
+        "output_contains": [
+          "10:20"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "web-33051",
+  "description": "Explain a vendor error message using the vendor's reference page (Mosswood IDE). DISTILL-CANARY-9c568b2b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33051",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Mosswood IDE",
+      "url": "https://mosswood-ide.example/kb/license-error-217",
+      "url_match": "mosswood-ide.example/kb/license-error-217",
+      "title": "License error 217",
+      "snippet": "Knowledge base article.",
+      "content": "# License error 217\n\nMeans the license server could not be reached within 10 seconds. Check proxy settings under Preferences > Network, or set MOSSWOOD_LICENSE_OFFLINE=1 to use the 7-day offline grace period.\n",
+      "published_at": "2026-07-21"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Mosswood IDE 在公司启动时弹出 license error 217，这是怎么回事，怎么解决？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "MOSSWOOD_LICENSE_OFFLINE"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

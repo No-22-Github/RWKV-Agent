@@ -1,0 +1,52 @@
+{
+  "id": "hyb-33615",
+  "description": "Weekday of the day 45 days from the fixed today. DISTILL-CANARY-8845d4f6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "周三"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-datetime-15",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "项目验收定在 45 天以后，那天是星期几？",
+      "expect": {
+        "output_contains_any": [
+          "周六",
+          "星期六",
+          "礼拜六",
+          "Saturday"
+        ],
+        "required_tools": [
+          "datetime"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "datetime"
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "id": "hyb-33368",
+  "description": "Monthly price on the pricing page, then the annual price that lives on a linked page. DISTILL-CANARY-1d72c5d8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-multi-68",
+    "ref_calls": 4,
+    "fixture_bytes": 14,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Sable",
+      "url_match": "sable-notes.com/pricing",
+      "url": "https://sable-notes.com/pricing",
+      "title": "Sable pricing",
+      "snippet": "Monthly plans.",
+      "content": "# Sable pricing\n\nPro: $12 per month\nAnnual billing has its own page: https://sable-notes.com/pricing/annual\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "Sable annual",
+      "url_match": "sable-notes.com/pricing/annual",
+      "url": "https://sable-notes.com/pricing/annual",
+      "title": "Sable annual pricing",
+      "snippet": "Yearly plans.",
+      "content": "# Sable annual\n\nPro (annual): $96 per year, billed once\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "README.md": "pricing check\n"
+  },
+  "turns": [
+    {
+      "prompt": "What does Sable's Pro plan cost per month? Their pricing page is at sable-notes.com/pricing.",
+      "expect": {
+        "output_contains": [
+          "12"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "And if I pay annually, what is the Pro price for the year?",
+      "expect": {
+        "output_contains": [
+          "96"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

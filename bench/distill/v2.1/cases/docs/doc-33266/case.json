@@ -1,0 +1,58 @@
+{
+  "id": "doc-33266",
+  "description": "Space and %20 names resolve; one name lacks the space. DISTILL-CANARY-2f6e9c98",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "b21k-link-66",
+    "ref_calls": 4,
+    "fixture_bytes": 198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "资料/索引.md": "# 资料索引\n\n- [年度总结](年度%20总结.md)\n- [会议记录](会议记录%202026.md)\n- [预算](预算表.md)\n- [联系人](联系人%20名单.md)\n",
+    "资料/年度 总结.md": "# 年度总结\n",
+    "资料/会议记录 2026.md": "# 会议\n",
+    "资料/预算 表.md": "# 预算\n",
+    "资料/联系人 名单.md": "# 名单\n"
+  },
+  "turns": [
+    {
+      "prompt": "资料/索引.md 里有几个链接，目标文件名带空格（有的写成 %20）。请核对哪些链接对应的文件确实不存在，只回答不存在的那个目标。",
+      "expect": {
+        "output_contains": [
+          "预算表.md"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "会议记录%202026.md"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

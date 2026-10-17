@@ -1,0 +1,57 @@
+{
+  "id": "doc-33247",
+  "description": "Per-diem lookup with first-day percentage. DISTILL-CANARY-13046679",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-47",
+    "ref_calls": 2,
+    "fixture_bytes": 406,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "finance/per-diem.md": "# Travel per diem (2026)\n\n| Country | Meals per day | Incidentals per day |\n|---|---|---|\n| Germany | 48 | 12 |\n| France | 44 | 10 |\n| Japan | 52 | 14 |\n| Singapore | 46 | 11 |\n\nNotes:\n- Rates are in USD and apply from the second day of a trip.\n- On the first and last day only 75% of the meal rate is paid.\n- Meals provided by the host are deducted: breakfast 20%, lunch 30%, dinner 50% of the meal rate.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the daily meal allowance in Japan, and what percentage of it do I get on the first day of the trip?",
+      "expect": {
+        "output_contains": [
+          "52",
+          "75%"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

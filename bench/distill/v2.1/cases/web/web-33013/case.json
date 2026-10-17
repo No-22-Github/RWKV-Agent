@@ -1,0 +1,76 @@
+{
+  "id": "web-33013",
+  "description": "Two sources disagree on a value for Kestrel Mail; the answer must pick the authoritative/newer one. DISTILL-CANARY-4c0c62af",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value",
+      "TR-MULTISRC": "the other source's value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21i-cmp-33013",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Kestrel Mail",
+      "url": "https://kestrelmail.example/help/attachment-limit",
+      "url_match": "kestrelmail.example/help/attachment-limit",
+      "title": "Attachment limits - Kestrel Mail Help",
+      "snippet": "# Attachment limits",
+      "content": "# Attachment limits\n\nAs of September 2026 the maximum attachment size is 35 MB per message. Larger files are sent as download links.\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "Kestrel Mail",
+      "url": "https://mailtips-weekly.example/posts/kestrel-limits",
+      "url_match": "mailtips-weekly.example/posts/kestrel-limits",
+      "title": "Kestrel Mail limits cheat sheet",
+      "snippet": "# Kestrel Mail cheat sheet",
+      "content": "# Kestrel Mail cheat sheet\n\nAttachments max out at 25 MB per message, and 20 recipients per send.\n",
+      "published_at": "2025-11-14"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Kestrel Mail's help page and a tips blog disagree on the attachment size limit. Which one is the vendor's own page, which one is more recent, and what is the limit?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "35"
+        ],
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "35"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

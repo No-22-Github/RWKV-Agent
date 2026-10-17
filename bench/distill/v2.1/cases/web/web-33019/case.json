@@ -1,0 +1,73 @@
+{
+  "id": "web-33019",
+  "description": "Two sources disagree on a value for Marlin Router; the answer must pick the authoritative/newer one. DISTILL-CANARY-c169ebfa",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value",
+      "TR-MULTISRC": "the other source's value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21i-cmp-33019",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Marlin Router",
+      "url": "https://marlinrouter.example/support/fw-notes",
+      "url_match": "marlinrouter.example/support/fw-notes",
+      "title": "Firmware notes - Marlin Router",
+      "snippet": "# Firmware 4.8.1",
+      "content": "# Firmware 4.8.1\n\nFixes the WPA3 reconnect bug. Recommended for all users.\n",
+      "published_at": "2026-09-08"
+    },
+    {
+      "query_match": "Marlin Router",
+      "url": "https://wifi-nerds.example/marlin-4-9-beta",
+      "url_match": "wifi-nerds.example/marlin-4-9-beta",
+      "title": "Marlin Router 4.9 beta hands-on",
+      "snippet": "# Hands-on with 4.9 beta",
+      "content": "# Hands-on with 4.9 beta\n\nThe beta (not released by the vendor) adds mesh pairing; stable remains 4.8.1.\n",
+      "published_at": "2026-09-16"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "现在该装 Marlin Router 的哪个固件版本？一页是厂商的，一页是体验博客，告诉我各是哪个。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "4.8.1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

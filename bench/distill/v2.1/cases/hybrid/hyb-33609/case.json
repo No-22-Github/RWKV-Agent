@@ -1,0 +1,94 @@
+{
+  "id": "hyb-33609",
+  "description": "Low rain chance tomorrow: a clear no to the umbrella question. DISTILL-CANARY-4daae5fa",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "晴"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-weather-09",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我明早在西安跑步，会下雨吗？要穿雨衣吗",
+      "expect": {
+        "output_contains_any": [
+          "不用",
+          "不需要",
+          "不必",
+          "无需",
+          "不会下雨",
+          "不太可能下雨",
+          "降水概率较低",
+          "10%",
+          "no need",
+          "not needed",
+          "don't need"
+        ],
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "西安",
+      "aliases": [],
+      "report": {
+        "location": "西安",
+        "current": "晴 28°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "20~31",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "19~29",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "19~30",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "get_weather"
+    ]
+  }
+}

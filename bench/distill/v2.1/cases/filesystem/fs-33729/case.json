@@ -1,0 +1,81 @@
+{
+  "id": "fs-33729",
+  "description": "Delete empty (0-byte) files under uploads. DISTILL-CANARY-fb50bf7b",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "b21p-sdel-33729",
+    "ref_calls": 4,
+    "fixture_bytes": 160,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "uploads/a.png": "a.png cedar alpha hollow lan\n",
+    "uploads/b.png": "",
+    "uploads/c.png": "c.png cedar pixel orbit lantern pebble\nne\n",
+    "uploads/tmp/x.png": "",
+    "uploads/tmp/y.png": "",
+    "uploads/notes.txt": "notes velvet ember nectar quartz lamp\nmaple yarrow ivory quill quartz thistle lamp\norbit\n"
+  },
+  "turns": [
+    {
+      "prompt": "uploads 里有些上传失败留下的 0 字节空文件，帮我全部删掉，有内容的都留着。删了几个？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "uploads/a.png": {
+        "unchanged": true
+      },
+      "uploads/b.png": {
+        "absent": true
+      },
+      "uploads/c.png": {
+        "unchanged": true
+      },
+      "uploads/notes.txt": {
+        "unchanged": true
+      },
+      "uploads/tmp/x.png": {
+        "absent": true
+      },
+      "uploads/tmp/y.png": {
+        "absent": true
+      }
+    }
+  }
+}

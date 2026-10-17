@@ -1,0 +1,65 @@
+{
+  "id": "hyb-33448",
+  "description": "Doubles three parameters, then asks to restore only beta. DISTILL-CANARY-ae6490f9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33448",
+    "ref_calls": 5,
+    "fixture_bytes": 23,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "params.txt": "alpha=1\nbeta=2\ngamma=3\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 params.txt 里三个参数的值都翻倍。",
+      "expect": {
+        "output_contains": [
+          "alpha"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "beta 不该改，把它改回去，另外两个保留。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "params.txt": {
+        "equals": "alpha=2\nbeta=2\ngamma=6\n"
+      }
+    }
+  }
+}

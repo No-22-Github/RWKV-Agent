@@ -1,0 +1,70 @@
+{
+  "id": "web-33043",
+  "description": "Find the current stable release among mixed pre-release/old pages (青鸟地图). DISTILL-CANARY-5a06f160",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33043",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青鸟地图",
+      "url": "https://qingniao-map.example/app/changelog",
+      "url_match": "qingniao-map.example/app/changelog",
+      "title": "更新日志 - 青鸟地图",
+      "snippet": "青鸟地图 App 更新日志。",
+      "content": "# 更新日志\n\n8.3.0（2026-09-14）：新增离线导航。\n8.2.5（2026-08-22）：修复定位漂移。\n",
+      "published_at": "2026-09-14"
+    },
+    {
+      "query_match": "青鸟地图",
+      "url": "https://app-store-mirror.example/qingniao",
+      "url_match": "app-store-mirror.example/qingniao",
+      "title": "青鸟地图 - 应用商店镜像页",
+      "snippet": "应用商店镜像页，信息可能滞后。",
+      "content": "版本 8.1.9。（镜像页，更新不及时）\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "青鸟地图最新版本号是多少？那个应用商店镜像页好像没更新。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "8.3.0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

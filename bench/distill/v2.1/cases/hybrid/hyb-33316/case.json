@@ -1,0 +1,85 @@
+{
+  "id": "hyb-33316",
+  "description": "Pin prod to the current Tern release, then staging to the release before it. DISTILL-CANARY-5b39b023",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21l-web_edit-16",
+    "ref_calls": 6,
+    "fixture_bytes": 66,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tern",
+      "url_match": "tern-build.dev/releases",
+      "url": "https://tern-build.dev/releases",
+      "title": "Tern releases",
+      "snippet": "Release history.",
+      "content": "# Tern release history\n\n- 3.4.0 (2026-09-03) current\n- 3.3.2 (2026-07-20)\n- 3.3.1 (2026-06-30)\n- 3.3.0 (2026-06-02)\n",
+      "published_at": "2026-09-03"
+    }
+  ],
+  "files": {
+    "env/prod.cfg": "tern_version = 3.2.0\nworkers = 6\n",
+    "env/staging.cfg": "tern_version = 3.2.0\nworkers = 2\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set tern_version in env/prod.cfg to the current Tern release (see tern-build.dev/releases).",
+      "expect": {
+        "output_contains": [
+          "3.4.0"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "Staging should run the release right before that one. Update env/staging.cfg.",
+      "expect": {
+        "output_contains": [
+          "3.3.2"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "env/prod.cfg": {
+        "equals": "tern_version = 3.4.0\nworkers = 6\n"
+      },
+      "env/staging.cfg": {
+        "equals": "tern_version = 3.3.2\nworkers = 2\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "nt-33152",
+  "description": "two-turn. DISTILL-CANARY-98c8a215",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-unit-33152",
+    "ref_calls": 0,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "unit"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 南湾物业 workspace\n\nNotes and small tables live here (batch item 33152).\n",
+    "misc/todo-43.txt": "- check shelf 3\n- reorder item 16\n"
+  },
+  "turns": [
+    {
+      "prompt": "一杯水 250 毫升，换算成液体盎司（美制）大约是多少？",
+      "expect": {
+        "tools": [],
+        "expected_number": 8.45,
+        "expected_number_in_text": true,
+        "tolerance": 0.1
+      }
+    },
+    {
+      "prompt": "那 1.5 升呢？",
+      "expect": {
+        "tools": [],
+        "expected_number": 50.72,
+        "expected_number_in_text": true,
+        "tolerance": 0.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "web-33003",
+  "description": "Summarize a fictional site page whose snippet is vague (青禾租房). DISTILL-CANARY-bacb7eee",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33003",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青禾租房",
+      "url": "https://qinghe-rent.example/help/deposit-rules",
+      "url_match": "qinghe-rent.example/help/deposit-rules",
+      "title": "押金与退租规则 - 青禾租房",
+      "snippet": "页面概述，具体条目见正文。",
+      "content": "# 押金与退租规则\n\n- 押金为一个月租金，最高不超过 3000 元；\n- 退租时房屋验收在 3 个工作日内完成，验收通过后 7 个工作日内原路退回押金；\n- 因自然损耗产生的墙面、地板老化不扣押金；\n- 租客人为损坏的，按维修发票金额扣除，须提供照片和发票；\n- 提前退租需提前 30 天通知，否则扣除半个月租金。\n",
+      "published_at": "2026-07-11"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我想了解青禾租房的押金和退租规则，帮我总结一下重点。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "30",
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

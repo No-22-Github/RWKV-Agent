@@ -1,0 +1,76 @@
+{
+  "id": "web-33020",
+  "description": "Two sources disagree on a value for 紫藤药房; the answer must pick the authoritative/newer one. DISTILL-CANARY-2238553d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value",
+      "TR-MULTISRC": "the other source's value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21i-cmp-33020",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "紫藤药房",
+      "url": "https://ziteng-pharm.example/service/delivery",
+      "url_match": "ziteng-pharm.example/service/delivery",
+      "title": "配送服务说明 - 紫藤药房",
+      "snippet": "# 配送服务",
+      "content": "# 配送服务\n\n订单满 59 元免配送费，不满收 6 元。配送时间 9:00–21:00。\n",
+      "published_at": "2026-08-15"
+    },
+    {
+      "query_match": "紫藤药房",
+      "url": "https://ziteng-pharm.example/promo/autumn",
+      "url_match": "ziteng-pharm.example/promo/autumn",
+      "title": "秋季活动 - 紫藤药房",
+      "snippet": "# 秋季活动",
+      "content": "# 秋季活动\n\n即日起至 10 月 31 日，订单满 29 元免配送费。\n",
+      "published_at": "2026-09-22"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "紫藤药房免配送费要满多少钱？他们的服务说明和活动页写得不一样，先说结论，再说为什么。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true,
+        "output_first_line_contains_any": [
+          "29"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

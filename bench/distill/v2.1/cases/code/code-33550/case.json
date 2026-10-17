@@ -1,0 +1,78 @@
+{
+  "id": "code-33550",
+  "description": "Explain chunk and give the size of the last group. DISTILL-CANARY-9e4e5028",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": "3",
+      "TR-DECOY": "3"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21n-explain-33550",
+    "ref_calls": 2,
+    "fixture_bytes": 469,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "lib/chunk.js": "// split xs into groups of n\nexport function chunk(xs, n) {\n  const out = [];\n  for (let i = 0; i < xs.length; i += n) {\n    out.push(xs.slice(i, i + n));\n  }\n  return out;\n}\n",
+    "lib/flat.js": "export const flat = (xss) => xss.reduce((a, b) => a.concat(b), []);\n",
+    "lib/fmt.js": "export const rowLabel0 = (id) => `row-${id}`;\n\nexport const rowLabel1 = (id) => `row-${id}`;\n\nexport function sumRow2(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\n",
+    "lib/index.js": "export * from './chunk.js';\nexport * from './flat.js';\n"
+  },
+  "turns": [
+    {
+      "prompt": "Explain what chunk() in lib/chunk.js does. Then tell me how many items the last group has for chunk([1,2,3,4,5,6,7], 3). Please don't edit anything.",
+      "expect": {
+        "output_contains": [
+          "1"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "lib/chunk.js": {
+        "unchanged": true
+      },
+      "lib/flat.js": {
+        "unchanged": true
+      },
+      "lib/fmt.js": {
+        "unchanged": true
+      },
+      "lib/index.js": {
+        "unchanged": true
+      }
+    }
+  }
+}

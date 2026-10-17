@@ -1,0 +1,62 @@
+{
+  "id": "web-33004",
+  "description": "Summarize a fictional site page whose snippet is vague (Tidewater CLI). DISTILL-CANARY-8a5eedc7",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33004",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tidewater CLI",
+      "url": "https://tidewater-cli.example/docs/migrate-v3",
+      "url_match": "tidewater-cli.example/docs/migrate-v3",
+      "title": "Migrating to Tidewater CLI 3",
+      "snippet": "Overview; details are in the page body.",
+      "content": "# Migrating to Tidewater CLI 3\n\nBreaking changes:\n1. The `--out` flag is renamed `--output-dir`.\n2. Config now lives in `tidewater.toml`; `.tidewaterrc` is ignored.\n3. Minimum Node version is 20.\n\nRun `tidewater doctor --fix` to convert an old config automatically. Windows ARM builds arrive in 3.1.\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Summarize the Tidewater CLI 3 migration guide for me, what do I have to change?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "--output-dir",
+          "tidewater.toml"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

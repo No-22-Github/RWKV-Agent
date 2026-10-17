@@ -1,0 +1,73 @@
+{
+  "id": "hyb-33452",
+  "description": "Lowers log level in three services, then asks to restore debug for the payment service only. DISTILL-CANARY-055e2e9a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33452",
+    "ref_calls": 5,
+    "fixture_bytes": 85,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "svc/auth.yaml": "name: auth\nlog_level: debug\n",
+    "svc/pay.yaml": "name: pay\nlog_level: debug\n",
+    "svc/search.yaml": "name: search\nlog_level: debug\n"
+  },
+  "turns": [
+    {
+      "prompt": "三个服务的日志级别都从 debug 降到 info。",
+      "expect": {
+        "output_contains": [
+          "info"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "支付服务还要排查问题，把它改回 debug，其他两个维持 info。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "svc/auth.yaml": {
+        "equals": "name: auth\nlog_level: info\n"
+      },
+      "svc/pay.yaml": {
+        "unchanged": true
+      },
+      "svc/search.yaml": {
+        "equals": "name: search\nlog_level: info\n"
+      }
+    }
+  }
+}

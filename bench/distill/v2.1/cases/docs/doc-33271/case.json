@@ -1,0 +1,87 @@
+{
+  "id": "doc-33271",
+  "description": "List missing pages then create a stub for each. DISTILL-CANARY-84f335ec",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21k-link-71",
+    "ref_calls": 7,
+    "fixture_bytes": 166,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "社团/章程.md": "# 社团章程\n\n详细条款：[入会](章程/入会.md)、[会费](章程/会费.md)、[退会](章程/退会.md)、[处分](章程/处分.md)。\n",
+    "社团/章程/入会.md": "# 入会\n",
+    "社团/章程/会费.md": "# 会费\n"
+  },
+  "turns": [
+    {
+      "prompt": "社团/章程.md 里的链接有些页面还没写，列出缺的。",
+      "expect": {
+        "output_contains": [
+          "章程/退会.md",
+          "章程/处分.md"
+        ],
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "每个缺的页面都建一个，文件内容只写标题，比如“# 退会”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "社团/章程.md": {
+        "unchanged": true
+      },
+      "社团/章程/入会.md": {
+        "unchanged": true
+      },
+      "社团/章程/会费.md": {
+        "unchanged": true
+      },
+      "社团/章程/退会.md": {
+        "contains": [
+          "# 退会"
+        ]
+      },
+      "社团/章程/处分.md": {
+        "contains": [
+          "# 处分"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "hyb-33360",
+  "description": "Compare our price for one item with the shop's price, then another row. DISTILL-CANARY-ee1e7b49",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-comp-60",
+    "ref_calls": 5,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "文具",
+      "url_match": "www.mingzhi-stationery.cn/shop/price",
+      "url": "https://www.mingzhi-stationery.cn/shop/price",
+      "title": "铭智文具 官网价目",
+      "snippet": "文具官网零售价。",
+      "content": "# 官网零售价\n\n中性笔（12支盒）：18.5 元\n A4 复印纸（箱）：148 元\n 回形针（盒）：6 元\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "采购/价目.csv": "品名,我们的价格\n中性笔（12支盒）,21\nA4 复印纸（箱）,139\n回形针（盒）,6\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们价目表里中性笔一盒多少钱？铭智文具官网上同款现在卖多少？",
+      "expect": {
+        "output_contains": [
+          "21",
+          "18.5"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "A4 复印纸也对一下，我们的价和官网价分别是多少？",
+      "expect": {
+        "output_contains": [
+          "139",
+          "148"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "采购/价目.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

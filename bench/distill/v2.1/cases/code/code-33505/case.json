@@ -1,0 +1,90 @@
+{
+  "id": "code-33505",
+  "description": "TS function isRateLimited vs isRateLimitedBurst. DISTILL-CANARY-91459496",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "20",
+      "TR-DECOY": "20"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-locate-33505",
+    "ref_calls": 4,
+    "fixture_bytes": 1051,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/guards.ts": "// request guards\nimport { Request } from './types';\n\nexport function guardUser(req: Request): boolean {\n  return !!req.user;\n}\n\nexport function guardOrg(req: Request): boolean {\n  return !!req.org;\n}\n\nexport function guardScope(req: Request): boolean {\n  return !!req.scope;\n}\n\nexport function isRateLimited(req: Request): boolean {\n  return req.hits > 100;\n}\n\nexport function isRateLimitedBurst(req: Request): boolean {\n  return req.burst > 20;\n}\n\n",
+    "src/types.ts": "export interface Request {\n  user?: string;\n  org?: string;\n  scope?: string;\n  hits: number;\n  burst: number;\n}\n",
+    "src/server.ts": "import { isRateLimited } from './guards';\n\n// isRateLimited decides on 429\nexport function handle(req: any) {\n  if (isRateLimited(req)) return 429;\n  return 200;\n}\n",
+    "src/util.ts": "export const rowLabel0 = (id: number): string => `row-${id}`;\n\nexport function sumCol1(xs: number[]): number {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport function slugRow2(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n",
+    "test/guards.test.ts": "// describe('isRateLimited', ...) — pending\nexport {};\n"
+  },
+  "turns": [
+    {
+      "prompt": "函数 isRateLimited 的定义在哪个文件、第几行？（isRateLimitedBurst 是另一个函数，别搞混。）",
+      "expect": {
+        "output_contains": [
+          "src/guards.ts",
+          "16"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "它判断限流的阈值是多少？",
+      "expect": {
+        "output_contains": [
+          "100"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/guards.ts": {
+        "unchanged": true
+      },
+      "src/types.ts": {
+        "unchanged": true
+      },
+      "src/server.ts": {
+        "unchanged": true
+      },
+      "src/util.ts": {
+        "unchanged": true
+      },
+      "test/guards.test.ts": {
+        "unchanged": true
+      }
+    }
+  }
+}

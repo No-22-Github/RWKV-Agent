@@ -1,0 +1,80 @@
+{
+  "id": "hyb-33357",
+  "description": "Convert a dollar invoice at the bank's rate and save the yuan amount in a note. DISTILL-CANARY-969f4e11",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-comp-57",
+    "ref_calls": 4,
+    "fixture_bytes": 67,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "汇率",
+      "url_match": "rates.jinxin-bank.cn/cny",
+      "url": "https://rates.jinxin-bank.cn/cny",
+      "title": "锦信银行 本月结汇价",
+      "snippet": "本月美元结汇价。",
+      "content": "# 本月结汇价\n\n美元/人民币：7.10（2026年9月）\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "财务/invoice_us.txt": "发票号：US-2209\n金额：2400 美元\n付款期限：2026-10-15\n"
+  },
+  "turns": [
+    {
+      "prompt": "财务/invoice_us.txt 这张美元发票按锦信银行页面上本月的美元结汇价折合多少人民币？把结果写到 财务/折算.txt，一行“折算金额=数字”，数字不带逗号。",
+      "expect": {
+        "output_contains_any": [
+          "17040",
+          "17,040"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "财务/invoice_us.txt": {
+        "unchanged": true
+      },
+      "财务/折算.txt": {
+        "contains": [
+          "折算金额=17040"
+        ]
+      }
+    }
+  }
+}

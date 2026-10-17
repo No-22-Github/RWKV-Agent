@@ -1,0 +1,76 @@
+{
+  "id": "hyb-33335",
+  "description": "Monthly electricity bill from time-of-use prices on a utility page and a usage table. DISTILL-CANARY-0e636c56",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-calc-35",
+    "ref_calls": 4,
+    "fixture_bytes": 117,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "分时电价",
+      "url_match": "www.northgrid.cn/tariff/commercial",
+      "url": "https://www.northgrid.cn/tariff/commercial",
+      "title": "北网 工商业分时电价",
+      "snippet": "峰谷平电价标准。",
+      "content": "# 工商业分时电价（2026年9月起）\n\n峰时：1.08 元/度\n平时：0.72 元/度\n谷时：0.36 元/度\n\n峰时 8:00-11:00、18:00-22:00；谷时 23:00-次日7:00。\n",
+      "published_at": "2026-08-28"
+    }
+  ],
+  "files": {
+    "车间/9月用电.csv": "日期区间,峰时_度,平时_度,谷时_度\n1-10日,3200,5400,2100\n11-20日,3500,5900,2300\n21-30日,3100,5200,2000\n"
+  },
+  "turns": [
+    {
+      "prompt": "按北网现在公布的工商业分时电价，算一下车间/9月用电.csv 这个月的电费一共多少钱。",
+      "expect": {
+        "output_contains_any": [
+          "24768.00",
+          "24768",
+          "24,768.00",
+          "24,768"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "车间/9月用电.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

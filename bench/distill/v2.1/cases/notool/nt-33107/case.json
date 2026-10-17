@@ -1,0 +1,59 @@
+{
+  "id": "nt-33107",
+  "description": "Polish English email, keep amounts. DISTILL-CANARY-f970a111",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "rewrite_text",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-rewrite-33107",
+    "ref_calls": 0,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "rewrite"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lumen Desk workspace\n\nNotes and small tables live here (batch item 33107).\n",
+    "misc/todo-19.txt": "- check shelf 10\n- reorder item 31\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fix the grammar and make it sound more professional, keep all numbers:\n\"hi tom, i send you the invoice yesterday for 2,450 dollar but you not reply. pls pay before 30 October or we must add 3 percent late fee. thanks\"",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "2,450",
+          "30 October"
+        ],
+        "output_contains_any": [
+          "3%",
+          "3 percent",
+          "3 per cent"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "pls "
+        ],
+        "output_format": [
+          "en"
+        ]
+      }
+    }
+  ]
+}

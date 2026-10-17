@@ -1,0 +1,77 @@
+{
+  "id": "hyb-33347",
+  "description": "Fuel cost for the month's mileage from a car file and today's fuel price. DISTILL-CANARY-9575d7f9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-calc-47",
+    "ref_calls": 4,
+    "fixture_bytes": 128,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "油价",
+      "url_match": "www.fuelwatch-cn.com/today",
+      "url": "https://www.fuelwatch-cn.com/today",
+      "title": "今日成品油价格",
+      "snippet": "各省市油价。",
+      "content": "# 今日成品油价格（2026-09-16）\n\n92号汽油：7.58 元/升\n95号汽油：8.07 元/升\n0号柴油：7.31 元/升\n",
+      "published_at": "2026-09-16"
+    }
+  ],
+  "files": {
+    "车队/车辆.txt": "车牌：沪A·31K77\n油号：95号汽油\n百公里油耗：8.5 升\n",
+    "车队/本月行程.txt": "9月1日 142 公里\n9月8日 60 公里\n9月12日 200 公里\n"
+  },
+  "turns": [
+    {
+      "prompt": "车队/车辆.txt 里那辆车这个月跑了 车队/本月行程.txt 里的这些路程，按今天的油价算，油费大概是多少钱？",
+      "expect": {
+        "output_contains_any": [
+          "275.75"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "车队/车辆.txt": {
+        "unchanged": true
+      },
+      "车队/本月行程.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

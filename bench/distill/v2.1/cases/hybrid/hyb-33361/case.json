@@ -1,0 +1,73 @@
+{
+  "id": "hyb-33361",
+  "description": "Last successful backup time from a log and the database maintenance slot on the status page. DISTILL-CANARY-bef3de04",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-comp-61",
+    "ref_calls": 4,
+    "fixture_bytes": 720,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云栈",
+      "url_match": "status.yunzhan-cloud.cn/today",
+      "url": "https://status.yunzhan-cloud.cn/today",
+      "title": "云栈云 服务状态",
+      "snippet": "今日服务状态与维护公告。",
+      "content": "# 服务状态（2026-09-16）\n\n对象存储：正常\n云数据库：计划维护 22:00-23:30\n负载均衡：正常\n",
+      "published_at": "2026-09-16"
+    }
+  ],
+  "files": {
+    "运维/backup.log": "2026-09-01 02:00 成功\n2026-09-01 14:00 成功\n2026-09-02 02:00 失败\n2026-09-02 14:00 成功\n2026-09-03 02:00 成功\n2026-09-03 14:00 成功\n2026-09-04 02:00 成功\n2026-09-04 14:00 成功\n2026-09-05 02:00 成功\n2026-09-05 14:00 成功\n2026-09-06 02:00 失败\n2026-09-06 14:00 失败\n2026-09-07 02:00 成功\n2026-09-07 14:00 成功\n2026-09-08 02:00 成功\n2026-09-08 14:00 成功\n2026-09-09 02:00 成功\n2026-09-09 14:00 失败\n2026-09-10 02:00 成功\n2026-09-10 14:00 成功\n2026-09-11 02:00 成功\n2026-09-11 14:00 成功\n2026-09-12 02:00 成功\n2026-09-12 14:00 成功\n2026-09-13 02:00 成功\n2026-09-13 14:00 成功\n2026-09-14 02:00 成功\n2026-09-14 14:00 失败\n2026-09-15 02:00 成功\n2026-09-15 14:00 成功\n"
+  },
+  "turns": [
+    {
+      "prompt": "运维/backup.log 里最近一次成功的备份是什么时候（照日志里的写法给我日期和时间）？另外云栈今天的状态页上，云数据库有没有计划维护，几点开始？",
+      "expect": {
+        "output_contains": [
+          "2026-09-15 14:00",
+          "22:00"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "运维/backup.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

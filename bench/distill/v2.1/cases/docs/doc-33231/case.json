@@ -1,0 +1,71 @@
+{
+  "id": "doc-33231",
+  "description": "Upcoming dates sorted, then drop one line. DISTILL-CANARY-8230f37b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21k-extract-31",
+    "ref_calls": 5,
+    "fixture_bytes": 198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/policy-dates.md": "# Key dates\n\n- 2026-08-31: Q3 expense claims closed\n- 2026-09-30: Open enrolment ends\n- 2026-10-15: Annual review forms due\n- 2026-09-20: Fire drill (all sites)\n- 2026-12-01: Holiday rota published\n"
+  },
+  "turns": [
+    {
+      "prompt": "From hr/policy-dates.md, list the dates that are still ahead of us (today is 2026-09-16, and today itself counts as still ahead) in hr/upcoming.txt, earliest first, one per line as `2026-10-15 Annual review forms due`.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Also drop the fire drill line, it's handled elsewhere.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "hr/policy-dates.md": {
+        "unchanged": true
+      },
+      "hr/upcoming.txt": {
+        "equals": "2026-09-30 Open enrolment ends\n2026-10-15 Annual review forms due\n2026-12-01 Holiday rota published\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "hyb-33339",
+  "description": "Group ticket cost with a free category and a 10 percent group discount read from the site. DISTILL-CANARY-abed21dd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-calc-39",
+    "ref_calls": 4,
+    "fixture_bytes": 257,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青崖山",
+      "url_match": "www.qingya-scenic.cn/tickets",
+      "url": "https://www.qingya-scenic.cn/tickets",
+      "title": "青崖山景区 门票",
+      "snippet": "票价与团体优惠。",
+      "content": "# 门票价格\n\n成人票：80 元\n学生票：40 元\n60岁以上老人：免票\n团体优惠：同一批 10 人及以上，购票总额打 9 折。\n",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "files": {
+    "出游/报名.csv": "姓名,类别\n同学01,学生\n同学02,学生\n同学03,学生\n同学04,学生\n同学05,学生\n同学06,学生\n同学07,学生\n同学08,学生\n同学09,学生\n同学10,学生\n同学11,学生\n同学12,学生\n赵老师,成人\n钱老师,成人\n孙奶奶,老人\n"
+  },
+  "turns": [
+    {
+      "prompt": "出游/报名.csv 是这次去青崖山的名单，按景区网站上的票价和团体优惠，我们一共要付多少钱？",
+      "expect": {
+        "output_contains_any": [
+          "576.00",
+          "576"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "出游/报名.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

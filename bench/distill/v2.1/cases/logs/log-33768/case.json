@@ -1,0 +1,62 @@
+{
+  "id": "log-33768",
+  "description": "Downloads by one user from a CSV event log, then distinct downloaders. DISTILL-CANARY-b46983e7",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-count-33768",
+    "ref_calls": 5,
+    "fixture_bytes": 3778,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "activity.csv": "ts,user,action\n08:00:01,dee,view\n08:03:29,dee,upload\n08:06:37,ben,view\n08:09:37,cy,view\n08:12:22,cy,upload\n08:15:06,ann,download\n08:18:37,ben,upload\n08:21:30,dee,view\n08:24:23,eli,view\n08:27:32,cy,download\n08:30:09,ann,view\n08:33:40,fay,view\n08:36:30,fay,share\n08:39:39,dee,view\n08:42:12,ann,view\n08:45:09,dee,view\n08:48:28,dee,view\n08:51:27,cy,view\n08:54:16,ann,download\n08:57:14,fay,upload\n09:00:09,cy,download\n09:03:16,eli,upload\n09:06:08,ben,share\n09:09:09,dee,upload\n09:12:06,cy,share\n09:15:28,dee,view\n09:18:17,fay,view\n09:21:27,dee,share\n09:24:28,ben,download\n09:27:09,eli,view\n09:30:35,cy,share\n09:33:11,eli,share\n09:36:21,fay,view\n09:39:15,ann,download\n09:42:28,cy,view\n09:45:30,fay,share\n09:48:22,dee,share\n09:51:02,ben,upload\n09:54:37,fay,view\n09:57:31,ben,share\n10:00:19,eli,share\n10:03:05,ann,view\n10:06:20,cy,view\n10:09:03,ben,download\n10:12:39,ben,share\n10:15:10,eli,view\n10:18:06,cy,download\n10:21:18,eli,view\n10:24:16,cy,download\n10:27:12,eli,view\n10:30:23,cy,share\n10:33:33,ann,share\n10:36:23,eli,view\n10:39:13,eli,view\n10:42:22,cy,download\n10:45:36,ann,download\n10:48:15,ben,upload\n10:51:07,fay,view\n10:54:19,cy,view\n10:57:09,cy,view\n11:00:34,ann,share\n11:03:23,eli,upload\n11:06:29,ann,upload\n11:09:09,ann,download\n11:12:24,fay,view\n11:15:02,ben,view\n11:18:32,cy,view\n11:21:27,eli,view\n11:24:20,cy,view\n11:27:29,cy,share\n11:30:39,dee,share\n11:33:30,fay,download\n11:36:21,fay,share\n11:39:29,ann,view\n11:42:38,fay,view\n11:45:24,fay,view\n11:48:37,dee,upload\n11:51:02,ann,upload\n11:54:38,ben,download\n11:57:02,dee,view\n12:00:23,ben,view\n12:03:23,eli,upload\n12:06:02,ann,upload\n12:09:37,dee,share\n12:12:13,dee,view\n12:15:05,ben,view\n12:18:15,fay,view\n12:21:05,ann,download\n12:24:09,ben,view\n12:27:06,eli,share\n12:30:14,dee,share\n12:33:03,ben,view\n12:36:08,dee,share\n12:39:18,ann,download\n12:42:19,dee,upload\n12:45:16,fay,download\n12:48:11,ben,view\n12:51:34,fay,view\n12:54:18,eli,view\n12:57:30,cy,download\n13:00:21,ben,view\n13:03:40,ben,view\n13:06:00,fay,download\n13:09:13,ben,view\n13:12:18,dee,view\n13:15:17,dee,share\n13:18:02,dee,upload\n13:21:01,fay,upload\n13:24:40,cy,upload\n13:27:11,ben,view\n13:30:08,cy,share\n13:33:12,fay,view\n13:36:19,ann,upload\n13:39:16,dee,share\n13:42:09,ben,view\n13:45:27,ann,upload\n13:48:38,cy,upload\n13:51:16,ben,upload\n13:54:11,ann,view\n13:57:22,eli,view\n14:00:23,eli,view\n14:03:30,eli,download\n14:06:39,dee,upload\n14:09:33,eli,upload\n14:12:09,dee,view\n14:15:32,eli,view\n14:18:27,ann,download\n14:21:04,eli,view\n14:24:34,fay,upload\n14:27:37,ben,upload\n14:30:31,ann,view\n14:33:23,fay,view\n14:36:22,ann,view\n14:39:39,ann,share\n14:42:38,dee,view\n14:45:19,ben,view\n14:48:07,fay,view\n14:51:27,fay,share\n14:54:37,eli,download\n14:57:13,ann,upload\n15:00:03,dee,view\n15:03:34,dee,view\n15:06:27,cy,view\n15:09:20,cy,view\n15:12:04,eli,view\n15:15:05,cy,share\n15:18:02,ann,view\n15:21:31,dee,view\n15:24:13,ben,view\n15:27:20,cy,view\n15:30:13,cy,upload\n15:33:28,fay,share\n15:36:10,ben,upload\n15:39:15,ben,view\n15:42:17,ann,share\n15:45:18,fay,view\n15:48:28,ann,view\n15:51:31,ben,share\n15:54:12,cy,view\n15:57:24,ann,upload\n16:00:21,cy,view\n16:03:03,cy,view\n16:06:33,dee,view\n16:09:13,dee,view\n16:12:19,cy,view\n16:15:31,dee,view\n16:18:15,cy,view\n16:21:19,ben,view\n16:24:10,cy,share\n16:27:26,ann,view\n16:30:18,cy,download\n16:33:17,ann,download\n16:36:16,dee,upload\n16:39:38,fay,view\n16:42:29,eli,share\n16:45:33,cy,view\n16:48:12,eli,view\n16:51:10,dee,share\n16:54:24,cy,view\n16:57:36,fay,download\n17:00:07,ann,view\n17:03:31,eli,view\n17:06:09,fay,view\n17:09:21,dee,view\n17:12:20,fay,upload\n17:15:39,fay,view\n17:18:38,ben,view\n17:21:01,fay,view\n17:24:07,cy,upload\n17:27:23,dee,share\n17:30:03,fay,view\n17:33:24,dee,view\n17:36:04,ann,view\n17:39:05,eli,view\n17:42:39,cy,view\n17:45:29,eli,view\n17:48:20,fay,share\n17:51:20,ann,share\n17:54:39,ben,view\n17:57:01,cy,view\n"
+  },
+  "turns": [
+    {
+      "prompt": "activity.csv 记录了用户操作。ben 下载（download）了多少次？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "一共有几个不同的用户下载过东西？",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

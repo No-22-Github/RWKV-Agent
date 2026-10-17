@@ -1,0 +1,76 @@
+{
+  "id": "code-33543",
+  "description": "Binary search misses single-element lists; lower_bound is correct. DISTILL-CANARY-08c334e1",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-NEARNAME": null
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-fix-33543",
+    "ref_calls": 4,
+    "fixture_bytes": 919,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "search/bsearch.py": "def find(xs, target):\n    \"\"\"Index of target in sorted xs, or -1.\"\"\"\n    lo, hi = 0, len(xs) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if xs[mid] == target:\n            return mid\n        if xs[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n",
+    "search/lower.py": "def lower_bound(xs, t):\n    lo, hi = 0, len(xs)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if xs[mid] < t:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo\n",
+    "search/util.py": "import os\nimport re\n\n\ndef clean_node_0(text):\n    text = text.strip().lower()\n    return re.sub(r\"\\s+\", \"-\", text)\n\n\ndef pick_key_1(rows, key):\n    for row in rows:\n        if row.get(key):\n            return row\n    return None\n\n\ndef count_node_2(items):\n    total = 0\n    for item in items:\n        total += len(item)\n    return total\n\n",
+    "tests/test_find.py": "from search.bsearch import find\n\n\ndef test_single():\n    assert find([7], 7) == 0\n"
+  },
+  "turns": [
+    {
+      "prompt": "find([7], 7) 返回 -1，应该是 0。检查一下 search/bsearch.py 的 find，把循环条件修对（lower.py 的写法是另一种二分，是对的，不要动）。改完读回确认，告诉我改的是第几行。",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "search/bsearch.py": {
+        "equals": "def find(xs, target):\n    \"\"\"Index of target in sorted xs, or -1.\"\"\"\n    lo, hi = 0, len(xs) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if xs[mid] == target:\n            return mid\n        if xs[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n"
+      },
+      "search/lower.py": {
+        "unchanged": true
+      },
+      "search/util.py": {
+        "unchanged": true
+      },
+      "tests/test_find.py": {
+        "unchanged": true
+      }
+    }
+  }
+}

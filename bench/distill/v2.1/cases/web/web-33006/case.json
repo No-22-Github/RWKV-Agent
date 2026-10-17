@@ -1,0 +1,83 @@
+{
+  "id": "web-33006",
+  "description": "Summarize a fictional site page whose snippet is vague (Pinecrest Library). DISTILL-CANARY-3480fb86",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33006",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Pinecrest Library",
+      "url": "https://pinecrest-lib.example/news/fine-free",
+      "url_match": "pinecrest-lib.example/news/fine-free",
+      "title": "Pinecrest goes fine-free",
+      "snippet": "Overview; details are in the page body.",
+      "content": "# Pinecrest Library goes fine-free\n\nFrom 1 July the library no longer charges late fees on any item. Items are still due after 21 days; after 60 days overdue the item is marked lost and a replacement fee of up to 25 dollars applies. Existing fines under 50 dollars were cleared. Borrowers can hold 15 items at once, up from 10.\n",
+      "published_at": "2026-06-05"
+    },
+    {
+      "query_match": "Pinecrest",
+      "url": "https://pinecrest-lib.example/help/lost-items",
+      "url_match": "pinecrest-lib.example/help/lost-items",
+      "title": "Lost items - Pinecrest Library",
+      "snippet": "What happens to lost items.",
+      "content": "# Lost items\n\nIf an item is marked lost you can return it within 90 days of the lost date to cancel the replacement fee. Damaged items are assessed case by case by branch staff.\n",
+      "published_at": "2026-06-06"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What did Pinecrest Library announce about late fees? Summarize the page.",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "60",
+          "15"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "And if an item gets marked lost, can I still fix that? Check their lost items page.",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "90"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

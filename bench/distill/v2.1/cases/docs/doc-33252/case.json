@@ -1,0 +1,57 @@
+{
+  "id": "doc-33252",
+  "description": "Laptop loan tier for 45 days. DISTILL-CANARY-0bf5725f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-52",
+    "ref_calls": 2,
+    "fixture_bytes": 454,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "office/laptop-loan.md": "# Laptop loan scheme\n\n- Short loan (up to 5 working days): approved by the IT desk the same day.\n- Standard loan (6-30 days): needs line manager approval; deposit 200.\n- Long loan (31-90 days): needs department head approval; deposit 500.\n- Loans over 90 days are not available; request a permanent device instead.\n- Late return: 15 per day after the due date, charged against the deposit.\n- Damage: repair costs above 100 are deducted from the deposit.\n"
+  },
+  "turns": [
+    {
+      "prompt": "I need a laptop for 45 days for a field project. Who has to approve it and how much deposit do I pay?",
+      "expect": {
+        "output_contains": [
+          "500",
+          "department head"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

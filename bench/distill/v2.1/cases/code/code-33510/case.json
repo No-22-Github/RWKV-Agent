@@ -1,0 +1,81 @@
+{
+  "id": "code-33510",
+  "description": "Shell function retry defined twice, one is the live copy. DISTILL-CANARY-638fa904",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "tools/old/lib.sh",
+      "TR-DECOY": "tools/old/lib.sh"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21n-locate-33510",
+    "ref_calls": 4,
+    "fixture_bytes": 485,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "tools/lib.sh": "#!/usr/bin/env bash\n# helpers\n\nsay() {\n  printf '%s\\n' \"$*\"\n}\n\ndie() {\n  say \"fatal: $*\" >&2\n  exit 1\n}\n\nrequire_cmd() {\n  command -v \"$1\" >/dev/null || die \"missing $1\"\n}\n\nretry() {\n  local n=0\n  until \"$@\"; do\n    n=$((n+1)); [ \"$n\" -ge 3 ] && return 1\n    sleep 1\n  done\n}\n",
+    "tools/release.sh": "#!/usr/bin/env bash\nsource tools/lib.sh\n# uses retry() from lib.sh\nrequire_cmd git\nretry git fetch\n",
+    "tools/old/lib.sh": "retry() { \"$@\"; }\n",
+    "tools/notes.txt": "retry() was copied to tools/old once; do not use that copy.\n",
+    "Makefile": "release:\n\tbash tools/release.sh\n"
+  },
+  "turns": [
+    {
+      "prompt": "release.sh 调用的 retry 函数是在哪个文件的第几行定义的？仓库里有两个同名函数，要选实际被 source 进来的那个。",
+      "expect": {
+        "output_contains": [
+          "tools/lib.sh",
+          "17"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "tools/lib.sh": {
+        "unchanged": true
+      },
+      "tools/release.sh": {
+        "unchanged": true
+      },
+      "tools/old/lib.sh": {
+        "unchanged": true
+      },
+      "tools/notes.txt": {
+        "unchanged": true
+      },
+      "Makefile": {
+        "unchanged": true
+      }
+    }
+  }
+}

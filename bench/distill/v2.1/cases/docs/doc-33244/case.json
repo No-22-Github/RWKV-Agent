@@ -1,0 +1,53 @@
+{
+  "id": "doc-33244",
+  "description": "Approval tiers for an 80k purchase. DISTILL-CANARY-7fea75ae",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-44",
+    "ref_calls": 2,
+    "fixture_bytes": 516,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "财务/采购审批流程.md": "# 采购审批流程\n\n- 1000 元以下：部门经理审批即可，无需比价。\n- 1000 元至 1 万元（含 1 万）：部门经理审批，须附两家报价。\n- 1 万元以上至 10 万元（含 10 万）：部门经理 + 财务总监审批，须三家比价。\n- 10 万元以上：以上两级加总经理审批，并须走招标流程。\n- 固定资产（单价 5000 元以上的设备）不论总价，都需财务总监备案。\n- 紧急采购可先购后补，但须在 3 个工作日内补办手续。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我要采购一批总价 8 万元的培训服务，除了部门经理外还要谁审批，需要几家比价？",
+      "expect": {
+        "output_contains": [
+          "财务总监",
+          "三家"
+        ],
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ]
+  }
+}

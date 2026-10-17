@@ -1,0 +1,74 @@
+{
+  "id": "doc-33215",
+  "description": "FAQ page from Q/A source. DISTILL-CANARY-2ec019b6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-draft-15",
+    "ref_calls": 3,
+    "fixture_bytes": 283,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/faq-source.txt": "Q: How do I reset my password?\nA: Open Settings > Security > Reset password. A link is valid for 30 minutes.\nQ: Can I change my username?\nA: Only once, within the first 14 days after sign-up.\nQ: Where is my invoice?\nA: Billing > Invoices, PDFs are kept for 24 months.\n",
+    "docs/faq/index.md": "# FAQ\n\n(empty)\n"
+  },
+  "turns": [
+    {
+      "prompt": "Turn docs/faq-source.txt into a tidy FAQ page and write it to docs/faq/account.md. Each question should be a '## ' heading with the answer under it.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docs/faq-source.txt": {
+        "unchanged": true
+      },
+      "docs/faq/index.md": {
+        "unchanged": true
+      },
+      "docs/faq/account.md": {
+        "contains": [
+          "How do I reset my password?",
+          "30 minutes",
+          "Can I change my username?",
+          "14 days",
+          "Where is my invoice?",
+          "24 months"
+        ]
+      }
+    }
+  }
+}

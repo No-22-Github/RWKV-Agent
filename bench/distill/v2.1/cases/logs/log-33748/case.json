@@ -1,0 +1,55 @@
+{
+  "id": "log-33748",
+  "description": "Epoch-second log, window given in readable UTC time. DISTILL-CANARY-421f4d0a",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-TZ",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "0",
+      "TR-DATEFMT": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-window-33748",
+    "ref_calls": 5,
+    "fixture_bytes": 4326,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "worker.log": "1789045244 ok job=500\n1789045272 retry job=501\n1789045312 ok job=502\n1789045319 ok job=503\n1789045427 ok job=504\n1789045558 fail job=505\n1789045598 ok job=506\n1789045665 ok job=507\n1789045671 ok job=508\n1789045824 ok job=509\n1789045847 ok job=510\n1789045943 retry job=511\n1789045982 ok job=512\n1789046005 retry job=513\n1789046144 ok job=514\n1789046156 ok job=515\n1789046280 ok job=516\n1789046295 ok job=517\n1789046295 ok job=518\n1789046358 ok job=519\n1789046612 ok job=520\n1789046615 ok job=521\n1789046626 fail job=522\n1789046865 ok job=523\n1789046924 ok job=524\n1789046961 ok job=525\n1789046988 ok job=526\n1789046997 retry job=527\n1789047141 ok job=528\n1789047161 retry job=529\n1789047197 fail job=530\n1789047203 ok job=531\n1789047245 retry job=532\n1789047257 retry job=533\n1789047262 retry job=534\n1789047308 ok job=535\n1789047347 retry job=536\n1789047386 ok job=537\n1789047646 ok job=538\n1789047699 ok job=539\n1789047753 ok job=540\n1789047758 fail job=541\n1789047824 ok job=542\n1789047824 ok job=543\n1789047996 ok job=544\n1789048180 ok job=545\n1789048187 ok job=546\n1789048277 fail job=547\n1789048384 retry job=548\n1789048500 ok job=549\n1789048557 ok job=550\n1789048682 ok job=551\n1789048691 ok job=552\n1789048756 fail job=553\n1789048761 ok job=554\n1789048879 ok job=555\n1789048883 ok job=556\n1789048910 retry job=557\n1789048926 retry job=558\n1789048936 ok job=559\n1789048955 ok job=560\n1789049155 ok job=561\n1789049231 ok job=562\n1789049243 ok job=563\n1789049342 retry job=564\n1789049350 ok job=565\n1789049410 ok job=566\n1789049517 ok job=567\n1789049533 ok job=568\n1789049643 ok job=569\n1789049719 fail job=570\n1789049800 fail job=571\n1789049811 ok job=572\n1789049888 ok job=573\n1789049889 fail job=574\n1789049924 ok job=575\n1789050272 ok job=576\n1789050355 retry job=577\n1789050396 ok job=578\n1789050484 ok job=579\n1789050496 ok job=580\n1789050552 ok job=581\n1789050562 fail job=582\n1789050571 ok job=583\n1789050647 ok job=584\n1789050684 retry job=585\n1789050766 retry job=586\n1789050824 ok job=587\n1789050899 ok job=588\n1789050912 retry job=589\n1789050965 ok job=590\n1789051030 retry job=591\n1789051098 fail job=592\n1789051116 ok job=593\n1789051127 ok job=594\n1789051243 ok job=595\n1789051312 ok job=596\n1789051315 fail job=597\n1789051352 ok job=598\n1789051358 ok job=599\n1789051378 ok job=600\n1789051459 ok job=601\n1789051540 ok job=602\n1789051546 retry job=603\n1789051565 retry job=604\n1789051578 ok job=605\n1789051583 ok job=606\n1789051588 ok job=607\n1789051605 ok job=608\n1789051701 ok job=609\n1789051702 ok job=610\n1789051714 fail job=611\n1789051854 ok job=612\n1789051880 retry job=613\n1789051961 ok job=614\n1789052162 ok job=615\n1789052205 retry job=616\n1789052221 ok job=617\n1789052253 retry job=618\n1789052271 retry job=619\n1789052323 ok job=620\n1789052341 ok job=621\n1789052369 ok job=622\n1789052467 ok job=623\n1789052511 retry job=624\n1789052651 ok job=625\n1789052694 retry job=626\n1789052727 retry job=627\n1789052742 fail job=628\n1789052798 ok job=629\n1789052809 ok job=630\n1789052862 ok job=631\n1789052870 ok job=632\n1789052914 fail job=633\n1789052983 retry job=634\n1789052993 ok job=635\n1789053008 ok job=636\n1789053024 ok job=637\n1789053037 ok job=638\n1789053095 ok job=639\n1789053105 ok job=640\n1789053142 fail job=641\n1789053291 ok job=642\n1789053441 fail job=643\n1789053560 fail job=644\n1789053583 ok job=645\n1789053608 retry job=646\n1789053646 ok job=647\n1789053697 ok job=648\n1789053721 ok job=649\n1789053740 ok job=650\n1789053845 ok job=651\n1789053898 ok job=652\n1789053973 ok job=653\n1789054012 retry job=654\n1789054048 ok job=655\n1789054145 fail job=656\n1789054148 fail job=657\n1789054167 ok job=658\n1789054408 ok job=659\n1789054524 ok job=660\n1789054594 ok job=661\n1789054597 fail job=662\n1789054599 ok job=663\n1789054808 ok job=664\n1789054832 ok job=665\n1789054940 ok job=666\n1789054946 ok job=667\n1789055019 ok job=668\n1789055077 ok job=669\n1789055093 ok job=670\n1789055118 ok job=671\n1789055141 ok job=672\n1789055149 ok job=673\n1789055186 ok job=674\n1789055248 retry job=675\n1789055279 ok job=676\n1789055385 ok job=677\n1789055390 ok job=678\n1789055436 fail job=679\n1789055448 ok job=680\n1789055485 ok job=681\n1789055493 ok job=682\n1789055607 retry job=683\n1789055658 ok job=684\n1789055676 ok job=685\n1789055698 retry job=686\n1789055819 retry job=687\n1789055943 ok job=688\n1789055981 ok job=689\n"
+  },
+  "turns": [
+    {
+      "prompt": "Each line of worker.log starts with a Unix timestamp in seconds. How many retry events happened between 14:00:00 and 14:30:00 UTC on 2026-09-10 (end not included)?",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

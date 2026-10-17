@@ -1,0 +1,66 @@
+{
+  "id": "hyb-33322",
+  "description": "Sum expenses per category into a report and name the biggest category. DISTILL-CANARY-195f899e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-write-22",
+    "ref_calls": 4,
+    "fixture_bytes": 2686,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [],
+  "files": {
+    "finance/expenses.csv": "id,category,amount_usd\nE001,Travel,18\nE002,Office,31\nE003,Meals,50\nE004,Meals,27\nE005,Meals,10\nE006,Software,22\nE007,Software,59\nE008,Meals,16\nE009,Travel,30\nE010,Meals,20\nE011,Travel,51\nE012,Travel,73\nE013,Travel,28\nE014,Software,47\nE015,Travel,44\nE016,Meals,52\nE017,Meals,28\nE018,Travel,66\nE019,Travel,59\nE020,Meals,75\nE021,Meals,28\nE022,Meals,6\nE023,Office,73\nE024,Software,30\nE025,Meals,16\nE026,Software,45\nE027,Travel,67\nE028,Software,43\nE029,Office,62\nE030,Travel,7\nE031,Meals,25\nE032,Travel,47\nE033,Travel,23\nE034,Travel,41\nE035,Office,48\nE036,Travel,76\nE037,Software,84\nE038,Software,62\nE039,Travel,25\nE040,Software,30\nE041,Meals,24\nE042,Meals,55\nE043,Software,77\nE044,Meals,35\nE045,Travel,76\nE046,Travel,84\nE047,Travel,72\nE048,Office,56\nE049,Travel,7\nE050,Meals,6\nE051,Meals,18\nE052,Office,44\nE053,Meals,16\nE054,Software,12\nE055,Travel,44\nE056,Software,48\nE057,Meals,43\nE058,Travel,47\nE059,Software,17\nE060,Travel,84\nE061,Office,7\nE062,Office,65\nE063,Software,29\nE064,Meals,62\nE065,Meals,55\nE066,Meals,55\nE067,Office,28\nE068,Meals,7\nE069,Office,18\nE070,Office,12\nE071,Software,20\nE072,Software,66\nE073,Meals,56\nE074,Office,73\nE075,Software,55\nE076,Meals,60\nE077,Software,82\nE078,Office,83\nE079,Office,42\nE080,Office,37\nE081,Meals,59\nE082,Software,38\nE083,Meals,21\nE084,Office,33\nE085,Travel,30\nE086,Travel,28\nE087,Software,32\nE088,Travel,31\nE089,Software,5\nE090,Meals,35\nE091,Travel,39\nE092,Meals,47\nE093,Software,5\nE094,Software,67\nE095,Software,49\nE096,Office,76\nE097,Software,51\nE098,Software,54\nE099,Meals,29\nE100,Meals,18\nE101,Meals,67\nE102,Software,86\nE103,Office,30\nE104,Office,48\nE105,Office,77\nE106,Meals,30\nE107,Meals,30\nE108,Office,6\nE109,Software,62\nE110,Office,66\nE111,Software,53\nE112,Software,79\nE113,Office,29\nE114,Travel,62\nE115,Office,81\nE116,Software,27\nE117,Software,83\nE118,Travel,5\nE119,Meals,46\nE120,Software,29\nE121,Software,7\nE122,Office,7\nE123,Travel,8\nE124,Office,84\nE125,Meals,28\nE126,Meals,85\nE127,Software,44\nE128,Travel,29\nE129,Office,65\nE130,Office,5\nE131,Software,78\nE132,Office,70\nE133,Software,18\nE134,Software,57\nE135,Travel,69\nE136,Travel,59\nE137,Software,80\nE138,Travel,14\nE139,Travel,54\nE140,Meals,65\nE141,Travel,19\nE142,Office,72\nE143,Software,65\nE144,Meals,61\nE145,Travel,57\nE146,Software,81\nE147,Meals,81\nE148,Software,23\nE149,Travel,25\nE150,Travel,65\nE151,Office,88\nE152,Office,18\nE153,Travel,22\nE154,Travel,12\nE155,Travel,78\nE156,Travel,24\nE157,Software,58\nE158,Software,24\nE159,Travel,47\nE160,Travel,34\nE161,Software,6\nE162,Meals,84\nE163,Office,88\nE164,Travel,73\nE165,Travel,27\nE166,Office,23\nE167,Software,23\nE168,Meals,29\nE169,Travel,31\nE170,Office,19\nE171,Software,44\nE172,Meals,76\nE173,Office,38\nE174,Office,75\nE175,Software,45\n"
+  },
+  "turns": [
+    {
+      "prompt": "Total finance/expenses.csv by category and write finance/by_category.txt with lines like 'Travel: 123' for Travel, Meals, Software and Office (in that order). Which category cost the most?",
+      "expect": {
+        "output_contains": [
+          "Software"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "finance/expenses.csv": {
+        "unchanged": true
+      },
+      "finance/by_category.txt": {
+        "contains": [
+          "Travel: 2011",
+          "Meals: 1736",
+          "Software: 2201",
+          "Office: 1777"
+        ]
+      }
+    }
+  }
+}

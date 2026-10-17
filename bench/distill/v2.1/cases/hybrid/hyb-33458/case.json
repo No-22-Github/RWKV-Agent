@@ -1,0 +1,65 @@
+{
+  "id": "hyb-33458",
+  "description": "Changes author and version, then asks to undo only the version bump. DISTILL-CANARY-cfecd580",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33458",
+    "ref_calls": 5,
+    "fixture_bytes": 87,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "package.json": "{\n  \"name\": \"tidy\",\n  \"version\": \"1.4.2\",\n  \"author\": \"Lee Chen\",\n  \"license\": \"MIT\"\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set the author in package.json to Sam Ortiz and bump the version to 2.0.0.",
+      "expect": {
+        "output_contains": [
+          "2.0.0"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Undo the version bump but keep the new author.",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "package.json": {
+        "equals": "{\n  \"name\": \"tidy\",\n  \"version\": \"1.4.2\",\n  \"author\": \"Sam Ortiz\",\n  \"license\": \"MIT\"\n}\n"
+      }
+    }
+  }
+}

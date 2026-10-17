@@ -1,0 +1,73 @@
+{
+  "id": "hyb-33663",
+  "description": "Multi-turn: sum one item type from a reimbursement csv, then total everything into a file. DISTILL-CANARY-3a968d9f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "553.50"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-files-63",
+    "ref_calls": 4,
+    "fixture_bytes": 141,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "报销/差旅.csv": "date,item,amount\n2026-09-02,高铁,553.50\n2026-09-02,住宿,418.00\n2026-09-03,餐饮,126.80\n2026-09-03,打车,64.20\n2026-09-04,高铁,553.50\n"
+  },
+  "turns": [
+    {
+      "prompt": "报销/差旅.csv 里高铁票一共花了多少钱？",
+      "expect": {
+        "expected_number": 1107.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.006,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "再算上所有项目的总额，把总额数字写进 报销/总额.txt。",
+      "expect": {
+        "expected_number": 1716.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "calculator",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "报销/差旅.csv": {
+        "unchanged": true
+      },
+      "报销/总额.txt": {
+        "contains": [
+          "1716.00"
+        ]
+      }
+    }
+  }
+}

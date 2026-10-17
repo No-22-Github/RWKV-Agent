@@ -1,0 +1,83 @@
+{
+  "id": "doc-33212",
+  "description": "Offer letter from facts then change the manager. DISTILL-CANARY-468361be",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21k-draft-12",
+    "ref_calls": 5,
+    "fixture_bytes": 258,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/offer-info.txt": "Candidate: Priya Raman\nRole: Data Analyst\nStart date: 2026-10-12\nBase salary: 14,500 per month\nProbation: 3 months\nReports to: Marcus Hale\nBenefits: health insurance from day one, 18 days annual leave\n",
+    "hr/style.md": "Keep offer letters under 200 words. Friendly but formal.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Draft an offer letter for the candidate using hr/offer-info.txt, save it as hr/offer-letter.md, and follow hr/style.md.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Marcus is on leave that week, so change the line manager to Elena Park and keep everything else.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "hr/offer-info.txt": {
+        "unchanged": true
+      },
+      "hr/style.md": {
+        "unchanged": true
+      },
+      "hr/offer-letter.md": {
+        "contains": [
+          "Priya Raman",
+          "Data Analyst",
+          "2026-10-12",
+          "14,500",
+          "3 months",
+          "Elena Park",
+          "18 days"
+        ]
+      }
+    }
+  }
+}

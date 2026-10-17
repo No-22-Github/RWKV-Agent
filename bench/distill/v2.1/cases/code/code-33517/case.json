@@ -1,0 +1,86 @@
+{
+  "id": "code-33517",
+  "description": "TS callers of fmtMoney, one file calls it twice. DISTILL-CANARY-a3decb7b",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "src/views/header.ts"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-callers-33517",
+    "ref_calls": 3,
+    "fixture_bytes": 550,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/format/money.ts": "export function fmtMoney(cents: number): string {\n  return (cents / 100).toFixed(2);\n}\n",
+    "src/views/cart.ts": "import { fmtMoney } from '../format/money';\n\nexport const cartLine = (c: number) => `Total ${fmtMoney(c)}`;\n",
+    "src/views/receipt.ts": "import { fmtMoney } from '../format/money';\n\nexport function receipt(c: number, tip: number) {\n  return [fmtMoney(c), fmtMoney(tip)].join(' + ');\n}\n",
+    "src/views/header.ts": "export const title = 'fmtMoney(c) is documented in money.ts';\n",
+    "src/views/admin.ts": "import * as money from '../format/money';\n// money.fmtMoney(x) used to be called here\nexport const noop = () => 0;\n",
+    "src/index.ts": "export * from './views/cart';\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which files actually call fmtMoney? A mention in a string or a comment is not a call. Paths only, one per line.",
+      "expect": {
+        "output_contains": [
+          "src/views/cart.ts",
+          "src/views/receipt.ts"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "src/views/header.ts",
+          "src/views/admin.ts"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/format/money.ts": {
+        "unchanged": true
+      },
+      "src/views/cart.ts": {
+        "unchanged": true
+      },
+      "src/views/receipt.ts": {
+        "unchanged": true
+      },
+      "src/views/header.ts": {
+        "unchanged": true
+      },
+      "src/views/admin.ts": {
+        "unchanged": true
+      },
+      "src/index.ts": {
+        "unchanged": true
+      }
+    }
+  }
+}

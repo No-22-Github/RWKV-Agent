@@ -1,0 +1,64 @@
+{
+  "id": "log-33751",
+  "description": "Last night 22:00 to this morning 06:00 relative to the fixed date. DISTILL-CANARY-78d40326",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-window-33751",
+    "ref_calls": 5,
+    "fixture_bytes": 9607,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "sync.log": "2026-09-15 19:03:37 [OK] sync batch 3000\n2026-09-15 19:05:57 [OK] sync batch 3001\n2026-09-15 19:06:55 [OK] sync batch 3002\n2026-09-15 19:11:39 [OK] sync batch 3003\n2026-09-15 19:16:18 [OK] sync batch 3004\n2026-09-15 19:19:59 [OK] sync batch 3005\n2026-09-15 19:28:13 [ERROR] sync batch 3006\n2026-09-15 19:32:48 [WARN] sync batch 3007\n2026-09-15 19:32:53 [OK] sync batch 3008\n2026-09-15 19:35:51 [OK] sync batch 3009\n2026-09-15 19:35:57 [WARN] sync batch 3010\n2026-09-15 19:38:47 [ERROR] sync batch 3011\n2026-09-15 19:47:21 [OK] sync batch 3012\n2026-09-15 19:58:07 [OK] sync batch 3013\n2026-09-15 19:59:18 [OK] sync batch 3014\n2026-09-15 20:06:24 [OK] sync batch 3015\n2026-09-15 20:08:24 [OK] sync batch 3016\n2026-09-15 20:11:54 [OK] sync batch 3017\n2026-09-15 20:12:54 [OK] sync batch 3018\n2026-09-15 20:22:59 [OK] sync batch 3019\n2026-09-15 20:39:15 [OK] sync batch 3020\n2026-09-15 20:39:58 [OK] sync batch 3021\n2026-09-15 20:42:37 [OK] sync batch 3022\n2026-09-15 20:48:03 [OK] sync batch 3023\n2026-09-15 20:48:07 [ERROR] sync batch 3024\n2026-09-15 21:01:39 [OK] sync batch 3025\n2026-09-15 21:01:45 [WARN] sync batch 3026\n2026-09-15 21:01:51 [OK] sync batch 3027\n2026-09-15 21:03:39 [ERROR] sync batch 3028\n2026-09-15 21:08:03 [OK] sync batch 3029\n2026-09-15 21:08:17 [ERROR] sync batch 3030\n2026-09-15 21:15:49 [OK] sync batch 3031\n2026-09-15 21:22:38 [OK] sync batch 3032\n2026-09-15 21:23:43 [OK] sync batch 3033\n2026-09-15 21:25:34 [OK] sync batch 3034\n2026-09-15 21:26:27 [WARN] sync batch 3035\n2026-09-15 21:32:08 [OK] sync batch 3036\n2026-09-15 21:33:16 [OK] sync batch 3037\n2026-09-15 21:33:21 [OK] sync batch 3038\n2026-09-15 21:33:48 [OK] sync batch 3039\n2026-09-15 21:49:05 [OK] sync batch 3040\n2026-09-15 21:49:08 [ERROR] sync batch 3041\n2026-09-15 21:50:54 [OK] sync batch 3042\n2026-09-15 21:54:37 [OK] sync batch 3043\n2026-09-15 21:59:53 [ERROR] sync batch 3044\n2026-09-15 22:03:56 [OK] sync batch 3045\n2026-09-15 22:18:22 [ERROR] sync batch 3046\n2026-09-15 22:18:55 [OK] sync batch 3047\n2026-09-15 22:20:14 [ERROR] sync batch 3048\n2026-09-15 22:21:24 [OK] sync batch 3049\n2026-09-15 22:29:19 [OK] sync batch 3050\n2026-09-15 22:30:27 [OK] sync batch 3051\n2026-09-15 22:31:35 [OK] sync batch 3052\n2026-09-15 22:34:34 [WARN] sync batch 3053\n2026-09-15 22:35:24 [ERROR] sync batch 3054\n2026-09-15 22:39:18 [ERROR] sync batch 3055\n2026-09-15 22:44:27 [OK] sync batch 3056\n2026-09-15 22:54:49 [OK] sync batch 3057\n2026-09-15 22:58:53 [OK] sync batch 3058\n2026-09-15 23:00:44 [OK] sync batch 3059\n2026-09-15 23:02:51 [OK] sync batch 3060\n2026-09-15 23:04:08 [WARN] sync batch 3061\n2026-09-15 23:08:16 [WARN] sync batch 3062\n2026-09-15 23:14:37 [OK] sync batch 3063\n2026-09-15 23:25:00 [OK] sync batch 3064\n2026-09-15 23:32:35 [OK] sync batch 3065\n2026-09-15 23:33:07 [OK] sync batch 3066\n2026-09-15 23:39:45 [OK] sync batch 3067\n2026-09-15 23:40:03 [OK] sync batch 3068\n2026-09-15 23:40:44 [OK] sync batch 3069\n2026-09-15 23:43:53 [OK] sync batch 3070\n2026-09-15 23:50:53 [ERROR] sync batch 3071\n2026-09-16 00:03:08 [WARN] sync batch 3072\n2026-09-16 00:07:31 [OK] sync batch 3073\n2026-09-16 00:09:21 [OK] sync batch 3074\n2026-09-16 00:14:16 [OK] sync batch 3075\n2026-09-16 00:17:23 [OK] sync batch 3076\n2026-09-16 00:21:26 [WARN] sync batch 3077\n2026-09-16 00:27:18 [OK] sync batch 3078\n2026-09-16 00:31:35 [ERROR] sync batch 3079\n2026-09-16 00:36:07 [OK] sync batch 3080\n2026-09-16 00:38:28 [OK] sync batch 3081\n2026-09-16 00:44:00 [OK] sync batch 3082\n2026-09-16 00:46:48 [OK] sync batch 3083\n2026-09-16 00:49:08 [OK] sync batch 3084\n2026-09-16 00:52:46 [OK] sync batch 3085\n2026-09-16 00:59:17 [OK] sync batch 3086\n2026-09-16 01:00:34 [OK] sync batch 3087\n2026-09-16 01:06:14 [OK] sync batch 3088\n2026-09-16 01:11:54 [OK] sync batch 3089\n2026-09-16 01:14:33 [OK] sync batch 3090\n2026-09-16 01:15:54 [ERROR] sync batch 3091\n2026-09-16 01:17:32 [ERROR] sync batch 3092\n2026-09-16 01:21:56 [ERROR] sync batch 3093\n2026-09-16 01:24:00 [ERROR] sync batch 3094\n2026-09-16 01:24:13 [OK] sync batch 3095\n2026-09-16 01:25:06 [OK] sync batch 3096\n2026-09-16 01:27:51 [OK] sync batch 3097\n2026-09-16 01:29:13 [OK] sync batch 3098\n2026-09-16 01:32:26 [ERROR] sync batch 3099\n2026-09-16 01:33:09 [OK] sync batch 3100\n2026-09-16 01:33:27 [OK] sync batch 3101\n2026-09-16 01:33:29 [OK] sync batch 3102\n2026-09-16 01:39:14 [OK] sync batch 3103\n2026-09-16 01:45:07 [OK] sync batch 3104\n2026-09-16 01:52:24 [OK] sync batch 3105\n2026-09-16 01:52:50 [ERROR] sync batch 3106\n2026-09-16 01:55:31 [OK] sync batch 3107\n2026-09-16 01:59:13 [OK] sync batch 3108\n2026-09-16 02:10:09 [WARN] sync batch 3109\n2026-09-16 02:10:09 [OK] sync batch 3110\n2026-09-16 02:14:42 [OK] sync batch 3111\n2026-09-16 02:15:21 [OK] sync batch 3112\n2026-09-16 02:27:02 [OK] sync batch 3113\n2026-09-16 02:29:55 [OK] sync batch 3114\n2026-09-16 02:32:21 [OK] sync batch 3115\n2026-09-16 02:34:55 [OK] sync batch 3116\n2026-09-16 02:34:56 [WARN] sync batch 3117\n2026-09-16 02:40:53 [OK] sync batch 3118\n2026-09-16 02:45:55 [OK] sync batch 3119\n2026-09-16 02:48:50 [OK] sync batch 3120\n2026-09-16 03:05:19 [OK] sync batch 3121\n2026-09-16 03:06:18 [OK] sync batch 3122\n2026-09-16 03:17:43 [OK] sync batch 3123\n2026-09-16 03:20:43 [OK] sync batch 3124\n2026-09-16 03:32:54 [ERROR] sync batch 3125\n2026-09-16 03:35:11 [OK] sync batch 3126\n2026-09-16 03:40:35 [OK] sync batch 3127\n2026-09-16 03:41:34 [OK] sync batch 3128\n2026-09-16 03:42:54 [ERROR] sync batch 3129\n2026-09-16 03:43:14 [OK] sync batch 3130\n2026-09-16 03:48:11 [WARN] sync batch 3131\n2026-09-16 03:48:28 [OK] sync batch 3132\n2026-09-16 03:52:20 [ERROR] sync batch 3133\n2026-09-16 03:53:44 [OK] sync batch 3134\n2026-09-16 03:55:29 [ERROR] sync batch 3135\n2026-09-16 03:55:46 [ERROR] sync batch 3136\n2026-09-16 04:06:52 [WARN] sync batch 3137\n2026-09-16 04:07:18 [OK] sync batch 3138\n2026-09-16 04:09:16 [OK] sync batch 3139\n2026-09-16 04:12:28 [OK] sync batch 3140\n2026-09-16 04:15:53 [ERROR] sync batch 3141\n2026-09-16 04:16:17 [OK] sync batch 3142\n2026-09-16 04:18:22 [WARN] sync batch 3143\n2026-09-16 04:23:52 [OK] sync batch 3144\n2026-09-16 04:25:37 [OK] sync batch 3145\n2026-09-16 04:25:42 [OK] sync batch 3146\n2026-09-16 04:36:12 [OK] sync batch 3147\n2026-09-16 04:37:16 [OK] sync batch 3148\n2026-09-16 04:40:40 [OK] sync batch 3149\n2026-09-16 04:41:21 [ERROR] sync batch 3150\n2026-09-16 04:47:20 [WARN] sync batch 3151\n2026-09-16 04:51:56 [WARN] sync batch 3152\n2026-09-16 04:57:37 [OK] sync batch 3153\n2026-09-16 04:58:54 [ERROR] sync batch 3154\n2026-09-16 04:59:40 [ERROR] sync batch 3155\n2026-09-16 05:10:18 [ERROR] sync batch 3156\n2026-09-16 05:12:54 [OK] sync batch 3157\n2026-09-16 05:22:30 [WARN] sync batch 3158\n2026-09-16 05:23:57 [OK] sync batch 3159\n2026-09-16 05:34:04 [OK] sync batch 3160\n2026-09-16 05:35:41 [OK] sync batch 3161\n2026-09-16 05:42:00 [OK] sync batch 3162\n2026-09-16 05:44:46 [OK] sync batch 3163\n2026-09-16 05:48:22 [OK] sync batch 3164\n2026-09-16 05:50:04 [OK] sync batch 3165\n2026-09-16 05:52:35 [OK] sync batch 3166\n2026-09-16 05:57:39 [WARN] sync batch 3167\n2026-09-16 05:57:43 [OK] sync batch 3168\n2026-09-16 05:59:25 [OK] sync batch 3169\n2026-09-16 06:00:21 [OK] sync batch 3170\n2026-09-16 06:02:37 [OK] sync batch 3171\n2026-09-16 06:08:25 [OK] sync batch 3172\n2026-09-16 06:08:41 [OK] sync batch 3173\n2026-09-16 06:13:44 [OK] sync batch 3174\n2026-09-16 06:16:55 [OK] sync batch 3175\n2026-09-16 06:20:00 [ERROR] sync batch 3176\n2026-09-16 06:24:57 [OK] sync batch 3177\n2026-09-16 06:25:46 [OK] sync batch 3178\n2026-09-16 06:26:22 [WARN] sync batch 3179\n2026-09-16 06:26:40 [OK] sync batch 3180\n2026-09-16 06:28:21 [OK] sync batch 3181\n2026-09-16 06:29:48 [OK] sync batch 3182\n2026-09-16 06:29:50 [OK] sync batch 3183\n2026-09-16 06:33:24 [ERROR] sync batch 3184\n2026-09-16 06:36:00 [OK] sync batch 3185\n2026-09-16 06:48:51 [ERROR] sync batch 3186\n2026-09-16 06:54:14 [OK] sync batch 3187\n2026-09-16 06:56:15 [OK] sync batch 3188\n2026-09-16 06:56:38 [ERROR] sync batch 3189\n2026-09-16 06:58:10 [OK] sync batch 3190\n2026-09-16 07:00:15 [ERROR] sync batch 3191\n2026-09-16 07:02:00 [ERROR] sync batch 3192\n2026-09-16 07:03:13 [OK] sync batch 3193\n2026-09-16 07:09:05 [OK] sync batch 3194\n2026-09-16 07:12:27 [WARN] sync batch 3195\n2026-09-16 07:13:53 [ERROR] sync batch 3196\n2026-09-16 07:14:27 [OK] sync batch 3197\n2026-09-16 07:20:38 [OK] sync batch 3198\n2026-09-16 07:21:27 [OK] sync batch 3199\n2026-09-16 07:25:38 [OK] sync batch 3200\n2026-09-16 07:31:14 [OK] sync batch 3201\n2026-09-16 07:34:34 [WARN] sync batch 3202\n2026-09-16 07:34:38 [WARN] sync batch 3203\n2026-09-16 07:35:57 [ERROR] sync batch 3204\n2026-09-16 07:38:18 [ERROR] sync batch 3205\n2026-09-16 07:38:25 [OK] sync batch 3206\n2026-09-16 07:40:00 [WARN] sync batch 3207\n2026-09-16 07:46:17 [OK] sync batch 3208\n2026-09-16 07:49:00 [WARN] sync batch 3209\n2026-09-16 07:57:14 [ERROR] sync batch 3210\n2026-09-16 08:01:20 [OK] sync batch 3211\n2026-09-16 08:02:06 [ERROR] sync batch 3212\n2026-09-16 08:04:26 [OK] sync batch 3213\n2026-09-16 08:04:51 [OK] sync batch 3214\n2026-09-16 08:05:19 [OK] sync batch 3215\n2026-09-16 08:06:56 [ERROR] sync batch 3216\n2026-09-16 08:08:53 [OK] sync batch 3217\n2026-09-16 08:09:07 [OK] sync batch 3218\n2026-09-16 08:11:59 [WARN] sync batch 3219\n2026-09-16 08:12:06 [OK] sync batch 3220\n2026-09-16 08:18:01 [OK] sync batch 3221\n2026-09-16 08:19:40 [WARN] sync batch 3222\n2026-09-16 08:28:25 [OK] sync batch 3223\n2026-09-16 08:31:11 [OK] sync batch 3224\n2026-09-16 08:37:13 [OK] sync batch 3225\n2026-09-16 08:48:27 [WARN] sync batch 3226\n2026-09-16 08:49:15 [OK] sync batch 3227\n2026-09-16 08:55:49 [OK] sync batch 3228\n2026-09-16 08:57:46 [OK] sync batch 3229\n"
+  },
+  "turns": [
+    {
+      "prompt": "今天是 2026-09-16。sync.log 里昨晚 22:00 到今天早上 06:00 之间一共有多少条 ERROR？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "22"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "WARN 呢？",
+      "expect": {
+        "output_contains": [
+          "14"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "id": "hyb-33341",
+  "description": "Rental cost for the main plan, then re-priced for the alternative plan file. DISTILL-CANARY-aac1f17d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-calc-41",
+    "ref_calls": 6,
+    "fixture_bytes": 66,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "驰程租车",
+      "url_match": "www.chicheng-rent.cn/price",
+      "url": "https://www.chicheng-rent.cn/price",
+      "title": "驰程租车 日租价格",
+      "snippet": "各车型日租金。",
+      "content": "# 日租价格表\n\n经济型：168 元/天\n舒适型：238 元/天\nSUV：318 元/天\n7座商务：468 元/天\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "files": {
+    "出差/行程.txt": "车型：经济型\n用车天数：4\n",
+    "出差/备选方案.txt": "车型：SUV\n用车天数：6\n"
+  },
+  "turns": [
+    {
+      "prompt": "出差/行程.txt 里的车按驰程租车官网的日租价格，要花多少钱？",
+      "expect": {
+        "output_contains": [
+          "672"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "再看看 出差/备选方案.txt 那个方案，如果按它来，租车费是多少？",
+      "expect": {
+        "output_contains": [
+          "1908"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "出差/行程.txt": {
+        "unchanged": true
+      },
+      "出差/备选方案.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

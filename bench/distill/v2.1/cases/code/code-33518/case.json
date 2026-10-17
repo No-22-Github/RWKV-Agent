@@ -1,0 +1,88 @@
+{
+  "id": "code-33518",
+  "description": "Find slugify callers in core then alias them; tests and scripts stay. DISTILL-CANARY-2456e177",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-callers-33518",
+    "ref_calls": 8,
+    "fixture_bytes": 743,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "core/slugify.py": "import re\n\n\ndef slugify(text):\n    return re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')\n",
+    "core/posts.py": "from core.slugify import slugify\n\n\ndef post_url(title):\n    return '/p/' + slugify(title)\n",
+    "core/tags.py": "from core.slugify import slugify\n\n\ndef tag_key(name):\n    return 'tag:' + slugify(name)\n",
+    "core/export.py": "import os\nimport re\n\n\ndef row_path_0(root, name):\n    return os.path.join(root, \"row\", name)\n\n\ndef count_col_1(items):\n    total = 0\n    for item in items:\n        total += len(item)\n    return total\n\n\ndef pick_col_2(rows, key):\n    for row in rows:\n        if row.get(key):\n            return row\n    return None\n\n",
+    "scripts/migrate.py": "# slugify(old_title) was used here before the rewrite\nprint('done')\n",
+    "tests/test_slug.py": "from core.slugify import slugify\n\n\ndef test_basic():\n    assert slugify('A b') == 'a-b'\n"
+  },
+  "turns": [
+    {
+      "prompt": "core 目录下哪些文件在调用 slugify？测试和 scripts 里的先不管。",
+      "expect": {
+        "output_contains": [
+          "core/posts.py",
+          "core/tags.py"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "把这两个调用方改成 `from core.slugify import slugify as make_slug` 的写法，调用处也用 make_slug。测试文件别动。",
+      "expect": {
+        "output_contains": [
+          "make_slug"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "core/slugify.py": {
+        "unchanged": true
+      },
+      "core/posts.py": {
+        "equals": "from core.slugify import slugify as make_slug\n\n\ndef post_url(title):\n    return '/p/' + make_slug(title)\n"
+      },
+      "core/tags.py": {
+        "equals": "from core.slugify import slugify as make_slug\n\n\ndef tag_key(name):\n    return 'tag:' + make_slug(name)\n"
+      },
+      "core/export.py": {
+        "unchanged": true
+      },
+      "scripts/migrate.py": {
+        "unchanged": true
+      },
+      "tests/test_slug.py": {
+        "unchanged": true
+      }
+    }
+  }
+}

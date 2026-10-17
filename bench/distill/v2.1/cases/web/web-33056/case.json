@@ -1,0 +1,64 @@
+{
+  "id": "web-33056",
+  "description": "Explain a vendor error message using the vendor's reference page (鹤鸣打印). DISTILL-CANARY-bfcac90b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33056",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "鹤鸣打印",
+      "url": "https://heming-print.example/help/order-fail",
+      "url_match": "heming-print.example/help/order-fail",
+      "title": "下单失败提示 - 鹤鸣打印",
+      "snippet": "下单失败提示说明。",
+      "content": "# 下单失败提示\n\n「文件分辨率过低」：上传图片低于 150 DPI，成品会模糊，请换更高分辨率原图。\n「出血线缺失」：文件四周需各留 3 mm 出血。\n",
+      "published_at": "2026-08-05"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "鹤鸣打印下单时提示“出血线缺失”，是什么意思，该怎么改文件？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "3 mm",
+          "3mm",
+          "3 毫米",
+          "3毫米"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

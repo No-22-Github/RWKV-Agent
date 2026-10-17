@@ -1,0 +1,65 @@
+{
+  "id": "log-33753",
+  "description": "Per-day ERROR counts in dd/mm/yyyy dates and their difference. DISTILL-CANARY-03a1d365",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-window-33753",
+    "ref_calls": 5,
+    "fixture_bytes": 4609,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs.log": "13/09/2026 01:01:18 [ERROR] job export\n13/09/2026 01:47:01 [ERROR] job export\n13/09/2026 02:54:20 [ERROR] job cleanup\n13/09/2026 03:00:35 [INFO] job export\n13/09/2026 03:03:11 [WARN] job export\n13/09/2026 03:27:09 [ERROR] job cleanup\n13/09/2026 03:54:39 [ERROR] job cleanup\n13/09/2026 04:30:13 [INFO] job export\n13/09/2026 04:37:48 [ERROR] job import\n13/09/2026 04:52:11 [INFO] job sync\n13/09/2026 07:03:11 [INFO] job cleanup\n13/09/2026 08:07:35 [ERROR] job import\n13/09/2026 08:50:34 [ERROR] job sync\n13/09/2026 09:10:29 [INFO] job cleanup\n13/09/2026 10:27:32 [ERROR] job sync\n13/09/2026 10:30:11 [INFO] job sync\n13/09/2026 10:53:21 [WARN] job import\n13/09/2026 11:26:10 [ERROR] job sync\n13/09/2026 12:40:19 [INFO] job import\n13/09/2026 12:54:30 [ERROR] job import\n13/09/2026 13:35:49 [INFO] job export\n13/09/2026 13:43:25 [WARN] job cleanup\n13/09/2026 14:10:56 [WARN] job cleanup\n13/09/2026 14:21:55 [WARN] job cleanup\n13/09/2026 14:22:08 [INFO] job cleanup\n13/09/2026 14:29:31 [INFO] job import\n13/09/2026 15:03:05 [INFO] job import\n13/09/2026 16:05:43 [WARN] job cleanup\n13/09/2026 16:37:04 [WARN] job export\n13/09/2026 17:07:38 [WARN] job import\n13/09/2026 18:53:11 [INFO] job import\n13/09/2026 20:10:58 [INFO] job cleanup\n13/09/2026 21:38:21 [INFO] job export\n13/09/2026 22:02:30 [ERROR] job sync\n13/09/2026 22:27:02 [INFO] job sync\n13/09/2026 22:47:13 [INFO] job sync\n13/09/2026 23:06:45 [ERROR] job sync\n13/09/2026 23:38:22 [INFO] job cleanup\n14/09/2026 00:40:14 [ERROR] job sync\n14/09/2026 01:10:07 [INFO] job import\n14/09/2026 01:11:21 [INFO] job import\n14/09/2026 01:15:57 [INFO] job cleanup\n14/09/2026 01:27:20 [INFO] job cleanup\n14/09/2026 01:30:10 [INFO] job sync\n14/09/2026 01:34:52 [INFO] job export\n14/09/2026 01:58:44 [ERROR] job sync\n14/09/2026 03:02:55 [INFO] job export\n14/09/2026 03:19:56 [INFO] job cleanup\n14/09/2026 03:39:48 [ERROR] job import\n14/09/2026 03:39:49 [ERROR] job import\n14/09/2026 03:40:28 [INFO] job import\n14/09/2026 03:53:03 [INFO] job cleanup\n14/09/2026 04:30:01 [ERROR] job sync\n14/09/2026 04:33:56 [ERROR] job sync\n14/09/2026 04:34:42 [WARN] job cleanup\n14/09/2026 04:34:58 [INFO] job export\n14/09/2026 05:04:23 [INFO] job sync\n14/09/2026 05:06:10 [INFO] job import\n14/09/2026 05:26:11 [ERROR] job export\n14/09/2026 05:36:42 [ERROR] job cleanup\n14/09/2026 05:59:53 [INFO] job import\n14/09/2026 06:37:55 [INFO] job import\n14/09/2026 07:07:08 [ERROR] job sync\n14/09/2026 07:29:44 [ERROR] job cleanup\n14/09/2026 07:54:29 [INFO] job sync\n14/09/2026 07:54:54 [INFO] job export\n14/09/2026 09:35:43 [INFO] job sync\n14/09/2026 10:28:42 [INFO] job export\n14/09/2026 10:36:10 [INFO] job import\n14/09/2026 10:42:57 [INFO] job sync\n14/09/2026 10:50:39 [INFO] job cleanup\n14/09/2026 11:21:58 [INFO] job import\n14/09/2026 11:51:31 [INFO] job sync\n14/09/2026 12:12:45 [WARN] job cleanup\n14/09/2026 14:16:08 [ERROR] job cleanup\n14/09/2026 14:44:02 [ERROR] job import\n14/09/2026 15:29:47 [INFO] job import\n14/09/2026 15:57:14 [ERROR] job import\n14/09/2026 16:44:16 [INFO] job import\n14/09/2026 17:07:54 [INFO] job export\n14/09/2026 18:42:31 [INFO] job import\n14/09/2026 19:12:48 [INFO] job cleanup\n14/09/2026 19:22:07 [INFO] job cleanup\n14/09/2026 19:25:04 [WARN] job import\n14/09/2026 19:36:18 [WARN] job export\n14/09/2026 19:37:24 [ERROR] job import\n14/09/2026 19:51:44 [WARN] job export\n14/09/2026 22:29:37 [ERROR] job cleanup\n14/09/2026 22:53:56 [INFO] job export\n14/09/2026 22:56:12 [INFO] job export\n15/09/2026 00:27:27 [ERROR] job import\n15/09/2026 00:39:00 [ERROR] job cleanup\n15/09/2026 00:47:10 [INFO] job sync\n15/09/2026 01:34:39 [INFO] job sync\n15/09/2026 01:51:22 [INFO] job sync\n15/09/2026 03:00:29 [ERROR] job cleanup\n15/09/2026 03:32:38 [WARN] job cleanup\n15/09/2026 03:42:11 [WARN] job sync\n15/09/2026 04:27:15 [INFO] job cleanup\n15/09/2026 04:31:43 [INFO] job import\n15/09/2026 05:34:54 [INFO] job sync\n15/09/2026 06:54:08 [INFO] job sync\n15/09/2026 10:16:27 [INFO] job cleanup\n15/09/2026 10:32:42 [ERROR] job cleanup\n15/09/2026 11:25:58 [INFO] job export\n15/09/2026 13:52:16 [ERROR] job export\n15/09/2026 14:31:48 [INFO] job export\n15/09/2026 15:51:59 [INFO] job import\n15/09/2026 16:00:12 [ERROR] job import\n15/09/2026 16:44:32 [ERROR] job import\n15/09/2026 17:00:24 [INFO] job sync\n15/09/2026 17:44:27 [INFO] job import\n15/09/2026 18:14:45 [ERROR] job import\n15/09/2026 18:32:23 [INFO] job import\n15/09/2026 20:37:50 [ERROR] job export\n15/09/2026 21:59:41 [WARN] job cleanup\n15/09/2026 22:20:59 [WARN] job sync\n15/09/2026 22:53:19 [ERROR] job import\n15/09/2026 22:55:07 [INFO] job sync\n15/09/2026 23:25:40 [ERROR] job import\n15/09/2026 23:50:49 [INFO] job sync\n"
+  },
+  "turns": [
+    {
+      "prompt": "jobs.log 里 9 月 14 号一共有多少条 ERROR？（日期格式是 日/月/年）",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "15 号的呢？比 14 号多还是少，差几条？",
+      "expect": {
+        "output_contains": [
+          "11",
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

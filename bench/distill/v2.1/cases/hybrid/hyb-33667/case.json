@@ -1,0 +1,112 @@
+{
+  "id": "hyb-33667",
+  "description": "Multi-turn: a rain-chance cut-off in a file decides moving indoors; then tomorrow's chance. DISTILL-CANARY-7cc5279d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "15%"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21o-files-67",
+    "ref_calls": 3,
+    "fixture_bytes": 105,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "活动/户外安排.md": "# 户外拓展\n\n城市：南京\n日期：后天\n原则：当天降水概率达到 50% 就改到室内。\n"
+  },
+  "turns": [
+    {
+      "prompt": "活动文件夹里的户外拓展，按安排里的原则，需要改到室内吗？",
+      "expect": {
+        "output_contains_any": [
+          "室内",
+          "改到室内",
+          "indoors",
+          "indoor",
+          "改期",
+          "取消户外"
+        ],
+        "required_tools": [
+          "read_file",
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "那明天的降水概率是多少？",
+      "expect": {
+        "output_contains": [
+          "20%"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "南京",
+      "aliases": [
+        "Nanjing"
+      ],
+      "report": {
+        "location": "南京",
+        "current": "多云 26°C 体感 27°C 湿度 66% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "22~29",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "雷阵雨",
+            "temp_c": "21~26",
+            "rain_chance": "70%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "list_files",
+      "get_weather"
+    ]
+  },
+  "expect": {
+    "files": {
+      "活动/户外安排.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "fs-33720",
+  "description": "A dot-file template that plain listing hides. DISTILL-CANARY-9f0a2e4a",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21p-presence-33720",
+    "ref_calls": 3,
+    "fixture_bytes": 280,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/main.py": "main. umber ivory fjord harbor um\n",
+    "app/.env.example": ".env. nectar pebble yarrow ember zephyr river ze\n",
+    "app/lib/db.py": "db.py orbit ivory delta\nnectar zephyr velvet\nl\n",
+    "app/lib/__init__.py": "__ini ivory velvet orbit lantern umber \n",
+    "app/tests/test_db.py": "test_ velvet yarrow quill\nyarrow quartz ember lamp velvet la\n",
+    "app/README.md": "READM velvet kettle river velvet orbit thistle c\n"
+  },
+  "turns": [
+    {
+      "prompt": "Does the app folder include an example env file? If yes, tell me its path.",
+      "expect": {
+        "output_contains": [
+          ".env.example"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

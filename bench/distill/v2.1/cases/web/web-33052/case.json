@@ -1,0 +1,61 @@
+{
+  "id": "web-33052",
+  "description": "Explain a vendor error message using the vendor's reference page (象山电力). DISTILL-CANARY-564e84ea",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33052",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "象山电力",
+      "url": "https://xiangshan-power.example/faq/meter-e05",
+      "url_match": "xiangshan-power.example/faq/meter-e05",
+      "title": "电表故障码 E05 - 象山电力",
+      "snippet": "智能电表故障码说明。",
+      "content": "# 电表显示 E05\n\nE05 表示电池电量低（不是欠费）。电表仍可正常计量，请在 30 天内预约上门换电池，免费。\n\nE03 才表示余额不足。\n",
+      "published_at": "2026-06-30"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "家里电表显示 E05，是不是欠费了？象山电力怎么说的？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "电池"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

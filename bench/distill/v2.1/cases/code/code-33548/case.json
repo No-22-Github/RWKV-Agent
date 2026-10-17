@@ -1,0 +1,93 @@
+{
+  "id": "code-33548",
+  "description": "shouldRetry has the comparison reversed; then document. DISTILL-CANARY-abb5f371",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-fix-33548",
+    "ref_calls": 6,
+    "fixture_bytes": 829,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/retry.ts": "export function shouldRetry(attempt: number, max: number): boolean {\n  return attempt > max;\n}\n\nexport function backoff(attempt: number): number {\n  return 2 ** attempt * 100;\n}\n",
+    "app/client.ts": "import { shouldRetry, backoff } from './retry';\n\nexport async function call(fn: () => Promise<void>, max = 3) {\n  for (let a = 0; ; a++) {\n    try { return await fn(); } catch (e) {\n      if (!shouldRetry(a, max)) throw e;\n      await new Promise((r) => setTimeout(r, backoff(a)));\n    }\n  }\n}\n",
+    "app/util.ts": "export function slugCall0(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nexport function sumCall1(xs: number[]): number {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\nexport const callLabel2 = (id: number): string => `call-${id}`;\n\n",
+    "docs/retry.md": "max=3 means at most 3 retries; shouldRetry(2, 3) is true, shouldRetry(3, 3) is false.\n"
+  },
+  "turns": [
+    {
+      "prompt": "重试逻辑好像反了：失败一次就不重试了。按 docs/retry.md 的说明修一下 app/retry.ts 里的判断，别动 backoff。改完读回确认并告诉我是第几行。",
+      "expect": {
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "client.ts 里调用它的地方需要跟着改吗？",
+      "expect": {
+        "output_contains_any": [
+          "不需要",
+          "不用",
+          "无需",
+          "不必",
+          "没必要",
+          "no change",
+          "not need",
+          "no need",
+          "doesn't need",
+          "does not need",
+          "don't need"
+        ],
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "app/retry.ts": {
+        "equals": "export function shouldRetry(attempt: number, max: number): boolean {\n  return attempt < max;\n}\n\nexport function backoff(attempt: number): number {\n  return 2 ** attempt * 100;\n}\n"
+      },
+      "app/client.ts": {
+        "unchanged": true
+      },
+      "app/util.ts": {
+        "unchanged": true
+      },
+      "docs/retry.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "hyb-33445",
+  "description": "Appends a disclaimer to the README, then asks to undo it. DISTILL-CANARY-4d5929dd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33445",
+    "ref_calls": 5,
+    "fixture_bytes": 71,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 小工具\n\n一个命令行小工具。\n\n## 用法\n运行 tool --help\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 README.md 末尾加一段免责声明：本工具按现状提供。",
+      "expect": {
+        "output_contains": [
+          "免责声明"
+        ]
+      }
+    },
+    {
+      "prompt": "撤销吧，不用加免责声明了。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

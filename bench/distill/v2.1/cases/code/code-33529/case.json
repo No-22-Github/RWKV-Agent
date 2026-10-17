@@ -1,0 +1,78 @@
+{
+  "id": "code-33529",
+  "description": "Total of TODO FIXME HACK in src, skipping lowercase and constant names. DISTILL-CANARY-fdec7daa",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "11"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-count-33529",
+    "ref_calls": 4,
+    "fixture_bytes": 936,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/a.ts": "export function sumA0(xs: number[]): number {\n  return xs.reduce((acc, x) => acc + x, 0);\n// TODO: types\n}\n\nexport function slugC1(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n// HACK: cast away\n}\n\nexport const aLabel2 = (id: number): string => `a-${id}`;\n// FIXME: wrong unit\n\n",
+    "src/b.ts": "export function sumA0(xs: number[]): number {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n// HACK: pad by 1\n\nexport function slugC1(text: string): string {\n/* TODO: split */\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n// hack: lowercase is not a marker\nexport function sumA2(xs: number[]): number {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\n",
+    "src/c.ts": "export function slugC0(text: string): string {\n// FIXME\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nconst HACKS = 3;\nexport const cLabel1 = (id: number): string => `c-${id}`;\n\n",
+    "node_modules/x/index.ts": "// TODO: upstream\n// FIXME: upstream\n// HACK: upstream\n",
+    "README.md": "HACK: none\n"
+  },
+  "turns": [
+    {
+      "prompt": "In src/, how many comment markers are there in total (TODO, FIXME and HACK, uppercase, in comments)? node_modules and the README don't count. Give me the total and the number for each kind.",
+      "expect": {
+        "output_contains": [
+          "6",
+          "2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/a.ts": {
+        "unchanged": true
+      },
+      "src/b.ts": {
+        "unchanged": true
+      },
+      "src/c.ts": {
+        "unchanged": true
+      },
+      "node_modules/x/index.ts": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

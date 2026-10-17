@@ -1,0 +1,46 @@
+{
+  "id": "nt-33147",
+  "description": "3.5 h to s. DISTILL-CANARY-7963c02e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-unit-33147",
+    "ref_calls": 0,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "unit"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Delta Print workspace\n\nNotes and small tables live here (batch item 33147).\n",
+    "misc/todo-8.txt": "- check shelf 11\n- reorder item 51\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many seconds are there in 3.5 hours?",
+      "expect": {
+        "tools": [],
+        "expected_number": 12600,
+        "expected_number_in_text": true,
+        "tolerance": 1
+      }
+    }
+  ]
+}

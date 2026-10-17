@@ -1,0 +1,75 @@
+{
+  "id": "hyb-33364",
+  "description": "Count vendors and active vendors in a json file and read the free-shipping threshold off a supplier site. DISTILL-CANARY-1d660f9b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-comp-64",
+    "ref_calls": 4,
+    "fixture_bytes": 688,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Willow Parts",
+      "url_match": "willowparts.example.com",
+      "url": "https://willowparts.example.com/",
+      "title": "Willow Parts - industrial fasteners",
+      "snippet": "Family-run fastener supplier since 1974.",
+      "content": "# Willow Parts\n\nFasteners for people who build things.\nFree shipping on orders over $250.\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "procurement/vendors.json": "[\n  {\"name\": \"vendor01\", \"active\": true},\n  {\"name\": \"vendor02\", \"active\": true},\n  {\"name\": \"vendor03\", \"active\": false},\n  {\"name\": \"vendor04\", \"active\": true},\n  {\"name\": \"vendor05\", \"active\": true},\n  {\"name\": \"vendor06\", \"active\": false},\n  {\"name\": \"vendor07\", \"active\": true},\n  {\"name\": \"vendor08\", \"active\": true},\n  {\"name\": \"vendor09\", \"active\": false},\n  {\"name\": \"vendor10\", \"active\": true},\n  {\"name\": \"vendor11\", \"active\": true},\n  {\"name\": \"vendor12\", \"active\": false},\n  {\"name\": \"vendor13\", \"active\": true},\n  {\"name\": \"vendor14\", \"active\": true},\n  {\"name\": \"vendor15\", \"active\": false},\n  {\"name\": \"vendor16\", \"active\": true},\n  {\"name\": \"vendor17\", \"active\": true}\n]\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many vendors are in procurement/vendors.json, how many of them are marked active, and at what order value does Willow Parts offer free shipping (see their homepage)?",
+      "expect": {
+        "output_contains": [
+          "17",
+          "12",
+          "250"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "procurement/vendors.json": {
+        "unchanged": true
+      }
+    }
+  }
+}

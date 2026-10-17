@@ -1,0 +1,82 @@
+{
+  "id": "code-33552",
+  "description": "Exit code of check.sh with 4 args of which 3 are absent. DISTILL-CANARY-488a9a96",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": "4",
+      "TR-DECOY": "4"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21n-explain-33552",
+    "ref_calls": 3,
+    "fixture_bytes": 421,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "bin/check.sh": "#!/usr/bin/env bash\n# usage: check.sh FILE...\nmissing=0\nfor f in \"$@\"; do\n  if [ ! -e \"$f\" ]; then\n    echo \"missing: $f\"\n    missing=$((missing + 1))\n  fi\ndone\nexit \"$missing\"\n",
+    "bin/lib.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_path_0() {\n  echo \"[$(date +%H:%M)] path step 0: $*\"\n}\n\nlog_file_1() {\n  echo \"[$(date +%H:%M)] file step 1: $*\"\n}\n\nlog_file_2() {\n  echo \"[$(date +%H:%M)] file step 2: $*\"\n}\n\n",
+    "data/a.txt": "a\n",
+    "data/b.txt": "b\n",
+    "README.md": "check.sh a.txt b.txt\n"
+  },
+  "turns": [
+    {
+      "prompt": "What does bin/check.sh do, and what exit code would it return if I ran `bin/check.sh data/a.txt data/x.txt data/y.txt data/z.txt` from the repo root? Only explain, don't run or change anything.",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "bin/check.sh": {
+        "unchanged": true
+      },
+      "bin/lib.sh": {
+        "unchanged": true
+      },
+      "data/a.txt": {
+        "unchanged": true
+      },
+      "data/b.txt": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

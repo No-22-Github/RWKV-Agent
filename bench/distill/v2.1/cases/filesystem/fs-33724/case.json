@@ -1,0 +1,93 @@
+{
+  "id": "fs-33724",
+  "description": "Delete .o files under build only; src/gen.o and net.o.d stay. DISTILL-CANARY-f9c6e318",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "b21p-sdel-33724",
+    "ref_calls": 4,
+    "fixture_bytes": 586,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "build/app.o": "app.o quill kettle quill lantern\nkettle willow kettle velvet\n",
+    "build/lib/core.o": "core. harbor ivory ember\ndelta wil\n",
+    "build/lib/net.o": "net.o willow oyster ember alpha\nkettle alpha saddle\n",
+    "build/lib/net.o.d": "net.o umber lantern lamp\nvelvet pixel river umber\nfjord lamp ember willow\n",
+    "build/app.bin": "app.b river zephyr ember willow orbit ivory stone\njuniper cedar \n",
+    "src/gen.o": "gen.o thistle grain kettle umber meadow t\n",
+    "src/main.c": "main. oyster hollow ember ember pebble\noyster hollow pebble\ndelta quartz ridge\nq\n",
+    "src/core.c": "core. pebble stone juniper\nnectar harbor ember\nridge saddle thistle\nalpha velvet embe\n",
+    "Makefile": "Makef stone nectar quartz nectar\nstone ivory meadow quill\nsaddle oyster yarrow willow thi\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 build 目录里（含子目录）的 .o 目标文件都删掉，src 和其他文件一个都别动。做完告诉我删了几个。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "Makefile": {
+        "unchanged": true
+      },
+      "build/app.bin": {
+        "unchanged": true
+      },
+      "build/app.o": {
+        "absent": true
+      },
+      "build/lib/core.o": {
+        "absent": true
+      },
+      "build/lib/net.o": {
+        "absent": true
+      },
+      "build/lib/net.o.d": {
+        "unchanged": true
+      },
+      "src/core.c": {
+        "unchanged": true
+      },
+      "src/gen.o": {
+        "unchanged": true
+      },
+      "src/main.c": {
+        "unchanged": true
+      }
+    }
+  }
+}

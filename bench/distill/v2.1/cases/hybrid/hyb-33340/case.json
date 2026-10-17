@@ -1,0 +1,73 @@
+{
+  "id": "hyb-33340",
+  "description": "API spend from token counts per model and the vendor's per-million prices. DISTILL-CANARY-f59876e0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-calc-40",
+    "ref_calls": 4,
+    "fixture_bytes": 153,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Lattice AI",
+      "url_match": "lattice-ai.dev/api/pricing",
+      "url": "https://lattice-ai.dev/api/pricing",
+      "title": "Lattice API pricing",
+      "snippet": "Token prices per million.",
+      "content": "# Lattice API pricing\n\nlattice-mini: input $0.30 / 1M tokens, output $1.20 / 1M tokens\nlattice-pro: input $2.50 / 1M tokens, output $10.00 / 1M tokens\n",
+      "published_at": "2026-08-05"
+    }
+  ],
+  "files": {
+    "ml/usage.csv": "day,model,input_tokens,output_tokens\n2026-09-01,lattice-pro,4200000,800000\n2026-09-02,lattice-mini,9000000,2500000\n2026-09-03,lattice-pro,1500000,300000\n"
+  },
+  "turns": [
+    {
+      "prompt": "Work out what the three days in ml/usage.csv cost, based on Lattice's API prices (input and output priced separately).",
+      "expect": {
+        "output_contains_any": [
+          "30.95"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ml/usage.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

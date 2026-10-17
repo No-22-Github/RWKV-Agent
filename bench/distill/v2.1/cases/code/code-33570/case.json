@@ -1,0 +1,92 @@
+{
+  "id": "code-33570",
+  "description": "cargo test output: two panics at given locations. DISTILL-CANARY-a2fbb9b9",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "src/store.rs:87"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33570",
+    "ref_calls": 3,
+    "fixture_bytes": 2549,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "target/cargo-test.txt": "running 7 tests\ntest store::put_get ... ok\ntest store::overwrite ... ok\ntest store::delete_missing ... FAILED\ntest store::scan_range ... ok\ntest index::build ... ok\ntest index::rebuild_empty ... FAILED\ntest index::stats ... ignored\n\nfailures:\n\n---- store::delete_missing stdout ----\nthread 'store::delete_missing' panicked at 'called `Option::unwrap()` on a `None` value', src/store.rs:88:34\n\n---- index::rebuild_empty stdout ----\nthread 'index::rebuild_empty' panicked at 'index out of bounds: the len is 0 but the index is 0', src/index.rs:41:15\n\ntest result: FAILED. 4 passed; 2 failed; 1 ignored; 0 measured\n",
+    "src/store.rs": "// store\nconst K1: u32 = 7;\nconst K2: u32 = 14;\nconst K3: u32 = 21;\nconst K4: u32 = 28;\nconst K5: u32 = 35;\nconst K6: u32 = 42;\nconst K7: u32 = 49;\nconst K8: u32 = 56;\nconst K9: u32 = 63;\nconst K10: u32 = 70;\nconst K11: u32 = 77;\nconst K12: u32 = 84;\nconst K13: u32 = 91;\nconst K14: u32 = 98;\nconst K15: u32 = 105;\nconst K16: u32 = 112;\nconst K17: u32 = 119;\nconst K18: u32 = 126;\nconst K19: u32 = 133;\nconst K20: u32 = 140;\nconst K21: u32 = 147;\nconst K22: u32 = 154;\nconst K23: u32 = 161;\nconst K24: u32 = 168;\nconst K25: u32 = 175;\nconst K26: u32 = 182;\nconst K27: u32 = 189;\nconst K28: u32 = 196;\nconst K29: u32 = 203;\nconst K30: u32 = 210;\nconst K31: u32 = 217;\nconst K32: u32 = 224;\nconst K33: u32 = 231;\nconst K34: u32 = 238;\nconst K35: u32 = 245;\nconst K36: u32 = 252;\nconst K37: u32 = 259;\nconst K38: u32 = 266;\nconst K39: u32 = 273;\nconst K40: u32 = 280;\nconst K41: u32 = 287;\nconst K42: u32 = 294;\nconst K43: u32 = 301;\nconst K44: u32 = 308;\nconst K45: u32 = 315;\nconst K46: u32 = 322;\nconst K47: u32 = 329;\nconst K48: u32 = 336;\nconst K49: u32 = 343;\nconst K50: u32 = 350;\nconst K51: u32 = 357;\nconst K52: u32 = 364;\nconst K53: u32 = 371;\nconst K54: u32 = 378;\nconst K55: u32 = 385;\nconst K56: u32 = 392;\nconst K57: u32 = 399;\nconst K58: u32 = 406;\nconst K59: u32 = 413;\nconst K60: u32 = 420;\nconst K61: u32 = 427;\nconst K62: u32 = 434;\nconst K63: u32 = 441;\nconst K64: u32 = 448;\nconst K65: u32 = 455;\nconst K66: u32 = 462;\nconst K67: u32 = 469;\nconst K68: u32 = 476;\nconst K69: u32 = 483;\nconst K70: u32 = 490;\nconst K71: u32 = 497;\nconst K72: u32 = 504;\nconst K73: u32 = 511;\nconst K74: u32 = 518;\nconst K75: u32 = 525;\nconst K76: u32 = 532;\nconst K77: u32 = 539;\nconst K78: u32 = 546;\nconst K79: u32 = 553;\nconst K80: u32 = 560;\nconst K81: u32 = 567;\nconst K82: u32 = 574;\nconst K83: u32 = 581;\nconst K84: u32 = 588;\nconst K85: u32 = 595;\nconst K86: u32 = 602;\nlet v = map.get(k).unwrap();\n",
+    "src/index.rs": "// index\n",
+    "Cargo.toml": "[package]\nname = \"kv\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which tests failed in target/cargo-test.txt, and where did each panic happen (file and line)? The test that was not run doesn't count.",
+      "expect": {
+        "output_contains": [
+          "store::delete_missing",
+          "index::rebuild_empty",
+          "src/store.rs:88",
+          "src/index.rs:41"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    },
+    {
+      "prompt": "How many tests passed in total?",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "target/cargo-test.txt": {
+        "unchanged": true
+      },
+      "src/store.rs": {
+        "unchanged": true
+      },
+      "src/index.rs": {
+        "unchanged": true
+      },
+      "Cargo.toml": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "id": "hyb-33606",
+  "description": "Two-city comparison: tomorrow's high temperature difference. DISTILL-CANARY-15faa84e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "1"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21o-weather-06",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "明天苏州和无锡哪个更热？最高气温差几度？",
+      "expect": {
+        "output_contains_any": [
+          "4度",
+          "4 度",
+          "4°C",
+          "4℃",
+          "4°",
+          "4 ℃",
+          "4 °C"
+        ],
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [],
+      "report": {
+        "location": "苏州",
+        "current": "多云 25°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "20~24",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "无锡",
+      "aliases": [],
+      "report": {
+        "location": "无锡",
+        "current": "阴 24°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "20~31",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "20~26",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "get_weather"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "doc-33242",
+  "description": "Max stay for repair visitors vs ordinary visitors. DISTILL-CANARY-74a71fce",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-42",
+    "ref_calls": 2,
+    "fixture_bytes": 570,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "安保/访客规定.md": "# 访客管理规定\n\n第一条 访客须由被访员工提前在系统登记，未登记的访客一律不得入内。\n第二条 访客证当日有效，当天 18:00 前须归还。\n第三条 普通访客停留不超过 4 小时；施工、维修类访客不超过 8 小时。\n第四条 访客不得进入机房和财务室；需进入研发区域的，须由部门负责人书面同意。\n第五条 访客车辆停放在 B2 层访客区，每次免费 2 小时，超出后每小时 5 元。\n第六条 夜间（22:00 后）访客一律不接待，紧急维修除外。\n"
+  },
+  "turns": [
+    {
+      "prompt": "空调维修师傅明天来我们办公室修机器，他最长可以在楼里待多久？",
+      "expect": {
+        "output_contains": [
+          "8"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  }
+}

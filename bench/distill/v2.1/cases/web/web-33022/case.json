@@ -1,0 +1,82 @@
+{
+  "id": "web-33022",
+  "description": "Two sources disagree on a value for 北屿水务; the answer must pick the authoritative/newer one. DISTILL-CANARY-f5fde41a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value",
+      "TR-MULTISRC": "the other source's value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21i-cmp-33022",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "北屿水务",
+      "url": "https://beiyu-water.example/price/2026",
+      "url_match": "beiyu-water.example/price/2026",
+      "title": "2026 年居民水价 - 北屿水务",
+      "snippet": "# 居民水价",
+      "content": "# 居民水价\n\n第一阶梯（年用水量 180 立方米以内）3.45 元/立方米。\n",
+      "published_at": "2026-01-05"
+    },
+    {
+      "query_match": "北屿水务",
+      "url": "https://beiyu-gov.example/notice/water-adjust",
+      "url_match": "beiyu-gov.example/notice/water-adjust",
+      "title": "关于调整居民水价的通知 - 北屿市发改局",
+      "snippet": "# 关于调整居民水价的通知",
+      "content": "# 关于调整居民水价的通知\n\n自 2026 年 10 月 1 日起，第一阶梯水价调整为 3.85 元/立方米。该通知由市发改局发布，水务公司网站将同步更新。\n",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "北屿现在居民第一阶梯水价是多少，10 月以后呢？水务公司网站和市发改局的通知哪个更权威、哪个更新？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "3.85"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "那阶梯的分界线是多少立方米？",
+      "expect": {
+        "output_contains": [
+          "180"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

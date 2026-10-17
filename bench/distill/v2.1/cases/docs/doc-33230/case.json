@@ -1,0 +1,59 @@
+{
+  "id": "doc-33230",
+  "description": "Complaints only to csv. DISTILL-CANARY-2cac7a51",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-30",
+    "ref_calls": 3,
+    "fixture_bytes": 222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "客服/反馈汇总.txt": "O-1021 [咨询] 想问发货时间\nO-1034 [投诉] 包裹破损，要求补发\nO-1040 [表扬] 客服回复很快\nO-1052 [投诉] 同一订单重复扣款\nO-1066 [咨询] 能否开发票\nO-1071 [投诉] 配送延迟五天\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 客服/反馈汇总.txt 里标成投诉的挑出来，写 客服/投诉.csv，表头“订单号,问题”，问题写方括号后面的原话。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "客服/反馈汇总.txt": {
+        "unchanged": true
+      },
+      "客服/投诉.csv": {
+        "equals": "订单号,问题\nO-1034,包裹破损，要求补发\nO-1052,同一订单重复扣款\nO-1071,配送延迟五天\n"
+      }
+    }
+  }
+}

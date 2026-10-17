@@ -1,0 +1,65 @@
+{
+  "id": "log-33761",
+  "description": "A drill note mentions ERROR in an INFO line before the real first error. DISTILL-CANARY-d809af56",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-EARLYHIT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "STP",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-locate-33761",
+    "ref_calls": 5,
+    "fixture_bytes": 8421,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "net.log": "2026-09-14 08:00:40 INFO  net: conn 280 opened\n2026-09-14 08:01:53 INFO  net: conn 770 closed\n2026-09-14 08:02:37 INFO  net: conn 148 opened\n2026-09-14 08:03:49 INFO  net: conn 578 opened\n2026-09-14 08:03:50 INFO  net: query 770 took 80ms\n2026-09-14 08:05:14 INFO  net: query 117 took 31ms\n2026-09-14 08:06:26 INFO  net: query 404 took 13ms\n2026-09-14 08:06:33 DEBUG net: query 858 took 51ms\n2026-09-14 08:06:53 INFO  net: conn 881 closed\n2026-09-14 08:07:24 WARN  net: conn 515 closed\n2026-09-14 08:08:02 INFO  net: conn 901 opened\n2026-09-14 08:08:53 INFO  net: query 909 took 51ms\n2026-09-14 08:09:23 INFO  net: conn 876 opened\n2026-09-14 08:10:17 DEBUG net: conn 489 opened\n2026-09-14 08:10:27 INFO  net: conn 166 opened\n2026-09-14 08:11:19 WARN  net: conn 568 opened\n2026-09-14 08:12:12 INFO  net: conn 843 closed\n2026-09-14 08:14:08 WARN  net: query 275 took 27ms\n2026-09-14 08:14:11 INFO  net: conn 537 closed\n2026-09-14 08:15:32 WARN  net: conn 974 opened\n2026-09-14 08:16:09 INFO  net: conn 145 closed\n2026-09-14 08:20:00 INFO  net: operator note: simulated ERROR drill started (not a real incident)\n2026-09-14 08:21:27 DEBUG net: conn 259 opened\n2026-09-14 08:21:33 INFO  net: conn 991 opened\n2026-09-14 08:22:15 DEBUG net: conn 772 closed\n2026-09-14 08:22:22 INFO  net: conn 561 opened\n2026-09-14 08:24:04 INFO  net: conn 767 closed\n2026-09-14 08:28:26 INFO  net: conn 514 closed\n2026-09-14 08:28:28 INFO  net: query 671 took 3ms\n2026-09-14 08:30:41 DEBUG net: query 296 took 71ms\n2026-09-14 08:32:10 INFO  net: conn 92 opened\n2026-09-14 08:32:58 WARN  net: conn 856 opened\n2026-09-14 08:33:58 INFO  net: conn 318 opened\n2026-09-14 08:35:00 INFO  net: conn 116 closed\n2026-09-14 08:36:16 DEBUG net: conn 680 closed\n2026-09-14 08:40:29 INFO  net: conn 363 closed\n2026-09-14 08:41:02 INFO  net: conn 272 closed\n2026-09-14 08:41:25 WARN  net: query 739 took 70ms\n2026-09-14 08:42:05 DEBUG net: conn 786 opened\n2026-09-14 08:42:34 INFO  net: conn 862 opened\n2026-09-14 08:44:17 INFO  net: query 283 took 23ms\n2026-09-14 08:44:22 INFO  net: conn 66 opened\n2026-09-14 08:44:29 INFO  net: conn 12 closed\n2026-09-14 08:46:11 INFO  net: conn 218 closed\n2026-09-14 08:46:49 WARN  net: query 165 took 66ms\n2026-09-14 08:47:08 INFO  net: conn 379 closed\n2026-09-14 08:48:44 INFO  net: conn 686 closed\n2026-09-14 08:49:11 INFO  net: query 698 took 81ms\n2026-09-14 08:49:32 INFO  net: conn 661 opened\n2026-09-14 08:49:54 INFO  net: query 799 took 27ms\n2026-09-14 08:50:58 INFO  net: conn 45 closed\n2026-09-14 08:52:25 INFO  net: query 908 took 82ms\n2026-09-14 08:52:50 WARN  net: query 291 took 31ms\n2026-09-14 08:53:47 INFO  net: conn 273 opened\n2026-09-14 08:53:54 INFO  net: query 193 took 89ms\n2026-09-14 08:54:24 DEBUG net: query 865 took 21ms\n2026-09-14 08:54:30 DEBUG net: query 886 took 28ms\n2026-09-14 08:55:03 INFO  net: query 685 took 11ms\n2026-09-14 08:55:10 INFO  net: conn 987 closed\n2026-09-14 08:55:31 ERROR net: conn 4402 reset by peer while sending response\n2026-09-14 08:55:37 INFO  net: conn 757 opened\n2026-09-14 08:55:39 INFO  net: query 472 took 37ms\n2026-09-14 08:55:55 INFO  net: conn 578 closed\n2026-09-14 08:57:31 INFO  net: conn 605 opened\n2026-09-14 08:59:28 WARN  net: conn 813 closed\n2026-09-14 08:59:53 DEBUG net: conn 757 closed\n2026-09-14 09:00:07 WARN  net: conn 644 opened\n2026-09-14 09:01:00 INFO  net: conn 910 closed\n2026-09-14 09:03:29 INFO  net: conn 433 opened\n2026-09-14 09:04:02 WARN  net: conn 251 closed\n2026-09-14 09:05:04 INFO  net: conn 847 opened\n2026-09-14 09:05:28 INFO  net: conn 770 opened\n2026-09-14 09:05:50 WARN  net: query 162 took 46ms\n2026-09-14 09:06:05 DEBUG net: conn 890 opened\n2026-09-14 09:06:59 DEBUG net: conn 395 opened\n2026-09-14 09:07:17 WARN  net: query 666 took 19ms\n2026-09-14 09:07:50 INFO  net: conn 245 closed\n2026-09-14 09:08:05 INFO  net: conn 286 opened\n2026-09-14 09:09:20 INFO  net: query 860 took 88ms\n2026-09-14 09:10:08 DEBUG net: conn 556 opened\n2026-09-14 09:10:26 INFO  net: conn 154 closed\n2026-09-14 09:12:22 INFO  net: query 629 took 26ms\n2026-09-14 09:12:50 WARN  net: conn 441 closed\n2026-09-14 09:13:10 INFO  net: conn 831 opened\n2026-09-14 09:15:22 INFO  net: conn 398 closed\n2026-09-14 09:15:25 INFO  net: conn 360 opened\n2026-09-14 09:15:58 INFO  net: conn 89 closed\n2026-09-14 09:16:04 WARN  net: query 301 took 12ms\n2026-09-14 09:16:17 INFO  net: conn 725 closed\n2026-09-14 09:17:04 INFO  net: conn 877 closed\n2026-09-14 09:17:32 DEBUG net: conn 85 opened\n2026-09-14 09:17:54 WARN  net: conn 939 opened\n2026-09-14 09:18:11 INFO  net: conn 958 closed\n2026-09-14 09:18:22 WARN  net: query 171 took 62ms\n2026-09-14 09:18:35 INFO  net: conn 134 closed\n2026-09-14 09:19:29 INFO  net: conn 793 opened\n2026-09-14 09:20:51 INFO  net: query 273 took 25ms\n2026-09-14 09:22:01 INFO  net: conn 342 closed\n2026-09-14 09:22:21 INFO  net: conn 381 closed\n2026-09-14 09:22:47 INFO  net: conn 312 closed\n2026-09-14 09:23:22 WARN  net: conn 644 closed\n2026-09-14 09:23:35 INFO  net: conn 351 opened\n2026-09-14 09:23:37 WARN  net: conn 336 closed\n2026-09-14 09:24:11 INFO  net: query 411 took 25ms\n2026-09-14 09:24:40 INFO  net: query 866 took 17ms\n2026-09-14 09:25:44 INFO  net: query 291 took 75ms\n2026-09-14 09:26:31 INFO  net: query 414 took 75ms\n2026-09-14 09:26:32 INFO  net: conn 551 opened\n2026-09-14 09:26:45 WARN  net: query 865 took 52ms\n2026-09-14 09:26:52 INFO  net: query 283 took 27ms\n2026-09-14 09:27:32 INFO  net: conn 949 opened\n2026-09-14 09:27:52 WARN  net: conn 507 closed\n2026-09-14 09:27:59 INFO  net: conn 922 opened\n2026-09-14 09:29:11 INFO  net: conn 630 closed\n2026-09-14 09:29:43 INFO  net: query 283 took 35ms\n2026-09-14 09:30:10 ERROR net: conn 4471 reset by peer\n2026-09-14 09:30:13 DEBUG net: conn 139 closed\n2026-09-14 09:30:22 WARN  net: conn 879 opened\n2026-09-14 09:31:37 INFO  net: conn 174 closed\n2026-09-14 09:32:01 WARN  net: conn 466 closed\n2026-09-14 09:32:19 INFO  net: query 141 took 13ms\n2026-09-14 09:34:05 INFO  net: query 416 took 22ms\n2026-09-14 09:34:24 INFO  net: conn 208 closed\n2026-09-14 09:34:52 INFO  net: query 837 took 29ms\n2026-09-14 09:35:02 WARN  net: conn 730 closed\n2026-09-14 09:35:04 WARN  net: conn 228 opened\n2026-09-14 09:35:24 INFO  net: conn 156 closed\n2026-09-14 09:35:27 WARN  net: conn 431 opened\n2026-09-14 09:36:12 INFO  net: conn 13 opened\n2026-09-14 09:36:13 WARN  net: conn 11 opened\n2026-09-14 09:36:54 DEBUG net: conn 517 opened\n2026-09-14 09:37:05 DEBUG net: query 366 took 40ms\n2026-09-14 09:38:23 INFO  net: conn 621 opened\n2026-09-14 09:38:52 INFO  net: query 693 took 39ms\n2026-09-14 09:39:20 DEBUG net: conn 549 opened\n2026-09-14 09:39:22 WARN  net: conn 440 closed\n2026-09-14 09:39:31 DEBUG net: query 289 took 74ms\n2026-09-14 09:39:32 INFO  net: conn 478 opened\n2026-09-14 09:40:34 INFO  net: query 931 took 83ms\n2026-09-14 09:40:35 INFO  net: conn 628 closed\n2026-09-14 09:41:46 INFO  net: query 333 took 58ms\n2026-09-14 09:42:35 INFO  net: conn 493 opened\n2026-09-14 09:42:50 DEBUG net: conn 88 closed\n2026-09-14 09:43:24 INFO  net: conn 505 opened\n2026-09-14 09:43:56 DEBUG net: conn 154 closed\n2026-09-14 09:44:56 INFO  net: conn 58 closed\n2026-09-14 09:45:15 DEBUG net: conn 171 opened\n2026-09-14 09:46:47 INFO  net: query 299 took 78ms\n2026-09-14 09:46:55 INFO  net: conn 176 opened\n2026-09-14 09:47:12 INFO  net: conn 419 closed\n2026-09-14 09:47:33 INFO  net: query 572 took 30ms\n2026-09-14 09:47:41 DEBUG net: query 375 took 43ms\n2026-09-14 09:47:55 INFO  net: conn 89 closed\n2026-09-14 09:48:11 INFO  net: conn 438 opened\n2026-09-14 09:49:08 WARN  net: conn 533 opened\n2026-09-14 09:49:52 DEBUG net: conn 212 closed\n2026-09-14 09:50:07 INFO  net: conn 159 opened\n2026-09-14 09:50:52 WARN  net: conn 592 closed\n2026-09-14 09:52:06 INFO  net: conn 653 opened\n2026-09-14 09:52:21 INFO  net: query 70 took 70ms\n2026-09-14 09:53:46 WARN  net: query 628 took 6ms\n2026-09-14 09:53:57 WARN  net: query 610 took 45ms\n2026-09-14 09:54:30 INFO  net: conn 439 opened\n2026-09-14 09:54:34 DEBUG net: query 982 took 76ms\n2026-09-14 09:55:03 INFO  net: query 75 took 14ms\n2026-09-14 09:55:50 INFO  net: conn 862 closed\n2026-09-14 09:56:16 INFO  net: query 195 took 50ms\n2026-09-14 09:56:33 INFO  net: conn 800 opened\n2026-09-14 09:56:50 DEBUG net: query 357 took 63ms\n2026-09-14 09:57:21 INFO  net: conn 531 closed\n2026-09-14 09:57:56 INFO  net: conn 196 closed\n2026-09-14 09:58:05 DEBUG net: query 62 took 40ms\n2026-09-14 09:58:11 INFO  net: query 855 took 38ms\n"
+  },
+  "turns": [
+    {
+      "prompt": "Find the first line in net.log whose level is ERROR. Give the line number and the time.",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "60",
+          "08:55"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "What does that line say went wrong?",
+      "expect": {
+        "output_contains": [
+          "reset by peer"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

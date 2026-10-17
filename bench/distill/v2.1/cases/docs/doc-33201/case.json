@@ -1,0 +1,69 @@
+{
+  "id": "doc-33201",
+  "description": "Draft a holiday notice from this year's schedule, not last year's. DISTILL-CANARY-98a255c5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-draft-01",
+    "ref_calls": 4,
+    "fixture_bytes": 374,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "行政/放假安排.txt": "国庆节放假安排（行政部提供）\n放假时间：10月1日至10月7日，共7天。\n10月8日正常上班。\n节日期间值班电话：8802，值班负责人：李静。\n返程提醒：各部门10月8日上午9:30前完成考勤打卡。\n",
+    "行政/去年通知.md": "# 关于2025年国庆放假的通知\n\n放假时间：10月1日至10月6日。\n10月7日正常上班。\n值班电话：8610。\n"
+  },
+  "turns": [
+    {
+      "prompt": "根据 行政/放假安排.txt 起草一份国庆放假通知，写到 行政/通知-国庆.md，第一行用一级标题。去年的通知只当格式参考，日期和电话不要沿用。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "行政/放假安排.txt": {
+        "unchanged": true
+      },
+      "行政/去年通知.md": {
+        "unchanged": true
+      },
+      "行政/通知-国庆.md": {
+        "contains": [
+          "10月1日",
+          "10月7日",
+          "10月8日",
+          "8802",
+          "李静"
+        ]
+      }
+    }
+  }
+}

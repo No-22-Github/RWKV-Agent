@@ -1,0 +1,67 @@
+{
+  "id": "hyb-33330",
+  "description": "Total size per file extension from a listing and write them largest first. DISTILL-CANARY-30ce3c5b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-write-30",
+    "ref_calls": 4,
+    "fixture_bytes": 3843,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [],
+  "files": {
+    "audit/files.csv": "path,size_kb\nassets/f000.txt,122\nassets/f001.jpg,11\nassets/f002.png,68\nassets/f003.png,22\nassets/f004.txt,224\nassets/f005.pdf,26\nassets/f006.mp4,185\nassets/f007.png,148\nassets/f008.pdf,281\nassets/f009.txt,21\nassets/f010.jpg,196\nassets/f011.jpg,131\nassets/f012.txt,234\nassets/f013.mp4,36\nassets/f014.png,271\nassets/f015.txt,7\nassets/f016.jpg,111\nassets/f017.pdf,83\nassets/f018.png,65\nassets/f019.mp4,219\nassets/f020.mp4,139\nassets/f021.jpg,174\nassets/f022.mp4,83\nassets/f023.png,134\nassets/f024.txt,10\nassets/f025.png,30\nassets/f026.mp4,261\nassets/f027.txt,101\nassets/f028.mp4,201\nassets/f029.mp4,270\nassets/f030.pdf,39\nassets/f031.pdf,24\nassets/f032.png,286\nassets/f033.txt,243\nassets/f034.txt,183\nassets/f035.jpg,127\nassets/f036.txt,65\nassets/f037.pdf,222\nassets/f038.jpg,4\nassets/f039.mp4,242\nassets/f040.png,129\nassets/f041.pdf,89\nassets/f042.pdf,87\nassets/f043.png,163\nassets/f044.png,125\nassets/f045.pdf,248\nassets/f046.pdf,110\nassets/f047.jpg,135\nassets/f048.jpg,190\nassets/f049.mp4,96\nassets/f050.mp4,8\nassets/f051.png,296\nassets/f052.pdf,27\nassets/f053.txt,34\nassets/f054.pdf,208\nassets/f055.txt,157\nassets/f056.pdf,232\nassets/f057.mp4,239\nassets/f058.txt,239\nassets/f059.mp4,139\nassets/f060.pdf,119\nassets/f061.jpg,110\nassets/f062.jpg,133\nassets/f063.txt,117\nassets/f064.mp4,191\nassets/f065.png,140\nassets/f066.pdf,84\nassets/f067.pdf,26\nassets/f068.jpg,103\nassets/f069.pdf,206\nassets/f070.jpg,61\nassets/f071.pdf,74\nassets/f072.txt,64\nassets/f073.png,110\nassets/f074.txt,49\nassets/f075.mp4,155\nassets/f076.pdf,238\nassets/f077.png,216\nassets/f078.txt,216\nassets/f079.jpg,185\nassets/f080.jpg,68\nassets/f081.txt,37\nassets/f082.jpg,58\nassets/f083.jpg,169\nassets/f084.png,253\nassets/f085.jpg,294\nassets/f086.jpg,28\nassets/f087.png,205\nassets/f088.mp4,85\nassets/f089.txt,82\nassets/f090.mp4,179\nassets/f091.pdf,27\nassets/f092.txt,203\nassets/f093.pdf,22\nassets/f094.pdf,190\nassets/f095.txt,280\nassets/f096.png,260\nassets/f097.txt,98\nassets/f098.pdf,266\nassets/f099.jpg,33\nassets/f100.txt,50\nassets/f101.jpg,226\nassets/f102.jpg,270\nassets/f103.png,145\nassets/f104.pdf,173\nassets/f105.png,281\nassets/f106.jpg,252\nassets/f107.txt,164\nassets/f108.png,195\nassets/f109.pdf,286\nassets/f110.png,77\nassets/f111.png,26\nassets/f112.txt,226\nassets/f113.pdf,270\nassets/f114.png,163\nassets/f115.jpg,21\nassets/f116.jpg,202\nassets/f117.txt,272\nassets/f118.pdf,11\nassets/f119.pdf,188\nassets/f120.jpg,100\nassets/f121.pdf,134\nassets/f122.png,236\nassets/f123.txt,39\nassets/f124.pdf,116\nassets/f125.txt,159\nassets/f126.txt,179\nassets/f127.txt,98\nassets/f128.pdf,18\nassets/f129.mp4,248\nassets/f130.mp4,233\nassets/f131.txt,192\nassets/f132.pdf,172\nassets/f133.jpg,42\nassets/f134.pdf,26\nassets/f135.pdf,287\nassets/f136.txt,61\nassets/f137.jpg,32\nassets/f138.png,22\nassets/f139.txt,173\nassets/f140.png,217\nassets/f141.pdf,160\nassets/f142.mp4,42\nassets/f143.mp4,210\nassets/f144.png,116\nassets/f145.png,9\nassets/f146.png,72\nassets/f147.jpg,124\nassets/f148.pdf,220\nassets/f149.txt,254\nassets/f150.txt,242\nassets/f151.pdf,226\nassets/f152.mp4,9\nassets/f153.jpg,158\nassets/f154.png,261\nassets/f155.png,97\nassets/f156.jpg,74\nassets/f157.png,198\nassets/f158.jpg,207\nassets/f159.mp4,245\nassets/f160.mp4,264\nassets/f161.pdf,249\nassets/f162.txt,149\nassets/f163.pdf,150\nassets/f164.jpg,285\nassets/f165.pdf,13\nassets/f166.mp4,204\nassets/f167.mp4,28\nassets/f168.pdf,44\nassets/f169.txt,138\nassets/f170.txt,89\nassets/f171.mp4,266\nassets/f172.txt,105\nassets/f173.pdf,268\nassets/f174.jpg,228\nassets/f175.jpg,115\nassets/f176.pdf,277\nassets/f177.mp4,244\nassets/f178.png,285\nassets/f179.txt,169\nassets/f180.jpg,267\nassets/f181.mp4,280\nassets/f182.mp4,143\nassets/f183.png,142\nassets/f184.png,278\nassets/f185.mp4,98\nassets/f186.txt,212\nassets/f187.pdf,222\nassets/f188.txt,85\nassets/f189.txt,92\nassets/f190.png,168\nassets/f191.mp4,141\nassets/f192.png,114\nassets/f193.txt,268\nassets/f194.jpg,39\n"
+  },
+  "turns": [
+    {
+      "prompt": "From audit/files.csv, add up size_kb per file extension and write audit/by_ext.txt with lines like '.png=1234', largest total first. Tell me which extension takes the most space, in the same '.ext=total' form.",
+      "expect": {
+        "output_contains_any": [
+          ".pdf=6438"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "audit/files.csv": {
+        "unchanged": true
+      },
+      "audit/by_ext.txt": {
+        "contains": [
+          ".pdf=6438",
+          ".txt=6202",
+          ".png=6023",
+          ".mp4=5383",
+          ".jpg=4963"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "code-33547",
+  "description": "Gate blocks exactly-at-floor coverage. DISTILL-CANARY-9f273e60",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-fix-33547",
+    "ref_calls": 4,
+    "fixture_bytes": 484,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/gate.sh": "#!/usr/bin/env bash\n# block the deploy when coverage is below the floor\nFLOOR=80\ncov=\"$1\"\n\nif [ \"$cov\" -le \"$FLOOR\" ]; then\n  echo block\n  exit 1\nfi\necho ok\n",
+    "deploy/warn.sh": "#!/usr/bin/env bash\ncov=\"$1\"\nif [ \"$cov\" -lt 90 ]; then echo warn; fi\n",
+    "deploy/lib.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_tag_0() {\n  echo \"[$(date +%H:%M)] tag step 0: $*\"\n}\n\nlog_tag_1() {\n  echo \"[$(date +%H:%M)] tag step 1: $*\"\n}\n\nlog_gate_2() {\n  echo \"[$(date +%H:%M)] gate step 2: $*\"\n}\n\n",
+    "docs/gate.md": "Coverage of exactly 80 passes; 79 blocks.\n"
+  },
+  "turns": [
+    {
+      "prompt": "覆盖率刚好 80 的时候 gate.sh 也被拦下了，按 docs/gate.md 的说法 80 应该能过。修一下 deploy/gate.sh，只改那个比较。读回来确认，告诉我第几行。",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/gate.sh": {
+        "equals": "#!/usr/bin/env bash\n# block the deploy when coverage is below the floor\nFLOOR=80\ncov=\"$1\"\n\nif [ \"$cov\" -lt \"$FLOOR\" ]; then\n  echo block\n  exit 1\nfi\necho ok\n"
+      },
+      "deploy/warn.sh": {
+        "unchanged": true
+      },
+      "deploy/lib.sh": {
+        "unchanged": true
+      },
+      "docs/gate.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

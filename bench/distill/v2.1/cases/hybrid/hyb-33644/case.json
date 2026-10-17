@@ -1,0 +1,66 @@
+{
+  "id": "hyb-33644",
+  "description": "Count tickets matching three filters in a 210-row table. DISTILL-CANARY-9d49cd0d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "48"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-query-44",
+    "ref_calls": 2,
+    "fixture_bytes": 5212,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "tickets.csv": "id,priority,status,team\n5000,P0,pending,支付组\n5001,P1,closed,支付组\n5002,P0,closed,账号组\n5003,P3,closed,推荐组\n5004,P1,open,支付组\n5005,P2,open,推荐组\n5006,P1,open,支付组\n5007,P0,closed,支付组\n5008,P1,pending,账号组\n5009,P3,open,支付组\n5010,P0,pending,推荐组\n5011,P1,closed,支付组\n5012,P3,pending,推荐组\n5013,P1,closed,账号组\n5014,P2,open,推荐组\n5015,P3,closed,推荐组\n5016,P3,pending,账号组\n5017,P3,pending,支付组\n5018,P1,pending,账号组\n5019,P0,pending,支付组\n5020,P3,pending,推荐组\n5021,P2,pending,推荐组\n5022,P3,pending,支付组\n5023,P0,closed,账号组\n5024,P2,open,推荐组\n5025,P2,open,支付组\n5026,P0,open,推荐组\n5027,P0,pending,推荐组\n5028,P0,closed,推荐组\n5029,P3,open,推荐组\n5030,P2,pending,推荐组\n5031,P1,pending,支付组\n5032,P3,open,账号组\n5033,P0,pending,支付组\n5034,P2,open,账号组\n5035,P2,closed,账号组\n5036,P3,closed,支付组\n5037,P2,open,支付组\n5038,P1,open,账号组\n5039,P3,closed,支付组\n5040,P2,pending,账号组\n5041,P2,closed,支付组\n5042,P0,open,推荐组\n5043,P2,open,推荐组\n5044,P3,open,支付组\n5045,P3,open,账号组\n5046,P1,closed,推荐组\n5047,P3,pending,支付组\n5048,P1,pending,支付组\n5049,P3,open,推荐组\n5050,P2,pending,账号组\n5051,P2,pending,推荐组\n5052,P0,pending,支付组\n5053,P0,closed,推荐组\n5054,P1,closed,推荐组\n5055,P0,closed,账号组\n5056,P1,pending,支付组\n5057,P0,closed,支付组\n5058,P3,closed,支付组\n5059,P3,open,账号组\n5060,P2,open,账号组\n5061,P2,pending,账号组\n5062,P0,pending,推荐组\n5063,P3,pending,账号组\n5064,P2,closed,推荐组\n5065,P1,open,账号组\n5066,P0,closed,账号组\n5067,P3,open,账号组\n5068,P3,closed,支付组\n5069,P1,pending,支付组\n5070,P2,closed,账号组\n5071,P1,open,支付组\n5072,P2,open,账号组\n5073,P2,closed,账号组\n5074,P1,pending,支付组\n5075,P2,closed,支付组\n5076,P1,closed,支付组\n5077,P3,closed,支付组\n5078,P3,open,支付组\n5079,P2,closed,推荐组\n5080,P3,open,推荐组\n5081,P3,closed,支付组\n5082,P3,open,支付组\n5083,P3,open,账号组\n5084,P0,pending,账号组\n5085,P0,closed,支付组\n5086,P3,open,支付组\n5087,P1,closed,支付组\n5088,P1,closed,账号组\n5089,P3,pending,账号组\n5090,P0,closed,账号组\n5091,P3,open,支付组\n5092,P0,closed,账号组\n5093,P3,pending,推荐组\n5094,P0,open,推荐组\n5095,P2,open,支付组\n5096,P3,pending,账号组\n5097,P0,open,支付组\n5098,P1,pending,账号组\n5099,P1,closed,账号组\n5100,P1,closed,账号组\n5101,P3,open,推荐组\n5102,P2,closed,推荐组\n5103,P2,pending,账号组\n5104,P3,pending,推荐组\n5105,P0,closed,支付组\n5106,P3,open,支付组\n5107,P3,open,支付组\n5108,P1,pending,支付组\n5109,P0,closed,支付组\n5110,P3,open,推荐组\n5111,P0,closed,推荐组\n5112,P3,open,账号组\n5113,P1,closed,账号组\n5114,P1,pending,支付组\n5115,P3,pending,账号组\n5116,P0,closed,支付组\n5117,P0,open,推荐组\n5118,P2,pending,推荐组\n5119,P1,closed,推荐组\n5120,P0,pending,账号组\n5121,P2,open,账号组\n5122,P0,closed,账号组\n5123,P3,open,推荐组\n5124,P1,closed,支付组\n5125,P2,closed,支付组\n5126,P1,closed,推荐组\n5127,P3,closed,推荐组\n5128,P0,pending,推荐组\n5129,P2,pending,账号组\n5130,P2,pending,支付组\n5131,P1,pending,支付组\n5132,P0,closed,账号组\n5133,P1,closed,支付组\n5134,P1,pending,账号组\n5135,P1,pending,推荐组\n5136,P3,closed,推荐组\n5137,P0,closed,账号组\n5138,P3,open,账号组\n5139,P1,open,支付组\n5140,P2,pending,支付组\n5141,P3,open,支付组\n5142,P2,pending,支付组\n5143,P1,closed,推荐组\n5144,P3,pending,账号组\n5145,P3,open,支付组\n5146,P2,closed,账号组\n5147,P1,open,支付组\n5148,P1,pending,账号组\n5149,P0,pending,推荐组\n5150,P2,closed,账号组\n5151,P1,open,推荐组\n5152,P2,pending,推荐组\n5153,P3,pending,支付组\n5154,P3,open,账号组\n5155,P3,open,支付组\n5156,P2,pending,账号组\n5157,P3,closed,推荐组\n5158,P2,open,推荐组\n5159,P3,open,推荐组\n5160,P2,pending,账号组\n5161,P1,open,账号组\n5162,P2,pending,推荐组\n5163,P2,pending,账号组\n5164,P0,pending,支付组\n5165,P3,pending,账号组\n5166,P3,pending,推荐组\n5167,P0,pending,支付组\n5168,P3,closed,推荐组\n5169,P1,open,推荐组\n5170,P2,open,账号组\n5171,P1,closed,推荐组\n5172,P0,pending,推荐组\n5173,P3,closed,支付组\n5174,P3,closed,账号组\n5175,P1,open,支付组\n5176,P1,pending,推荐组\n5177,P2,open,推荐组\n5178,P2,closed,推荐组\n5179,P3,closed,账号组\n5180,P0,pending,支付组\n5181,P0,closed,账号组\n5182,P3,closed,支付组\n5183,P0,open,支付组\n5184,P3,pending,推荐组\n5185,P3,open,推荐组\n5186,P0,open,支付组\n5187,P3,closed,推荐组\n5188,P2,pending,账号组\n5189,P2,pending,推荐组\n5190,P0,pending,支付组\n5191,P2,open,推荐组\n5192,P1,closed,推荐组\n5193,P3,pending,账号组\n5194,P1,closed,账号组\n5195,P3,pending,支付组\n5196,P2,pending,推荐组\n5197,P3,pending,账号组\n5198,P0,open,推荐组\n5199,P2,open,支付组\n5200,P3,open,推荐组\n5201,P0,pending,推荐组\n5202,P0,pending,账号组\n5203,P1,open,推荐组\n5204,P2,open,支付组\n5205,P1,open,账号组\n5206,P1,closed,账号组\n5207,P2,pending,推荐组\n5208,P2,open,支付组\n5209,P3,open,账号组\n"
+  },
+  "turns": [
+    {
+      "prompt": "tickets.csv 里支付组还处于 open 状态的 P1 工单有多少张？",
+      "expect": {
+        "output_contains_any": [
+          "6个",
+          "6 个",
+          "6条",
+          "6 条",
+          "6张",
+          "6 张",
+          "6 单",
+          "6单"
+        ],
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "data_query",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "tickets.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

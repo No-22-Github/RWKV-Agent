@@ -1,0 +1,82 @@
+{
+  "id": "code-33521",
+  "description": "Go retry.Do callers; comment and string mentions. DISTILL-CANARY-2ab69cd1",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "pkg/api/docs.go"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-callers-33521",
+    "ref_calls": 3,
+    "fixture_bytes": 548,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "pkg/retry/retry.go": "package retry\n\nfunc Do(n int, fn func() error) error {\n\tvar err error\n\tfor i := 0; i < n; i++ {\n\t\tif err = fn(); err == nil {\n\t\t\treturn nil\n\t\t}\n\t}\n\treturn err\n}\n",
+    "pkg/db/conn.go": "package db\n\nimport \"example.com/svc/pkg/retry\"\n\nfunc Open() error {\n\treturn retry.Do(3, func() error { return nil })\n}\n",
+    "pkg/mq/consumer.go": "package mq\n\nimport \"example.com/svc/pkg/retry\"\n\nfunc Run() error {\n\treturn retry.Do(5, func() error { return nil })\n}\n",
+    "pkg/api/handler.go": "package api\n\n// retry.Do(n, fn) is intentionally not used in handlers\nfunc Handle() {}\n",
+    "pkg/api/docs.go": "package api\n\nconst Doc = \"wrap flaky calls in retry.Do(3, fn)\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who calls retry.Do in this service? List the files only, one per line. Mentions inside comments or string constants are not calls.",
+      "expect": {
+        "output_contains": [
+          "pkg/db/conn.go",
+          "pkg/mq/consumer.go"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "pkg/api/handler.go",
+          "pkg/api/docs.go"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pkg/retry/retry.go": {
+        "unchanged": true
+      },
+      "pkg/db/conn.go": {
+        "unchanged": true
+      },
+      "pkg/mq/consumer.go": {
+        "unchanged": true
+      },
+      "pkg/api/handler.go": {
+        "unchanged": true
+      },
+      "pkg/api/docs.go": {
+        "unchanged": true
+      }
+    }
+  }
+}

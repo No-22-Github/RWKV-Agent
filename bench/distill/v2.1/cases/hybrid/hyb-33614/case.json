@@ -1,0 +1,101 @@
+{
+  "id": "hyb-33614",
+  "description": "Multi-turn: tomorrow first, then Saturday which needs a deeper forecast. DISTILL-CANARY-54cfc0db",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "30%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-weather-14",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "重庆明天天气怎么样？",
+      "expect": {
+        "output_contains": [
+          "75%"
+        ],
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "周六呢？我想改到周六去洪崖洞。",
+      "expect": {
+        "output_contains": [
+          "10%",
+          "晴"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "重庆",
+      "aliases": [
+        "Chongqing"
+      ],
+      "report": {
+        "location": "重庆",
+        "current": "阴 27°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "24~30",
+            "rain_chance": "45%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "中雨",
+            "temp_c": "22~26",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "晴",
+            "temp_c": "23~31",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "get_weather"
+    ]
+  }
+}

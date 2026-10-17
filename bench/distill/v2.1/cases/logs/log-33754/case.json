@@ -1,0 +1,65 @@
+{
+  "id": "log-33754",
+  "description": "First ERROR-level line after harmless lines that contain the word error. DISTILL-CANARY-425e3df5",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-EARLYHIT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "STP",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-locate-33754",
+    "ref_calls": 5,
+    "fixture_bytes": 9232,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "svc.log": "2026-09-13 06:03:07 INFO  svc: task 861 scheduled\n2026-09-13 06:03:41 INFO  svc: task 451 completed in 57ms\n2026-09-13 06:04:01 DEBUG svc: heartbeat from node11\n2026-09-13 06:04:48 INFO  svc: task 408 completed in 14ms\n2026-09-13 06:04:59 INFO  svc: task 302 completed in 88ms\n2026-09-13 06:05:21 DEBUG svc: task 255 completed in 10ms\n2026-09-13 06:05:41 INFO  svc: heartbeat from node836\n2026-09-13 06:07:17 INFO  svc: task 428 scheduled\n2026-09-13 06:08:01 INFO  svc: task 621 completed in 78ms\n2026-09-13 06:10:57 INFO  svc: task 435 completed in 48ms\n2026-09-13 06:11:35 INFO  svc: task 160 scheduled\n2026-09-13 06:11:40 INFO  svc: task 478 completed in 73ms\n2026-09-13 06:12:28 INFO  svc: heartbeat from node755\n2026-09-13 06:12:36 INFO  svc: heartbeat from node915\n2026-09-13 06:12:48 INFO  svc: cache refresh ok\n2026-09-13 06:14:05 INFO  svc: task 389 scheduled\n2026-09-13 06:14:53 INFO  svc: cache refresh ok\n2026-09-13 06:15:05 INFO  svc: heartbeat from node938\n2026-09-13 06:15:24 INFO  svc: task 543 scheduled\n2026-09-13 06:15:56 DEBUG svc: task 903 completed in 76ms\n2026-09-13 06:16:18 WARN  svc: cache refresh ok\n2026-09-13 06:17:14 WARN  svc: task 476 completed in 29ms\n2026-09-13 06:17:36 INFO  svc: task 639 scheduled\n2026-09-13 06:18:30 INFO  svc: heartbeat from node114\n2026-09-13 06:19:57 INFO  svc: task 673 scheduled\n2026-09-13 06:22:08 WARN  svc: cache refresh ok\n2026-09-13 06:24:49 INFO  svc: cache refresh ok\n2026-09-13 06:25:17 INFO  svc: cache refresh ok\n2026-09-13 06:25:44 INFO  svc: task 691 scheduled\n2026-09-13 06:32:11 WARN  svc: heartbeat from node774\n2026-09-13 06:32:35 DEBUG svc: task 435 scheduled\n2026-09-13 06:34:04 INFO  svc: task 305 scheduled\n2026-09-13 06:34:22 INFO  svc: heartbeat from node328\n2026-09-13 06:34:56 INFO  svc: task 713 completed in 29ms\n2026-09-13 06:35:16 INFO  svc: task 485 scheduled\n2026-09-13 06:38:37 DEBUG svc: task 940 scheduled\n2026-09-13 06:39:11 INFO  svc: cache refresh ok\n2026-09-13 06:40:24 INFO  svc: task 532 completed in 52ms\n2026-09-13 06:42:02 WARN  svc: task 623 completed in 20ms\n2026-09-13 06:42:11 INFO  svc: stats: errors=0 warnings=2\n2026-09-13 06:45:02 INFO  svc: cache refresh ok\n2026-09-13 06:45:03 INFO  svc: task 143 scheduled\n2026-09-13 06:45:07 DEBUG svc: task 370 completed in 79ms\n2026-09-13 06:45:32 INFO  svc: cache refresh ok\n2026-09-13 06:45:49 INFO  svc: cache refresh ok\n2026-09-13 06:45:58 DEBUG svc: cache refresh ok\n2026-09-13 06:47:58 INFO  svc: heartbeat from node47\n2026-09-13 06:49:33 WARN  svc: task 79 scheduled\n2026-09-13 06:49:56 INFO  svc: task 510 scheduled\n2026-09-13 06:51:04 INFO  svc: task 137 scheduled\n2026-09-13 06:51:20 INFO  svc: cache refresh ok\n2026-09-13 06:51:24 WARN  svc: heartbeat from node704\n2026-09-13 06:51:33 INFO  svc: cache refresh ok\n2026-09-13 06:52:06 INFO  svc: task 815 scheduled\n2026-09-13 06:52:22 INFO  svc: task 225 completed in 19ms\n2026-09-13 06:52:48 INFO  svc: heartbeat from node232\n2026-09-13 06:53:57 INFO  svc: task 115 scheduled\n2026-09-13 06:54:23 INFO  svc: cache refresh ok\n2026-09-13 06:57:48 INFO  svc: heartbeat from node821\n2026-09-13 06:58:54 INFO  svc: task 923 scheduled\n2026-09-13 06:59:51 INFO  svc: task 797 scheduled\n2026-09-13 07:00:24 DEBUG svc: heartbeat from node957\n2026-09-13 07:01:03 DEBUG svc: heartbeat from node686\n2026-09-13 07:01:42 INFO  svc: heartbeat from node69\n2026-09-13 07:02:58 INFO  svc: heartbeat from node47\n2026-09-13 07:03:07 INFO  svc: cache refresh ok\n2026-09-13 07:04:15 INFO  svc: heartbeat from node607\n2026-09-13 07:04:42 INFO  svc: heartbeat from node840\n2026-09-13 07:08:03 INFO  svc: cache refresh ok\n2026-09-13 07:08:42 INFO  svc: task 787 completed in 41ms\n2026-09-13 07:09:14 INFO  svc: cache refresh ok\n2026-09-13 07:10:30 INFO  svc: retry policy: error budget ok (budget=5)\n2026-09-13 07:11:32 INFO  svc: heartbeat from node882\n2026-09-13 07:12:08 INFO  svc: cache refresh ok\n2026-09-13 07:12:38 INFO  svc: heartbeat from node81\n2026-09-13 07:13:09 INFO  svc: cache refresh ok\n2026-09-13 07:15:46 INFO  svc: task 687 completed in 89ms\n2026-09-13 07:16:47 INFO  svc: heartbeat from node384\n2026-09-13 07:18:52 INFO  svc: task 560 completed in 25ms\n2026-09-13 07:21:50 INFO  svc: cache refresh ok\n2026-09-13 07:24:07 INFO  svc: heartbeat from node589\n2026-09-13 07:24:16 INFO  svc: heartbeat from node710\n2026-09-13 07:24:35 INFO  svc: cache refresh ok\n2026-09-13 07:26:05 INFO  svc: heartbeat from node369\n2026-09-13 07:28:39 INFO  svc: task 279 completed in 5ms\n2026-09-13 07:30:04 INFO  svc: cache refresh ok\n2026-09-13 07:30:11 INFO  svc: cache refresh ok\n2026-09-13 07:30:52 WARN  svc: task 588 scheduled\n2026-09-13 07:31:59 WARN  svc: task 125 scheduled\n2026-09-13 07:33:06 DEBUG svc: cache refresh ok\n2026-09-13 07:33:12 INFO  svc: task 280 scheduled\n2026-09-13 07:34:00 INFO  svc: task 642 scheduled\n2026-09-13 07:36:09 INFO  svc: heartbeat from node608\n2026-09-13 07:37:09 INFO  svc: task 204 completed in 30ms\n2026-09-13 07:38:32 DEBUG svc: heartbeat from node127\n2026-09-13 07:39:31 INFO  svc: task 827 scheduled\n2026-09-13 07:39:45 INFO  svc: heartbeat from node558\n2026-09-13 07:41:19 INFO  svc: task 644 scheduled\n2026-09-13 07:41:31 INFO  svc: cache refresh ok\n2026-09-13 07:43:30 WARN  svc: cache refresh ok\n2026-09-13 07:44:25 INFO  svc: heartbeat from node592\n2026-09-13 07:45:25 INFO  svc: cache refresh ok\n2026-09-13 07:46:12 WARN  svc: cache refresh ok\n2026-09-13 07:46:47 INFO  svc: heartbeat from node199\n2026-09-13 07:46:48 INFO  svc: cache refresh ok\n2026-09-13 07:46:49 INFO  svc: heartbeat from node93\n2026-09-13 07:47:30 INFO  svc: task 281 completed in 15ms\n2026-09-13 07:51:08 WARN  svc: task 75 scheduled\n2026-09-13 07:51:48 DEBUG svc: task 156 scheduled\n2026-09-13 07:51:55 DEBUG svc: task 475 scheduled\n2026-09-13 07:51:56 INFO  svc: heartbeat from node169\n2026-09-13 07:52:37 INFO  svc: heartbeat from node756\n2026-09-13 07:53:18 INFO  svc: task 610 scheduled\n2026-09-13 07:53:30 INFO  svc: heartbeat from node58\n2026-09-13 07:53:58 INFO  svc: task 913 completed in 5ms\n2026-09-13 07:55:02 INFO  svc: metrics ERROR_RATE=0.0\n2026-09-13 07:55:03 WARN  svc: task 387 completed in 33ms\n2026-09-13 07:56:48 INFO  svc: heartbeat from node10\n2026-09-13 07:57:24 INFO  svc: task 627 completed in 34ms\n2026-09-13 07:57:34 INFO  svc: cache refresh ok\n2026-09-13 08:06:12 INFO  svc: task 445 completed in 32ms\n2026-09-13 08:06:18 INFO  svc: cache refresh ok\n2026-09-13 08:06:38 INFO  svc: cache refresh ok\n2026-09-13 08:08:23 INFO  svc: cache refresh ok\n2026-09-13 08:09:15 INFO  svc: task 259 completed in 9ms\n2026-09-13 08:09:16 DEBUG svc: task 424 completed in 8ms\n2026-09-13 08:10:15 INFO  svc: heartbeat from node589\n2026-09-13 08:10:58 INFO  svc: cache refresh ok\n2026-09-13 08:11:56 DEBUG svc: heartbeat from node272\n2026-09-13 08:14:23 INFO  svc: task 758 scheduled\n2026-09-13 08:15:28 INFO  svc: heartbeat from node116\n2026-09-13 08:19:42 INFO  svc: task 876 completed in 11ms\n2026-09-13 08:21:47 ERROR svc: export task 81 failed: cannot open /data/out/rep.csv (permission denied)\n2026-09-13 08:22:22 INFO  svc: task 940 scheduled\n2026-09-13 08:23:42 DEBUG svc: task 884 completed in 8ms\n2026-09-13 08:23:52 INFO  svc: cache refresh ok\n2026-09-13 08:25:23 INFO  svc: task 817 completed in 17ms\n2026-09-13 08:26:06 DEBUG svc: heartbeat from node147\n2026-09-13 08:26:23 INFO  svc: task 147 scheduled\n2026-09-13 08:28:56 INFO  svc: task 510 completed in 14ms\n2026-09-13 08:29:07 DEBUG svc: task 313 completed in 59ms\n2026-09-13 08:29:30 INFO  svc: task 786 scheduled\n2026-09-13 08:30:12 ERROR svc: export task 83 failed: permission denied\n2026-09-13 08:32:36 INFO  svc: heartbeat from node922\n2026-09-13 08:33:12 INFO  svc: task 491 scheduled\n2026-09-13 08:33:27 INFO  svc: cache refresh ok\n2026-09-13 08:34:11 INFO  svc: heartbeat from node455\n2026-09-13 08:34:59 INFO  svc: cache refresh ok\n2026-09-13 08:36:00 INFO  svc: task 990 completed in 28ms\n2026-09-13 08:36:49 DEBUG svc: cache refresh ok\n2026-09-13 08:38:06 INFO  svc: task 600 completed in 55ms\n2026-09-13 08:38:29 INFO  svc: heartbeat from node514\n2026-09-13 08:38:40 WARN  svc: task 996 scheduled\n2026-09-13 08:42:13 INFO  svc: cache refresh ok\n2026-09-13 08:43:34 WARN  svc: task 895 scheduled\n2026-09-13 08:45:16 INFO  svc: task 622 completed in 53ms\n2026-09-13 08:45:29 WARN  svc: cache refresh ok\n2026-09-13 08:45:40 INFO  svc: task 513 completed in 9ms\n2026-09-13 08:46:03 INFO  svc: cache refresh ok\n2026-09-13 08:46:38 INFO  svc: task 465 completed in 55ms\n2026-09-13 08:48:10 INFO  svc: heartbeat from node900\n2026-09-13 08:49:52 DEBUG svc: task 172 scheduled\n2026-09-13 08:49:58 DEBUG svc: heartbeat from node70\n2026-09-13 08:50:08 WARN  svc: cache refresh ok\n2026-09-13 08:51:37 INFO  svc: task 259 scheduled\n2026-09-13 08:53:08 INFO  svc: heartbeat from node105\n2026-09-13 08:55:20 INFO  svc: task 75 completed in 74ms\n2026-09-13 08:56:15 INFO  svc: task 475 scheduled\n2026-09-13 08:56:19 WARN  svc: cache refresh ok\n2026-09-13 08:57:35 INFO  svc: cache refresh ok\n2026-09-13 08:58:37 INFO  svc: task 105 scheduled\n2026-09-13 08:58:48 DEBUG svc: task 280 scheduled\n2026-09-13 08:59:11 INFO  svc: task 170 scheduled\n2026-09-13 08:59:24 INFO  svc: task 297 completed in 56ms\n2026-09-13 08:59:40 INFO  svc: cache refresh ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "svc.log 里第一次真正报错（级别为 ERROR 的那一行）在第几行？是几点？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "133",
+          "08:21"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "报的是什么错？",
+      "expect": {
+        "output_contains": [
+          "permission denied"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

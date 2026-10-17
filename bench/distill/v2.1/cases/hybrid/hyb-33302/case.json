@@ -1,0 +1,77 @@
+{
+  "id": "hyb-33302",
+  "description": "Replace a retired API base url in the production config using the provider docs. DISTILL-CANARY-ac087469",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-web_edit-02",
+    "ref_calls": 4,
+    "fixture_bytes": 175,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Harbor",
+      "url_match": "docs.harborpay.io/api/endpoint",
+      "url": "https://docs.harborpay.io/api/endpoint",
+      "title": "Harbor Pay API 地址",
+      "snippet": "沙箱与生产环境的 API 地址说明。",
+      "content": "Harbor Pay API\n\n生产环境基础地址：https://api.harborpay.io/v3\n沙箱基础地址：https://sandbox.harborpay.io/v3\n\n旧地址 https://gateway.harborpay.io/v2 已于 2026-06 停用。\n",
+      "published_at": "2026-07-15"
+    }
+  ],
+  "files": {
+    "config/payment.yaml": "provider: harbor\nenv: production\nbase_url: https://gateway.harborpay.io/v2\ntimeout_ms: 8000\nretries: 3\n",
+    "config/payment.sandbox.yaml": "provider: harbor\nenv: sandbox\nbase_url: https://sandbox.harborpay.io/v3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harbor 的旧接口地址好像停用了。查一下文档里现在的生产环境地址，改到 config/payment.yaml 里。",
+      "expect": {
+        "output_contains": [
+          "https://api.harborpay.io/v3"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/payment.sandbox.yaml": {
+        "unchanged": true
+      },
+      "config/payment.yaml": {
+        "equals": "provider: harbor\nenv: production\nbase_url: https://api.harborpay.io/v3\ntimeout_ms: 8000\nretries: 3\n"
+      }
+    }
+  }
+}

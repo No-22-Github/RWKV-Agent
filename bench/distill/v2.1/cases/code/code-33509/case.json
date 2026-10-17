@@ -1,0 +1,90 @@
+{
+  "id": "code-33509",
+  "description": "Go method Evict vs EvictAll. DISTILL-CANARY-6c29d0df",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "24",
+      "TR-DECOY": "24"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-locate-33509",
+    "ref_calls": 4,
+    "fixture_bytes": 779,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "pkg/cache/cache.go": "package cache\n\nimport \"errors\"\n\nvar ErrMiss = errors.New(\"cache miss\")\n\nfunc (c *Cache) Get(k string) error {\n\treturn nil\n}\n\nfunc (c *Cache) Put(k string) error {\n\treturn nil\n}\n\nfunc (c *Cache) Drop(k string) error {\n\treturn nil\n}\n\n// Evict removes the oldest entry.\nfunc (c *Cache) Evict() {\n\t// TODO: ring buffer\n}\n\nfunc (c *Cache) EvictAll() {\n}\n\n",
+    "pkg/cache/cache_test.go": "package cache\n\n// TestEvict covers Evict() and EvictAll()\nfunc TestEvict() {}\n",
+    "pkg/store/store.go": "package store\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc FormatRow0(id int) string {\n\treturn fmt.Sprintf(\"row-%04d\", id)\n}\n\nfunc NormalizeRow1(s string) string {\n\treturn strings.ToLower(strings.TrimSpace(s))\n}\n\nfunc NormalizeRow2(s string) string {\n\treturn strings.ToLower(strings.TrimSpace(s))\n}\n\n",
+    "main.go": "package main\n\nfunc main() {}\n",
+    "go.mod": "module example.com/kv\n\ngo 1.22\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cache 的 Evict 方法写在哪个文件？第几行？（EvictAll 是另一个方法。）",
+      "expect": {
+        "output_contains": [
+          "pkg/cache/cache.go",
+          "20"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "EvictAll 呢，是第几行？",
+      "expect": {
+        "output_contains": [
+          "24"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pkg/cache/cache.go": {
+        "unchanged": true
+      },
+      "pkg/cache/cache_test.go": {
+        "unchanged": true
+      },
+      "pkg/store/store.go": {
+        "unchanged": true
+      },
+      "main.go": {
+        "unchanged": true
+      },
+      "go.mod": {
+        "unchanged": true
+      }
+    }
+  }
+}

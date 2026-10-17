@@ -1,0 +1,59 @@
+{
+  "id": "hyb-33649",
+  "description": "English: stock value (stock x price) of warehouse B. DISTILL-CANARY-c3cc60ce",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "5845"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-query-49",
+    "ref_calls": 2,
+    "fixture_bytes": 2752,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "inventory.csv": "sku,warehouse,stock,price\nSKU000,C,43,12.8\nSKU001,C,84,4.5\nSKU002,B,58,19.9\nSKU003,C,192,12.8\nSKU004,B,143,19.9\nSKU005,A,149,36.0\nSKU006,B,66,59.5\nSKU007,A,7,12.8\nSKU008,C,212,4.5\nSKU009,A,15,36.0\nSKU010,A,129,4.5\nSKU011,C,97,36.0\nSKU012,A,41,19.9\nSKU013,B,13,36.0\nSKU014,C,20,4.5\nSKU015,C,124,12.8\nSKU016,A,63,59.5\nSKU017,A,27,36.0\nSKU018,B,44,12.8\nSKU019,B,116,12.8\nSKU020,C,123,12.8\nSKU021,B,113,59.5\nSKU022,A,134,36.0\nSKU023,C,50,36.0\nSKU024,A,35,12.8\nSKU025,A,220,19.9\nSKU026,B,3,36.0\nSKU027,C,27,12.8\nSKU028,A,147,59.5\nSKU029,B,35,19.9\nSKU030,C,83,19.9\nSKU031,C,160,59.5\nSKU032,B,38,19.9\nSKU033,A,30,36.0\nSKU034,B,59,36.0\nSKU035,B,189,12.8\nSKU036,C,101,12.8\nSKU037,B,157,12.8\nSKU038,B,59,4.5\nSKU039,C,236,19.9\nSKU040,B,234,59.5\nSKU041,A,56,12.8\nSKU042,C,225,19.9\nSKU043,B,141,12.8\nSKU044,A,213,4.5\nSKU045,C,166,12.8\nSKU046,A,156,59.5\nSKU047,B,32,12.8\nSKU048,C,51,12.8\nSKU049,B,222,19.9\nSKU050,C,22,4.5\nSKU051,C,131,59.5\nSKU052,C,60,4.5\nSKU053,B,225,12.8\nSKU054,C,19,19.9\nSKU055,B,191,19.9\nSKU056,C,118,59.5\nSKU057,B,86,36.0\nSKU058,A,107,36.0\nSKU059,A,103,4.5\nSKU060,A,65,59.5\nSKU061,B,124,12.8\nSKU062,A,165,59.5\nSKU063,B,220,4.5\nSKU064,A,196,4.5\nSKU065,C,147,36.0\nSKU066,A,57,19.9\nSKU067,B,190,59.5\nSKU068,A,216,4.5\nSKU069,B,31,12.8\nSKU070,B,75,59.5\nSKU071,C,49,4.5\nSKU072,B,112,19.9\nSKU073,B,5,19.9\nSKU074,A,15,59.5\nSKU075,A,90,36.0\nSKU076,A,33,4.5\nSKU077,C,155,12.8\nSKU078,A,137,4.5\nSKU079,C,143,36.0\nSKU080,B,55,4.5\nSKU081,B,23,4.5\nSKU082,B,194,4.5\nSKU083,B,186,4.5\nSKU084,A,14,36.0\nSKU085,C,178,59.5\nSKU086,A,172,36.0\nSKU087,B,219,4.5\nSKU088,C,22,19.9\nSKU089,C,211,59.5\nSKU090,C,226,12.8\nSKU091,B,180,19.9\nSKU092,C,176,59.5\nSKU093,A,184,4.5\nSKU094,C,84,36.0\nSKU095,A,189,36.0\nSKU096,B,1,19.9\nSKU097,C,57,59.5\nSKU098,A,137,4.5\nSKU099,B,53,59.5\nSKU100,A,78,59.5\nSKU101,A,40,12.8\nSKU102,A,70,59.5\nSKU103,A,92,19.9\nSKU104,B,113,36.0\nSKU105,B,188,19.9\nSKU106,A,181,19.9\nSKU107,B,114,36.0\nSKU108,B,43,4.5\nSKU109,A,17,19.9\nSKU110,C,224,59.5\nSKU111,B,49,4.5\nSKU112,C,109,12.8\nSKU113,A,101,59.5\nSKU114,C,1,4.5\nSKU115,C,128,4.5\nSKU116,C,91,12.8\nSKU117,A,53,4.5\nSKU118,B,180,4.5\nSKU119,C,59,36.0\nSKU120,A,167,12.8\nSKU121,A,57,19.9\nSKU122,B,78,19.9\nSKU123,C,218,4.5\nSKU124,A,48,36.0\nSKU125,A,154,36.0\nSKU126,A,138,4.5\nSKU127,C,129,19.9\nSKU128,C,195,36.0\nSKU129,A,60,19.9\nSKU130,B,53,12.8\nSKU131,B,22,12.8\nSKU132,C,107,4.5\nSKU133,A,14,19.9\nSKU134,A,133,12.8\nSKU135,B,57,4.5\nSKU136,C,111,19.9\nSKU137,B,155,19.9\nSKU138,B,209,19.9\nSKU139,B,74,4.5\nSKU140,B,90,59.5\nSKU141,B,28,59.5\nSKU142,B,58,4.5\nSKU143,B,90,59.5\nSKU144,B,91,19.9\nSKU145,C,49,12.8\nSKU146,C,53,19.9\nSKU147,C,119,36.0\nSKU148,C,238,4.5\nSKU149,A,220,59.5\nSKU150,B,33,36.0\nSKU151,C,134,36.0\nSKU152,A,81,36.0\nSKU153,A,77,19.9\nSKU154,C,239,19.9\nSKU155,B,228,36.0\nSKU156,A,32,59.5\nSKU157,C,234,12.8\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total stock value of warehouse B in inventory.csv? Value means stock times price, summed over its SKUs.",
+      "expect": {
+        "expected_number": 134075.6,
+        "expected_number_in_text": true,
+        "tolerance": 0.006,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "data_query",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "inventory.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

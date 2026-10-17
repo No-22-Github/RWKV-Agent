@@ -1,0 +1,113 @@
+{
+  "id": "hyb-33657",
+  "description": "Read the itinerary file for city and date, then fetch that day's forecast. DISTILL-CANARY-dae97ef0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "20%"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21o-files-57",
+    "ref_calls": 3,
+    "fixture_bytes": 193,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/行程.md": "# 九月出差\n\n- 上一次出差：北京（8 月）\n- 本次目的地：苏州\n- 出发日期：2026-09-18\n- 返程：2026-09-20\n",
+    "出差/报销说明.md": "# 报销说明\n\n出差票据请在返程后一周内提交。\n"
+  },
+  "turns": [
+    {
+      "prompt": "看一下出差文件夹里的行程，出发那天目的地的天气怎么样？",
+      "expect": {
+        "output_contains": [
+          "75%"
+        ],
+        "required_tools": [
+          "read_file",
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [],
+      "report": {
+        "location": "苏州",
+        "current": "多云 25°C 体感 26°C 湿度 70% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "20~24",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "小雨",
+            "temp_c": "19~23",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "多云",
+            "temp_c": "19~26",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "list_files",
+      "get_weather"
+    ]
+  },
+  "expect": {
+    "files": {
+      "出差/行程.md": {
+        "unchanged": true
+      },
+      "出差/报销说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

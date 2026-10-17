@@ -1,0 +1,67 @@
+{
+  "id": "nt-33160",
+  "description": "Small talk 33160. DISTILL-CANARY-ff7b0d9f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-chat-33160",
+    "ref_calls": 0,
+    "fixture_bytes": 114,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "chat"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 云岭茶社 workspace\n\nNotes and small tables live here (batch item 33160).\n",
+    "misc/todo-99.txt": "- check shelf 11\n- reorder item 40\n"
+  },
+  "turns": [
+    {
+      "prompt": "我养的猫今天把窗帘爬塌了，哈哈。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "猫",
+          "窗帘"
+        ],
+        "output_format": [
+          "zh"
+        ],
+        "require_active_no_call": true
+      }
+    },
+    {
+      "prompt": "它好像一点都不内疚。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "猫",
+          "它",
+          "内疚",
+          "哈哈"
+        ],
+        "output_format": [
+          "zh"
+        ],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

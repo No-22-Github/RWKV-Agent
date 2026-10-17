@@ -1,0 +1,83 @@
+{
+  "id": "hyb-33336",
+  "description": "Cloud bill from hours per instance type and the provider's current hourly prices. DISTILL-CANARY-70ccd067",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-calc-36",
+    "ref_calls": 4,
+    "fixture_bytes": 69,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Vortex Compute",
+      "url_match": "vortexcompute.io/pricing",
+      "url": "https://vortexcompute.io/pricing",
+      "title": "Vortex Compute pricing",
+      "snippet": "On-demand instance prices.",
+      "content": "# On-demand pricing (September 2026)\n\n- vx.small: $0.045 / hour\n- vx.medium: $0.092 / hour\n- vx.large: $0.188 / hour\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "Vortex Compute",
+      "url_match": "hosting-compare.example.net/vortex",
+      "url": "https://hosting-compare.example.net/vortex",
+      "title": "Vortex review",
+      "snippet": "Vortex prices in early 2025.",
+      "content": "In 2025, vx.medium cost $0.12/hour.\n",
+      "published_at": "2025-02-11"
+    }
+  ],
+  "files": {
+    "cloud/usage.csv": "instance,hours\nvx.small,720\nvx.medium,1440\nvx.large,310\nvx.small,168\n"
+  },
+  "turns": [
+    {
+      "prompt": "Using Vortex Compute's current on-demand prices, how much do the hours in cloud/usage.csv come to?",
+      "expect": {
+        "output_contains_any": [
+          "230.72"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "cloud/usage.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

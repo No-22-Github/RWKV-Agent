@@ -1,0 +1,62 @@
+{
+  "id": "web-33002",
+  "description": "Summarize a fictional site page whose snippet is vague (Halden Notes). DISTILL-CANARY-f1ecea2c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33002",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Halden Notes",
+      "url": "https://haldennotes.example/changelog/5-2",
+      "url_match": "haldennotes.example/changelog/5-2",
+      "title": "Halden Notes 5.2 release notes",
+      "snippet": "Overview; details are in the page body.",
+      "content": "# Halden Notes 5.2\n\nHighlights:\n- Offline mode now syncs up to 4000 notes per device (was 1500).\n- New markdown table editor with column drag.\n- The legacy plugin API v2 is read-only; plugins must move to API v3 by 5.4.\n- Fixed: sync conflicts duplicated attachments (HN-3321).\n\nUpgrade: auto-update rolls out in waves over two weeks.\n",
+      "published_at": "2026-08-19"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Can you read the Halden Notes 5.2 release notes and give me the main points?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "4000",
+          "v3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

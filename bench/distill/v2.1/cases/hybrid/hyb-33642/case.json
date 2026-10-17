@@ -1,0 +1,46 @@
+{
+  "id": "hyb-33642",
+  "description": "Gross margin versus markup. DISTILL-CANARY-bcada073",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "40.38"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-42",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "一件商品进价 63.4 元，卖 89 元，毛利率是多少个百分点？毛利率指毛利占售价的比例，保留两位小数。",
+      "expect": {
+        "expected_number": 28.76,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "nt-33157",
+  "description": "Small talk 33157. DISTILL-CANARY-15614dc4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "b21j-chat-33157",
+    "ref_calls": 0,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "chat"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Harbor Labs workspace\n\nNotes and small tables live here (batch item 33157).\n",
+    "misc/todo-78.txt": "- check shelf 8\n- reorder item 31\n"
+  },
+  "turns": [
+    {
+      "prompt": "谢谢你昨天帮我理清思路，今天开会顺利多了！",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "不客气",
+          "太好了",
+          "很高兴",
+          "开心",
+          "恭喜",
+          "应该的",
+          "为你高兴",
+          "为你感到"
+        ],
+        "output_format": [
+          "zh"
+        ],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

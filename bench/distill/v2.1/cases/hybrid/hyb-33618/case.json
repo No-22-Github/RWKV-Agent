@@ -1,0 +1,53 @@
+{
+  "id": "hyb-33618",
+  "description": "English: Shanghai 10:00 to London during British Summer Time. DISTILL-CANARY-c5542bad",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "02:00"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-datetime-18",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "It's 10:00 in Shanghai right now. What time is it in London?",
+      "expect": {
+        "output_contains_any": [
+          "03:00",
+          "3:00 AM",
+          "3:00 am",
+          "3 AM",
+          "3 am",
+          "3:00 a.m.",
+          "3am",
+          "3:00AM"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "datetime"
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "fs-33728",
+  "description": "Delete old gz logs but keep today's (2026-09-16 fixed clock). DISTILL-CANARY-7510da18",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "scoped_delete",
+    "traps": [
+      "TR-DECOY",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-DATEFMT": "0"
+    },
+    "axes": [
+      "OBS",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "b21p-sdel-33728",
+    "ref_calls": 4,
+    "fixture_bytes": 554,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/app-2026-09-13.log.gz": "app-2 zephyr pebble maple delta\nalpha fjord quartz maple velvet delta\nember\n",
+    "logs/app-2026-09-14.log.gz": "app-2 delta grain pixel\nthistle maple grain\nzephyr pixel river pebble quartz grai\n",
+    "logs/app-2026-09-15.log.gz": "app-2 lantern grain lantern zephyr lamp quartz\nember lamp umber quar\n",
+    "logs/app-2026-09-16.log.gz": "app-2 velvet ember ridge quartz lamp willow sto\n",
+    "logs/app-2026-09-16.log": "app-2 river pixel yarrow fjord hollow pebble juniper fjord\nhollow ivory willow\npebble \n",
+    "logs/audit-2026-09-10.log.gz": "audit quartz cedar thistle harbor quartz willow willow\nfjord velvet stone nectar m\n",
+    "logs/README": "READM kettle ridge stone\nember lamp fjord thistle maple h\n",
+    "backup/app-2026-09-13.log.gz": "app-2 grain orbit quartz maple pixel\nmeadow kettle\n"
+  },
+  "turns": [
+    {
+      "prompt": "logs 目录里的 .gz 压缩日志，除了今天（2026-09-16）的那份，其余都删掉。backup 目录不要动。删完告诉我留下了哪份 .gz。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "app-2026-09-16.log.gz"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "backup/app-2026-09-13.log.gz": {
+        "unchanged": true
+      },
+      "logs/README": {
+        "unchanged": true
+      },
+      "logs/app-2026-09-13.log.gz": {
+        "absent": true
+      },
+      "logs/app-2026-09-14.log.gz": {
+        "absent": true
+      },
+      "logs/app-2026-09-15.log.gz": {
+        "absent": true
+      },
+      "logs/app-2026-09-16.log": {
+        "unchanged": true
+      },
+      "logs/app-2026-09-16.log.gz": {
+        "unchanged": true
+      },
+      "logs/audit-2026-09-10.log.gz": {
+        "absent": true
+      }
+    }
+  }
+}

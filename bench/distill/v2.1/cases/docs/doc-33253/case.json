@@ -1,0 +1,66 @@
+{
+  "id": "doc-33253",
+  "description": "Mid-level training budget and carry-over, then lead time. DISTILL-CANARY-689ed207",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-53",
+    "ref_calls": 2,
+    "fixture_bytes": 527,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/培训经费.md": "# 培训经费管理\n\n1. 每人每年培训额度：初级员工 3000 元，中级员工 5000 元，高级及以上 8000 元。\n2. 外部课程须提前 15 天提交申请并附课程大纲。\n3. 课程费用超出额度的部分，经部门总监批准后可使用部门公共经费，每部门每年公共经费 20000 元。\n4. 报销凭证须在课程结束后 30 天内提交。\n5. 获得公司报销的证书类培训，员工须在公司服务满 12 个月，否则按比例返还费用。\n6. 额度不能跨年结转。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我是中级员工，今年培训额度有多少？没用完能带到明年吗？",
+      "expect": {
+        "output_contains": [
+          "5000",
+          "不能"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "那我想报一门外部课程，要提前多少天申请？",
+      "expect": {
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "code-33565",
+  "description": "Report the failing test, then find the source line responsible. DISTILL-CANARY-365268cc",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "slug"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33565",
+    "ref_calls": 4,
+    "fixture_bytes": 918,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "out/pytest.txt": "============================= test session starts ==============================\nplatform linux -- Python 3.12.4, pytest-8.2.0\ncollected 6 items\n\ntests/test_url.py::test_slug_basic PASSED\ntests/test_url.py::test_slug_unicode PASSED\ntests/test_url.py::test_slug_empty PASSED\ntests/test_url.py::test_url_join PASSED\ntests/test_url.py::test_url_trailing FAILED\ntests/test_url.py::test_query_sort PASSED\n\n=================================== FAILURES ===================================\n____________________ test_url_trailing ____________________\n\n    def test_url_trailing():\n>       assert join('/a/', 'b') == '/a/b'\nE       AssertionError: assert '/a//b' == '/a/b'\n\n=== 1 failed, 5 passed, 0 skipped in 0.30s ===\n",
+    "web/url.py": "import re\n\n\ndef slug(s):\n    return re.sub(r'\\W+', '-', s).strip('-')\n\n\ndef join(base, part):\n    return base + '/' + part\n\n\ndef sort_query(q):\n    return '&'.join(sorted(q.split('&')))\n",
+    "tests/test_url.py": "# see out/pytest.txt\n"
+  },
+  "turns": [
+    {
+      "prompt": "out/pytest.txt 里有失败的用例吗？是哪个，报什么错？",
+      "expect": {
+        "output_contains": [
+          "test_url_trailing",
+          "//"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    },
+    {
+      "prompt": "那是 web/url.py 里哪一行导致的？只告诉我行号和那行代码，先不要改。",
+      "expect": {
+        "output_contains": [
+          "9"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "out/pytest.txt": {
+        "unchanged": true
+      },
+      "web/url.py": {
+        "unchanged": true
+      },
+      "tests/test_url.py": {
+        "unchanged": true
+      }
+    }
+  }
+}

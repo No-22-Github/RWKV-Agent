@@ -1,0 +1,63 @@
+{
+  "id": "log-33770",
+  "description": "Queries slower than 500ms in a numeric field, then the slowest one. DISTILL-CANARY-2ccb1dcd",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-count-33770",
+    "ref_calls": 5,
+    "fixture_bytes": 6098,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "db.log": "08:00:29 query 4000 dur=371ms\n08:03:32 query 4001 dur=68ms\n08:06:12 query 4002 dur=208ms\n08:09:21 query 4003 dur=154ms\n08:11:44 query 4004 dur=52ms\n08:15:11 query 4005 dur=38ms\n08:17:51 query 4006 dur=52ms\n08:20:58 query 4007 dur=75ms\n08:23:26 query 4008 dur=56ms\n08:26:32 query 4009 dur=735ms\n08:29:32 query 4010 dur=66ms\n08:32:13 query 4011 dur=283ms\n08:35:34 query 4012 dur=190ms\n08:38:29 query 4013 dur=860ms\n08:41:13 query 4014 dur=118ms\n08:44:06 query 4015 dur=235ms\n08:47:20 query 4016 dur=85ms\n08:50:02 query 4017 dur=226ms\n08:53:17 query 4018 dur=114ms\n08:55:56 query 4019 dur=834ms\n08:58:51 query 4020 dur=819ms\n09:01:41 query 4021 dur=67ms\n09:04:29 query 4022 dur=35ms\n09:07:25 query 4023 dur=43ms\n09:10:16 query 4024 dur=537ms\n09:13:24 query 4025 dur=289ms\n09:16:43 query 4026 dur=892ms\n09:19:16 query 4027 dur=111ms\n09:22:23 query 4028 dur=97ms\n09:24:55 query 4029 dur=392ms\n09:27:49 query 4030 dur=132ms\n09:30:48 query 4031 dur=783ms\n09:34:04 query 4032 dur=224ms\n09:37:12 query 4033 dur=554ms\n09:39:55 query 4034 dur=243ms\n09:42:41 query 4035 dur=34ms\n09:45:51 query 4036 dur=468ms\n09:48:26 query 4037 dur=164ms\n09:51:17 query 4038 dur=267ms\n09:54:48 query 4039 dur=180ms\n09:57:19 query 4040 dur=303ms\n10:00:04 query 4041 dur=386ms\n10:03:09 query 4042 dur=165ms\n10:06:31 query 4043 dur=120ms\n10:09:19 query 4044 dur=263ms\n10:12:08 query 4045 dur=701ms\n10:15:14 query 4046 dur=62ms\n10:18:01 query 4047 dur=157ms\n10:21:04 query 4048 dur=26ms\n10:23:31 query 4049 dur=118ms\n10:26:42 query 4050 dur=21ms\n10:29:38 query 4051 dur=105ms\n10:32:41 query 4052 dur=591ms\n10:35:38 query 4053 dur=57ms\n10:38:07 query 4054 dur=46ms\n10:41:16 query 4055 dur=781ms\n10:44:21 query 4056 dur=160ms\n10:47:10 query 4057 dur=293ms\n10:50:01 query 4058 dur=285ms\n10:53:07 query 4059 dur=267ms\n10:55:52 query 4060 dur=52ms\n10:58:54 query 4061 dur=73ms\n11:01:42 query 4062 dur=879ms\n11:04:34 query 4063 dur=893ms\n11:07:34 query 4064 dur=151ms\n11:10:19 query 4065 dur=116ms\n11:13:46 query 4066 dur=107ms\n11:16:24 query 4067 dur=284ms\n11:19:08 query 4068 dur=233ms\n11:22:24 query 4069 dur=61ms\n11:24:58 query 4070 dur=147ms\n11:28:12 query 4071 dur=189ms\n11:31:17 query 4072 dur=218ms\n11:33:56 query 4073 dur=118ms\n11:37:03 query 4074 dur=341ms\n11:39:43 query 4075 dur=31ms\n11:42:58 query 4076 dur=145ms\n11:45:23 query 4077 dur=182ms\n11:48:31 query 4078 dur=630ms\n11:51:38 query 4079 dur=237ms\n11:54:25 query 4080 dur=73ms\n11:57:33 query 4081 dur=137ms\n12:00:04 query 4082 dur=261ms\n12:03:11 query 4083 dur=70ms\n12:06:19 query 4084 dur=64ms\n12:09:24 query 4085 dur=88ms\n12:12:04 query 4086 dur=283ms\n12:15:01 query 4087 dur=164ms\n12:17:58 query 4088 dur=149ms\n12:20:46 query 4089 dur=32ms\n12:23:42 query 4090 dur=81ms\n12:26:39 query 4091 dur=262ms\n12:29:19 query 4092 dur=31ms\n12:32:18 query 4093 dur=144ms\n12:35:31 query 4094 dur=245ms\n12:38:35 query 4095 dur=78ms\n12:41:10 query 4096 dur=197ms\n12:44:24 query 4097 dur=101ms\n12:47:24 query 4098 dur=376ms\n12:49:49 query 4099 dur=154ms\n12:53:13 query 4100 dur=149ms\n12:55:36 query 4101 dur=294ms\n12:59:01 query 4102 dur=170ms\n13:01:47 query 4103 dur=51ms\n13:04:50 query 4104 dur=850ms\n13:07:48 query 4105 dur=758ms\n13:10:45 query 4106 dur=43ms\n13:13:37 query 4107 dur=64ms\n13:16:32 query 4108 dur=166ms\n13:19:34 query 4109 dur=103ms\n13:22:29 query 4110 dur=72ms\n13:24:52 query 4111 dur=295ms\n13:28:23 query 4112 dur=522ms\n13:30:46 query 4113 dur=253ms\n13:34:19 query 4114 dur=874ms\n13:37:13 query 4115 dur=167ms\n13:39:48 query 4116 dur=40ms\n13:42:30 query 4117 dur=67ms\n13:45:49 query 4118 dur=257ms\n13:48:53 query 4119 dur=752ms\n13:51:18 query 4120 dur=226ms\n13:54:21 query 4121 dur=112ms\n13:57:16 query 4122 dur=58ms\n14:00:24 query 4123 dur=142ms\n14:03:04 query 4124 dur=193ms\n14:06:08 query 4125 dur=683ms\n14:08:47 query 4126 dur=271ms\n14:12:11 query 4127 dur=242ms\n14:15:04 query 4128 dur=812ms\n14:17:55 query 4129 dur=127ms\n14:21:05 query 4130 dur=108ms\n14:23:43 query 4131 dur=244ms\n14:26:47 query 4132 dur=151ms\n14:29:52 query 4133 dur=79ms\n14:32:34 query 4134 dur=249ms\n14:35:41 query 4135 dur=111ms\n14:38:37 query 4136 dur=190ms\n14:41:26 query 4137 dur=125ms\n14:44:17 query 4138 dur=129ms\n14:46:58 query 4139 dur=251ms\n14:50:14 query 4140 dur=805ms\n14:52:57 query 4141 dur=80ms\n14:55:36 query 4142 dur=288ms\n14:58:45 query 4143 dur=26ms\n15:02:06 query 4144 dur=217ms\n15:05:00 query 4145 dur=61ms\n15:07:28 query 4146 dur=677ms\n15:10:46 query 4147 dur=191ms\n15:13:45 query 4148 dur=499ms\n15:16:13 query 4149 dur=27ms\n15:19:04 query 4150 dur=68ms\n15:22:21 query 4151 dur=101ms\n15:25:20 query 4152 dur=106ms\n15:28:04 query 4153 dur=194ms\n15:31:19 query 4154 dur=269ms\n15:33:53 query 4155 dur=191ms\n15:37:06 query 4156 dur=229ms\n15:39:37 query 4157 dur=274ms\n15:42:48 query 4158 dur=253ms\n15:45:22 query 4159 dur=282ms\n15:48:37 query 4160 dur=80ms\n15:51:31 query 4161 dur=134ms\n15:54:15 query 4162 dur=173ms\n15:57:37 query 4163 dur=363ms\n16:00:22 query 4164 dur=24ms\n16:03:05 query 4165 dur=211ms\n16:05:59 query 4166 dur=156ms\n16:09:18 query 4167 dur=166ms\n16:12:17 query 4168 dur=217ms\n16:15:05 query 4169 dur=82ms\n16:17:39 query 4170 dur=82ms\n16:20:33 query 4171 dur=550ms\n16:23:28 query 4172 dur=96ms\n16:26:51 query 4173 dur=531ms\n16:29:34 query 4174 dur=232ms\n16:32:23 query 4175 dur=335ms\n16:35:42 query 4176 dur=189ms\n16:38:16 query 4177 dur=101ms\n16:40:59 query 4178 dur=510ms\n16:44:16 query 4179 dur=62ms\n16:47:16 query 4180 dur=179ms\n16:50:20 query 4181 dur=198ms\n16:52:53 query 4182 dur=204ms\n16:55:59 query 4183 dur=170ms\n16:58:48 query 4184 dur=181ms\n17:02:05 query 4185 dur=179ms\n17:04:26 query 4186 dur=275ms\n17:07:56 query 4187 dur=49ms\n17:10:15 query 4188 dur=167ms\n17:13:30 query 4189 dur=86ms\n17:16:35 query 4190 dur=278ms\n17:19:31 query 4191 dur=191ms\n17:22:25 query 4192 dur=587ms\n17:24:52 query 4193 dur=587ms\n17:28:24 query 4194 dur=108ms\n17:30:50 query 4195 dur=48ms\n17:34:03 query 4196 dur=258ms\n17:36:39 query 4197 dur=131ms\n17:39:50 query 4198 dur=300ms\n17:42:31 query 4199 dur=162ms\n17:45:45 query 4200 dur=256ms\n17:48:52 query 4201 dur=103ms\n17:51:32 query 4202 dur=141ms\n17:54:12 query 4203 dur=360ms\n17:57:42 query 4204 dur=652ms\n"
+  },
+  "turns": [
+    {
+      "prompt": "db.log 里耗时超过 500ms（严格大于）的查询有多少条？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "最慢的那条是哪个查询编号，耗时多少？",
+      "expect": {
+        "output_contains": [
+          "4063",
+          "893"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

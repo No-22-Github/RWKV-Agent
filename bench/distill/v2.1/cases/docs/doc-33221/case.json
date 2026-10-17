@@ -1,0 +1,63 @@
+{
+  "id": "doc-33221",
+  "description": "Breaking changes of a changelog as a table. DISTILL-CANARY-d50eef7e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-21",
+    "ref_calls": 4,
+    "fixture_bytes": 284,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "CHANGELOG.md": "# Changelog\n\n## 4.2.0\n- Add dark theme\n- BREAKING: drop Node 14 support\n- Fix typo in docs\n\n## 4.1.3\n- Fix memory leak in worker\n\n## 4.1.0\n- BREAKING: rename `--out` flag to `--output`\n- Add retry option\n\n## 4.0.0\n- BREAKING: config moves from `.apprc` to `app.toml`\n- Faster startup\n"
+  },
+  "turns": [
+    {
+      "prompt": "List only the breaking changes from CHANGELOG.md in a new file breaking.md as a markdown table with header `| Version | Change |`, a `|---|---|` separator, then one row per change in file order. Drop the BREAKING: prefix from the change text.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "CHANGELOG.md": {
+        "unchanged": true
+      },
+      "breaking.md": {
+        "equals": "| Version | Change |\n|---|---|\n| 4.2.0 | drop Node 14 support |\n| 4.1.0 | rename `--out` flag to `--output` |\n| 4.0.0 | config moves from `.apprc` to `app.toml` |\n"
+      }
+    }
+  }
+}

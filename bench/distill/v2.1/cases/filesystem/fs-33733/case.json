@@ -1,0 +1,62 @@
+{
+  "id": "fs-33733",
+  "description": "From a dated file listing, files modified in the last 7 days of the fixed date 2026-09-16. DISTILL-CANARY-41621f4c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-DATEFMT": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-filter-33733",
+    "ref_calls": 4,
+    "fixture_bytes": 1147,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "inventory.txt": "2026-08-24    6317  misc/f10.txt\n2026-09-14    1220  test/core_test.go\n2026-09-10    1560  docs/api.md\n2026-07-20    2952  misc/f21.txt\n2026-09-02     880  docs/faq.md\n2026-08-02    5607  misc/f17.txt\n2026-08-30    4120  docs/spec.md\n2026-08-21    5920  misc/f20.txt\n2026-08-09    3574  misc/f13.txt\n2026-09-07    7770  src/old.go\n2026-07-14    7304  misc/f3.txt\n2026-08-21    6104  misc/f16.txt\n2026-07-02    6495  misc/f7.txt\n2026-08-18    6172  misc/f11.txt\n2026-09-12    9100  src/core.go\n2026-09-09    2300  docs/guide.md\n2026-07-12    8867  misc/f8.txt\n2026-07-17    8855  misc/f9.txt\n2026-08-22    1566  misc/f12.txt\n2026-07-18    5233  misc/f6.txt\n2026-07-28    6577  misc/f15.txt\n2026-07-08     738  misc/f14.txt\n2026-09-16    3050  src/main.go\n2026-07-19    1008  misc/f1.txt\n2026-07-11    2944  misc/f19.txt\n2026-08-22    1182  misc/f4.txt\n2026-08-12     650  README.md\n2026-08-23     806  misc/f18.txt\n2026-08-21    4676  misc/f22.txt\n2026-07-04    3519  misc/f5.txt\n2026-09-08     330  test/util_test.go\n2026-08-27     949  misc/f2.txt\n2026-09-15     410  src/util.go\n2026-07-01    5703  misc/f23.txt\n2026-07-18    6397  misc/f24.txt\n"
+  },
+  "turns": [
+    {
+      "prompt": "inventory.txt 是项目文件的清单（日期 大小 路径）。今天是 2026-09-16，最近 7 天内（含 9 月 9 日）修改过的有哪些文件？只看 docs、src、test 这几个目录。",
+      "expect": {
+        "output_contains": [
+          "docs/guide.md",
+          "docs/api.md",
+          "src/core.go",
+          "src/util.go",
+          "src/main.go",
+          "test/core_test.go"
+        ],
+        "output_excludes": [
+          "docs/faq.md",
+          "src/old.go",
+          "test/util_test.go",
+          "docs/spec.md"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

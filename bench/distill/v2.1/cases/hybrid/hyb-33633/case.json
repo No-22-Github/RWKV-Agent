@@ -1,0 +1,54 @@
+{
+  "id": "hyb-33633",
+  "description": "Multi-turn pay calculation: net monthly pay, then a bonus after tax. DISTILL-CANARY-89734163",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "18650"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-33",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我月薪税前 18650，五险一金扣 11.5%，扣完剩多少？保留两位小数。",
+      "expect": {
+        "expected_number": 16505.25,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    },
+    {
+      "prompt": "年终奖按 2.5 个月税前工资发，要扣 20% 的税，到手多少？也是两位小数。",
+      "expect": {
+        "expected_number": 37300.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

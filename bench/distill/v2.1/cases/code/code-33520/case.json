@@ -1,0 +1,88 @@
+{
+  "id": "code-33520",
+  "description": "emit callers (bus.emit and destructured emit), then add an at field. DISTILL-CANARY-feea1d29",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-callers-33520",
+    "ref_calls": 8,
+    "fixture_bytes": 593,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/bus.js": "const subs = [];\nexports.emit = function emit(ev) {\n  subs.forEach((s) => s(ev));\n};\nexports.on = function on(fn) {\n  subs.push(fn);\n};\n",
+    "src/jobs/mail.js": "const bus = require('../bus');\n\nmodule.exports = function sendMail(job) {\n  bus.emit({ type: 'mail', job });\n};\n",
+    "src/jobs/sms.js": "const { emit } = require('../bus');\n\nmodule.exports = function sendSms(job) {\n  emit({ type: 'sms', job });\n};\n",
+    "src/jobs/push.js": "const bus = require('../bus');\n\nmodule.exports = function push(job) {\n  bus.on(() => 1);\n};\n",
+    "src/main.js": "// emit() is called from the job modules, not from here\nrequire('./jobs/mail');\n",
+    "package.json": "{\"name\": \"notifier\", \"scripts\": {\"emit\": \"node src/main.js\"}}\n"
+  },
+  "turns": [
+    {
+      "prompt": "src 里哪些文件调用了 emit（不管是 bus.emit 还是解构出来的 emit）？定义它的文件不算。",
+      "expect": {
+        "output_contains": [
+          "src/jobs/mail.js",
+          "src/jobs/sms.js"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "在这些调用传的对象里都加一个字段 at: Date.now()，别的文件不要动。",
+      "expect": {
+        "output_contains": [
+          "at"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/bus.js": {
+        "unchanged": true
+      },
+      "src/jobs/mail.js": {
+        "equals": "const bus = require('../bus');\n\nmodule.exports = function sendMail(job) {\n  bus.emit({ type: 'mail', job, at: Date.now() });\n};\n"
+      },
+      "src/jobs/sms.js": {
+        "equals": "const { emit } = require('../bus');\n\nmodule.exports = function sendSms(job) {\n  emit({ type: 'sms', job, at: Date.now() });\n};\n"
+      },
+      "src/jobs/push.js": {
+        "unchanged": true
+      },
+      "src/main.js": {
+        "unchanged": true
+      },
+      "package.json": {
+        "unchanged": true
+      }
+    }
+  }
+}

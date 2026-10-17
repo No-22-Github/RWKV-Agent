@@ -1,0 +1,86 @@
+{
+  "id": "hyb-33301",
+  "description": "Update a pinned Nimbus CLI version from its release page, ignoring an old blog. DISTILL-CANARY-9289334c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-web_edit-01",
+    "ref_calls": 4,
+    "fixture_bytes": 121,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "nimbus",
+      "url_match": "nimbus-cli.dev/releases",
+      "url": "https://nimbus-cli.dev/releases",
+      "title": "Nimbus CLI 发布说明",
+      "snippet": "Nimbus CLI 版本发布记录与下载。",
+      "content": "# Nimbus CLI 发布说明\n\n稳定版：4.12.3（2026-09-02）\n预览版：5.0.0-rc1\n\n升级前请阅读迁移指南。\n",
+      "published_at": "2026-09-02"
+    },
+    {
+      "query_match": "nimbus",
+      "url_match": "old-blog.example.org/nimbus-setup",
+      "url": "https://old-blog.example.org/nimbus-setup",
+      "title": "Nimbus 安装笔记",
+      "snippet": "安装 Nimbus 4.9.0 的步骤。",
+      "content": "# Nimbus 安装笔记\n\n本文基于稳定版：4.9.0 编写。\n",
+      "published_at": "2025-11-20"
+    }
+  ],
+  "files": {
+    "deploy/versions.env": "# 部署依赖版本\nREDIS_VERSION=7.2.4\nNIMBUS_VERSION=4.9.0\nNGINX_VERSION=1.25.3\n",
+    "deploy/README.md": "版本号统一写在 versions.env。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 deploy/versions.env 里 Nimbus 的版本号改成它现在的稳定版，其他行别动。",
+      "expect": {
+        "output_contains": [
+          "4.12.3"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/README.md": {
+        "unchanged": true
+      },
+      "deploy/versions.env": {
+        "equals": "# 部署依赖版本\nREDIS_VERSION=7.2.4\nNIMBUS_VERSION=4.12.3\nNGINX_VERSION=1.25.3\n"
+      }
+    }
+  }
+}

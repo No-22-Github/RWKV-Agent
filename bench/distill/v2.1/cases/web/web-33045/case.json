@@ -1,0 +1,70 @@
+{
+  "id": "web-33045",
+  "description": "Find the current stable release among mixed pre-release/old pages (栗子相册). DISTILL-CANARY-bab0154b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33045",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "栗子相册",
+      "url": "https://lizi-album.example/notes/windows",
+      "url_match": "lizi-album.example/notes/windows",
+      "title": "Windows 版本说明 - 栗子相册",
+      "snippet": "栗子相册 Windows 版本说明。",
+      "content": "# Windows\n\n当前版本 2.19.0，要求 Windows 10 21H2 及以上。\n",
+      "published_at": "2026-09-06"
+    },
+    {
+      "query_match": "栗子相册",
+      "url": "https://lizi-album.example/notes/mac",
+      "url_match": "lizi-album.example/notes/mac",
+      "title": "macOS 版本说明 - 栗子相册",
+      "snippet": "栗子相册 macOS 版本说明。",
+      "content": "# macOS\n\n当前版本 2.20.1，要求 macOS 13 及以上。\n",
+      "published_at": "2026-09-13"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我用 Mac，栗子相册最新版是多少，对系统有什么要求？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "2.20.1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

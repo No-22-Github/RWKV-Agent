@@ -1,0 +1,74 @@
+{
+  "id": "hyb-33449",
+  "description": "Updates a copyright year in three files, then asks to revert only the vendored one. DISTILL-CANARY-d387ccd6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33449",
+    "ref_calls": 5,
+    "fixture_bytes": 175,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/a.go": "// Copyright 2025 Northwind Ltd.\n// file: a.go\npackage a\n",
+    "src/b.go": "// Copyright 2025 Northwind Ltd.\n// file: b.go\npackage b\n",
+    "vendor/lib.go": "// Copyright 2025 Northwind Ltd.\n// file: lib.go\npackage lib\n"
+  },
+  "turns": [
+    {
+      "prompt": "Change the copyright year from 2025 to 2026 in all three Go files.",
+      "expect": {
+        "output_contains": [
+          "2026"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Revert the one in vendor/, we don't own that code. Keep the other two.",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/a.go": {
+        "equals": "// Copyright 2026 Northwind Ltd.\n// file: a.go\npackage a\n"
+      },
+      "src/b.go": {
+        "equals": "// Copyright 2026 Northwind Ltd.\n// file: b.go\npackage b\n"
+      },
+      "vendor/lib.go": {
+        "unchanged": true
+      }
+    }
+  }
+}

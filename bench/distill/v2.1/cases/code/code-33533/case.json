@@ -1,0 +1,82 @@
+{
+  "id": "code-33533",
+  "description": "TODO count excluding legacy, then which file has most. DISTILL-CANARY-b69c5692",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-count-33533",
+    "ref_calls": 5,
+    "fixture_bytes": 861,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "ui/card.js": "export function sumDeck0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// TODO: a11y\n}\n\nexport function sumDeck1(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n// TODO: focus ring\n}\n\nexport function slugCard2(text) {\n// TODO: rtl\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n",
+    "ui/deck.js": "export const deckLabel0 = (id) => `deck-${id}`;\n\nexport const deckLabel1 = (id) => `deck-${id}`;\n// TODO: virtualize\n\nexport function sumCard2(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n// TODO: keyboard nav\n\n",
+    "ui/theme.js": "export function sumDeck0(xs) {\n  return xs.reduce((acc, x) => acc + x, 0);\n}\n\n// TODO: tokens\nexport function slugDeck1(text) {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nexport function slugCard2(text) {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n",
+    "ui/legacy/old.js": "// TODO: delete\n// TODO: delete\n// TODO: delete\n// TODO: delete\n"
+  },
+  "turns": [
+    {
+      "prompt": "ui 里（不含 legacy 子目录）一共有多少条 TODO？",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "这些 TODO 里哪个文件最多？",
+      "expect": {
+        "output_contains": [
+          "ui/card.js"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ui/card.js": {
+        "unchanged": true
+      },
+      "ui/deck.js": {
+        "unchanged": true
+      },
+      "ui/theme.js": {
+        "unchanged": true
+      },
+      "ui/legacy/old.js": {
+        "unchanged": true
+      }
+    }
+  }
+}

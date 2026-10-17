@@ -1,0 +1,86 @@
+{
+  "id": "hyb-33344",
+  "description": "Postage for a list of domestic letters, then for an international list from another file. DISTILL-CANARY-58a76e5f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-calc-44",
+    "ref_calls": 6,
+    "fixture_bytes": 25,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Pinecrest Post",
+      "url_match": "pinecrestpost.example.org/postage",
+      "url": "https://pinecrestpost.example.org/postage",
+      "title": "Pinecrest Post postage",
+      "snippet": "Domestic and international letter rates.",
+      "content": "# Letter postage\n\nDomestic letter (up to 1 oz): $0.78, each additional ounce $0.28\nInternational letter (up to 1 oz): $1.65, each additional ounce $0.55\n",
+      "published_at": "2026-07-10"
+    }
+  ],
+  "files": {
+    "office/domestic.txt": "3 oz\n1 oz\n2 oz\n",
+    "office/international.txt": "1 oz\n4 oz\n"
+  },
+  "turns": [
+    {
+      "prompt": "Using Pinecrest Post's published letter postage, how much to mail the domestic letters listed in office/domestic.txt (each line is one letter's weight)?",
+      "expect": {
+        "output_contains_any": [
+          "3.18"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "And the international ones in office/international.txt?",
+      "expect": {
+        "output_contains_any": [
+          "4.95"
+        ],
+        "output_contains_any_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "office/domestic.txt": {
+        "unchanged": true
+      },
+      "office/international.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

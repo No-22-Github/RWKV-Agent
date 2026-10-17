@@ -1,0 +1,57 @@
+{
+  "id": "doc-33258",
+  "description": "Two broken relative links in an index, one a near-name. DISTILL-CANARY-0bc25a49",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "b21k-link-58",
+    "ref_calls": 4,
+    "fixture_bytes": 218,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/index.md": "# 产品文档\n\n- [快速开始](start.md)\n- [安装](教程/安装.md)\n- [配置项](教程/配置.md)\n- [术语表](附录/术语表.md)\n- [官网](https://example.com/product)\n",
+    "docs/start.md": "# 快速开始\n",
+    "docs/教程/安装指南.md": "# 安装指南\n",
+    "docs/教程/配置.md": "# 配置\n"
+  },
+  "turns": [
+    {
+      "prompt": "检查 docs/index.md 里的相对链接，哪些指向的文件在 docs 目录里找不到？外部网址不用管。把有问题的链接目标写出来。",
+      "expect": {
+        "output_contains": [
+          "教程/安装.md",
+          "附录/术语表.md"
+        ],
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  }
+}

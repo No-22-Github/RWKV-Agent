@@ -1,0 +1,56 @@
+{
+  "id": "log-33767",
+  "description": "5xx on exactly /pay, not /pay/status. DISTILL-CANARY-1127a88d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21p-count-33767",
+    "ref_calls": 4,
+    "fixture_bytes": 6062,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "gateway.log": "08:00:25 POST /pay/status 200\n08:03:05 POST /pay 200\n08:05:16 POST /pay 504\n08:08:02 POST /search 200\n08:10:36 POST /cart 200\n08:12:52 POST /pay 500\n08:15:03 POST /pay/status 200\n08:17:57 POST /pay 200\n08:20:04 POST /search 200\n08:23:05 POST /search 200\n08:25:25 POST /pay 200\n08:27:38 POST /pay/status 500\n08:30:09 POST /pay/status 502\n08:32:34 POST /pay 200\n08:35:33 POST /cart 200\n08:37:40 POST /search 200\n08:40:24 POST /pay/status 200\n08:42:48 POST /pay/status 504\n08:45:05 POST /pay/status 200\n08:48:06 POST /cart 200\n08:50:36 POST /pay 200\n08:53:08 POST /pay 200\n08:55:18 POST /pay 500\n08:57:34 POST /pay 200\n09:00:32 POST /pay/status 404\n09:02:56 POST /cart 504\n09:05:30 POST /pay 200\n09:08:06 POST /pay 404\n09:10:09 POST /pay/status 200\n09:12:56 POST /search 502\n09:15:32 POST /cart 404\n09:17:48 POST /search 502\n09:20:35 POST /cart 200\n09:22:36 POST /search 404\n09:25:11 POST /pay 200\n09:27:46 POST /pay 200\n09:30:04 POST /search 504\n09:32:54 POST /cart 200\n09:35:25 POST /search 200\n09:37:56 POST /pay/status 200\n09:40:06 POST /pay/status 200\n09:43:04 POST /cart 200\n09:45:20 POST /search 200\n09:47:56 POST /pay/status 200\n09:50:02 POST /pay 200\n09:53:09 POST /search 200\n09:55:40 POST /pay/status 200\n09:58:08 POST /pay 200\n10:00:26 POST /pay 200\n10:02:32 POST /cart 504\n10:05:34 POST /search 504\n10:08:06 POST /search 502\n10:10:02 POST /pay/status 200\n10:12:50 POST /cart 200\n10:15:35 POST /cart 200\n10:17:31 POST /pay/status 200\n10:20:13 POST /cart 200\n10:23:10 POST /search 200\n10:25:08 POST /pay 200\n10:27:35 POST /cart 200\n10:30:01 POST /pay 200\n10:33:10 POST /pay/status 200\n10:35:38 POST /pay 500\n10:37:49 POST /cart 200\n10:40:24 POST /search 200\n10:43:04 POST /search 500\n10:45:13 POST /cart 200\n10:47:45 POST /cart 200\n10:50:27 POST /cart 200\n10:52:49 POST /search 404\n10:55:20 POST /cart 200\n10:57:32 POST /pay 200\n11:00:22 POST /pay/status 200\n11:02:34 POST /pay 200\n11:05:08 POST /pay/status 200\n11:08:01 POST /pay 200\n11:10:38 POST /pay/status 500\n11:12:38 POST /pay/status 500\n11:15:33 POST /pay/status 502\n11:17:39 POST /search 404\n11:20:01 POST /pay 404\n11:22:40 POST /search 200\n11:25:20 POST /pay/status 200\n11:27:50 POST /cart 504\n11:30:15 POST /cart 500\n11:32:34 POST /pay 404\n11:35:39 POST /pay 502\n11:38:00 POST /cart 500\n11:40:34 POST /pay 200\n11:42:49 POST /search 504\n11:45:03 POST /pay 200\n11:47:33 POST /cart 500\n11:50:22 POST /search 200\n11:52:38 POST /pay/status 200\n11:55:09 POST /cart 502\n11:57:56 POST /pay 200\n12:00:17 POST /pay 500\n12:03:04 POST /pay/status 200\n12:05:33 POST /pay 200\n12:07:46 POST /pay/status 200\n12:10:40 POST /pay 200\n12:12:33 POST /pay 200\n12:15:16 POST /cart 200\n12:17:41 POST /pay 200\n12:20:35 POST /search 200\n12:22:37 POST /pay 404\n12:25:08 POST /pay/status 502\n12:27:45 POST /pay 500\n12:30:40 POST /pay/status 500\n12:32:44 POST /pay 504\n12:35:10 POST /pay 200\n12:37:53 POST /pay/status 200\n12:40:16 POST /pay 200\n12:43:06 POST /search 200\n12:45:09 POST /pay/status 200\n12:48:09 POST /pay/status 200\n12:50:26 POST /pay/status 200\n12:52:39 POST /pay 200\n12:55:07 POST /cart 200\n12:57:47 POST /cart 200\n13:00:39 POST /search 200\n13:02:36 POST /pay 200\n13:05:40 POST /pay 200\n13:07:37 POST /pay/status 200\n13:10:06 POST /pay 504\n13:12:35 POST /pay 200\n13:15:12 POST /search 200\n13:18:00 POST /search 200\n13:20:03 POST /pay 200\n13:22:57 POST /pay/status 200\n13:25:34 POST /pay 200\n13:27:40 POST /pay 200\n13:30:30 POST /cart 200\n13:32:52 POST /cart 200\n13:35:16 POST /pay 200\n13:37:43 POST /cart 200\n13:40:16 POST /pay/status 200\n13:42:39 POST /pay 200\n13:45:01 POST /pay 200\n13:47:42 POST /pay/status 200\n13:50:14 POST /search 200\n13:52:33 POST /search 502\n13:55:39 POST /pay 200\n13:57:42 POST /pay 502\n14:00:34 POST /cart 200\n14:02:54 POST /cart 504\n14:05:03 POST /pay 200\n14:08:02 POST /pay 200\n14:10:21 POST /search 200\n14:12:52 POST /cart 200\n14:15:38 POST /search 200\n14:17:41 POST /cart 200\n14:20:06 POST /pay 200\n14:22:57 POST /pay 200\n14:25:33 POST /pay 200\n14:27:44 POST /pay/status 504\n14:30:40 POST /cart 504\n14:33:10 POST /cart 502\n14:35:35 POST /pay 200\n14:37:48 POST /search 200\n14:40:09 POST /pay 200\n14:42:33 POST /pay/status 404\n14:45:26 POST /cart 200\n14:47:38 POST /pay 500\n14:50:23 POST /cart 200\n14:52:58 POST /pay/status 200\n14:55:07 POST /pay 200\n14:58:03 POST /pay/status 502\n15:00:20 POST /pay 200\n15:03:06 POST /pay 200\n15:05:18 POST /pay 504\n15:07:47 POST /cart 200\n15:10:14 POST /pay/status 404\n15:12:33 POST /pay/status 200\n15:15:09 POST /search 200\n15:17:39 POST /pay/status 200\n15:20:12 POST /pay 200\n15:22:31 POST /pay 200\n15:25:18 POST /cart 200\n15:27:38 POST /pay 200\n15:30:11 POST /cart 200\n15:32:30 POST /pay/status 504\n15:35:01 POST /cart 200\n15:38:01 POST /pay 404\n15:40:12 POST /pay 200\n15:42:51 POST /pay 504\n15:45:33 POST /pay 200\n15:48:00 POST /pay 200\n15:50:06 POST /pay 504\n15:52:39 POST /pay/status 200\n15:55:25 POST /search 200\n15:57:38 POST /pay/status 200\n16:00:39 POST /pay/status 500\n16:02:45 POST /cart 500\n16:05:01 POST /pay/status 200\n16:07:55 POST /pay 500\n16:10:34 POST /search 200\n16:13:02 POST /search 502\n16:15:21 POST /search 500\n16:17:46 POST /pay 500\n16:20:14 POST /pay 200\n16:23:09 POST /pay 200\n16:25:40 POST /pay 200\n16:27:55 POST /pay/status 200\n16:30:11 POST /pay 200\n16:32:30 POST /pay 200\n16:35:07 POST /pay 200\n16:38:00 POST /pay/status 500\n16:40:29 POST /search 200\n16:43:06 POST /pay/status 200\n16:45:33 POST /cart 200\n16:47:59 POST /pay 200\n16:50:22 POST /pay 200\n16:52:37 POST /pay 200\n16:55:15 POST /pay/status 502\n16:57:41 POST /search 200\n17:00:02 POST /search 200\n17:02:46 POST /pay 500\n17:05:13 POST /pay 502\n17:07:52 POST /pay 200\n17:10:12 POST /pay/status 200\n17:12:52 POST /cart 200\n17:15:37 POST /pay 200\n17:18:08 POST /pay 502\n17:20:34 POST /pay 504\n17:22:59 POST /cart 200\n17:25:16 POST /pay 404\n17:28:09 POST /cart 500\n17:30:04 POST /cart 200\n17:33:09 POST /pay 200\n17:35:02 POST /cart 200\n17:38:02 POST /pay 200\n17:40:03 POST /search 504\n17:43:10 POST /cart 200\n17:45:34 POST /pay 200\n17:47:51 POST /pay 504\n17:50:21 POST /search 200\n17:53:04 POST /pay 500\n17:55:29 POST /search 200\n17:57:59 POST /search 200\n"
+  },
+  "turns": [
+    {
+      "prompt": "gateway.log 里请求路径恰好是 /pay（不含 /pay/status）的 5xx 响应有多少条？",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "22"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "web-33041",
+  "description": "Find the current stable release among mixed pre-release/old pages (松针办公). DISTILL-CANARY-6e9c4111",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33041",
+    "ref_calls": 3,
+    "fixture_bytes": 52,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "松针办公",
+      "url": "https://songzhen-office.example/release",
+      "url_match": "songzhen-office.example/release",
+      "title": "版本发布 - 松针办公",
+      "snippet": "松针办公桌面版版本发布说明。",
+      "content": "# 版本发布\n\n桌面版 12.6（2026-09-19，正式版）。12.7 预览版需加入体验计划。\n",
+      "published_at": "2026-09-19"
+    }
+  ],
+  "files": {
+    "我的软件/松针办公.txt": "松针办公 桌面版 12.3\n安装日期 2026-04-02\n"
+  },
+  "turns": [
+    {
+      "prompt": "我电脑上的松针办公是 12.3，现在正式版是多少了？要不要升？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "12.6"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "list_files"
+    ]
+  }
+}

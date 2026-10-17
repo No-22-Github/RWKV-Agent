@@ -1,0 +1,69 @@
+{
+  "id": "fs-33713",
+  "description": "Count markdown files with mixed-case extensions and a .md.bak decoy. DISTILL-CANARY-5e19e395",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-ctype-33713",
+    "ref_calls": 5,
+    "fixture_bytes": 631,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "wiki/intro.md": "intro orbit grain meadow willow umber ember thistle harbor\nfjord lamp delta juni\n",
+    "wiki/setup.md": "setup stone zephyr yarrow saddle\nmaple kettle umber juniper ridge yarrow st\n",
+    "wiki/faq.MD": "faq.M maple lamp harbor meadow thistle\nridge river fjord saddle maple ember pixel willow\n\n",
+    "wiki/guide/usage.md": "usage pebble lamp quill zephyr\n",
+    "wiki/guide/tips.md": "tips. yarrow harbor harbor thistle ivory\number alpha delta\nhollow\n",
+    "wiki/guide/Advanced.Md": "Advan pixel oyster river ember quartz pebble juniper quill\nthistl\n",
+    "wiki/guide/img/arch.png": "arch. umber thistle harbor gra\n",
+    "wiki/drafts/todo.md.bak": "todo. stone saddle orbit quartz\n",
+    "wiki/drafts/plan.md": "plan. zephyr kettle lantern oyster lantern pebble pebble\nalpha juniper delta\n\n",
+    "wiki/index.html": "index delta river zephyr alpha pebble\n\n",
+    "wiki/README": "READM pebble fjord velvet velvet saddle \n"
+  },
+  "turns": [
+    {
+      "prompt": "wiki 目录（含所有子目录）里一共有多少个 Markdown 文件？",
+      "expect": {
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "其中直接放在 wiki 根目录下的有几个？",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

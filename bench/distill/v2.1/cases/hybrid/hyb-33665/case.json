@@ -1,0 +1,78 @@
+{
+  "id": "hyb-33665",
+  "description": "Multi-turn: warranty end date from purchase date + months, then days left. DISTILL-CANARY-3573ffe9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2035-11-08"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-files-65",
+    "ref_calls": 3,
+    "fixture_bytes": 120,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "家电/保修卡.md": "# 洗衣机保修卡\n\n购买日期：2025-11-08\n整机保修：24 个月\n电机保修：10 年\n客服热线：见包装\n"
+  },
+  "turns": [
+    {
+      "prompt": "家电文件夹里洗衣机的整机保修到哪天结束？",
+      "expect": {
+        "output_contains_any": [
+          "2027-11-08",
+          "2027年11月8日",
+          "2027年11月8号",
+          "11月8日",
+          "11月8号",
+          "Nov 8",
+          "November 8"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "从今天算，还剩多少天？",
+      "expect": {
+        "output_contains_any": [
+          "418天",
+          "418 天",
+          "418 days",
+          "418 day"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "list_files",
+      "datetime",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "家电/保修卡.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

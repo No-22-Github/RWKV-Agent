@@ -1,0 +1,61 @@
+{
+  "id": "hyb-33320",
+  "description": "Total hours per person from a timesheet and record the top person. DISTILL-CANARY-c634fee2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-write-20",
+    "ref_calls": 4,
+    "fixture_bytes": 3409,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [],
+  "files": {
+    "time/sheet.csv": "date,person,hours\n2026-09-02,Dora,4\n2026-09-13,Mara,4\n2026-09-09,Gus,4\n2026-09-04,Femi,4\n2026-09-14,Dora,3\n2026-09-03,Chen,2\n2026-09-11,Chen,4\n2026-09-03,Mara,2\n2026-09-02,Dora,4\n2026-09-07,Ilya,3\n2026-09-03,Dora,3\n2026-09-10,Gus,8\n2026-09-09,Mara,6\n2026-09-10,Gus,6\n2026-09-02,Femi,6\n2026-09-12,Chen,3\n2026-09-04,Dora,3\n2026-09-10,Gus,2\n2026-09-11,Ilya,3\n2026-09-13,Dora,4\n2026-09-01,Mara,8\n2026-09-05,Ilya,3\n2026-09-13,Mara,3\n2026-09-12,Femi,6\n2026-09-13,Chen,4\n2026-09-03,Dora,3\n2026-09-04,Ilya,3\n2026-09-02,Dora,4\n2026-09-14,Femi,4\n2026-09-07,Ilya,2\n2026-09-06,Dora,4\n2026-09-15,Ilya,6\n2026-09-06,Dora,8\n2026-09-08,Dora,6\n2026-09-08,Femi,8\n2026-09-03,Dora,8\n2026-09-03,Femi,3\n2026-09-13,Ilya,6\n2026-09-15,Mara,4\n2026-09-08,Chen,6\n2026-09-14,Chen,4\n2026-09-11,Ilya,3\n2026-09-02,Chen,4\n2026-09-01,Ilya,8\n2026-09-08,Gus,8\n2026-09-04,Ilya,6\n2026-09-08,Dora,8\n2026-09-09,Mara,8\n2026-09-09,Ilya,6\n2026-09-12,Gus,8\n2026-09-01,Femi,4\n2026-09-02,Femi,8\n2026-09-10,Gus,3\n2026-09-02,Chen,3\n2026-09-05,Dora,6\n2026-09-08,Femi,8\n2026-09-15,Chen,2\n2026-09-09,Dora,8\n2026-09-12,Dora,8\n2026-09-09,Dora,3\n2026-09-11,Chen,8\n2026-09-02,Femi,6\n2026-09-01,Ilya,8\n2026-09-13,Mara,8\n2026-09-03,Dora,2\n2026-09-04,Femi,4\n2026-09-08,Mara,4\n2026-09-03,Dora,3\n2026-09-10,Chen,4\n2026-09-12,Femi,3\n2026-09-13,Gus,4\n2026-09-14,Gus,8\n2026-09-08,Ilya,6\n2026-09-09,Femi,4\n2026-09-13,Femi,3\n2026-09-13,Chen,3\n2026-09-09,Dora,2\n2026-09-06,Ilya,8\n2026-09-10,Gus,2\n2026-09-02,Femi,4\n2026-09-09,Femi,2\n2026-09-10,Chen,6\n2026-09-08,Mara,4\n2026-09-03,Dora,6\n2026-09-04,Chen,6\n2026-09-14,Ilya,6\n2026-09-14,Mara,8\n2026-09-06,Femi,8\n2026-09-03,Ilya,8\n2026-09-09,Mara,3\n2026-09-10,Femi,8\n2026-09-14,Chen,6\n2026-09-07,Femi,4\n2026-09-14,Ilya,2\n2026-09-03,Mara,4\n2026-09-08,Chen,4\n2026-09-11,Femi,3\n2026-09-13,Gus,4\n2026-09-01,Ilya,8\n2026-09-08,Ilya,4\n2026-09-05,Ilya,8\n2026-09-01,Femi,8\n2026-09-01,Femi,8\n2026-09-07,Mara,8\n2026-09-05,Chen,4\n2026-09-01,Ilya,4\n2026-09-04,Dora,4\n2026-09-12,Dora,2\n2026-09-01,Femi,6\n2026-09-15,Mara,6\n2026-09-10,Femi,6\n2026-09-13,Dora,6\n2026-09-14,Dora,8\n2026-09-09,Mara,2\n2026-09-11,Dora,8\n2026-09-05,Gus,8\n2026-09-10,Dora,3\n2026-09-06,Gus,4\n2026-09-05,Ilya,2\n2026-09-05,Mara,2\n2026-09-12,Mara,2\n2026-09-02,Femi,3\n2026-09-11,Dora,6\n2026-09-02,Femi,6\n2026-09-14,Dora,2\n2026-09-15,Ilya,6\n2026-09-08,Dora,8\n2026-09-03,Gus,2\n2026-09-03,Gus,4\n2026-09-08,Chen,3\n2026-09-14,Gus,2\n2026-09-01,Gus,4\n2026-09-06,Dora,8\n2026-09-08,Dora,6\n2026-09-04,Dora,4\n2026-09-01,Dora,4\n2026-09-09,Mara,6\n2026-09-08,Ilya,8\n2026-09-14,Gus,2\n2026-09-08,Gus,4\n2026-09-15,Chen,6\n2026-09-12,Mara,3\n2026-09-10,Gus,6\n2026-09-05,Chen,4\n2026-09-11,Dora,2\n2026-09-11,Gus,6\n2026-09-05,Ilya,6\n2026-09-06,Dora,4\n2026-09-12,Chen,6\n2026-09-01,Ilya,4\n2026-09-07,Femi,8\n2026-09-02,Femi,2\n2026-09-09,Gus,3\n2026-09-03,Chen,3\n2026-09-11,Dora,4\n2026-09-01,Dora,4\n2026-09-14,Dora,4\n2026-09-06,Chen,6\n2026-09-13,Ilya,3\n2026-09-02,Ilya,4\n2026-09-13,Dora,2\n2026-09-08,Gus,4\n2026-09-09,Gus,2\n2026-09-14,Mara,8\n2026-09-01,Mara,6\n2026-09-02,Gus,3\n2026-09-06,Mara,4\n2026-09-03,Chen,2\n2026-09-02,Gus,3\n2026-09-03,Femi,4\n2026-09-13,Femi,6\n2026-09-14,Mara,2\n2026-09-06,Gus,3\n2026-09-04,Gus,4\n2026-09-04,Femi,2\n2026-09-11,Femi,6\n2026-09-08,Ilya,6\n2026-09-12,Dora,2\n2026-09-14,Chen,4\n2026-09-08,Femi,6\n2026-09-10,Mara,3\n2026-09-12,Mara,8\n2026-09-02,Chen,6\n2026-09-12,Ilya,4\n2026-09-09,Mara,6\n2026-09-05,Femi,2\n2026-09-08,Chen,2\n2026-09-10,Gus,2\n2026-09-06,Dora,8\n2026-09-02,Chen,3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who logged the most hours in time/sheet.csv? Write 'name,total' on one line to time/top.txt and tell me the name.",
+      "expect": {
+        "output_contains": [
+          "Dora"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "time/sheet.csv": {
+        "unchanged": true
+      },
+      "time/top.txt": {
+        "equals": "Dora,199\n"
+      }
+    }
+  }
+}

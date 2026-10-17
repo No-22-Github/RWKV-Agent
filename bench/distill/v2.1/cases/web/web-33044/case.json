@@ -1,0 +1,79 @@
+{
+  "id": "web-33044",
+  "description": "Find the current stable release among mixed pre-release/old pages (Basalt Auth). DISTILL-CANARY-6007e267",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33044",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Basalt Auth",
+      "url": "https://basalt-auth.example/security/advisories",
+      "url_match": "basalt-auth.example/security/advisories",
+      "title": "Security advisories - Basalt Auth",
+      "snippet": "Advisories and fixed versions.",
+      "content": "# Advisories\n\nBA-2026-014 (high): fixed in 3.9.2. All versions before 3.9.2 are affected. Current stable is 3.10.0.\n",
+      "published_at": "2026-09-10"
+    },
+    {
+      "query_match": "Basalt Auth",
+      "url": "https://basalt-auth.example/releases",
+      "url_match": "basalt-auth.example/releases",
+      "title": "Releases - Basalt Auth",
+      "snippet": "Basalt Auth releases.",
+      "content": "# Releases\n\n3.10.0 stable 2026-09-18\n3.9.2 2026-09-10\n3.9.1 2026-08-25\n",
+      "published_at": "2026-09-18"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "We run Basalt Auth 3.9.1. Is there a known security issue, which version fixes it and what is the current stable release?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "3.9.2"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Fine, which exact version should I go to?",
+      "expect": {
+        "output_contains": [
+          "3.10.0"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

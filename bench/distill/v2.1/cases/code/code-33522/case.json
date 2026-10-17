@@ -1,0 +1,87 @@
+{
+  "id": "code-33522",
+  "description": "work_dir callers (not work_dir_tmp); move pid under run/. DISTILL-CANARY-2bba4069",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-callers-33522",
+    "ref_calls": 8,
+    "fixture_bytes": 343,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "lib/paths.sh": "#!/usr/bin/env bash\nwork_dir() {\n  echo \"${HOME}/.cache/tool\"\n}\n\nwork_dir_tmp() {\n  echo \"/tmp/tool\"\n}\n",
+    "bin/start.sh": "#!/usr/bin/env bash\nsource lib/paths.sh\nmkdir -p \"$(work_dir)\"\n",
+    "bin/stop.sh": "#!/usr/bin/env bash\nsource lib/paths.sh\nrm -f \"$(work_dir)/pid\"\n",
+    "bin/tmpclean.sh": "#!/usr/bin/env bash\nsource lib/paths.sh\nrm -rf \"$(work_dir_tmp)\"\n",
+    "docs/usage.md": "Run `bin/start.sh`; it calls $(work_dir) first.\n"
+  },
+  "turns": [
+    {
+      "prompt": "哪些 bin 脚本调用了 work_dir？work_dir_tmp 不算。",
+      "expect": {
+        "output_contains": [
+          "bin/start.sh",
+          "bin/stop.sh"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "这两个脚本以后统一用 work_dir 下面的 run 子目录：start.sh 创建 run，stop.sh 删 run/pid。按这个改，别动 tmpclean.sh。",
+      "expect": {
+        "output_contains": [
+          "run"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_lines",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "lib/paths.sh": {
+        "unchanged": true
+      },
+      "bin/start.sh": {
+        "equals": "#!/usr/bin/env bash\nsource lib/paths.sh\nmkdir -p \"$(work_dir)/run\"\n"
+      },
+      "bin/stop.sh": {
+        "equals": "#!/usr/bin/env bash\nsource lib/paths.sh\nrm -f \"$(work_dir)/run/pid\"\n"
+      },
+      "bin/tmpclean.sh": {
+        "unchanged": true
+      },
+      "docs/usage.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

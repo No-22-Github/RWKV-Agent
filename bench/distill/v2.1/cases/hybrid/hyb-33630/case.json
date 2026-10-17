@@ -1,0 +1,46 @@
+{
+  "id": "hyb-33630",
+  "description": "Year-over-year revenue growth percentage, two decimals. DISTILL-CANARY-36b15be3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "14.75"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-30",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "去年营收 3847200 元，今年 4512960 元，同比增长百分之多少？保留两位小数。",
+      "expect": {
+        "expected_number": 17.31,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

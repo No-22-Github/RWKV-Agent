@@ -1,0 +1,94 @@
+{
+  "id": "hyb-33342",
+  "description": "Room cost for the booked stay, then the all-in total once the tax page is read. DISTILL-CANARY-639084f5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-calc-42",
+    "ref_calls": 6,
+    "fixture_bytes": 48,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Alder Suites",
+      "url_match": "aldersuites.example.com/rates",
+      "url": "https://aldersuites.example.com/rates",
+      "title": "Alder Suites rates",
+      "snippet": "Nightly room rates.",
+      "content": "# Nightly rates (2026)\n\nStandard room: $142\nDeluxe room: $189\nSuite: $260\n\nTaxes and fees are listed on the Taxes page.\n",
+      "published_at": "2026-08-01"
+    },
+    {
+      "query_match": "Alder Suites",
+      "url_match": "aldersuites.example.com/taxes",
+      "url": "https://aldersuites.example.com/taxes",
+      "title": "Alder Suites taxes",
+      "snippet": "Occupancy tax and resort fee.",
+      "content": "# Taxes and fees\n\nOccupancy tax: 12% of the room charge\nResort fee: $15 per night\n",
+      "published_at": "2026-08-01"
+    }
+  ],
+  "files": {
+    "travel/booking.txt": "hotel: Alder Suites\nroom: Deluxe room\nnights: 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Based on travel/booking.txt, what is the room charge before taxes for the Alder Suites stay, at their listed nightly rate?",
+      "expect": {
+        "output_contains": [
+          "567"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "Now add what the hotel's taxes page says: occupancy tax and the resort fee. What is the all-in total?",
+      "expect": {
+        "output_contains_any": [
+          "680.04"
+        ],
+        "output_contains_any_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "travel/booking.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

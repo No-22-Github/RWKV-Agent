@@ -1,0 +1,70 @@
+{
+  "id": "web-33029",
+  "description": "Look up one concrete value for a fictional site (Orchard SDK). DISTILL-CANARY-9c515986",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lk-33029",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Orchard SDK",
+      "url": "https://orchard-sdk.example/docs/rate-limits",
+      "url_match": "orchard-sdk.example/docs/rate-limits",
+      "title": "Rate limits - Orchard SDK",
+      "snippet": "Default API rate limits by plan.",
+      "content": "# Rate limits\n\nFree: 60 requests per minute. Pro: 600 per minute. Enterprise: custom. Burst allowance is 2x for 10 seconds.\n",
+      "published_at": "2026-09-11"
+    },
+    {
+      "query_match": "Orchard SDK",
+      "url": "https://orchard-sdk.example/docs/rate-limits-2025",
+      "url_match": "orchard-sdk.example/docs/rate-limits-2025",
+      "title": "Rate limits (2025, archived)",
+      "snippet": "Archived rate limits.",
+      "content": "# Rate limits (archived)\n\nFree: 30 requests per minute. Pro: 300 per minute.\n",
+      "published_at": "2025-06-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What's the Pro plan rate limit for Orchard SDK per minute?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "600"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

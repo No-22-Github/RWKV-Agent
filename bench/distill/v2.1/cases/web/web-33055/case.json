@@ -1,0 +1,71 @@
+{
+  "id": "web-33055",
+  "description": "Explain a vendor error message using the vendor's reference page (Cinder Deploy). DISTILL-CANARY-7543cad6",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33055",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Cinder Deploy",
+      "url": "https://cinder-deploy.example/docs/troubleshoot",
+      "url_match": "cinder-deploy.example/docs/troubleshoot",
+      "title": "Troubleshooting - Cinder Deploy",
+      "snippet": "Common deploy failures.",
+      "content": "# Troubleshooting\n\n`ERR_HEALTHCHECK_TIMEOUT`: the new release did not pass its health check within 90 seconds, so traffic stays on the previous release. Raise `healthcheck.timeout` or fix the /healthz endpoint.\n\n`ERR_IMAGE_PULL`: the registry rejected credentials.\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Cinder Deploy rolled back and says ERR_HEALTHCHECK_TIMEOUT. Did my new version go live?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "90"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "So what setting do I raise?",
+      "expect": {
+        "output_contains": [
+          "healthcheck.timeout"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

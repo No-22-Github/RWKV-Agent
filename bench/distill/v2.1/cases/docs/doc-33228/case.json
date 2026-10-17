@@ -1,0 +1,64 @@
+{
+  "id": "doc-33228",
+  "description": "Env var table; undefaulted variable excluded. DISTILL-CANARY-95ed6a30",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-28",
+    "ref_calls": 4,
+    "fixture_bytes": 378,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Gateway\n\n## Configuration\n\nThe service reads these environment variables:\n\n- `GW_PORT` (default `8080`): listen port.\n- `GW_LOG_LEVEL` (default `info`): one of debug, info, warn.\n- `GW_TIMEOUT_MS` (default `3000`): upstream timeout.\n- `GW_TLS` (default `off`): enable TLS.\n\n## Notes\n\nSet `GW_DEBUG=1` only in development; it has no default and is not supported in production.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Make env-vars.md with a markdown table of the environment variables that have a default, taken from README.md. Use the header `| Name | Default |` and the separator `|---|---|`, one row per variable in README order, name and default without backticks.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      },
+      "env-vars.md": {
+        "equals": "| Name | Default |\n|---|---|\n| GW_PORT | 8080 |\n| GW_LOG_LEVEL | info |\n| GW_TIMEOUT_MS | 3000 |\n| GW_TLS | off |\n"
+      }
+    }
+  }
+}

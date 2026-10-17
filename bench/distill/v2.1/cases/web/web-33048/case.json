@@ -1,0 +1,72 @@
+{
+  "id": "web-33048",
+  "description": "Explain a vendor error message using the vendor's reference page (凌霄物流). DISTILL-CANARY-77fb7f06",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-er-33048",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "凌霄物流",
+      "url": "https://lingxiao-express.example/help/status-S207",
+      "url_match": "lingxiao-express.example/help/status-S207",
+      "title": "状态码 S207 - 凌霄物流",
+      "snippet": "物流状态码说明。",
+      "content": "# S207：待补充收件人信息\n\n快递员无法联系收件人且地址缺少门牌号。请在 App「我的快递」中补充电话或门牌，72 小时内未补充将退回寄件人。\n",
+      "published_at": "2026-09-02"
+    },
+    {
+      "query_match": "凌霄物流",
+      "url": "https://lingxiao-express.example/help/status-S209",
+      "url_match": "lingxiao-express.example/help/status-S209",
+      "title": "状态码 S209 - 凌霄物流",
+      "snippet": "物流状态码说明。",
+      "content": "# S209：已签收待确认\n\n包裹已投递至代收点，收件人 48 小时内可到点取件。\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我的快递在凌霄物流显示 S207 是什么意思，要怎么处理？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "72",
+          "门牌"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

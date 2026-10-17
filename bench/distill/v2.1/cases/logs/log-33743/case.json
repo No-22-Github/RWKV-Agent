@@ -1,0 +1,63 @@
+{
+  "id": "log-33743",
+  "description": "Clock stepped backwards causes tokens to look not-yet-valid. DISTILL-CANARY-41d149bf",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-rootcause-33743",
+    "ref_calls": 6,
+    "fixture_bytes": 7058,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "ntp.log": "2026-04-12 16:03:05 [INFO] ntpd: peer sync ok\n2026-04-12 16:09:18 [INFO] ntpd: peer sync ok\n2026-04-12 16:22:12 [INFO] ntpd: offset +47ms\n2026-04-12 16:24:11 [INFO] ntpd: peer sync ok\n2026-04-12 16:24:43 [INFO] ntpd: offset +50ms\n2026-04-12 16:25:35 [INFO] ntpd: poll 64s\n2026-04-12 16:26:10 [DEBUG] ntpd: poll 64s\n2026-04-12 16:27:43 [INFO] ntpd: peer sync ok\n2026-04-12 16:29:29 [INFO] ntpd: poll 64s\n2026-04-12 16:32:53 [DEBUG] ntpd: peer sync ok\n2026-04-12 16:36:46 [INFO] ntpd: poll 64s\n2026-04-12 16:37:45 [INFO] ntpd: peer sync ok\n2026-04-12 16:38:37 [INFO] ntpd: poll 64s\n2026-04-12 16:39:28 [INFO] ntpd: poll 64s\n2026-04-12 16:41:00 [WARN] ntpd: clock stepped by -420.3s (time source reconfigured)\n2026-04-12 16:41:02 [INFO] ntpd: synchronized\n2026-04-12 16:55:13 [DEBUG] ntpd: offset +87ms\n2026-04-12 16:55:24 [DEBUG] ntpd: peer sync ok\n2026-04-12 16:55:43 [DEBUG] ntpd: offset +41ms\n2026-04-12 17:01:11 [DEBUG] ntpd: peer sync ok\n2026-04-12 17:01:28 [INFO] ntpd: peer sync ok\n2026-04-12 17:04:14 [INFO] ntpd: offset +40ms\n2026-04-12 17:04:46 [INFO] ntpd: peer sync ok\n2026-04-12 17:08:51 [INFO] ntpd: poll 64s\n2026-04-12 17:09:58 [DEBUG] ntpd: poll 64s\n2026-04-12 17:12:51 [INFO] ntpd: offset +2ms\n2026-04-12 17:13:38 [INFO] ntpd: poll 64s\n2026-04-12 17:14:30 [DEBUG] ntpd: peer sync ok\n2026-04-12 17:16:25 [INFO] ntpd: poll 64s\n2026-04-12 17:24:26 [INFO] ntpd: peer sync ok\n2026-04-12 17:25:22 [INFO] ntpd: poll 64s\n2026-04-12 17:27:01 [INFO] ntpd: offset +51ms\n2026-04-12 17:27:20 [DEBUG] ntpd: offset +87ms\n2026-04-12 17:27:59 [INFO] ntpd: peer sync ok\n2026-04-12 17:29:29 [INFO] ntpd: offset +19ms\n2026-04-12 17:29:38 [INFO] ntpd: poll 64s\n2026-04-12 17:31:34 [DEBUG] ntpd: poll 64s\n2026-04-12 17:36:05 [DEBUG] ntpd: poll 64s\n2026-04-12 17:41:04 [INFO] ntpd: poll 64s\n2026-04-12 17:42:37 [INFO] ntpd: peer sync ok\n2026-04-12 17:47:14 [INFO] ntpd: offset +73ms\n2026-04-12 17:57:09 [INFO] ntpd: offset +58ms\n",
+    "auth.log": "2026-04-12 16:03:06 [INFO] auth: token issued for user712\n2026-04-12 16:10:21 [INFO] auth: login ok user892\n2026-04-12 16:15:59 [INFO] auth: login ok user680\n2026-04-12 16:16:08 [INFO] auth: refresh ok\n2026-04-12 16:17:42 [DEBUG] auth: refresh ok\n2026-04-12 16:18:03 [INFO] auth: login ok user185\n2026-04-12 16:22:22 [INFO] auth: login ok user936\n2026-04-12 16:22:40 [INFO] auth: login ok user725\n2026-04-12 16:26:45 [INFO] auth: refresh ok\n2026-04-12 16:27:17 [INFO] auth: login ok user36\n2026-04-12 16:28:43 [DEBUG] auth: refresh ok\n2026-04-12 16:28:53 [INFO] auth: refresh ok\n2026-04-12 16:31:05 [DEBUG] auth: token issued for user458\n2026-04-12 16:36:49 [DEBUG] auth: login ok user436\n2026-04-12 16:38:37 [DEBUG] auth: login ok user394\n2026-04-12 16:39:13 [INFO] auth: refresh ok\n2026-04-12 16:40:19 [DEBUG] auth: refresh ok\n2026-04-12 16:40:27 [INFO] auth: token issued for user937\n2026-04-12 16:40:52 [INFO] auth: login ok user729\n2026-04-12 16:41:10 [ERROR] auth: token rejected: not valid yet (nbf in the future) for user214\n2026-04-12 16:41:12 [ERROR] auth: token rejected: not valid yet (nbf in the future) for user221\n2026-04-12 16:44:13 [INFO] auth: login ok user224\n2026-04-12 16:47:25 [INFO] auth: login ok user527\n2026-04-12 16:48:20 [INFO] auth: token validation back to normal\n2026-04-12 16:56:07 [INFO] auth: token issued for user725\n2026-04-12 16:56:30 [INFO] auth: refresh ok\n2026-04-12 16:57:06 [INFO] auth: login ok user63\n2026-04-12 16:57:18 [INFO] auth: token issued for user350\n2026-04-12 16:58:34 [DEBUG] auth: login ok user402\n2026-04-12 16:59:18 [DEBUG] auth: token issued for user987\n2026-04-12 17:01:41 [INFO] auth: login ok user662\n2026-04-12 17:05:24 [INFO] auth: token issued for user717\n2026-04-12 17:06:21 [DEBUG] auth: refresh ok\n2026-04-12 17:06:37 [INFO] auth: refresh ok\n2026-04-12 17:07:20 [INFO] auth: token issued for user447\n2026-04-12 17:10:31 [INFO] auth: refresh ok\n2026-04-12 17:14:43 [INFO] auth: refresh ok\n2026-04-12 17:16:03 [INFO] auth: token issued for user317\n2026-04-12 17:19:42 [INFO] auth: refresh ok\n2026-04-12 17:20:48 [INFO] auth: token issued for user510\n2026-04-12 17:24:01 [DEBUG] auth: login ok user429\n2026-04-12 17:24:32 [DEBUG] auth: login ok user390\n2026-04-12 17:24:57 [DEBUG] auth: login ok user345\n2026-04-12 17:26:23 [DEBUG] auth: login ok user219\n2026-04-12 17:28:16 [INFO] auth: login ok user830\n2026-04-12 17:35:45 [INFO] auth: token issued for user857\n2026-04-12 17:35:47 [INFO] auth: refresh ok\n2026-04-12 17:38:00 [INFO] auth: login ok user487\n2026-04-12 17:38:59 [INFO] auth: token issued for user652\n2026-04-12 17:40:29 [INFO] auth: refresh ok\n2026-04-12 17:46:06 [INFO] auth: refresh ok\n2026-04-12 17:47:24 [INFO] auth: refresh ok\n2026-04-12 17:47:40 [INFO] auth: login ok user221\n2026-04-12 17:49:51 [INFO] auth: refresh ok\n2026-04-12 17:50:16 [INFO] auth: token issued for user35\n2026-04-12 17:51:18 [INFO] auth: token issued for user208\n2026-04-12 17:57:25 [INFO] auth: login ok user715\n2026-04-12 17:59:47 [DEBUG] auth: token issued for user134\n",
+    "gateway.log": "2026-04-12 16:05:26 [INFO] gw: GET /feed 200 7ms\n2026-04-12 16:10:32 [INFO] gw: GET /me 200 27ms\n2026-04-12 16:13:56 [INFO] gw: GET /feed 200 52ms\n2026-04-12 16:19:23 [INFO] gw: GET /me 200 80ms\n2026-04-12 16:21:29 [INFO] gw: GET /feed 200 26ms\n2026-04-12 16:25:43 [DEBUG] gw: GET /me 200 83ms\n2026-04-12 16:28:13 [DEBUG] gw: GET /me 200 26ms\n2026-04-12 16:34:11 [INFO] gw: GET /me 200 84ms\n2026-04-12 16:34:17 [INFO] gw: GET /feed 200 88ms\n2026-04-12 16:41:15 [ERROR] gw: GET /me 401\n2026-04-12 16:41:20 [ERROR] gw: GET /feed 401\n2026-04-12 16:43:59 [DEBUG] gw: GET /feed 200 2ms\n2026-04-12 16:47:47 [INFO] gw: GET /feed 200 46ms\n2026-04-12 16:48:30 [INFO] gw: GET /me 200 12ms\n2026-04-12 16:50:10 [INFO] gw: GET /me 200 90ms\n2026-04-12 16:52:04 [INFO] gw: GET /me 200 76ms\n2026-04-12 16:52:30 [INFO] gw: GET /me 200 5ms\n2026-04-12 16:53:12 [INFO] gw: GET /feed 200 18ms\n2026-04-12 16:53:41 [INFO] gw: GET /feed 200 31ms\n2026-04-12 16:56:31 [INFO] gw: GET /feed 200 16ms\n2026-04-12 17:05:57 [INFO] gw: GET /me 200 56ms\n2026-04-12 17:06:42 [INFO] gw: GET /feed 200 73ms\n2026-04-12 17:08:08 [INFO] gw: GET /feed 200 87ms\n2026-04-12 17:08:14 [DEBUG] gw: GET /feed 200 72ms\n2026-04-12 17:08:50 [INFO] gw: GET /me 200 74ms\n2026-04-12 17:09:12 [INFO] gw: GET /feed 200 61ms\n2026-04-12 17:09:42 [INFO] gw: GET /feed 200 5ms\n2026-04-12 17:16:08 [DEBUG] gw: GET /me 200 43ms\n2026-04-12 17:18:20 [INFO] gw: GET /feed 200 52ms\n2026-04-12 17:18:24 [INFO] gw: GET /feed 200 18ms\n2026-04-12 17:18:33 [DEBUG] gw: GET /me 200 90ms\n2026-04-12 17:18:58 [INFO] gw: GET /feed 200 31ms\n2026-04-12 17:39:52 [INFO] gw: GET /feed 200 17ms\n2026-04-12 17:40:24 [INFO] gw: GET /me 200 51ms\n2026-04-12 17:40:43 [INFO] gw: GET /feed 200 33ms\n2026-04-12 17:42:37 [DEBUG] gw: GET /me 200 25ms\n2026-04-12 17:42:43 [INFO] gw: GET /feed 200 64ms\n2026-04-12 17:43:07 [INFO] gw: GET /feed 200 81ms\n2026-04-12 17:45:41 [INFO] gw: GET /feed 200 88ms\n2026-04-12 17:47:18 [INFO] gw: GET /me 200 7ms\n2026-04-12 17:47:41 [DEBUG] gw: GET /me 200 70ms\n2026-04-12 17:53:10 [INFO] gw: GET /feed 200 43ms\n2026-04-12 17:56:00 [INFO] gw: GET /me 200 60ms\n"
+  },
+  "turns": [
+    {
+      "prompt": "Users got a burst of 401s late afternoon. What is the root cause? Use the three log files and give the time of the first event that set it off.",
+      "expect": {
+        "output_contains": [
+          "16:41"
+        ],
+        "output_contains_any": [
+          "clock",
+          "time",
+          "ntp",
+          "NTP",
+          "nbf",
+          "skew"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

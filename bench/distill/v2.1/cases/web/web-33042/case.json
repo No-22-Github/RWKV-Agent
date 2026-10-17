@@ -1,0 +1,89 @@
+{
+  "id": "web-33042",
+  "description": "Find the current stable release among mixed pre-release/old pages (Glimmer Runtime). DISTILL-CANARY-6581c01c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lv-33042",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Glimmer Runtime",
+      "url": "https://glimmer-rt.example/install",
+      "url_match": "glimmer-rt.example/install",
+      "title": "Install Glimmer Runtime",
+      "snippet": "Install guide.",
+      "content": "# Install\n\nThe installer fetches version 1.20.1 by default (current stable). Use --channel next for 1.21.0-next.4.\n",
+      "published_at": "2026-09-03"
+    },
+    {
+      "query_match": "Glimmer Runtime",
+      "url": "https://glimmer-rt.example/eol",
+      "url_match": "glimmer-rt.example/eol",
+      "title": "Support policy",
+      "snippet": "Support windows.",
+      "content": "# Support policy\n\nEach minor is supported for 12 months. 1.16 reaches end of life on 2026-11-01.\n",
+      "published_at": "2026-05-15"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "现在默认安装 Glimmer Runtime 会装到哪个版本？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "1.20.1"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "When does 1.16 stop being supported?",
+      "expect": {
+        "output_contains_any": [
+          "2026-11-01",
+          "2026/11/1",
+          "2026年11月1日",
+          "2026 年 11 月 1 日",
+          "11月1日",
+          "11 月 1 日",
+          "11月1号",
+          "November 1",
+          "1 November",
+          "Nov 1",
+          "1 Nov",
+          "1.11.2026"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

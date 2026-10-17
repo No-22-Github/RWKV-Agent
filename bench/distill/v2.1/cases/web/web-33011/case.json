@@ -1,0 +1,62 @@
+{
+  "id": "web-33011",
+  "description": "Summarize a fictional site page whose snippet is vague (海盐读书会). DISTILL-CANARY-c10eb4d5",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33011",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "海盐读书会",
+      "url": "https://haiyan-club.example/join/rules",
+      "url_match": "haiyan-club.example/join/rules",
+      "title": "入会须知 - 海盐读书会",
+      "snippet": "页面概述，具体条目见正文。",
+      "content": "# 入会须知\n\n会费每年 180 元，学生 90 元。每月第二个周六下午 2 点线下读书会，地点在南湾图书馆三楼。每季度须至少参加 2 次活动，否则会籍自动转为旁听。书单由会员投票，得票最高的前 3 本进入当季书单。\n",
+      "published_at": "2026-04-18"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "海盐读书会的入会须知帮我总结下，我想知道会费和参加要求。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "180",
+          "旁听"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

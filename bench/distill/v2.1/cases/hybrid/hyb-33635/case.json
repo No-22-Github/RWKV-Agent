@@ -1,0 +1,46 @@
+{
+  "id": "hyb-33635",
+  "description": "English simple-interest loan repayment over 18 months. DISTILL-CANARY-2bd1f052",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "13,025"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-35",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "A loan of 12,500 carries 4.2% simple interest per year. If I repay everything after 18 months, how much is the total repayment?",
+      "expect": {
+        "expected_number": 13287.5,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

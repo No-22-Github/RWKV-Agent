@@ -1,0 +1,70 @@
+{
+  "id": "log-33738",
+  "description": "Pool size reduced by a config change causes timeouts later; asks which change and when. DISTILL-CANARY-1806720b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-rootcause-33738",
+    "ref_calls": 6,
+    "fixture_bytes": 6995,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy.log": "2026-09-11 13:08:01 [INFO] deploy 690 finished\n2026-09-11 13:23:49 [INFO] deploy 698 finished\n2026-09-11 13:28:59 [INFO] deploy 919 started for svc billing\n2026-09-11 13:45:14 [INFO] deploy 774 finished\n2026-09-11 13:48:17 [INFO] deploy 653 started for svc billing\n2026-09-11 13:51:25 [INFO] deploy 525 started for svc billing\n2026-09-11 13:51:32 [INFO] deploy 847 finished\n2026-09-11 13:54:32 [INFO] deploy 771 started for svc billing\n2026-09-11 14:04:41 [INFO] deploy 950 finished\n2026-09-11 14:17:16 [INFO] deploy 693 started for svc billing\n2026-09-11 14:20:18 [INFO] deploy 337 started for svc billing\n2026-09-11 14:32:10 [INFO] applied config change #5521: pool.max_connections 200 -> 20 (service=orders)\n2026-09-11 14:32:30 [INFO] orders restarted\n2026-09-11 14:33:03 [INFO] deploy 965 finished\n2026-09-11 14:34:00 [INFO] deploy 628 started for svc billing\n2026-09-11 14:35:22 [INFO] deploy 511 started for svc billing\n2026-09-11 14:37:52 [INFO] deploy 594 started for svc billing\n2026-09-11 14:52:50 [INFO] deploy 124 started for svc billing\n2026-09-11 14:59:11 [INFO] deploy 80 started for svc billing\n2026-09-11 15:04:23 [INFO] deploy 832 started for svc billing\n2026-09-11 15:10:00 [INFO] applied config change #5522: log.level debug -> info (service=billing)\n2026-09-11 15:12:37 [INFO] deploy 917 finished\n2026-09-11 15:23:57 [INFO] deploy 850 started for svc billing\n2026-09-11 15:31:37 [INFO] deploy 163 started for svc billing\n2026-09-11 15:32:11 [INFO] deploy 562 finished\n2026-09-11 15:55:14 [INFO] deploy 437 finished\n2026-09-11 15:57:38 [INFO] deploy 712 started for svc billing\n2026-09-11 16:06:51 [INFO] deploy 987 finished\n2026-09-11 16:07:08 [INFO] deploy 248 started for svc billing\n2026-09-11 16:15:19 [INFO] deploy 317 started for svc billing\n2026-09-11 16:23:54 [INFO] deploy 337 finished\n2026-09-11 16:43:21 [INFO] deploy 155 started for svc billing\n2026-09-11 16:55:21 [INFO] deploy 421 started for svc billing\n",
+    "orders.log": "2026-09-11 13:02:56 [INFO] orders: cache hit ratio 0.922\n2026-09-11 13:05:07 [INFO] orders: order 992 created\n2026-09-11 13:07:24 [INFO] orders: order 387 created\n2026-09-11 13:09:22 [DEBUG] orders: order 523 created\n2026-09-11 13:11:50 [DEBUG] orders: order 806 paid\n2026-09-11 13:14:10 [INFO] orders: order 252 created\n2026-09-11 13:27:22 [INFO] orders: cache hit ratio 0.912\n2026-09-11 13:28:55 [INFO] orders: order 838 paid\n2026-09-11 13:32:54 [INFO] orders: cache hit ratio 0.960\n2026-09-11 13:35:49 [DEBUG] orders: order 830 created\n2026-09-11 13:36:15 [INFO] orders: order 615 created\n2026-09-11 13:39:27 [INFO] orders: cache hit ratio 0.950\n2026-09-11 13:39:52 [DEBUG] orders: order 472 created\n2026-09-11 13:45:00 [INFO] orders: order 794 paid\n2026-09-11 13:54:49 [INFO] orders: cache hit ratio 0.923\n2026-09-11 13:57:59 [INFO] orders: cache hit ratio 0.968\n2026-09-11 14:12:25 [INFO] orders: order 175 paid\n2026-09-11 14:13:44 [DEBUG] orders: cache hit ratio 0.918\n2026-09-11 14:21:43 [INFO] orders: order 73 paid\n2026-09-11 14:32:31 [DEBUG] orders: cache hit ratio 0.92\n2026-09-11 14:35:07 [DEBUG] orders: cache hit ratio 0.935\n2026-09-11 14:36:07 [INFO] orders: cache hit ratio 0.951\n2026-09-11 14:41:07 [WARN] orders: connection pool wait time 1200ms\n2026-09-11 14:42:18 [DEBUG] orders: order 655 paid\n2026-09-11 14:47:55 [ERROR] orders: timeout waiting for a database connection after 5000ms\n2026-09-11 14:48:20 [ERROR] orders: timeout waiting for a database connection after 5000ms\n2026-09-11 14:54:47 [INFO] orders: cache hit ratio 0.936\n2026-09-11 14:57:47 [DEBUG] orders: order 874 created\n2026-09-11 14:57:50 [DEBUG] orders: order 436 created\n2026-09-11 15:05:10 [DEBUG] orders: cache hit ratio 0.975\n2026-09-11 15:05:48 [INFO] orders: cache hit ratio 0.951\n2026-09-11 15:08:33 [INFO] orders: order 189 created\n2026-09-11 15:13:57 [INFO] orders: order 690 paid\n2026-09-11 15:14:01 [INFO] orders: order 174 created\n2026-09-11 15:24:02 [INFO] orders: order 224 paid\n2026-09-11 15:25:25 [INFO] orders: cache hit ratio 0.977\n2026-09-11 15:30:18 [DEBUG] orders: order 416 created\n2026-09-11 15:33:50 [DEBUG] orders: cache hit ratio 0.944\n2026-09-11 15:41:10 [INFO] orders: cache hit ratio 0.929\n2026-09-11 15:41:44 [INFO] orders: order 257 created\n2026-09-11 15:51:58 [INFO] orders: order 482 created\n2026-09-11 15:57:22 [DEBUG] orders: order 948 paid\n2026-09-11 15:59:18 [INFO] orders: cache hit ratio 0.970\n2026-09-11 16:02:00 [INFO] orders: pool.max_connections now 200, pool healthy\n2026-09-11 16:02:08 [INFO] orders: order 314 created\n2026-09-11 16:04:17 [DEBUG] orders: order 539 created\n2026-09-11 16:06:24 [DEBUG] orders: order 769 created\n2026-09-11 16:08:27 [INFO] orders: order 823 created\n2026-09-11 16:13:35 [INFO] orders: order 962 created\n2026-09-11 16:17:35 [INFO] orders: order 111 created\n2026-09-11 16:18:35 [INFO] orders: order 822 paid\n2026-09-11 16:29:14 [INFO] orders: order 792 created\n2026-09-11 16:33:14 [INFO] orders: order 739 paid\n2026-09-11 16:38:29 [DEBUG] orders: order 164 paid\n2026-09-11 16:41:33 [INFO] orders: order 155 paid\n2026-09-11 16:46:25 [INFO] orders: order 896 paid\n2026-09-11 16:50:21 [INFO] orders: order 137 created\n2026-09-11 16:51:31 [INFO] orders: order 372 paid\n2026-09-11 16:59:59 [INFO] orders: order 928 paid\n",
+    "monitor.log": "2026-09-11 13:00:32 [INFO] mon: mem 830MB\n2026-09-11 13:02:49 [INFO] mon: cpu 337%\n2026-09-11 13:05:57 [INFO] mon: mem 963MB\n2026-09-11 13:06:20 [INFO] mon: disk ok\n2026-09-11 13:07:50 [INFO] mon: mem 866MB\n2026-09-11 13:14:19 [INFO] mon: disk ok\n2026-09-11 13:16:07 [INFO] mon: mem 461MB\n2026-09-11 13:19:35 [INFO] mon: mem 756MB\n2026-09-11 13:21:41 [INFO] mon: disk ok\n2026-09-11 13:25:43 [DEBUG] mon: disk ok\n2026-09-11 13:46:15 [INFO] mon: mem 971MB\n2026-09-11 13:49:14 [DEBUG] mon: cpu 543%\n2026-09-11 13:57:22 [DEBUG] mon: mem 46MB\n2026-09-11 13:58:17 [INFO] mon: disk ok\n2026-09-11 14:01:20 [INFO] mon: mem 320MB\n2026-09-11 14:01:52 [INFO] mon: mem 99MB\n2026-09-11 14:04:44 [INFO] mon: mem 841MB\n2026-09-11 14:06:57 [INFO] mon: mem 780MB\n2026-09-11 14:13:24 [INFO] mon: cpu 244%\n2026-09-11 14:23:34 [DEBUG] mon: mem 937MB\n2026-09-11 14:29:23 [DEBUG] mon: disk ok\n2026-09-11 14:33:15 [INFO] mon: mem 408MB\n2026-09-11 14:47:44 [DEBUG] mon: cpu 111%\n2026-09-11 14:48:00 [ALERT] mon: orders error rate 38% (threshold 5%)\n2026-09-11 14:59:52 [INFO] mon: cpu 478%\n2026-09-11 15:07:47 [INFO] mon: mem 123MB\n2026-09-11 15:14:45 [DEBUG] mon: disk ok\n2026-09-11 15:18:15 [DEBUG] mon: disk ok\n2026-09-11 15:19:36 [DEBUG] mon: cpu 765%\n2026-09-11 15:46:35 [INFO] mon: disk ok\n2026-09-11 15:54:10 [INFO] mon: disk ok\n2026-09-11 15:57:06 [DEBUG] mon: disk ok\n2026-09-11 15:57:54 [INFO] mon: mem 939MB\n2026-09-11 16:01:56 [INFO] mon: cpu 703%\n2026-09-11 16:03:00 [INFO] mon: orders error rate 0.4%\n2026-09-11 16:16:15 [DEBUG] mon: cpu 318%\n2026-09-11 16:18:48 [INFO] mon: disk ok\n2026-09-11 16:19:15 [INFO] mon: disk ok\n2026-09-11 16:25:30 [DEBUG] mon: cpu 189%\n2026-09-11 16:31:55 [DEBUG] mon: cpu 773%\n2026-09-11 16:50:30 [INFO] mon: cpu 950%\n2026-09-11 16:56:19 [INFO] mon: disk ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "下午订单服务一直超时。三份日志里能看出是哪次变更引起的吗？说出是哪个配置、改成了多少，还有变更是几点。",
+      "expect": {
+        "output_contains": [
+          "14:32"
+        ],
+        "output_contains_any": [
+          "max_connections",
+          "连接数",
+          "连接池",
+          "pool"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "那个变更是什么时候撤销的、问题是几点恢复的？",
+      "expect": {
+        "output_contains": [
+          "16:02"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

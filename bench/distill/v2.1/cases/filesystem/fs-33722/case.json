@@ -1,0 +1,163 @@
+{
+  "id": "fs-33722",
+  "description": "Exact name config.local.yaml is absent while .yml spelling exists. DISTILL-CANARY-e434c534",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [
+      "TR-ABSENT",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "0",
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "DEC",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21p-presence-33722",
+    "ref_calls": 5,
+    "fixture_bytes": 263,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "cfg/config.yaml": "confi alpha lantern \n",
+    "cfg/config.local.yml": "confi quill alpha meadow\nmaple fjord pi\n",
+    "cfg/config.prod.yaml": "confi oyster delta velvet \n",
+    "cfg/base/defaults.yaml": "defau meadow delta kettle stone ridge pebble ember pixel\n",
+    "cfg/base/config.example.yaml": "confi cedar zephyr hollow delta ember\nvelvet oyster harbor kettle qu\n",
+    "cfg/notes.txt": "notes quill velvet lamp yarrow juniper meadow ne\n"
+  },
+  "turns": [
+    {
+      "prompt": "Is there a file called config.local.yaml anywhere under cfg? Answer yes or no and point to the path if yes.",
+      "expect": {
+        "output_contains_any": [
+          "没有",
+          "不存在",
+          "未找到",
+          "找不到",
+          "没找到",
+          "不在",
+          "没发现",
+          "未发现",
+          "查不到",
+          "缺少",
+          "并无",
+          "没看到",
+          "不见",
+          "not found",
+          "no such",
+          "does not exist",
+          "doesn't exist",
+          "not exist",
+          "no file",
+          "missing",
+          "couldn't find",
+          "could not find",
+          "isn't there",
+          "not present",
+          "don't see",
+          "did not find",
+          "didn't find",
+          "cannot find",
+          "can't find",
+          "there is no",
+          "there's no",
+          "no match",
+          "absent",
+          "not exist",
+          "doesn't contain",
+          "does not contain",
+          "no identical",
+          "no duplicate",
+          "none",
+          "nothing",
+          "no two",
+          "not identical",
+          "are all different",
+          "all different",
+          "不重复",
+          "没有重复",
+          "各不相同",
+          "都不一样",
+          "都不同",
+          "没有相同",
+          "无重复",
+          "Not found",
+          "No such",
+          "Does not exist",
+          "Doesn't exist",
+          "Not exist",
+          "No file",
+          "Missing",
+          "Couldn't find",
+          "Could not find",
+          "Isn't there",
+          "Not present",
+          "Don't see",
+          "Did not find",
+          "Didn't find",
+          "Cannot find",
+          "Can't find",
+          "There is no",
+          "There's no",
+          "No match",
+          "Absent",
+          "Not exist",
+          "Doesn't contain",
+          "Does not contain",
+          "No identical",
+          "No duplicate",
+          "None",
+          "Nothing",
+          "No two",
+          "Not identical",
+          "Are all different",
+          "All different",
+          "doesn’t exist",
+          "couldn’t find",
+          "isn’t there",
+          "don’t see",
+          "didn’t find",
+          "can’t find",
+          "there’s no",
+          "doesn’t contain",
+          "Doesn’t exist",
+          "Couldn’t find",
+          "Isn’t there",
+          "Don’t see",
+          "Didn’t find",
+          "Can’t find",
+          "There’s no",
+          "Doesn’t contain",
+          "not "
+        ]
+      }
+    },
+    {
+      "prompt": "And config.prod.yaml?",
+      "expect": {
+        "output_contains": [
+          "cfg/config.prod.yaml"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

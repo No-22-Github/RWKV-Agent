@@ -1,0 +1,82 @@
+{
+  "id": "hyb-33345",
+  "description": "Volumetric billing weight rule from a logistics page: first one item, then all three. DISTILL-CANARY-bf63e511",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-calc-45",
+    "ref_calls": 6,
+    "fixture_bytes": 86,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "跨境小包",
+      "url_match": "www.fengyun-logistics.cn/volume-rule",
+      "url": "https://www.fengyun-logistics.cn/volume-rule",
+      "title": "风云物流 计费规则",
+      "snippet": "体积重与计费重量。",
+      "content": "# 计费规则\n\n体积重（公斤）= 长×宽×高（厘米）÷ 6000\n计费重量取实重与体积重中较大者，向上取整到整公斤。\n运费：8 元/公斤\n",
+      "published_at": "2026-06-06"
+    }
+  ],
+  "files": {
+    "发货/货物.csv": "货物,实重_kg,长,宽,高\n台灯,2.0,40,30,25\n抱枕,0.9,50,50,30\n书,4.0,30,22,12\n"
+  },
+  "turns": [
+    {
+      "prompt": "按风云物流网站上的计费规则，发货/货物.csv 里的台灯运费是多少？",
+      "expect": {
+        "output_contains": [
+          "40"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "那三件货全部一起寄，运费合计多少？",
+      "expect": {
+        "output_contains": [
+          "176"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "发货/货物.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

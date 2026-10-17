@@ -1,0 +1,89 @@
+{
+  "id": "web-33061",
+  "description": "Find the deprecation/removal timeline and replacement for a fictional product (Lathe CI). DISTILL-CANARY-828e21ba",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-dp-33061",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Lathe CI",
+      "url": "https://lathe-ci.example/changelog/2026-09",
+      "url_match": "lathe-ci.example/changelog/2026-09",
+      "title": "September 2026 changelog",
+      "snippet": "Changelog.",
+      "content": "# September 2026\n\nThe `ubuntu-20` runner image is retired on 2026-10-15. Jobs that still target it will fail with 'image not found'. Move to `ubuntu-24` (recommended) or `ubuntu-22`.\n",
+      "published_at": "2026-09-12"
+    },
+    {
+      "query_match": "Lathe CI",
+      "url": "https://lathe-ci.example/docs/runners",
+      "url_match": "lathe-ci.example/docs/runners",
+      "title": "Runner images",
+      "snippet": "Available runner images.",
+      "content": "# Runner images\n\nubuntu-20, ubuntu-22, ubuntu-24.\n",
+      "published_at": "2026-02-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Our Lathe CI jobs use the ubuntu-20 image. Is that going away?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "2026-10-15",
+          "2026/10/15",
+          "2026年10月15日",
+          "2026 年 10 月 15 日",
+          "10月15日",
+          "10 月 15 日",
+          "10月15号",
+          "October 15",
+          "15 October",
+          "Oct 15",
+          "15 Oct",
+          "15.10.2026"
+        ]
+      }
+    },
+    {
+      "prompt": "Which image do they recommend instead?",
+      "expect": {
+        "output_contains": [
+          "ubuntu-24"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

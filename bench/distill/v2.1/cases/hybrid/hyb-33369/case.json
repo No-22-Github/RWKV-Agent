@@ -1,0 +1,88 @@
+{
+  "id": "hyb-33369",
+  "description": "Current version from a CMS homepage, then the PHP requirement from its linked requirements page. DISTILL-CANARY-421dbff3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-multi-69",
+    "ref_calls": 4,
+    "fixture_bytes": 21,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Moss",
+      "url_match": "moss-cms.org",
+      "url": "https://moss-cms.org/",
+      "title": "Moss CMS",
+      "snippet": "A small content management system.",
+      "content": "# Moss CMS\n\n当前版本：8.2.0\n系统要求见 https://moss-cms.org/requirements\n",
+      "published_at": "2026-09-07"
+    },
+    {
+      "query_match": "Moss",
+      "url_match": "moss-cms.org/requirements",
+      "url": "https://moss-cms.org/requirements",
+      "title": "Moss CMS 系统要求",
+      "snippet": "运行环境要求。",
+      "content": "# 系统要求\n\nPHP 最低版本：8.1\n数据库：MySQL 8.0 或 PostgreSQL 14\n",
+      "published_at": "2026-09-07"
+    }
+  ],
+  "files": {
+    "notes.txt": "cms upgrade planning\n"
+  },
+  "turns": [
+    {
+      "prompt": "Moss CMS 现在的版本号是多少？官网是 moss-cms.org。",
+      "expect": {
+        "output_contains": [
+          "8.2.0"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "它要求的 PHP 最低版本是多少？",
+      "expect": {
+        "output_contains": [
+          "8.1"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "notes.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

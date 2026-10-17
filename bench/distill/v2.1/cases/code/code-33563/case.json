@@ -1,0 +1,72 @@
+{
+  "id": "code-33563",
+  "description": "TAP output with two not ok lines and a tricky title. DISTILL-CANARY-06a1b8de",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "not ok is only a phrase here"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33563",
+    "ref_calls": 2,
+    "fixture_bytes": 615,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "test/out.tap": "TAP version 13\n1..9\nok 1 - config loads\nok 2 - empty config rejected\nnot ok 3 - ports must be unique\n  ---\n  message: 'duplicate port 8080 in [web, api]'\n  ...\nok 4 - env override\nok 5 # SKIP needs docker\nok 6 - tls off by default\nnot ok 7 - path is absolute\n  ---\n  message: 'relative path ./data'\n  ...\nok 8 - not ok is only a phrase here\nok 9 - yaml anchors\n",
+    "src/config.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_path_0() {\n  echo \"[$(date +%H:%M)] path step 0: $*\"\n}\n\nlog_port_1() {\n  echo \"[$(date +%H:%M)] port step 1: $*\"\n}\n\nlog_port_2() {\n  echo \"[$(date +%H:%M)] port step 2: $*\"\n}\n\n",
+    "test/run.sh": "#!/usr/bin/env bash\nprove test/*.t\n"
+  },
+  "turns": [
+    {
+      "prompt": "test/out.tap 里哪几条用例没通过？原因分别是什么？SKIP 的不算。",
+      "expect": {
+        "output_contains": [
+          "ports must be unique",
+          "path is absolute",
+          "8080"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "test/out.tap": {
+        "unchanged": true
+      },
+      "src/config.sh": {
+        "unchanged": true
+      },
+      "test/run.sh": {
+        "unchanged": true
+      }
+    }
+  }
+}

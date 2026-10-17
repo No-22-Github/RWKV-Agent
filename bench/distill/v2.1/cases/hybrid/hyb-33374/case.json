@@ -1,0 +1,67 @@
+{
+  "id": "hyb-33374",
+  "description": "First change is rejected and replaced by a different change; final file must carry only the second. DISTILL-CANARY-135dbb59",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21l-multi-74",
+    "ref_calls": 5,
+    "fixture_bytes": 45,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/runtime.ini": "[runtime]\nmode = fast\nretries = 3\nlog = info\n"
+  },
+  "turns": [
+    {
+      "prompt": "Change retries to 10 in conf/runtime.ini.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "I rejected that edit, so the file is back to what it was. Instead, set mode to safe and leave everything else alone. Tell me the mode line afterwards.",
+      "expect": {
+        "output_contains": [
+          "safe"
+        ]
+      },
+      "review_before": "reject"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "conf/runtime.ini": {
+        "equals": "[runtime]\nmode = safe\nretries = 3\nlog = info\n"
+      }
+    }
+  }
+}

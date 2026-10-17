@@ -1,0 +1,65 @@
+{
+  "id": "doc-33245",
+  "description": "Electronics exchange window, then no-reason return shipping and refund time. DISTILL-CANARY-0dc9278b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-45",
+    "ref_calls": 2,
+    "fixture_bytes": 496,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "商城/退换货政策.md": "# 退换货政策\n\n1. 普通商品：签收后 7 天内可无理由退货，商品需保持原包装。\n2. 电子产品：签收后 15 天内出现质量问题可换货；超过 15 天至 1 年内走保修。\n3. 定制商品：除质量问题外不支持退换。\n4. 生鲜食品：签收后 24 小时内反馈质量问题，拍照为证。\n5. 退货运费：质量问题由商家承担；无理由退货由买家承担。\n6. 退款到账：商家收到退货后 3 个工作日内原路退回。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我买的耳机用了 10 天发现左耳没声音，还能换货吗？换货窗口是多少天？",
+      "expect": {
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "如果是无理由退货，运费谁出？退款几个工作日到账？",
+      "expect": {
+        "output_contains": [
+          "买家",
+          "3"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file"
+    ]
+  }
+}

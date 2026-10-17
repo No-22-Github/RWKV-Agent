@@ -1,0 +1,53 @@
+{
+  "id": "doc-33239",
+  "description": "Tiered lodging cap: ordinary staff, second-tier city. DISTILL-CANARY-7534943d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-39",
+    "ref_calls": 2,
+    "fixture_bytes": 747,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/差旅管理办法.md": "# 差旅管理办法（2026）\n\n1. 出差须提前一个工作日在系统提交申请。\n2. 住宿标准按城市等级和职级分档：\n   - 一线城市（北京、上海、广州、深圳）：普通员工每晚 650 元，经理及以上每晚 900 元。\n   - 二线城市（杭州、成都、武汉等省会及计划单列市）：普通员工每晚 480 元，经理及以上每晚 650 元。\n   - 其他城市：普通员工每晚 350 元，经理及以上每晚 480 元。\n3. 超出标准的部分由个人承担，特殊情况须总监书面批准。\n4. 市内交通凭票报销，打车每单不超过 80 元。\n5. 餐补：出差期间每天 100 元，不凭票。\n6. 回程后 10 个工作日内提交报销，逾期需说明原因。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我是普通员工，下周去成都出差，公司规定我每晚住宿最多报销多少钱？",
+      "expect": {
+        "output_contains": [
+          "480"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ]
+  }
+}

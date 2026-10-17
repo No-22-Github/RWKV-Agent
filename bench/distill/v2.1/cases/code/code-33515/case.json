@@ -1,0 +1,89 @@
+{
+  "id": "code-33515",
+  "description": "Go callers of ParseToken including the test file. DISTILL-CANARY-5c05671e",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "internal/cli/debug.go",
+      "TR-DECOY": "internal/cli/debug.go"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21n-callers-33515",
+    "ref_calls": 4,
+    "fixture_bytes": 695,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "internal/auth/token.go": "package auth\n\nfunc ParseToken(raw string) (string, error) {\n\treturn raw, nil\n}\n\nfunc ParseTokenLoose(raw string) string {\n\treturn raw\n}\n",
+    "internal/http/middleware.go": "package http\n\nimport \"example.com/gw/internal/auth\"\n\nfunc Guard(h string) error {\n\t_, err := auth.ParseToken(h)\n\treturn err\n}\n",
+    "internal/ws/upgrade.go": "package ws\n\nimport \"example.com/gw/internal/auth\"\n\nfunc Upgrade(q string) bool {\n\tt, err := auth.ParseToken(q)\n\treturn err == nil && t != \"\"\n}\n",
+    "internal/cli/debug.go": "package cli\n\nimport \"example.com/gw/internal/auth\"\n\n// debug uses auth.ParseToken(x) only in the docs below\nfunc Debug(x string) string {\n\treturn auth.ParseTokenLoose(x)\n}\n",
+    "internal/auth/token_test.go": "package auth\n\nimport \"testing\"\n\nfunc TestParse(t *testing.T) {\n\t_, _ = ParseToken(\"x\")\n}\n",
+    "cmd/gw/main.go": "package main\n\nfunc main() {}\n"
+  },
+  "turns": [
+    {
+      "prompt": "ParseToken 在哪些文件里被调用？测试文件也要算，ParseTokenLoose 不算。只写文件路径，一行一个。",
+      "expect": {
+        "output_contains": [
+          "internal/http/middleware.go",
+          "internal/ws/upgrade.go",
+          "internal/auth/token_test.go"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "internal/cli/debug.go"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "internal/auth/token.go": {
+        "unchanged": true
+      },
+      "internal/http/middleware.go": {
+        "unchanged": true
+      },
+      "internal/ws/upgrade.go": {
+        "unchanged": true
+      },
+      "internal/cli/debug.go": {
+        "unchanged": true
+      },
+      "internal/auth/token_test.go": {
+        "unchanged": true
+      },
+      "cmd/gw/main.go": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "hyb-33631",
+  "description": "Three-year compound deposit principal plus interest. DISTILL-CANARY-d544489d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "88760"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-31",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "存 80000 元，年利率 3.65%，每年利息滚入本金，存满 3 年后本息一共多少？保留两位小数。",
+      "expect": {
+        "expected_number": 89083.63,
+        "expected_number_in_text": true,
+        "tolerance": 0.006,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

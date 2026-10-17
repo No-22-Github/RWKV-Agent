@@ -1,0 +1,77 @@
+{
+  "id": "hyb-33314",
+  "description": "Correct the API host for the configured region by reading the endpoint table. DISTILL-CANARY-b351935e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "b21l-web_edit-14",
+    "ref_calls": 4,
+    "fixture_bytes": 100,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Lumen Cloud",
+      "url_match": "docs.lumencloud.dev/endpoints",
+      "url": "https://docs.lumencloud.dev/endpoints",
+      "title": "Lumen Cloud regional endpoints",
+      "snippet": "Hostnames per region.",
+      "content": "# Regional endpoints\n\n| Region | Host |\n|---|---|\n| us-east | api.use1.lumencloud.dev |\n| eu-north | api.eun2.lumencloud.dev |\n| eu-west | api.euw1.lumencloud.dev |\n| ap-south | api.aps3.lumencloud.dev |\n",
+      "published_at": "2026-08-22"
+    }
+  ],
+  "files": {
+    ".env.example": "REGION=eu-north\nAPI_HOST=api.eun1.lumencloud.dev\nAPI_KEY=changeme\n",
+    "deploy.md": "uses .env.example as the template\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our .env.example has REGION=eu-north but the API_HOST looks stale. Fix API_HOST using Lumen Cloud's endpoint docs for that region.",
+      "expect": {
+        "output_contains": [
+          "api.eun2.lumencloud.dev"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy.md": {
+        "unchanged": true
+      },
+      ".env.example": {
+        "equals": "REGION=eu-north\nAPI_HOST=api.eun2.lumencloud.dev\nAPI_KEY=changeme\n"
+      }
+    }
+  }
+}

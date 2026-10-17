@@ -1,0 +1,62 @@
+{
+  "id": "fs-33735",
+  "description": "Which file mentions an exact client code; near codes elsewhere. DISTILL-CANARY-091a778c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0",
+      "TR-NEARNAME": "0"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "b21p-filter-33735",
+    "ref_calls": 3,
+    "fixture_bytes": 1301,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "memo/m1.txt": "m cedar ridge cedar maple kettle stone\nmaple saddle meadow umber maple\npebble oyster stone stone ridge\ncedar meadow quill harbor willow juniper juniper velvet\n\nref: ZK-1524\n",
+    "memo/m2.txt": "m ember ivory velvet harbor yarrow oyster harbor velvet\noyster cedar quartz quill ivory hollow maple kettle\nlamp saddle ivory lamp oyster saddle\nmeadow grain d\nref: ZK-3959\nclient code ACME-7713 pending\n",
+    "memo/m3.txt": "m fjord ember saddle cedar ember\nkettle orbit lamp\ncedar harbor quartz nectar fjord orbit delta\nzephyr ridge delta delta cedar delta pixel\nkettle nectar lamp\nq\nref: ZK-4496\n",
+    "memo/2025/m4.txt": "m ivory pebble kettle nectar\ndelta harbor pebble lantern\nwillow umber quartz grain river harbor quartz\nriver maple stone ridge stone meadow thistle zephyr\nquil\nref: ZK-1598\n",
+    "memo/2025/m5.txt": "m cedar pebble lantern thistle alpha\nriver kettle river pixel quill\ndelta pixel grain harbor delta hollow cedar juniper\noyster umber delta grain\nthistle delta \nref: ZK-4421\nclient code ACME-7731 approved\n",
+    "memo/2025/m6.txt": "m saddle grain thistle zephyr river\nfjord orbit willow ridge ridge nectar quill meadow\nzephyr umber stone juniper maple meadow yarrow\njuniper thistle delta\nivo\nref: ZK-1591\n",
+    "memo/misc.txt": "m pebble oyster lamp maple\number meadow fjord cedar quill ember quartz\nstone maple delta\nsaddle quartz grain quartz\nstone kettle alpha\nlamp river ridge delta g\nref: ZK-4254\nsee acme-7731x archived list\n"
+  },
+  "turns": [
+    {
+      "prompt": "memo 里哪个文件提到了客户编号 ACME-7731？只回答文件路径。",
+      "expect": {
+        "output_contains": [
+          "memo/2025/m5.txt"
+        ],
+        "output_excludes": [
+          "memo/m2.txt",
+          "memo/misc.txt"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

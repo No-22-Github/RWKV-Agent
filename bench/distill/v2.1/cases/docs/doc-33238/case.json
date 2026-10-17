@@ -1,0 +1,60 @@
+{
+  "id": "doc-33238",
+  "description": "Merge duplicate ingredients across recipes. DISTILL-CANARY-b4afe54a",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-38",
+    "ref_calls": 3,
+    "fixture_bytes": 133,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "食谱/周计划.md": "# 本周两道菜\n\n## 番茄炒蛋\n- 鸡蛋 4个\n- 番茄 300g\n- 盐 3g\n\n## 蛋炒饭\n- 鸡蛋 2个\n- 米饭 400g\n- 盐 2g\n- 葱 20g\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 食谱/周计划.md 里两道菜的食材合并成一份购物清单写到 食谱/购物清单.md，同一种食材加在一起，每行“- 鸡蛋 6个”这种写法，顺序按第一次出现。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "食谱/周计划.md": {
+        "unchanged": true
+      },
+      "食谱/购物清单.md": {
+        "equals": "- 鸡蛋 6个\n- 番茄 300g\n- 盐 5g\n- 米饭 400g\n- 葱 20g\n"
+      }
+    }
+  }
+}

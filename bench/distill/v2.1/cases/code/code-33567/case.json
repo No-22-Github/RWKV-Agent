@@ -1,0 +1,74 @@
+{
+  "id": "code-33567",
+  "description": "JUnit-style XML with failures and one error. DISTILL-CANARY-d288e36e",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "distance_zero"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33567",
+    "ref_calls": 2,
+    "fixture_bytes": 755,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "target/geo-report.xml": "<testsuite name=\"geo\" tests=\"6\" failures=\"2\" errors=\"1\" skipped=\"0\">\n  <testcase name=\"distance_zero\"/>\n  <testcase name=\"distance_antipode\"/>\n  <testcase name=\"bearing_north\"><failure message=\"expected 0.0 but was 360.0\"/></testcase>\n  <testcase name=\"bbox_wrap\"><failure message=\"lon 181 not normalised\"/></testcase>\n  <testcase name=\"parse_dms\"><error message=\"NumberFormatException: 12°x\"/></testcase>\n  <testcase name=\"round_trip\"/>\n</testsuite>\n",
+    "src/geo.ts": "export const latLabel0 = (id: number): string => `lat-${id}`;\n\nexport function slugLon1(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\nexport function slugLat2(text: string): string {\n  return text.trim().toLowerCase().replace(/\\s+/g, '-');\n}\n\n",
+    "README.md": "reports go to target/\n"
+  },
+  "turns": [
+    {
+      "prompt": "target/geo-report.xml 是测试报告。失败（failure）和出错（error）的用例各有哪些？原因是什么？",
+      "expect": {
+        "output_contains": [
+          "bearing_north",
+          "bbox_wrap",
+          "parse_dms",
+          "360.0"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "target/geo-report.xml": {
+        "unchanged": true
+      },
+      "src/geo.ts": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "hyb-33624",
+  "description": "Multi-turn zone conversion: Tokyo (no DST) then New York (EDT, previous evening). DISTILL-CANARY-ba8fd878",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "21:00"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-datetime-24",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "现在东京几点？",
+      "expect": {
+        "output_contains_any": [
+          "11:00",
+          "11点",
+          "11 点",
+          "11:00 AM",
+          "11 AM",
+          "11 am",
+          "11:00 am",
+          "上午11",
+          "上午 11"
+        ]
+      }
+    },
+    {
+      "prompt": "纽约呢？",
+      "expect": {
+        "output_contains_any": [
+          "22:00",
+          "晚上10点",
+          "晚上 10 点",
+          "10:00 PM",
+          "10 PM",
+          "10:00 pm",
+          "10 pm",
+          "10 p.m.",
+          "22点",
+          "22 点",
+          "晚上十点",
+          "晚上10:00",
+          "晚上 10:00"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "datetime"
+    ]
+  }
+}

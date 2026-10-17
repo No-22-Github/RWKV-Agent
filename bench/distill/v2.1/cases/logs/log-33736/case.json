@@ -1,0 +1,77 @@
+{
+  "id": "log-33736",
+  "description": "Disk full on the database volume causes api 500s; api recovery time asked next. DISTILL-CANARY-98515682",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-rootcause-33736",
+    "ref_calls": 6,
+    "fixture_bytes": 8534,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/system.log": "2026-09-15 01:06:21 INFO  sys: ntpd: offset 23us\n2026-09-15 01:10:23 INFO  sys: ntpd: offset 31us\n2026-09-15 01:11:22 DEBUG sys: ntpd: offset 3us\n2026-09-15 01:13:53 DEBUG sys: sshd: session 639 closed\n2026-09-15 01:17:40 INFO  sys: cron: job 399 finished\n2026-09-15 01:18:08 INFO  sys: cron: job 240 finished\n2026-09-15 01:23:48 INFO  sys: ntpd: offset 21us\n2026-09-15 01:23:52 DEBUG sys: cron: job 696 finished\n2026-09-15 01:24:30 INFO  sys: cron: job 993 finished\n2026-09-15 01:24:37 DEBUG sys: sshd: session 793 closed\n2026-09-15 01:27:53 INFO  sys: ntpd: offset 52us\n2026-09-15 01:35:06 DEBUG sys: kernel: eth0 link ok\n2026-09-15 01:37:39 INFO  sys: cron: job 212 finished\n2026-09-15 01:39:09 INFO  sys: cron: job 543 finished\n2026-09-15 01:44:48 INFO  sys: sshd: session 383 closed\n2026-09-15 01:45:13 INFO  sys: cron: job 41 finished\n2026-09-15 01:46:24 INFO  sys: cron: job 143 finished\n2026-09-15 01:47:21 DEBUG sys: kernel: eth0 link ok\n2026-09-15 01:48:20 INFO  sys: ntpd: offset 42us\n2026-09-15 01:56:43 INFO  sys: cron: job 649 finished\n2026-09-15 02:01:01 INFO  sys: sshd: session 872 closed\n2026-09-15 02:04:15 INFO  sys: kernel: eth0 link ok\n2026-09-15 02:04:29 INFO  sys: kernel: eth0 link ok\n2026-09-15 02:05:54 INFO  sys: cron: job 541 finished\n2026-09-15 02:09:14 INFO  sys: cron: job 249 finished\n2026-09-15 02:16:50 INFO  sys: cron: job 36 finished\n2026-09-15 02:19:00 INFO  sys: ntpd: offset 86us\n2026-09-15 02:22:00 DEBUG sys: kernel: eth0 link ok\n2026-09-15 02:22:29 INFO  sys: cron: job 124 finished\n2026-09-15 02:22:55 INFO  sys: kernel: eth0 link ok\n2026-09-15 02:27:19 INFO  sys: ntpd: offset 21us\n2026-09-15 02:37:28 INFO  sys: kernel: eth0 link ok\n2026-09-15 02:41:12 WARN  sys: monitor: filesystem /var/lib/postgresql usage 100% (0 bytes free)\n2026-09-15 02:41:40 INFO  sys: ntpd: offset 53us\n2026-09-15 02:42:45 INFO  sys: sshd: session 672 closed\n2026-09-15 02:44:22 DEBUG sys: kernel: eth0 link ok\n2026-09-15 02:45:48 INFO  sys: ntpd: offset 23us\n2026-09-15 02:47:13 DEBUG sys: ntpd: offset 43us\n2026-09-15 02:50:13 INFO  sys: ntpd: offset 46us\n2026-09-15 02:58:12 INFO  sys: kernel: eth0 link ok\n2026-09-15 02:58:18 DEBUG sys: sshd: session 130 closed\n2026-09-15 03:05:40 INFO  sys: cleanup: removed 41 wal archives, /var/lib/postgresql usage 61%\n2026-09-15 03:09:42 INFO  sys: ntpd: offset 43us\n2026-09-15 03:15:12 INFO  sys: ntpd: offset 61us\n2026-09-15 03:24:17 INFO  sys: ntpd: offset 63us\n2026-09-15 03:28:06 INFO  sys: sshd: session 773 closed\n2026-09-15 03:33:25 INFO  sys: kernel: eth0 link ok\n",
+    "logs/postgres.log": "2026-09-15 01:00:50 INFO  pg: connection authorized: user=app\n2026-09-15 01:04:26 INFO  pg: autovacuum: table orders done\n2026-09-15 01:06:33 DEBUG pg: connection authorized: user=app\n2026-09-15 01:09:34 INFO  pg: connection authorized: user=app\n2026-09-15 01:16:33 DEBUG pg: autovacuum: table orders done\n2026-09-15 01:17:39 INFO  pg: connection authorized: user=app\n2026-09-15 01:17:57 INFO  pg: autovacuum: table orders done\n2026-09-15 01:21:42 INFO  pg: checkpoint complete: wrote 253 buffers\n2026-09-15 01:22:16 INFO  pg: checkpoint complete: wrote 323 buffers\n2026-09-15 01:40:50 INFO  pg: checkpoint complete: wrote 637 buffers\n2026-09-15 01:43:07 INFO  pg: connection authorized: user=app\n2026-09-15 01:43:29 INFO  pg: checkpoint complete: wrote 552 buffers\n2026-09-15 01:48:31 DEBUG pg: autovacuum: table orders done\n2026-09-15 01:52:37 INFO  pg: autovacuum: table orders done\n2026-09-15 01:56:47 INFO  pg: checkpoint complete: wrote 123 buffers\n2026-09-15 01:57:09 INFO  pg: connection authorized: user=app\n2026-09-15 02:05:24 INFO  pg: checkpoint complete: wrote 450 buffers\n2026-09-15 02:06:10 INFO  pg: connection authorized: user=app\n2026-09-15 02:07:16 INFO  pg: autovacuum: table orders done\n2026-09-15 02:10:05 WARN  pg: slow query {n} ms: select * from audit\n2026-09-15 02:10:28 INFO  pg: autovacuum: table orders done\n2026-09-15 02:10:57 DEBUG pg: connection authorized: user=app\n2026-09-15 02:20:01 DEBUG pg: autovacuum: table orders done\n2026-09-15 02:21:15 INFO  pg: autovacuum: table orders done\n2026-09-15 02:24:55 DEBUG pg: connection authorized: user=app\n2026-09-15 02:30:18 INFO  pg: checkpoint complete: wrote 424 buffers\n2026-09-15 02:32:21 INFO  pg: autovacuum: table orders done\n2026-09-15 02:35:13 INFO  pg: connection authorized: user=app\n2026-09-15 02:36:34 INFO  pg: connection authorized: user=app\n2026-09-15 02:37:22 INFO  pg: autovacuum: table orders done\n2026-09-15 02:43:09 FATAL pg: could not write to file \"pg_wal/0000000100000A\": No space left on device\n2026-09-15 02:45:29 INFO  pg: checkpoint complete: wrote 563 buffers\n2026-09-15 02:55:00 INFO  pg: checkpoint complete: wrote 20 buffers\n2026-09-15 02:56:16 DEBUG pg: checkpoint complete: wrote 877 buffers\n2026-09-15 03:01:49 INFO  pg: autovacuum: table orders done\n2026-09-15 03:06:02 INFO  pg: database system is ready to accept connections\n2026-09-15 03:10:03 INFO  pg: checkpoint complete: wrote 329 buffers\n2026-09-15 03:16:22 DEBUG pg: connection authorized: user=app\n2026-09-15 03:16:36 INFO  pg: checkpoint complete: wrote 926 buffers\n2026-09-15 03:16:42 INFO  pg: autovacuum: table orders done\n2026-09-15 03:22:48 INFO  pg: autovacuum: table orders done\n2026-09-15 03:27:48 INFO  pg: checkpoint complete: wrote 643 buffers\n2026-09-15 03:30:45 INFO  pg: autovacuum: table orders done\n2026-09-15 03:31:35 INFO  pg: connection authorized: user=app\n2026-09-15 03:32:37 INFO  pg: connection authorized: user=app\n2026-09-15 03:44:36 INFO  pg: connection authorized: user=app\n2026-09-15 03:51:54 INFO  pg: connection authorized: user=app\n2026-09-15 03:59:49 INFO  pg: autovacuum: table orders done\n",
+    "logs/api.log": "2026-09-15 01:00:00 INFO  api: GET /health 200 1ms\n2026-09-15 01:00:32 INFO  api: GET /health 200 1ms\n2026-09-15 01:01:17 INFO  api: POST /v1/cart 200 66ms\n2026-09-15 01:08:11 INFO  api: GET /v1/items 200 89ms\n2026-09-15 01:12:11 INFO  api: GET /health 200 1ms\n2026-09-15 01:13:27 INFO  api: GET /health 200 1ms\n2026-09-15 01:27:54 INFO  api: GET /health 200 1ms\n2026-09-15 01:29:43 DEBUG api: GET /health 200 1ms\n2026-09-15 01:32:02 DEBUG api: GET /v1/items 200 15ms\n2026-09-15 01:38:15 INFO  api: GET /v1/items 200 78ms\n2026-09-15 01:41:09 INFO  api: GET /health 200 1ms\n2026-09-15 01:43:46 INFO  api: GET /v1/items 200 83ms\n2026-09-15 01:48:27 INFO  api: GET /v1/items 200 81ms\n2026-09-15 01:51:47 DEBUG api: GET /v1/items 200 30ms\n2026-09-15 01:56:56 INFO  api: GET /health 200 1ms\n2026-09-15 01:58:27 INFO  api: POST /v1/cart 200 66ms\n2026-09-15 01:58:57 INFO  api: GET /v1/items 200 79ms\n2026-09-15 02:04:44 INFO  api: POST /v1/cart 200 49ms\n2026-09-15 02:05:04 INFO  api: GET /v1/items 200 8ms\n2026-09-15 02:07:08 DEBUG api: GET /v1/items 200 29ms\n2026-09-15 02:09:07 INFO  api: GET /v1/items 200 80ms\n2026-09-15 02:13:19 INFO  api: GET /v1/items 200 71ms\n2026-09-15 02:13:27 INFO  api: POST /v1/cart 200 54ms\n2026-09-15 02:13:52 INFO  api: POST /v1/cart 200 24ms\n2026-09-15 02:14:15 INFO  api: POST /v1/cart 200 8ms\n2026-09-15 02:22:18 INFO  api: GET /health 200 1ms\n2026-09-15 02:37:09 INFO  api: GET /v1/items 200 11ms\n2026-09-15 02:43:11 INFO  api: GET /v1/items 200 8ms\n2026-09-15 02:43:15 ERROR api: POST /v1/orders 500 db write failed\n2026-09-15 02:43:40 ERROR api: GET /v1/items 500 db unavailable\n2026-09-15 02:43:59 DEBUG api: GET /health 200 1ms\n2026-09-15 02:44:34 INFO  api: POST /v1/cart 200 78ms\n2026-09-15 02:46:46 INFO  api: GET /v1/items 200 42ms\n2026-09-15 02:46:54 INFO  api: POST /v1/cart 200 52ms\n2026-09-15 02:47:34 INFO  api: GET /health 200 1ms\n2026-09-15 02:47:48 INFO  api: POST /v1/cart 200 45ms\n2026-09-15 02:49:55 INFO  api: POST /v1/cart 200 39ms\n2026-09-15 02:49:58 INFO  api: GET /v1/items 200 14ms\n2026-09-15 02:50:00 ERROR api: GET /health 503 db unavailable\n2026-09-15 02:50:23 INFO  api: POST /v1/cart 200 59ms\n2026-09-15 02:54:58 INFO  api: POST /v1/cart 200 60ms\n2026-09-15 02:59:23 DEBUG api: GET /v1/items 200 87ms\n2026-09-15 03:02:37 DEBUG api: POST /v1/cart 200 35ms\n2026-09-15 03:04:28 INFO  api: POST /v1/cart 200 61ms\n2026-09-15 03:06:30 INFO  api: GET /health 200 3ms\n2026-09-15 03:15:33 INFO  api: POST /v1/cart 200 88ms\n2026-09-15 03:17:53 INFO  api: POST /v1/cart 200 10ms\n2026-09-15 03:20:55 DEBUG api: GET /health 200 1ms\n2026-09-15 03:21:26 INFO  api: GET /v1/items 200 52ms\n2026-09-15 03:26:12 DEBUG api: GET /v1/items 200 35ms\n2026-09-15 03:31:37 INFO  api: GET /health 200 1ms\n2026-09-15 03:40:08 DEBUG api: GET /v1/items 200 75ms\n2026-09-15 03:53:05 INFO  api: GET /health 200 1ms\n2026-09-15 03:54:42 INFO  api: GET /v1/items 200 59ms\n"
+  },
+  "turns": [
+    {
+      "prompt": "昨晚 API 出现一阵 500 错误。看 logs 目录里的三份日志，根本原因是什么？最早的异常信号是几点？",
+      "expect": {
+        "output_contains": [
+          "02:41"
+        ],
+        "output_contains_any": [
+          "磁盘",
+          "空间",
+          "disk",
+          "No space",
+          "no space",
+          "100%",
+          "存储"
+        ],
+        "output_excludes": [
+          "慢查询是根本",
+          "慢查询导致"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "API 是几点恢复正常的？",
+      "expect": {
+        "output_contains": [
+          "03:06"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "code-33569",
+  "description": "Count passed failed skipped from a pytest log. DISTILL-CANARY-6427f6e4",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "17"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33569",
+    "ref_calls": 2,
+    "fixture_bytes": 1392,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "ci/summary.log": "============================= test session starts ==============================\nplatform linux -- Python 3.12.4, pytest-8.2.0\ncollected 19 items\n\ntests/test_calc.py::t_01 PASSED\ntests/test_calc.py::t_02 PASSED\ntests/test_calc.py::t_03 PASSED\ntests/test_calc.py::t_04 PASSED\ntests/test_calc.py::t_05 PASSED\ntests/test_calc.py::t_06 PASSED\ntests/test_calc.py::t_07 PASSED\ntests/test_calc.py::t_08 PASSED\ntests/test_calc.py::t_09 PASSED\ntests/test_calc.py::t_10 PASSED\ntests/test_calc.py::t_11 PASSED\ntests/test_calc.py::t_12 PASSED\ntests/test_calc.py::t_13 PASSED\ntests/test_calc.py::t_14 PASSED\ntests/test_calc.py::t_15 FAILED\ntests/test_calc.py::t_16 FAILED\ntests/test_calc.py::t_17 SKIPPED\ntests/test_calc.py::t_18 SKIPPED\ntests/test_calc.py::t_19 PASSED\n\n=================================== FAILURES ===================================\n____________________ t_15 ____________________\n\nE       ZeroDivisionError: division by zero\n\n____________________ t_16 ____________________\n\nE       assert 41 == 42\n\n=== 2 failed, 15 passed, 2 skipped in 3.10s ===\n",
+    "calc/core.py": "import os\nimport re\n\n\ndef pick_term_0(rows, key):\n    for row in rows:\n        if row.get(key):\n            return row\n    return None\n\n\ndef count_term_1(items):\n    total = 0\n    for item in items:\n        total += len(item)\n    return total\n\n\ndef clean_term_2(text):\n    text = text.strip().lower()\n    return re.sub(r\"\\s+\", \"-\", text)\n\n"
+  },
+  "turns": [
+    {
+      "prompt": "ci/summary.log 这次一共通过了几个、失败了几个、跳过了几个？失败的是哪几个？",
+      "expect": {
+        "output_contains": [
+          "15",
+          "2",
+          "t_15",
+          "t_16"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ci/summary.log": {
+        "unchanged": true
+      },
+      "calc/core.py": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "log-33746",
+  "description": "Count declined payments across midnight, then only those after midnight. DISTILL-CANARY-78e9db1f",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "0",
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21p-window-33746",
+    "ref_calls": 5,
+    "fixture_bytes": 10542,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "payments.log": "2026-09-12 22:00:05 WARN order=70000 declined\n2026-09-12 22:00:17 INFO order=70001 approved\n2026-09-12 22:01:43 INFO order=70002 approved\n2026-09-12 22:04:22 INFO order=70003 approved\n2026-09-12 22:05:30 WARN order=70004 declined\n2026-09-12 22:05:40 WARN order=70005 declined\n2026-09-12 22:05:58 INFO order=70006 approved\n2026-09-12 22:06:07 WARN order=70007 declined\n2026-09-12 22:06:44 INFO order=70008 approved\n2026-09-12 22:07:04 WARN order=70009 timeout\n2026-09-12 22:07:26 WARN order=70010 declined\n2026-09-12 22:09:05 INFO order=70011 approved\n2026-09-12 22:09:20 INFO order=70012 approved\n2026-09-12 22:09:45 INFO order=70013 approved\n2026-09-12 22:12:23 INFO order=70014 approved\n2026-09-12 22:12:39 WARN order=70015 declined\n2026-09-12 22:12:49 INFO order=70016 approved\n2026-09-12 22:12:51 INFO order=70017 approved\n2026-09-12 22:13:08 WARN order=70018 declined\n2026-09-12 22:14:57 INFO order=70019 approved\n2026-09-12 22:14:58 INFO order=70020 approved\n2026-09-12 22:15:04 INFO order=70021 approved\n2026-09-12 22:19:30 INFO order=70022 approved\n2026-09-12 22:20:06 WARN order=70023 timeout\n2026-09-12 22:20:16 WARN order=70024 declined\n2026-09-12 22:20:33 WARN order=70025 timeout\n2026-09-12 22:20:55 WARN order=70026 declined\n2026-09-12 22:21:08 INFO order=70027 approved\n2026-09-12 22:23:55 INFO order=70028 approved\n2026-09-12 22:26:11 INFO order=70029 approved\n2026-09-12 22:27:44 INFO order=70030 approved\n2026-09-12 22:28:24 INFO order=70031 approved\n2026-09-12 22:31:38 INFO order=70032 approved\n2026-09-12 22:32:22 INFO order=70033 approved\n2026-09-12 22:33:30 INFO order=70034 approved\n2026-09-12 22:34:07 INFO order=70035 approved\n2026-09-12 22:35:24 WARN order=70036 timeout\n2026-09-12 22:37:20 INFO order=70037 approved\n2026-09-12 22:38:20 WARN order=70038 declined\n2026-09-12 22:38:28 WARN order=70039 declined\n2026-09-12 22:40:33 INFO order=70040 approved\n2026-09-12 22:46:23 WARN order=70041 declined\n2026-09-12 22:47:48 WARN order=70042 declined\n2026-09-12 22:48:43 WARN order=70043 timeout\n2026-09-12 22:49:09 WARN order=70044 declined\n2026-09-12 22:49:51 INFO order=70045 approved\n2026-09-12 22:50:44 INFO order=70046 approved\n2026-09-12 22:53:03 INFO order=70047 approved\n2026-09-12 22:55:28 WARN order=70048 timeout\n2026-09-12 22:55:44 INFO order=70049 approved\n2026-09-12 22:57:54 INFO order=70050 approved\n2026-09-12 22:58:23 INFO order=70051 approved\n2026-09-12 22:59:24 WARN order=70052 declined\n2026-09-12 22:59:46 WARN order=70053 timeout\n2026-09-12 23:02:58 INFO order=70054 approved\n2026-09-12 23:03:59 WARN order=70055 declined\n2026-09-12 23:04:02 WARN order=70056 declined\n2026-09-12 23:04:17 WARN order=70057 declined\n2026-09-12 23:04:41 WARN order=70058 declined\n2026-09-12 23:05:05 WARN order=70059 timeout\n2026-09-12 23:07:15 WARN order=70060 timeout\n2026-09-12 23:07:32 WARN order=70061 timeout\n2026-09-12 23:11:05 INFO order=70062 approved\n2026-09-12 23:12:04 WARN order=70063 declined\n2026-09-12 23:13:58 INFO order=70064 approved\n2026-09-12 23:14:19 WARN order=70065 timeout\n2026-09-12 23:14:25 WARN order=70066 timeout\n2026-09-12 23:15:23 INFO order=70067 approved\n2026-09-12 23:15:31 WARN order=70068 declined\n2026-09-12 23:16:46 INFO order=70069 approved\n2026-09-12 23:16:51 WARN order=70070 declined\n2026-09-12 23:16:52 INFO order=70071 approved\n2026-09-12 23:16:57 WARN order=70072 declined\n2026-09-12 23:18:45 INFO order=70073 approved\n2026-09-12 23:18:59 INFO order=70074 approved\n2026-09-12 23:21:32 INFO order=70075 approved\n2026-09-12 23:22:36 INFO order=70076 approved\n2026-09-12 23:23:31 INFO order=70077 approved\n2026-09-12 23:24:47 WARN order=70078 declined\n2026-09-12 23:26:09 INFO order=70079 approved\n2026-09-12 23:27:14 INFO order=70080 approved\n2026-09-12 23:27:16 WARN order=70081 declined\n2026-09-12 23:27:29 INFO order=70082 approved\n2026-09-12 23:28:57 WARN order=70083 declined\n2026-09-12 23:31:27 INFO order=70084 approved\n2026-09-12 23:31:34 WARN order=70085 timeout\n2026-09-12 23:31:57 WARN order=70086 declined\n2026-09-12 23:32:15 INFO order=70087 approved\n2026-09-12 23:33:58 INFO order=70088 approved\n2026-09-12 23:34:17 WARN order=70089 timeout\n2026-09-12 23:34:39 INFO order=70090 approved\n2026-09-12 23:37:34 INFO order=70091 approved\n2026-09-12 23:38:28 INFO order=70092 approved\n2026-09-12 23:39:36 INFO order=70093 approved\n2026-09-12 23:39:59 WARN order=70094 timeout\n2026-09-12 23:43:00 INFO order=70095 approved\n2026-09-12 23:44:31 INFO order=70096 approved\n2026-09-12 23:45:05 WARN order=70097 declined\n2026-09-12 23:46:48 INFO order=70098 approved\n2026-09-12 23:48:09 INFO order=70099 approved\n2026-09-12 23:49:56 INFO order=70100 approved\n2026-09-12 23:50:47 WARN order=70101 declined\n2026-09-12 23:50:49 INFO order=70102 approved\n2026-09-12 23:51:03 INFO order=70103 approved\n2026-09-12 23:52:07 WARN order=70104 declined\n2026-09-12 23:53:36 WARN order=70105 declined\n2026-09-12 23:53:47 INFO order=70106 approved\n2026-09-12 23:53:55 INFO order=70107 approved\n2026-09-12 23:54:59 INFO order=70108 approved\n2026-09-12 23:55:11 INFO order=70109 approved\n2026-09-12 23:55:22 WARN order=70110 declined\n2026-09-12 23:55:36 INFO order=70111 approved\n2026-09-12 23:55:48 INFO order=70112 approved\n2026-09-12 23:58:37 WARN order=70113 timeout\n2026-09-13 00:00:35 WARN order=70114 declined\n2026-09-13 00:01:35 INFO order=70115 approved\n2026-09-13 00:02:18 INFO order=70116 approved\n2026-09-13 00:04:43 INFO order=70117 approved\n2026-09-13 00:05:51 INFO order=70118 approved\n2026-09-13 00:06:50 INFO order=70119 approved\n2026-09-13 00:08:08 INFO order=70120 approved\n2026-09-13 00:08:47 INFO order=70121 approved\n2026-09-13 00:12:50 INFO order=70122 approved\n2026-09-13 00:13:32 INFO order=70123 approved\n2026-09-13 00:15:03 WARN order=70124 timeout\n2026-09-13 00:17:22 WARN order=70125 declined\n2026-09-13 00:17:24 WARN order=70126 declined\n2026-09-13 00:17:28 WARN order=70127 timeout\n2026-09-13 00:18:50 INFO order=70128 approved\n2026-09-13 00:18:57 WARN order=70129 timeout\n2026-09-13 00:19:56 WARN order=70130 declined\n2026-09-13 00:20:18 WARN order=70131 declined\n2026-09-13 00:21:52 INFO order=70132 approved\n2026-09-13 00:21:52 INFO order=70133 approved\n2026-09-13 00:21:59 INFO order=70134 approved\n2026-09-13 00:22:47 WARN order=70135 timeout\n2026-09-13 00:23:30 INFO order=70136 approved\n2026-09-13 00:24:05 WARN order=70137 declined\n2026-09-13 00:24:39 INFO order=70138 approved\n2026-09-13 00:25:52 WARN order=70139 timeout\n2026-09-13 00:26:29 WARN order=70140 timeout\n2026-09-13 00:27:19 INFO order=70141 approved\n2026-09-13 00:27:49 INFO order=70142 approved\n2026-09-13 00:27:58 WARN order=70143 timeout\n2026-09-13 00:28:36 INFO order=70144 approved\n2026-09-13 00:32:54 WARN order=70145 declined\n2026-09-13 00:32:58 WARN order=70146 timeout\n2026-09-13 00:34:27 INFO order=70147 approved\n2026-09-13 00:34:29 INFO order=70148 approved\n2026-09-13 00:34:32 INFO order=70149 approved\n2026-09-13 00:35:21 WARN order=70150 declined\n2026-09-13 00:35:43 INFO order=70151 approved\n2026-09-13 00:36:22 WARN order=70152 declined\n2026-09-13 00:37:40 WARN order=70153 declined\n2026-09-13 00:37:43 INFO order=70154 approved\n2026-09-13 00:37:45 INFO order=70155 approved\n2026-09-13 00:39:31 INFO order=70156 approved\n2026-09-13 00:39:58 INFO order=70157 approved\n2026-09-13 00:40:02 WARN order=70158 declined\n2026-09-13 00:40:23 WARN order=70159 declined\n2026-09-13 00:41:15 INFO order=70160 approved\n2026-09-13 00:42:50 INFO order=70161 approved\n2026-09-13 00:42:54 INFO order=70162 approved\n2026-09-13 00:44:32 WARN order=70163 declined\n2026-09-13 00:45:36 INFO order=70164 approved\n2026-09-13 00:46:01 WARN order=70165 timeout\n2026-09-13 00:46:30 INFO order=70166 approved\n2026-09-13 00:46:31 INFO order=70167 approved\n2026-09-13 00:46:41 INFO order=70168 approved\n2026-09-13 00:46:44 WARN order=70169 declined\n2026-09-13 00:47:48 WARN order=70170 timeout\n2026-09-13 00:48:03 WARN order=70171 declined\n2026-09-13 00:50:11 INFO order=70172 approved\n2026-09-13 00:50:14 INFO order=70173 approved\n2026-09-13 00:50:16 WARN order=70174 timeout\n2026-09-13 00:50:17 WARN order=70175 declined\n2026-09-13 00:51:27 WARN order=70176 declined\n2026-09-13 00:52:38 WARN order=70177 timeout\n2026-09-13 00:56:28 INFO order=70178 approved\n2026-09-13 00:57:12 INFO order=70179 approved\n2026-09-13 00:57:40 INFO order=70180 approved\n2026-09-13 00:59:58 WARN order=70181 declined\n2026-09-13 01:00:03 INFO order=70182 approved\n2026-09-13 01:01:22 INFO order=70183 approved\n2026-09-13 01:03:02 INFO order=70184 approved\n2026-09-13 01:04:30 INFO order=70185 approved\n2026-09-13 01:05:02 INFO order=70186 approved\n2026-09-13 01:05:35 INFO order=70187 approved\n2026-09-13 01:07:01 INFO order=70188 approved\n2026-09-13 01:10:17 INFO order=70189 approved\n2026-09-13 01:10:27 INFO order=70190 approved\n2026-09-13 01:11:51 INFO order=70191 approved\n2026-09-13 01:11:54 INFO order=70192 approved\n2026-09-13 01:14:08 WARN order=70193 timeout\n2026-09-13 01:15:02 INFO order=70194 approved\n2026-09-13 01:15:22 WARN order=70195 timeout\n2026-09-13 01:16:19 INFO order=70196 approved\n2026-09-13 01:18:40 INFO order=70197 approved\n2026-09-13 01:20:27 WARN order=70198 declined\n2026-09-13 01:25:34 WARN order=70199 declined\n2026-09-13 01:27:01 WARN order=70200 declined\n2026-09-13 01:27:48 WARN order=70201 declined\n2026-09-13 01:27:58 INFO order=70202 approved\n2026-09-13 01:29:46 INFO order=70203 approved\n2026-09-13 01:29:47 INFO order=70204 approved\n2026-09-13 01:34:44 WARN order=70205 timeout\n2026-09-13 01:34:58 WARN order=70206 timeout\n2026-09-13 01:35:03 WARN order=70207 timeout\n2026-09-13 01:35:31 INFO order=70208 approved\n2026-09-13 01:35:52 INFO order=70209 approved\n2026-09-13 01:38:52 INFO order=70210 approved\n2026-09-13 01:39:20 WARN order=70211 timeout\n2026-09-13 01:41:52 WARN order=70212 timeout\n2026-09-13 01:42:47 INFO order=70213 approved\n2026-09-13 01:43:26 WARN order=70214 declined\n2026-09-13 01:43:27 INFO order=70215 approved\n2026-09-13 01:45:26 WARN order=70216 declined\n2026-09-13 01:45:30 INFO order=70217 approved\n2026-09-13 01:45:51 INFO order=70218 approved\n2026-09-13 01:46:30 INFO order=70219 approved\n2026-09-13 01:46:56 INFO order=70220 approved\n2026-09-13 01:47:16 WARN order=70221 declined\n2026-09-13 01:47:29 WARN order=70222 timeout\n2026-09-13 01:51:26 INFO order=70223 approved\n2026-09-13 01:51:32 WARN order=70224 declined\n2026-09-13 01:51:37 WARN order=70225 timeout\n2026-09-13 01:55:35 INFO order=70226 approved\n2026-09-13 01:56:56 INFO order=70227 approved\n2026-09-13 01:57:50 INFO order=70228 approved\n2026-09-13 01:58:41 WARN order=70229 timeout\n"
+  },
+  "turns": [
+    {
+      "prompt": "In payments.log, how many payments were declined between 23:30 on 2026-09-12 and 00:30 on 2026-09-13?",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ],
+        "output_contains": [
+          "12"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "How many of those fall after midnight, on the 13th?",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

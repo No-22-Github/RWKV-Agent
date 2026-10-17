@@ -1,0 +1,86 @@
+{
+  "id": "hyb-33359",
+  "description": "List docs that call something deprecated and name its replacement from the migration page. DISTILL-CANARY-40b55a6f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-comp-59",
+    "ref_calls": 4,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Granite",
+      "url_match": "granitejs.dev/migrate/v5",
+      "url": "https://granitejs.dev/migrate/v5",
+      "title": "Granite v5 migration",
+      "snippet": "What replaces removed APIs.",
+      "content": "# Migrating to v5\n\n`oldQuery()` was removed. Use `query()` with the `legacy: false` option.\n`bind()` is unchanged.\n",
+      "published_at": "2026-07-28"
+    }
+  ],
+  "files": {
+    "docs/setup.md": "Call oldQuery() first (deprecated).\n",
+    "docs/usage.md": "Use bind() freely.\n",
+    "docs/faq.md": "oldQuery is deprecated since v4.\n",
+    "docs/intro.md": "Welcome.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which files under docs/ mention 'deprecated', and what does Granite's v5 migration page say to use instead of oldQuery()?",
+      "expect": {
+        "output_contains": [
+          "docs/setup.md",
+          "docs/faq.md",
+          "query()"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "search_text",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docs/setup.md": {
+        "unchanged": true
+      },
+      "docs/usage.md": {
+        "unchanged": true
+      },
+      "docs/faq.md": {
+        "unchanged": true
+      },
+      "docs/intro.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

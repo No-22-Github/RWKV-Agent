@@ -1,0 +1,143 @@
+{
+  "id": "hyb-33611",
+  "description": "Three cities: which has the lowest rain chance tomorrow. DISTILL-CANARY-f1d7b993",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "长沙"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21o-weather-11",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "团建在长沙、武汉、南昌里选一个，明天哪个城市最不容易下雨？",
+      "expect": {
+        "output_contains": [
+          "武汉"
+        ],
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "长沙",
+      "aliases": [],
+      "report": {
+        "location": "长沙",
+        "current": "晴 30°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "24~33",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "24~32",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "23~29",
+            "rain_chance": "65%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "武汉",
+      "aliases": [],
+      "report": {
+        "location": "武汉",
+        "current": "晴 31°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "25~34",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "25~35",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "24~33",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "南昌",
+      "aliases": [],
+      "report": {
+        "location": "南昌",
+        "current": "多云 29°C",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "24~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "23~28",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "22~27",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "get_weather"
+    ]
+  }
+}

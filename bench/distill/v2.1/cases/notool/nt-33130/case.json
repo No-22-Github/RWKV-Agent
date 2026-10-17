@@ -1,0 +1,51 @@
+{
+  "id": "nt-33130",
+  "description": "Capital of Australia. DISTILL-CANARY-7cf7e1b7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-fact-33130",
+    "ref_calls": 0,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "fact"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 星火教育 workspace\n\nNotes and small tables live here (batch item 33130).\n",
+    "misc/todo-83.txt": "- check shelf 7\n- reorder item 50\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the capital of Australia? One word is fine.",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "Canberra"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "Sydney is the capital",
+          "capital is Sydney"
+        ]
+      }
+    }
+  ]
+}

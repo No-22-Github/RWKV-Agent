@@ -1,0 +1,77 @@
+{
+  "id": "nt-33165",
+  "description": "Small talk 33165. DISTILL-CANARY-ffbc5cf8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-chat-33165",
+    "ref_calls": 0,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "chat"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pine Studio workspace\n\nNotes and small tables live here (batch item 33165).\n",
+    "misc/todo-37.txt": "- check shelf 3\n- reorder item 55\n"
+  },
+  "turns": [
+    {
+      "prompt": "我今天终于把拖了三个月的报告交了！",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "恭喜",
+          "太棒",
+          "好棒",
+          "厉害",
+          "松了口气",
+          "解脱",
+          "了不起"
+        ],
+        "output_format": [
+          "zh"
+        ],
+        "require_active_no_call": true
+      }
+    },
+    {
+      "prompt": "想奖励自己一顿好的，有什么建议？",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "火锅",
+          "烧烤",
+          "甜点",
+          "大餐",
+          "餐厅",
+          "奖励",
+          "吃",
+          "寿司",
+          "牛排"
+        ],
+        "output_format": [
+          "zh"
+        ],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

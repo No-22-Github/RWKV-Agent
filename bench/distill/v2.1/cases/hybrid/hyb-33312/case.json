@@ -1,0 +1,85 @@
+{
+  "id": "hyb-33312",
+  "description": "Set the install script version to the current release from the download page; a 2.5 backport and an advisory are decoys. DISTILL-CANARY-ef6b7d85",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b21l-web_edit-12",
+    "ref_calls": 4,
+    "fixture_bytes": 143,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "orbit-sync",
+      "url_match": "orbit-sync.io/download",
+      "url": "https://orbit-sync.io/download",
+      "title": "Download Orbit Sync",
+      "snippet": "Installers for every platform.",
+      "content": "# Download Orbit Sync\n\nCurrent release: 2.6.1\nBackport for the 2.5 line: 2.5.9 (security fixes only)\n",
+      "published_at": "2026-09-11"
+    },
+    {
+      "query_match": "orbit-sync",
+      "url_match": "orbit-sync.io/security/advisory-41",
+      "url": "https://orbit-sync.io/security/advisory-41",
+      "title": "Advisory 41",
+      "snippet": "Fixed in 2.5.9 and 2.6.1.",
+      "content": "Advisory 41 is fixed in 2.5.9 and 2.6.1.\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "scripts/install.sh": "#!/bin/sh\nVERSION=2.5.0\ncurl -fsSL \"https://orbit-sync.io/dl/orbit-$VERSION.tgz\" -o orbit.tgz\ntar xzf orbit.tgz\n",
+    "NOTES.txt": "install via scripts/install.sh\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set VERSION in scripts/install.sh to Orbit Sync's current release (the main line, not a backport).",
+      "expect": {
+        "output_contains": [
+          "2.6.1"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "NOTES.txt": {
+        "unchanged": true
+      },
+      "scripts/install.sh": {
+        "equals": "#!/bin/sh\nVERSION=2.6.1\ncurl -fsSL \"https://orbit-sync.io/dl/orbit-$VERSION.tgz\" -o orbit.tgz\ntar xzf orbit.tgz\n"
+      }
+    }
+  }
+}

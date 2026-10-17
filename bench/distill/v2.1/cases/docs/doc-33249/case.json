@@ -1,0 +1,54 @@
+{
+  "id": "doc-33249",
+  "description": "Weekend overtime rate and comp-time window. DISTILL-CANARY-e79e8a13",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-49",
+    "ref_calls": 2,
+    "fixture_bytes": 490,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/加班与调休.md": "# 加班与调休\n\n1. 加班须事前在系统申请，经理批准后方有效；事后补申请不予认可。\n2. 工作日加班：按小时工资的 150% 计算，或按 1:1 调休。\n3. 周末加班：按小时工资的 200% 计算，也可在 30 天内调休。\n4. 法定节假日加班：按小时工资的 300% 计算，不可调休。\n5. 调休有效期 90 天，过期作废；工作日加班产生的调休有效期同为 90 天。\n6. 每月加班总时长不超过 36 小时。\n"
+  },
+  "turns": [
+    {
+      "prompt": "周六我去公司加班（已经批准了），工资按小时工资的百分之多少算？如果想调休，多久内要休完？",
+      "expect": {
+        "output_contains": [
+          "200",
+          "30"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ]
+  }
+}

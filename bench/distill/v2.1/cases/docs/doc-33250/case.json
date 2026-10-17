@@ -1,0 +1,65 @@
+{
+  "id": "doc-33250",
+  "description": "Retention for call recordings then audit logs. DISTILL-CANARY-c7aace26",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-50",
+    "ref_calls": 2,
+    "fixture_bytes": 442,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "it/数据保留规定.md": "# 数据保留规定\n\n| 数据类型 | 保留期限 | 到期处理 |\n|---|---|---|\n| 应用运行日志 | 90 天 | 自动删除 |\n| 访问审计日志 | 365 天 | 归档后再保留 2 年 |\n| 数据库备份 | 35 天 | 自动覆盖 |\n| 财务凭证电子档 | 10 年 | 人工审核后销毁 |\n| 客服录音 | 180 天 | 自动删除 |\n\n补充：涉及诉讼保全的数据不受上述期限限制，须由法务书面通知后方可处理。\n"
+  },
+  "turns": [
+    {
+      "prompt": "客服录音要保留多少天？",
+      "expect": {
+        "output_contains": [
+          "180"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "访问审计日志呢？到期之后是直接删掉吗？",
+      "expect": {
+        "output_contains": [
+          "365",
+          "2"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file"
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": "fs-33716",
+  "description": "Files with no extension at all. DISTILL-CANARY-bb32f61d",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21p-ctype-33716",
+    "ref_calls": 3,
+    "fixture_bytes": 637,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "proj/Makefile": "Makef willow juniper river\nlamp ember fjord\nsaddl\n",
+    "proj/LICENSE": "LICEN delta pixel fjord\nthistle st\n",
+    "proj/src/main.c": "main. pixel maple kettle delta junip\n",
+    "proj/src/util.c": "util. river fjord stone\nhollow ember harbor ivory\nivory maple alpha \n",
+    "proj/src/util.h": "util. quill harbor ridge delta saddle ivo\n",
+    "proj/docs/CHANGES": "CHANG pebble hollow stone stone ridge grain nectar\nlant\n",
+    "proj/docs/guide.txt": "guide saddle fjord nectar hollow harbor\nwillow river grain ivor\n",
+    "proj/build/Dockerfile": "Docke thistle umber pebble thistle ridge ember maple\nquartz lamp saddle thistle \n",
+    "proj/scripts/run": "run kettle zephyr oyster ridge harbor\nquill ridge grain\nstone stone thistle stone velve\n",
+    "proj/scripts/deploy.sh": "deplo saddle pixel stone\nridge ivory lamp quartz lantern\nthistle delta rive\n",
+    "proj/NOTICE": "NOTIC velvet hollow meadow umber river\n"
+  },
+  "turns": [
+    {
+      "prompt": "proj 里有多少个没有扩展名的文件？把它们的名字也列一下。",
+      "expect": {
+        "output_contains": [
+          "Makefile",
+          "LICENSE",
+          "CHANGES",
+          "Dockerfile",
+          "NOTICE",
+          "run",
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

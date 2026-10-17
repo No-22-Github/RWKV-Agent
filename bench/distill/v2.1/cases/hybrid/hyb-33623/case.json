@@ -1,0 +1,53 @@
+{
+  "id": "hyb-33623",
+  "description": "Days left until a visa expiry date given in the prompt. DISTILL-CANARY-a284b8a1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "66天"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-datetime-23",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我的签证 2026 年 11 月 20 日到期，从今天算还剩几天？",
+      "expect": {
+        "output_contains_any": [
+          "65天",
+          "65 天",
+          "65 days",
+          "65 day"
+        ],
+        "required_tools": [
+          "datetime"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "datetime",
+      "calculator"
+    ]
+  }
+}

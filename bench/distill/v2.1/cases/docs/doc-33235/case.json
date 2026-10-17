@@ -1,0 +1,69 @@
+{
+  "id": "doc-33235",
+  "description": "Money clauses to csv. DISTILL-CANARY-0adf18aa",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-extract-35",
+    "ref_calls": 3,
+    "fixture_bytes": 345,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "合同/服务合同.txt": "第二条 服务费用：本合同总价为人民币 48000 元。\n第五条 付款方式：首付款 30%，验收后付 60%，质保金 10% 在一年后支付。\n第七条 违约责任：逾期交付按每日 0.1% 支付违约金。\n第九条 保证金：乙方应缴纳履约保证金 5000 元。\n第十一条 备注：本合同一式两份。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 合同/服务合同.txt 里跟钱有关的条款（总价、付款比例、保证金）抽成 合同/金额条款.csv，表头“条款,内容”，违约金那条不用放。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "合同/服务合同.txt": {
+        "unchanged": true
+      },
+      "合同/金额条款.csv": {
+        "contains": [
+          "条款,内容",
+          "第二条",
+          "48000",
+          "第五条",
+          "30%",
+          "60%",
+          "10%",
+          "第九条",
+          "5000"
+        ]
+      }
+    }
+  }
+}

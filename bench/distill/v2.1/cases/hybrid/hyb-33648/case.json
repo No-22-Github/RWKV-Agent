@@ -1,0 +1,67 @@
+{
+  "id": "hyb-33648",
+  "description": "Distinct users who visited a page (not row count). DISTILL-CANARY-9b4ad655",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "66"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-query-48",
+    "ref_calls": 2,
+    "fixture_bytes": 3599,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/visits.csv": "user_id,page,ms\n154,/docs,765\n115,/pricing,1802\n117,/docs,1422\n116,/pricing,3771\n114,/home,686\n106,/blog,2364\n141,/docs,478\n110,/docs,925\n131,/pricing,1714\n104,/pricing,2434\n151,/blog,3087\n114,/blog,1366\n152,/docs,3119\n128,/pricing,2839\n134,/pricing,3196\n133,/blog,538\n157,/blog,1872\n102,/pricing,1781\n126,/pricing,2555\n160,/pricing,1774\n121,/home,509\n140,/docs,1949\n146,/blog,1941\n120,/docs,1597\n146,/home,3069\n124,/pricing,1346\n117,/blog,3245\n153,/docs,422\n112,/home,2144\n112,/pricing,2644\n155,/home,758\n138,/home,3361\n114,/home,87\n103,/pricing,290\n126,/docs,3976\n100,/pricing,1162\n146,/blog,1744\n137,/blog,902\n108,/pricing,1992\n123,/docs,477\n149,/docs,3099\n131,/blog,2924\n117,/home,920\n102,/blog,1227\n156,/docs,3293\n100,/home,708\n153,/home,1533\n100,/home,1528\n112,/pricing,2223\n105,/docs,2462\n128,/blog,587\n126,/pricing,873\n155,/pricing,2670\n158,/docs,3795\n141,/docs,3596\n138,/docs,3550\n140,/pricing,556\n102,/docs,2010\n139,/blog,1991\n144,/pricing,527\n133,/docs,2831\n160,/pricing,1303\n148,/pricing,3011\n113,/docs,469\n129,/pricing,649\n116,/home,3866\n145,/docs,3822\n151,/pricing,502\n116,/pricing,2100\n158,/blog,2766\n135,/home,3966\n111,/blog,3979\n106,/blog,675\n117,/blog,1586\n108,/home,1157\n133,/blog,2983\n152,/docs,525\n152,/blog,1794\n106,/home,3060\n120,/docs,2878\n104,/blog,1215\n157,/pricing,952\n132,/pricing,288\n128,/docs,3565\n132,/docs,697\n130,/home,907\n105,/docs,2956\n155,/home,487\n125,/home,797\n108,/pricing,789\n154,/pricing,110\n128,/pricing,1754\n127,/docs,2108\n124,/blog,1432\n107,/pricing,1912\n107,/pricing,712\n152,/home,2248\n105,/home,2689\n136,/docs,3295\n145,/home,1300\n105,/pricing,3778\n157,/home,353\n121,/blog,2700\n154,/pricing,2663\n156,/blog,2883\n154,/home,2599\n143,/pricing,1863\n159,/docs,1588\n128,/home,2674\n135,/pricing,2254\n144,/pricing,286\n156,/blog,759\n158,/pricing,1218\n102,/pricing,172\n123,/home,2454\n107,/blog,1068\n125,/home,1099\n124,/docs,3671\n110,/home,163\n141,/pricing,2202\n120,/blog,3691\n137,/pricing,1526\n105,/pricing,3166\n146,/blog,130\n107,/docs,1926\n141,/docs,1099\n149,/home,3185\n155,/pricing,335\n158,/home,2341\n110,/blog,3936\n106,/pricing,1312\n147,/docs,1027\n137,/blog,1095\n103,/blog,610\n118,/docs,2204\n122,/home,1021\n130,/pricing,1826\n158,/blog,3196\n153,/home,3133\n114,/home,734\n159,/docs,1166\n144,/docs,524\n102,/pricing,3381\n103,/docs,3209\n159,/docs,1184\n105,/home,562\n156,/pricing,1921\n100,/pricing,980\n153,/home,2941\n118,/home,2130\n113,/blog,2519\n128,/home,3929\n113,/docs,2311\n143,/pricing,1055\n119,/pricing,1910\n117,/blog,1462\n132,/home,3055\n141,/blog,300\n107,/home,900\n116,/docs,436\n131,/blog,2260\n113,/blog,450\n127,/home,1296\n140,/docs,3221\n160,/docs,99\n108,/docs,1085\n122,/pricing,857\n120,/blog,2417\n138,/pricing,1770\n125,/home,3082\n152,/docs,2071\n140,/home,2749\n159,/pricing,2991\n147,/pricing,3379\n134,/blog,2820\n145,/blog,2170\n158,/blog,3988\n119,/docs,2989\n146,/home,873\n105,/blog,2439\n107,/home,458\n111,/home,2387\n149,/docs,2633\n146,/home,3794\n159,/pricing,2597\n138,/pricing,2513\n159,/home,3511\n129,/docs,3611\n141,/blog,3431\n122,/pricing,2833\n154,/blog,387\n118,/docs,1433\n112,/home,3785\n130,/docs,2902\n154,/blog,1844\n101,/blog,2849\n136,/docs,3205\n150,/home,251\n101,/blog,1293\n121,/home,2372\n134,/pricing,467\n100,/docs,2082\n122,/docs,275\n138,/blog,2413\n143,/blog,2071\n115,/docs,2808\n122,/home,1458\n155,/home,718\n154,/docs,498\n149,/docs,3734\n129,/blog,695\n159,/home,2847\n140,/home,979\n145,/home,422\n159,/home,2947\n132,/pricing,1376\n115,/pricing,1935\n122,/pricing,1983\n108,/docs,2055\n119,/blog,2759\n111,/pricing,2486\n120,/pricing,855\n101,/docs,1177\n145,/pricing,235\n120,/pricing,2473\n157,/pricing,3787\n152,/pricing,2797\n123,/home,2738\n142,/docs,2886\n146,/docs,1375\n"
+  },
+  "turns": [
+    {
+      "prompt": "logs/visits.csv 里有多少个不同的用户访问过 /pricing 页面？",
+      "expect": {
+        "output_contains_any": [
+          "42人",
+          "42 人",
+          "42个",
+          "42 个",
+          "42位",
+          "42 位",
+          "42 users",
+          "42 unique",
+          "42 distinct"
+        ],
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "data_query",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "logs/visits.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

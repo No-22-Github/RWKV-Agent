@@ -1,0 +1,46 @@
+{
+  "id": "nt-33144",
+  "description": "300 km/h to m/s. DISTILL-CANARY-0b557d63",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-unit-33144",
+    "ref_calls": 0,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "unit"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 晨光文具 workspace\n\nNotes and small tables live here (batch item 33144).\n",
+    "misc/todo-84.txt": "- check shelf 8\n- reorder item 42\n"
+  },
+  "turns": [
+    {
+      "prompt": "高铁时速 300 公里，换算成米每秒是多少？",
+      "expect": {
+        "tools": [],
+        "expected_number": 83.33,
+        "expected_number_in_text": true,
+        "tolerance": 0.1
+      }
+    }
+  ]
+}

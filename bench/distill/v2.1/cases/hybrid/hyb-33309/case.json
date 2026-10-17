@@ -1,0 +1,84 @@
+{
+  "id": "hyb-33309",
+  "description": "Replace a hotline in one doc, then the support mailbox in a second doc, both from the vendor support page. DISTILL-CANARY-f3ca4c98",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-web_edit-09",
+    "ref_calls": 6,
+    "fixture_bytes": 168,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "晴岚",
+      "url_match": "www.qinglan-home.com/support",
+      "url": "https://www.qinglan-home.com/support",
+      "title": "晴岚智能家居 客服中心",
+      "snippet": "客服热线与邮箱。",
+      "content": "# 客服中心\n\n服务热线（2026年9月起启用）：400-720-3358\n服务邮箱：care@qinglan-home.com\n工作时间：9:00-21:00\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "docs/联系我们.md": "# 联系我们\n\n服务热线：400-620-1180\n工作时间：9:00-21:00\n",
+    "docs/FAQ.md": "# 常见问题\n\nQ: 怎么联系客服？\nA: 发邮件到 help@qinglan-home.com 或拨打热线。\n"
+  },
+  "turns": [
+    {
+      "prompt": "晴岚智能家居换了客服热线，docs/联系我们.md 里的号码帮我改成他们客服页上现在的。",
+      "expect": {
+        "output_contains": [
+          "400-720-3358"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "FAQ 里写的客服邮箱也对一下，如果和他们页面上不一样就改过来。",
+      "expect": {
+        "output_contains": [
+          "care@qinglan-home.com"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docs/联系我们.md": {
+        "equals": "# 联系我们\n\n服务热线：400-720-3358\n工作时间：9:00-21:00\n"
+      },
+      "docs/FAQ.md": {
+        "equals": "# 常见问题\n\nQ: 怎么联系客服？\nA: 发邮件到 care@qinglan-home.com 或拨打热线。\n"
+      }
+    }
+  }
+}

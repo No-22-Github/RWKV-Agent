@@ -1,0 +1,71 @@
+{
+  "id": "web-33064",
+  "description": "Find the deprecation/removal timeline and replacement for a fictional product (漠河云服务). DISTILL-CANARY-0b9c176e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-dp-33064",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "漠河云服务",
+      "url": "https://mohe-cloud.example/notice/classic-network",
+      "url_match": "mohe-cloud.example/notice/classic-network",
+      "title": "经典网络退役通知 - 漠河云服务",
+      "snippet": "经典网络退役。",
+      "content": "# 经典网络退役通知\n\n经典网络将于 2027-06-30 退役，届时实例将断网。2026-12-31 起停止新建经典网络实例。请迁移到专有网络 VPC，控制台提供一键迁移工具。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "漠河云服务的经典网络要退役了吗？我现在还能新建吗？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "2027-06-30",
+          "2027/6/30",
+          "2027年6月30日",
+          "2027 年 6 月 30 日",
+          "6月30日",
+          "6 月 30 日",
+          "6月30号",
+          "June 30",
+          "30 June",
+          "Jun 30",
+          "30 Jun",
+          "30.6.2027"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

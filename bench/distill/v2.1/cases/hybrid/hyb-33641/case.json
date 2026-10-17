@@ -1,0 +1,54 @@
+{
+  "id": "hyb-33641",
+  "description": "English multi-turn: total with sales tax, then refund of three returned items. DISTILL-CANARY-d2942ce0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "70.35"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-calc-41",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "I bought 14 identical items at $23.45 each, and 7.25% sales tax applies. What did I pay in total? Round to cents.",
+      "expect": {
+        "expected_number": 352.1,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "If I return 3 of them, how much do I get back, tax included? Round to cents.",
+      "expect": {
+        "expected_number": 75.45,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

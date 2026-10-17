@@ -1,0 +1,76 @@
+{
+  "id": "code-33561",
+  "description": "go test log with two FAIL, one SKIP. DISTILL-CANARY-479a0219",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "TestWindows"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21n-report-33561",
+    "ref_calls": 2,
+    "fixture_bytes": 796,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "ci/go-test.log": "=== RUN   TestParse\n--- PASS: TestParse (0.00s)\n=== RUN   TestParseEmpty\n--- PASS: TestParseEmpty (0.00s)\n=== RUN   TestMerge\n    merge_test.go:41: got [a b], want [a b c]\n--- FAIL: TestMerge (0.00s)\n=== RUN   TestRetryTimeout\n    retry_test.go:77: context deadline exceeded after 200ms\n--- FAIL: TestRetryTimeout (0.20s)\n=== RUN   TestWindows\n--- SKIP: TestWindows (0.00s)\n=== RUN   TestFlush\n--- PASS: TestFlush (0.01s)\nFAIL\nFAIL\texample.com/merge\t0.231s\nFAIL\n",
+    "merge/merge.go": "package merge\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc FormatSet0(id int) string {\n\treturn fmt.Sprintf(\"set-%04d\", id)\n}\n\nfunc FormatPart1(id int) string {\n\treturn fmt.Sprintf(\"part-%04d\", id)\n}\n\nfunc FormatSet2(id int) string {\n\treturn fmt.Sprintf(\"set-%04d\", id)\n}\n\n",
+    "merge/merge_test.go": "package merge\n\n// see ci/go-test.log\n",
+    "go.mod": "module example.com/merge\n\ngo 1.22\n"
+  },
+  "turns": [
+    {
+      "prompt": "ci/go-test.log has the output of the last go test run. Which tests failed and why? Don't count the skipped one.",
+      "expect": {
+        "output_contains": [
+          "TestMerge",
+          "TestRetryTimeout",
+          "deadline exceeded"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ci/go-test.log": {
+        "unchanged": true
+      },
+      "merge/merge.go": {
+        "unchanged": true
+      },
+      "merge/merge_test.go": {
+        "unchanged": true
+      },
+      "go.mod": {
+        "unchanged": true
+      }
+    }
+  }
+}

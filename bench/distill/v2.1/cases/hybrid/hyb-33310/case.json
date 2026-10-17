@@ -1,0 +1,77 @@
+{
+  "id": "hyb-33310",
+  "description": "Migrate a removed function call in client.js using the library changelog. DISTILL-CANARY-5f0785a8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-web_edit-10",
+    "ref_calls": 4,
+    "fixture_bytes": 211,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "reqlite",
+      "url_match": "reqlite.dev/changelog/3.0",
+      "url": "https://reqlite.dev/changelog/3.0",
+      "title": "reqlite 3.0 changelog",
+      "snippet": "Breaking changes in 3.0.",
+      "content": "# reqlite 3.0\n\nBreaking: `fetchLegacy(url)` has been removed. Use `fetchV3(url, opts)` instead; pass `{}` when you have no options.\n",
+      "published_at": "2026-08-18"
+    }
+  ],
+  "files": {
+    "src/client.js": "const { fetchLegacy } = require('reqlite');\n\nasync function load(u) {\n  const r = await fetchLegacy(u);\n  return r.body;\n}\n\nmodule.exports = { load };\n",
+    "package.json": "{ \"name\": \"dash\", \"dependencies\": { \"reqlite\": \"^3.0.0\" } }\n"
+  },
+  "turns": [
+    {
+      "prompt": "After upgrading reqlite to 3.0 our client breaks. Find what the 3.0 changelog says about fetchLegacy and fix src/client.js accordingly.",
+      "expect": {
+        "output_contains": [
+          "fetchV3"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "package.json": {
+        "unchanged": true
+      },
+      "src/client.js": {
+        "equals": "const { fetchV3 } = require('reqlite');\n\nasync function load(u) {\n  const r = await fetchV3(u, {});\n  return r.body;\n}\n\nmodule.exports = { load };\n"
+      }
+    }
+  }
+}

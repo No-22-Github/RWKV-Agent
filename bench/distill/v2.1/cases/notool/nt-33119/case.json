@@ -1,0 +1,50 @@
+{
+  "id": "nt-33119",
+  "description": "Write a bash one-liner. DISTILL-CANARY-21f0801d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "code_help",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b21j-code-33119",
+    "ref_calls": 0,
+    "fixture_bytes": 111,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "code"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lumen Desk workspace\n\nNotes and small tables live here (batch item 33119).\n",
+    "misc/todo-6.txt": "- check shelf 9\n- reorder item 17\n"
+  },
+  "turns": [
+    {
+      "prompt": "写一条 shell 命令，统计当前目录下 .log 文件一共有多少个。只要命令，加一句话解释。",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "wc -l"
+        ],
+        "output_contains_any": [
+          "find",
+          "ls"
+        ]
+      }
+    }
+  ]
+}

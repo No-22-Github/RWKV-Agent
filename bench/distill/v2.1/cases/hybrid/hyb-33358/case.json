@@ -1,0 +1,83 @@
+{
+  "id": "hyb-33358",
+  "description": "Report current max_connections and the guide's recommendation, then apply it. DISTILL-CANARY-4b662375",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "b21l-comp-58",
+    "ref_calls": 6,
+    "fixture_bytes": 69,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Basil DB",
+      "url_match": "basildb.org/docs/tuning",
+      "url": "https://basildb.org/docs/tuning",
+      "title": "Basil DB tuning guide",
+      "snippet": "Recommended settings for production.",
+      "content": "# Production tuning\n\nmax_connections: 200 for servers with 16 GB RAM or more\nshared_buffers: 4GB\nwork_mem: 32MB\n",
+      "published_at": "2026-06-22"
+    }
+  ],
+  "files": {
+    "db.conf": "# basil db\nmax_connections = 80\nshared_buffers = 4GB\nwork_mem = 32MB\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is max_connections set to in db.conf, and what does Basil DB's tuning guide recommend for a 16 GB server?",
+      "expect": {
+        "output_contains": [
+          "80",
+          "200"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "OK, apply the recommended value in db.conf and tell me which value you replaced.",
+      "expect": {
+        "output_contains": [
+          "200"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "db.conf": {
+        "equals": "# basil db\nmax_connections = 200\nshared_buffers = 4GB\nwork_mem = 32MB\n"
+      }
+    }
+  }
+}

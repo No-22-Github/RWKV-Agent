@@ -1,0 +1,59 @@
+{
+  "id": "fs-33707",
+  "description": "One pair of identical files plus a same-size one-character decoy. DISTILL-CANARY-9cf69123",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21p-dup-33707",
+    "ref_calls": 4,
+    "fixture_bytes": 7850,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "photos/IMG_2041.txt": "sunset umber kettle stone\nmaple stone alpha quill thistle\nriver ember umber oyster\nmaple alpha umber pebble\nridge quartz thistle yarrow orbit ivory\nivory orbit grain\nember fjord lantern umber orbit quill grain maple\nmaple meadow orbit saddle lamp maple\nwillow maple river\nlantern cedar thistle willow oyster zephyr\nzephyr cedar harbor stone\nnectar orbit ridge\nriver maple meadow delta grain meadow lantern alpha\nfjord delta pixel zephyr\number quill maple\nharbor grain kettle ridge zephyr maple zephyr thistle\nfjord maple oyster\nnectar stone velvet saddle fjord juniper\nthistle fjord ivory hollow quartz yarrow pixel\npebble ivory cedar pixel zephyr ridge velvet pixel\nmeadow ivory quill\ndelta hollow cedar\nmaple harbor quartz delta thistle\nsaddle pebble kettle yarrow fjord alpha alpha cedar\nember grain quill river nectar stone meadow\norbit zephyr quill juniper lantern oyster maple\number pebble quartz grain umber\nhollow orbit lantern zephyr cedar\nquill cedar nectar\nharbor stone delta\nmeadow pixel quartz juniper cedar lantern lantern stone\nquartz zephyr lamp meadow maple oyster juniper\nivory quartz oyster kettle velvet willow stone ember\nivory maple quartz ridge ember river lantern quill\nfjord lamp quill pixel velvet\nquill meadow quartz harbor pebble\npixel stone quill hollow river quill pebble\nridge delta willow fjord\noyster juniper umber delta\nquartz stone umber grain delta thistle\nwillow orbit quill velvet \n",
+    "photos/trip/IMG_2041_copy.txt": "sunset umber kettle stone\nmaple stone alpha quill thistle\nriver ember umber oyster\nmaple alpha umber pebble\nridge quartz thistle yarrow orbit ivory\nivory orbit grain\nember fjord lantern umber orbit quill grain maple\nmaple meadow orbit saddle lamp maple\nwillow maple river\nlantern cedar thistle willow oyster zephyr\nzephyr cedar harbor stone\nnectar orbit ridge\nriver maple meadow delta grain meadow lantern alpha\nfjord delta pixel zephyr\number quill maple\nharbor grain kettle ridge zephyr maple zephyr thistle\nfjord maple oyster\nnectar stone velvet saddle fjord juniper\nthistle fjord ivory hollow quartz yarrow pixel\npebble ivory cedar pixel zephyr ridge velvet pixel\nmeadow ivory quill\ndelta hollow cedar\nmaple harbor quartz delta thistle\nsaddle pebble kettle yarrow fjord alpha alpha cedar\nember grain quill river nectar stone meadow\norbit zephyr quill juniper lantern oyster maple\number pebble quartz grain umber\nhollow orbit lantern zephyr cedar\nquill cedar nectar\nharbor stone delta\nmeadow pixel quartz juniper cedar lantern lantern stone\nquartz zephyr lamp meadow maple oyster juniper\nivory quartz oyster kettle velvet willow stone ember\nivory maple quartz ridge ember river lantern quill\nfjord lamp quill pixel velvet\nquill meadow quartz harbor pebble\npixel stone quill hollow river quill pebble\nridge delta willow fjord\noyster juniper umber delta\nquartz stone umber grain delta thistle\nwillow orbit quill velvet \n",
+    "photos/IMG_2042.txt": "sunset umber kettle stone\nmeple stone alpha quill thistle\nriver ember umber oyster\nmaple alpha umber pebble\nridge quartz thistle yarrow orbit ivory\nivory orbit grain\nember fjord lantern umber orbit quill grain maple\nmaple meadow orbit saddle lamp maple\nwillow maple river\nlantern cedar thistle willow oyster zephyr\nzephyr cedar harbor stone\nnectar orbit ridge\nriver maple meadow delta grain meadow lantern alpha\nfjord delta pixel zephyr\number quill maple\nharbor grain kettle ridge zephyr maple zephyr thistle\nfjord maple oyster\nnectar stone velvet saddle fjord juniper\nthistle fjord ivory hollow quartz yarrow pixel\npebble ivory cedar pixel zephyr ridge velvet pixel\nmeadow ivory quill\ndelta hollow cedar\nmaple harbor quartz delta thistle\nsaddle pebble kettle yarrow fjord alpha alpha cedar\nember grain quill river nectar stone meadow\norbit zephyr quill juniper lantern oyster maple\number pebble quartz grain umber\nhollow orbit lantern zephyr cedar\nquill cedar nectar\nharbor stone delta\nmeadow pixel quartz juniper cedar lantern lantern stone\nquartz zephyr lamp meadow maple oyster juniper\nivory quartz oyster kettle velvet willow stone ember\nivory maple quartz ridge ember river lantern quill\nfjord lamp quill pixel velvet\nquill meadow quartz harbor pebble\npixel stone quill hollow river quill pebble\nridge delta willow fjord\noyster juniper umber delta\nquartz stone umber grain delta thistle\nwillow orbit quill velvet \n",
+    "photos/IMG_2050.txt": "market orbit hollow alpha hollow\njuniper lantern quartz ember alpha nectar\nivory quill saddle ridge fjord cedar\nwillow umber cedar lamp ivory yarrow alpha lamp\ndelta nectar fjord pixel ember fjord saddle fjord\nwillow river saddle oyster stone orbit ridge stone\nnectar kettle juniper river\ndelta ivory stone saddle kettle ivory willow lantern\nquartz orbit river harbor velvet willow quartz fjord\nmeadow quartz orbit nectar\noyster stone lantern lantern stone umber\nquill zephyr grain lantern orbit thistle\nkettle alpha maple yarrow lamp\norbit alpha lantern willow quill river willow\nlamp delta ember cedar lamp willow\nivory willow grain meadow\nlamp thistle pixel pixel cedar meadow river thistle\nriver velvet fjord hollow\noyster saddle oyster harbor\nlantern lantern delta juniper cedar lantern\nkettle kettle hollow quill stone lantern\npebble orbit zephyr grain\nvelvet quartz hollow thistle ivory orbit alpha\ncedar juniper orbit grain maple cedar zephyr\nquill lamp pixel pebble lantern pebble\noyster quill velvet harbor ridge river grain saddle\noyster stone oyster lantern\nquartz quill river harbor ember fjord maple\nlamp lantern saddle\nember harbor juniper fjord yarrow nectar\ndelta juniper meadow thistle kettle\nvelvet maple umber umber\nalpha quartz cedar harbor maple kettle\number kettle alpha saddle umber\nyarrow hollow nectar grain lamp ridge ember\ncedar pixel maple delta kettle saddle meadow nectar\nridge delta lantern yarrow velvet ivory\nfjord delta lantern\nquill delta ember maple\nmeadow ridge hollow orbit saddle willow delta\nhollow ivory grain delta thistle harbor\njuniper grain juniper quill\nquill ivory alpha umber\nmaple hollow quill\ncedar pebble ridge kettle quill pixel cedar grain\nhollow ivory velvet pixel\nquill saddle nectar nectar cedar\ngrain pebble quill willow nectar stone pebble\nkettle harbor harbor river harbor delta velvet\nfjord kettle meadow willow harbor juniper quartz lamp\nember lantern delta alpha\nhollow umber stone delta umber saddle\ncedar lamp thistle velvet orbit river\nkettle meadow river\nzephyr yarrow lamp lamp harbor hollow stone\nquartz pebble meadow velvet\ncedar pixel zephyr pebble hollow quill harbor\nhollow nectar lantern umber stone pebble pebble pebble\nzephyr oyster stone ember juniper\nlantern stone oyster delta oys\n",
+    "photos/trip/IMG_2051.txt": "pier ivory quartz delta yarrow pixel meadow\nmaple pixel ridge alpha cedar quartz pixel\nquill oyster maple zephyr alpha ember pixel\nridge alpha hollow quill pixel harbor pixel\njuniper ivory meadow delta\nriver delta delta\npixel ivory umber alpha\nvelvet zephyr pebble ridge meadow quartz\nlamp yarrow harbor\nalpha umber pebble umber juniper cedar lantern ridge\nalpha hollow delta velvet lantern meadow stone pixel\nlantern pebble cedar meadow quartz\nzephyr yarrow pebble quartz kettle quartz\nlamp zephyr harbor river yarrow velvet fjord\nivory ridge pixel nectar fjord hollow hollow lantern\nthistle juniper meadow yarrow umber\nmaple juniper kettle\nhollow maple quill pixel\number willow maple grain juniper umber\nhollow saddle thistle umber delta\nember fjord quill orbit grain harbor velvet oyster\nquill saddle velvet pebble\nkettle umber delta\ngrain hollow juniper ivory zephyr river quill\ndelta maple thistle oyster ember delta oyster willow\nfjord kettle maple hollow\njuniper stone sad\n",
+    "photos/trip/notes.txt": "note quill lamp orbit orbit grain quill fjord\nstone delta velvet pebble kettle velvet ember\nkettle maple ridge grain\nmaple ridge pixel pebble quartz delta umber saddle\norbit kettle umber pebble velvet\nmaple pebble maple meadow alpha stone\nquill river meadow\nlantern yarrow harbor stone nectar zephyr ember\njuniper yarrow yarrow\nmaple velvet lantern \n"
+  },
+  "turns": [
+    {
+      "prompt": "photos 里有没有内容完全一样的文件？有的话只列出文件名，不要别的。",
+      "expect": {
+        "output_contains": [
+          "IMG_2041.txt",
+          "IMG_2041_copy.txt"
+        ],
+        "output_excludes": [
+          "IMG_2042.txt",
+          "IMG_2050.txt"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

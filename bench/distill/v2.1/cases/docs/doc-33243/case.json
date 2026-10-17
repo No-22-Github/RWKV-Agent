@@ -1,0 +1,69 @@
+{
+  "id": "doc-33243",
+  "description": "Admin password rotation then admin lockout. DISTILL-CANARY-fdd5ff02",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-43",
+    "ref_calls": 2,
+    "fixture_bytes": 584,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "it/security-policy.md": "# Account security policy\n\n1. Standard accounts: change the password every 90 days.\n2. Administrator accounts: change the password every 60 days and use a hardware key.\n3. Service accounts: rotate the secret every 180 days; no interactive login allowed.\n4. Passwords must have at least 12 characters (administrators: 16).\n5. After 5 failed sign-ins the account locks for 15 minutes; administrator accounts lock for 60 minutes.\n6. Reused passwords: the last 10 passwords cannot be reused.\n7. Contractors get standard accounts that expire after 30 days unless renewed by their sponsor.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How often does an administrator account have to change its password?",
+      "expect": {
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "And how long is an administrator locked out after too many failed sign-ins?",
+      "expect": {
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

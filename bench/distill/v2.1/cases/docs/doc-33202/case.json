@@ -1,0 +1,77 @@
+{
+  "id": "doc-33202",
+  "description": "Weekly report from notes, then retitle and add a section. DISTILL-CANARY-a382c4b8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21k-draft-02",
+    "ref_calls": 5,
+    "fixture_bytes": 364,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "周报/素材.txt": "本周完成：\n- 登录页改版上线（负责人：周朗）\n- 修复订单导出乱码，涉及 3 个接口\n- 压测报告出稿，峰值 1200 QPS\n下周计划：\n- 接入新支付渠道，预计周四联调\n- 梳理告警规则\n风险：测试环境 2 号机磁盘占用 91%\n",
+    "周报/上周.md": "# 第37周周报\n\n## 完成\n- 完成预发环境迁移\n\n## 计划\n- 登录页改版\n"
+  },
+  "turns": [
+    {
+      "prompt": "用 周报/素材.txt 帮我写本周周报，存成 周报/第38周.md。分“本周完成”“下周计划”“风险”三节，格式照 周报/上周.md。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "标题改成“# 第38周周报（后端组）”，再在最后加一节“## 需要的支持”，写一条：申请扩容测试环境磁盘。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "周报/素材.txt": {
+        "unchanged": true
+      },
+      "周报/上周.md": {
+        "unchanged": true
+      },
+      "周报/第38周.md": {
+        "contains": [
+          "# 第38周周报（后端组）",
+          "周朗",
+          "1200 QPS",
+          "91%",
+          "## 需要的支持",
+          "扩容测试环境磁盘"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "doc-33241",
+  "description": "Loan period for postgraduates. DISTILL-CANARY-44c18825",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-policy-41",
+    "ref_calls": 2,
+    "fixture_bytes": 453,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "library/loan-rules.md": "# Library loan rules\n\n- Undergraduates: books 21 days, 5 items at a time; DVDs 3 days.\n- Postgraduates: books 42 days, 10 items at a time; DVDs 7 days.\n- Staff: books 56 days, 15 items at a time; DVDs 14 days.\n- Renewals: up to 2 times if nobody has reserved the item; each renewal adds the original loan period.\n- Overdue fines: 0.30 per day for books, 1.00 per day for DVDs; capped at 20.00 per item.\n- Reference-only items cannot leave the building.\n"
+  },
+  "turns": [
+    {
+      "prompt": "I'm a postgraduate student. How many days is my loan period for a book?",
+      "expect": {
+        "output_contains": [
+          "42"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

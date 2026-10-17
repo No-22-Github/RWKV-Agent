@@ -1,0 +1,46 @@
+{
+  "id": "nt-33138",
+  "description": "Days in a leap-year February. DISTILL-CANARY-c23210f6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "b21j-fact-33138",
+    "ref_calls": 0,
+    "fixture_bytes": 116,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21j",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21j",
+    "sub": "fact"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 海盐面包房 workspace\n\nNotes and small tables live here (batch item 33138).\n",
+    "misc/todo-42.txt": "- check shelf 2\n- reorder item 24\n"
+  },
+  "turns": [
+    {
+      "prompt": "闰年的二月有几天？",
+      "expect": {
+        "tools": [],
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true,
+        "output_format": [
+          "zh"
+        ]
+      }
+    }
+  ]
+}

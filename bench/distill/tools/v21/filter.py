@@ -20,7 +20,8 @@ path is kept only when every check passes; nothing is patched except one normali
 Checks:
 
   final_too_long     agent cases: a final answer > 600 chars
-                     daily-QA (b20d): > 2500 chars
+                     daily-QA (b20d): > 2500 chars; v2.1 long-text task types
+                     (rewrite_text, draft_document, code_help, summarize_page): > 2000
   final_markdown     a turn asks for the value only and a final answer carries
                      Markdown (bold, code, bullets, tables). Elsewhere Markdown
                      is kept: the App renders it and a table or code block is
@@ -108,9 +109,13 @@ def load_cases(root):
     return cases
 
 
+LONG_TASKS = {"rewrite_text", "draft_document", "code_help", "summarize_page"}
+
+
 def check(entry, case):
     reasons = []
     daily = case.get("tags", {}).get("batch") == "b20d"
+    final_cap = 2500 if daily else 2000 if case.get("tags", {}).get("task_type") in LONG_TASKS else 600
     prompt_zh = bool(CJK.search(case["turns"][0]["prompt"]))
     value_only = any(VALUE_ONLY.search(t["prompt"]) for t in case["turns"])
     total = 0
@@ -130,7 +135,7 @@ def check(entry, case):
             continue
         if re.search(r"</?think>|<tool_call>", text):
             reasons.append("leaked_markup")
-        if len(text) > (2500 if daily else 600):
+        if len(text) > final_cap:
             reasons.append("final_too_long")
         if value_only and MD.search(text):
             reasons.append("final_markdown")

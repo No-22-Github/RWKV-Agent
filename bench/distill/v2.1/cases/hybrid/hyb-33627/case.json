@@ -1,0 +1,57 @@
+{
+  "id": "hyb-33627",
+  "description": "Weekly slot (Wednesday 15:00): today's slot is still ahead at 10:00. DISTILL-CANARY-221d0438",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "9月23日"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-datetime-27",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我们的周会固定每周三下午 3 点，下一次是几月几号？",
+      "expect": {
+        "output_contains_any": [
+          "9月16日",
+          "9月16号",
+          "09-16",
+          "9/16",
+          "2026-09-16",
+          "Sep 16",
+          "September 16",
+          "今天",
+          "today"
+        ],
+        "required_tools": [
+          "datetime"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "datetime"
+    ]
+  }
+}

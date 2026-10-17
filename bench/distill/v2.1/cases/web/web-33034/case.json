@@ -1,0 +1,70 @@
+{
+  "id": "web-33034",
+  "description": "Look up one concrete value for a fictional site (云岫茶舍). DISTILL-CANARY-57f0505d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "stale or unreleased value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-lk-33034",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云岫茶舍",
+      "url": "https://yunxiu-tea.example/menu/seasonal",
+      "url_match": "yunxiu-tea.example/menu/seasonal",
+      "title": "秋季限定 - 云岫茶舍",
+      "snippet": "秋季限定饮品与价格。",
+      "content": "# 秋季限定\n\n桂花乌龙 32 元，栗子奶盖 36 元，烤梨茶 30 元。9 月 23 日起供应至 11 月 15 日。\n",
+      "published_at": "2026-09-20"
+    },
+    {
+      "query_match": "云岫茶舍",
+      "url": "https://yunxiu-tea.example/menu/summer",
+      "url_match": "yunxiu-tea.example/menu/summer",
+      "title": "夏季限定（已下架）- 云岫茶舍",
+      "snippet": "夏季限定饮品，已下架。",
+      "content": "# 夏季限定（已下架）\n\n荔枝冷萃 28 元，杨梅气泡 30 元。\n",
+      "published_at": "2026-06-10"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "云岫茶舍的栗子奶盖现在卖多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "36"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "fs-33717",
+  "description": "Most common extension and its count. DISTILL-CANARY-f1a4e091",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21p-ctype-33717",
+    "ref_calls": 4,
+    "fixture_bytes": 681,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21p",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21p"
+  },
+  "web_fixture": [],
+  "files": {
+    "lab/s1.csv": "s1.cs ridge pixel delta pixel\nkettle cedar meadow\nvelvet ivory lantern grain o\n",
+    "lab/s2.csv": "s2.cs nectar ember maple umber\nember saddle p\n",
+    "lab/s3.csv": "s3.cs cedar quill willow yarrow thistle alpha zephyr\ndelta kettle pixel juniper orbit\n",
+    "lab/s4.csv": "s4.cs nectar lantern\n",
+    "lab/s5.csv": "s5.cs yarrow zephyr maple grain fjord stone willow yarrow\npebbl\n",
+    "lab/old/s0.csv": "s0.cs oyster river orbit\n",
+    "lab/old/s6.csv": "s6.cs pixel lantern harbor thistle umber pixel stone stone\n",
+    "lab/old/x.tsv": "x.tsv cedar willow orbit quartz orbit juniper\nyarrow yarrow cedar\npebble stone\n",
+    "lab/plots/p1.png": "p1.pn ivory lamp saddle\n\n",
+    "lab/plots/p2.png": "p2.pn river zephyr oyster\nyarrow orbit velvet saddle umber\norbit thistle ivory ke\n",
+    "lab/plots/p3.png": "p3.pn alpha meadow alpha\n",
+    "lab/readme.txt": "readm willow river fjord river zephyr\nquartz river f\n",
+    "lab/notes.txt": "notes lantern ivory cedar\nsaddle zep\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which file extension is the most common in lab/ (subfolders included), and how many files have it?",
+      "expect": {
+        "output_contains": [
+          "csv",
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ]
+  }
+}

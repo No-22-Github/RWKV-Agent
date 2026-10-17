@@ -1,0 +1,61 @@
+{
+  "id": "web-33008",
+  "description": "Summarize a fictional site page whose snippet is vague (Quarry Maps). DISTILL-CANARY-535d0a03",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33008",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Quarry Maps",
+      "url": "https://quarrymaps.example/blog/offline-regions",
+      "url_match": "quarrymaps.example/blog/offline-regions",
+      "title": "Offline regions explained",
+      "snippet": "页面概述，具体条目见正文。",
+      "content": "# Offline regions explained\n\nDownload a region once and Quarry Maps keeps it for 30 days without a connection. Each region is capped at 1.2 GB; larger areas are split into tiles. Turn-by-turn works offline, but live traffic and transit times do not. Regions refresh automatically on Wi-Fi when charging.\n",
+      "published_at": "2026-09-14"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "下个月要出门，帮我读一下 Quarry Maps 讲离线区域的那篇文章，告诉我关键限制（比如容量）。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "1.2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

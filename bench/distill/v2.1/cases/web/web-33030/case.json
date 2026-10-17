@@ -1,0 +1,82 @@
+{
+  "id": "web-33030",
+  "description": "Look up one concrete value for a fictional site (银杏社区医院). DISTILL-CANARY-696ac4f2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21i-lk-33030",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "银杏社区医院",
+      "url": "https://yinxing-clinic.example/dept/pediatrics",
+      "url_match": "yinxing-clinic.example/dept/pediatrics",
+      "title": "儿科门诊 - 银杏社区医院",
+      "snippet": "儿科门诊时间与挂号方式。",
+      "content": "# 儿科门诊\n\n周二、周四、周六 8:00–11:30。挂号费 8 元，可在微信公众号预约，当天号源 20 个。\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "银杏社区医院",
+      "url": "https://yinxing-clinic.example/dept/dental",
+      "url_match": "yinxing-clinic.example/dept/dental",
+      "title": "口腔科 - 银杏社区医院",
+      "snippet": "口腔科门诊时间与挂号方式。",
+      "content": "# 口腔科\n\n周一至周五 8:00–16:00。挂号费 15 元。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "银杏社区医院儿科挂号费多少，周几有门诊？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "8 元",
+          "8元",
+          "8块"
+        ]
+      }
+    },
+    {
+      "prompt": "口腔科挂号费呢？",
+      "expect": {
+        "output_contains_any": [
+          "15 元",
+          "15元",
+          "15块"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

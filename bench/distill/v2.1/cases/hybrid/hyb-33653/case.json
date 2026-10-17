@@ -1,0 +1,59 @@
+{
+  "id": "hyb-33653",
+  "description": "Sum of weights for one carrier in a tab-separated table. DISTILL-CANARY-1e55bc5f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": "0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21o-query-53",
+    "ref_calls": 2,
+    "fixture_bytes": 4918,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21o"
+  },
+  "web_fixture": [],
+  "files": {
+    "物流/shipments.tsv": "no\tcarrier\tweight_kg\tstate\nSF00001\t中通\t12.1\t运输中\nSF00002\t圆通\t8.1\t已签收\nSF00003\t中通\t17.6\t已签收\nSF00004\t圆通\t13.9\t运输中\nSF00005\t圆通\t15.3\t运输中\nSF00006\t中通\t16.5\t已签收\nSF00007\t顺丰\t8.5\t已签收\nSF00008\t中通\t12.7\t运输中\nSF00009\t圆通\t5.0\t已签收\nSF00010\t圆通\t9.0\t已签收\nSF00011\t顺丰\t10.7\t运输中\nSF00012\t圆通\t14.2\t已签收\nSF00013\t顺丰\t4.0\t运输中\nSF00014\t圆通\t10.8\t已签收\nSF00015\t顺丰\t2.9\t运输中\nSF00016\t中通\t9.8\t已签收\nSF00017\t中通\t4.2\t运输中\nSF00018\t中通\t6.4\t运输中\nSF00019\t中通\t6.6\t已签收\nSF00020\t中通\t15.9\t运输中\nSF00021\t中通\t14.5\t已签收\nSF00022\t顺丰\t1.5\t已签收\nSF00023\t中通\t14.5\t已签收\nSF00024\t圆通\t15.0\t已签收\nSF00025\t顺丰\t2.5\t已签收\nSF00026\t中通\t8.3\t已签收\nSF00027\t顺丰\t5.0\t运输中\nSF00028\t中通\t3.9\t运输中\nSF00029\t中通\t8.7\t运输中\nSF00030\t中通\t15.2\t运输中\nSF00031\t圆通\t13.3\t已签收\nSF00032\t圆通\t0.8\t运输中\nSF00033\t圆通\t10.0\t已签收\nSF00034\t顺丰\t13.3\t运输中\nSF00035\t圆通\t3.1\t已签收\nSF00036\t中通\t16.2\t已签收\nSF00037\t顺丰\t1.0\t运输中\nSF00038\t顺丰\t9.0\t已签收\nSF00039\t圆通\t5.3\t运输中\nSF00040\t圆通\t8.8\t运输中\nSF00041\t中通\t2.8\t运输中\nSF00042\t中通\t11.3\t运输中\nSF00043\t中通\t4.0\t已签收\nSF00044\t圆通\t10.9\t运输中\nSF00045\t圆通\t8.7\t已签收\nSF00046\t顺丰\t16.2\t运输中\nSF00047\t中通\t16.4\t已签收\nSF00048\t中通\t5.7\t运输中\nSF00049\t圆通\t17.6\t已签收\nSF00050\t中通\t17.3\t已签收\nSF00051\t中通\t12.4\t已签收\nSF00052\t顺丰\t7.4\t运输中\nSF00053\t中通\t10.7\t运输中\nSF00054\t中通\t11.0\t运输中\nSF00055\t顺丰\t3.8\t运输中\nSF00056\t中通\t7.5\t运输中\nSF00057\t圆通\t16.5\t运输中\nSF00058\t圆通\t9.5\t运输中\nSF00059\t中通\t9.9\t已签收\nSF00060\t中通\t3.3\t已签收\nSF00061\t中通\t6.9\t已签收\nSF00062\t顺丰\t15.9\t已签收\nSF00063\t中通\t4.3\t已签收\nSF00064\t顺丰\t10.0\t运输中\nSF00065\t顺丰\t10.0\t运输中\nSF00066\t中通\t4.5\t已签收\nSF00067\t圆通\t10.8\t运输中\nSF00068\t圆通\t10.2\t已签收\nSF00069\t中通\t11.1\t已签收\nSF00070\t圆通\t7.3\t已签收\nSF00071\t圆通\t17.0\t已签收\nSF00072\t中通\t1.1\t已签收\nSF00073\t圆通\t16.0\t运输中\nSF00074\t中通\t1.8\t运输中\nSF00075\t圆通\t2.6\t已签收\nSF00076\t顺丰\t16.1\t运输中\nSF00077\t顺丰\t13.4\t已签收\nSF00078\t中通\t14.7\t运输中\nSF00079\t圆通\t15.3\t已签收\nSF00080\t顺丰\t13.8\t已签收\nSF00081\t中通\t12.4\t运输中\nSF00082\t顺丰\t1.3\t已签收\nSF00083\t圆通\t5.0\t运输中\nSF00084\t中通\t6.0\t运输中\nSF00085\t顺丰\t5.1\t已签收\nSF00086\t中通\t3.5\t运输中\nSF00087\t圆通\t15.4\t运输中\nSF00088\t顺丰\t12.9\t运输中\nSF00089\t圆通\t17.0\t运输中\nSF00090\t中通\t10.2\t运输中\nSF00091\t顺丰\t15.9\t运输中\nSF00092\t顺丰\t13.1\t运输中\nSF00093\t圆通\t16.2\t运输中\nSF00094\t圆通\t4.9\t运输中\nSF00095\t圆通\t2.6\t运输中\nSF00096\t中通\t8.9\t运输中\nSF00097\t顺丰\t6.8\t已签收\nSF00098\t中通\t14.0\t已签收\nSF00099\t中通\t17.2\t已签收\nSF00100\t中通\t8.1\t已签收\nSF00101\t顺丰\t10.3\t已签收\nSF00102\t顺丰\t13.9\t已签收\nSF00103\t顺丰\t17.1\t运输中\nSF00104\t顺丰\t18.0\t已签收\nSF00105\t顺丰\t7.8\t运输中\nSF00106\t中通\t2.9\t已签收\nSF00107\t圆通\t4.8\t运输中\nSF00108\t圆通\t4.8\t已签收\nSF00109\t顺丰\t7.3\t已签收\nSF00110\t顺丰\t8.1\t已签收\nSF00111\t圆通\t0.5\t已签收\nSF00112\t中通\t3.1\t已签收\nSF00113\t中通\t10.4\t运输中\nSF00114\t顺丰\t10.8\t运输中\nSF00115\t圆通\t10.2\t运输中\nSF00116\t圆通\t0.6\t运输中\nSF00117\t圆通\t2.7\t已签收\nSF00118\t中通\t5.5\t已签收\nSF00119\t顺丰\t12.8\t已签收\nSF00120\t圆通\t9.7\t运输中\nSF00121\t圆通\t8.0\t已签收\nSF00122\t中通\t4.6\t已签收\nSF00123\t中通\t14.9\t运输中\nSF00124\t顺丰\t4.4\t运输中\nSF00125\t中通\t1.5\t运输中\nSF00126\t顺丰\t1.0\t已签收\nSF00127\t中通\t3.2\t运输中\nSF00128\t中通\t16.9\t运输中\nSF00129\t中通\t4.0\t运输中\nSF00130\t中通\t16.7\t运输中\nSF00131\t圆通\t4.0\t运输中\nSF00132\t顺丰\t15.1\t已签收\nSF00133\t顺丰\t14.8\t运输中\nSF00134\t中通\t3.1\t运输中\nSF00135\t圆通\t11.4\t运输中\nSF00136\t中通\t6.9\t已签收\nSF00137\t圆通\t6.1\t已签收\nSF00138\t中通\t3.2\t运输中\nSF00139\t圆通\t9.6\t运输中\nSF00140\t中通\t15.1\t已签收\nSF00141\t顺丰\t11.4\t已签收\nSF00142\t中通\t10.8\t已签收\nSF00143\t顺丰\t13.7\t已签收\nSF00144\t顺丰\t4.5\t运输中\nSF00145\t圆通\t10.3\t已签收\nSF00146\t顺丰\t16.1\t运输中\nSF00147\t中通\t2.9\t已签收\nSF00148\t中通\t8.8\t已签收\nSF00149\t顺丰\t9.3\t运输中\nSF00150\t中通\t17.5\t运输中\nSF00151\t圆通\t3.1\t已签收\nSF00152\t中通\t12.9\t运输中\nSF00153\t顺丰\t7.2\t已签收\nSF00154\t顺丰\t10.0\t已签收\nSF00155\t圆通\t11.2\t运输中\nSF00156\t圆通\t7.6\t运输中\nSF00157\t中通\t4.5\t已签收\nSF00158\t中通\t8.5\t已签收\nSF00159\t圆通\t3.6\t已签收\nSF00160\t圆通\t6.1\t已签收\nSF00161\t中通\t13.2\t已签收\nSF00162\t圆通\t13.3\t已签收\nSF00163\t圆通\t9.7\t运输中\nSF00164\t中通\t5.1\t已签收\nSF00165\t圆通\t0.5\t已签收\nSF00166\t中通\t2.3\t已签收\n"
+  },
+  "turns": [
+    {
+      "prompt": "物流文件夹里的 shipments.tsv，顺丰承运的包裹总重量是多少公斤？",
+      "expect": {
+        "expected_number": 433.7,
+        "expected_number_in_text": true,
+        "tolerance": 0.06,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "data_query",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "物流/shipments.tsv": {
+        "unchanged": true
+      }
+    }
+  }
+}

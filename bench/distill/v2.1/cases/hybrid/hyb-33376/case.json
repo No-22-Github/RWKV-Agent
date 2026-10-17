@@ -1,0 +1,91 @@
+{
+  "id": "hyb-33376",
+  "description": "Current release, then the active LTS build after the user says they follow the support channel. DISTILL-CANARY-5486f29a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21l-multi-76",
+    "ref_calls": 4,
+    "fixture_bytes": 15,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21l"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Aspen",
+      "url_match": "aspen-runtime.dev/downloads",
+      "url": "https://aspen-runtime.dev/downloads",
+      "title": "Aspen downloads",
+      "snippet": "Get Aspen.",
+      "content": "# Downloads\n\nCurrent release: 5.2.0\nLong-term support builds are listed at https://aspen-runtime.dev/lts\n",
+      "published_at": "2026-09-10"
+    },
+    {
+      "query_match": "Aspen",
+      "url_match": "aspen-runtime.dev/lts",
+      "url": "https://aspen-runtime.dev/lts",
+      "title": "Aspen LTS",
+      "snippet": "Long-term support.",
+      "content": "# LTS releases\n\nActive LTS: 4.8.6 (supported until 2028-04)\nMaintenance LTS: 3.12.9\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "deploy.txt": "runtime: aspen\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the current Aspen release? Downloads page is aspen-runtime.dev/downloads.",
+      "expect": {
+        "output_contains": [
+          "5.2.0"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    },
+    {
+      "prompt": "Sorry, I should have said we only run long-term support builds. Which build is the active LTS then?",
+      "expect": {
+        "output_contains": [
+          "4.8.6"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

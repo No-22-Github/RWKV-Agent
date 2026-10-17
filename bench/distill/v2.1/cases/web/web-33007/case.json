@@ -1,0 +1,62 @@
+{
+  "id": "web-33007",
+  "description": "Summarize a fictional site page whose snippet is vague (墨砚出版). DISTILL-CANARY-d4f78c4c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "summarize_page",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "guess from snippet"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b21i-sum-33007",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21i"
+  },
+  "web_fixture": [
+    {
+      "query_match": "墨砚出版",
+      "url": "https://moyan-press.example/author/royalty-update",
+      "url_match": "moyan-press.example/author/royalty-update",
+      "title": "稿酬标准更新 - 墨砚出版",
+      "snippet": "页面概述，具体条目见正文。",
+      "content": "# 稿酬标准更新\n\n自 6 月 1 日起，千字稿酬统一上调：文学类 120 元，科普类 150 元，译作 180 元。电子版分成比例由 8% 提高到 12%。稿酬在稿件终审通过后 20 个工作日内支付，须先提交税务信息表。\n",
+      "published_at": "2026-05-22"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "墨砚出版最近改了稿酬标准，帮我读一下页面，说说要点。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains": [
+          "150",
+          "12%"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "code-33536",
+  "description": "TODO and FIXME in ops without the old directory; second turn re-asks one kind. DISTILL-CANARY-b2a56972",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "b21n-count-33536",
+    "ref_calls": 5,
+    "fixture_bytes": 612,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21n"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/backup.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_rollup_0() {\n# TODO: verify checksums\n  echo \"[$(date +%H:%M)] rollup step 0: $*\"\n}\n\nlog_rollup_1() {\n# FIXME: s3 timeout\n  echo \"[$(date +%H:%M)] rollup step 1: $*\"\n}\n\nlog_unit_2() {\n  echo \"[$(date +%H:%M)] unit step 2: $*\"\n}\n\n",
+    "ops/rotate.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog_unit_0() {\n  echo \"[$(date +%H:%M)] unit step 0: $*\"\n# FIXME: keep 7 not 5\n}\n\nlog_rollup_1() {\n  echo \"[$(date +%H:%M)] rollup step 1: $*\"\n# TODO: compress\n}\n\nlog_unit_2() {\n  echo \"[$(date +%H:%M)] unit step 2: $*\"\n}\n\n",
+    "ops/inventory.yml": "# TODO: add hosts\nhosts: []\n# FIXME: stale entries\n",
+    "ops/old/backup.sh": "# TODO: dead\n# FIXME: dead\n"
+  },
+  "turns": [
+    {
+      "prompt": "ops 目录（不算 old 子目录）里 TODO 和 FIXME 加起来有多少条？",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "其中 FIXME 占几条？",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ops/backup.sh": {
+        "unchanged": true
+      },
+      "ops/rotate.sh": {
+        "unchanged": true
+      },
+      "ops/inventory.yml": {
+        "unchanged": true
+      },
+      "ops/old/backup.sh": {
+        "unchanged": true
+      }
+    }
+  }
+}

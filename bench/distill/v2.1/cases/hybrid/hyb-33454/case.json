@@ -1,0 +1,65 @@
+{
+  "id": "hyb-33454",
+  "description": "Raises all menu prices 10%, then asks to undo only the food items. DISTILL-CANARY-754ce3d0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b21m-undo-33454",
+    "ref_calls": 5,
+    "fixture_bytes": 43,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21m",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21m"
+  },
+  "web_fixture": [],
+  "files": {
+    "menu.md": "拿铁 28\n美式 22\n蛋糕 36\n三明治 32\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 menu.md 里所有价格上调 10%，四舍五入到整数。",
+      "expect": {
+        "output_contains": [
+          "31"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "只撤销食物的涨价（蛋糕、三明治），饮料保持新价。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "menu.md": {
+        "equals": "拿铁 31\n美式 24\n蛋糕 36\n三明治 32\n"
+      }
+    }
+  }
+}

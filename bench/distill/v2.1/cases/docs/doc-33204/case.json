@@ -1,0 +1,84 @@
+{
+  "id": "doc-33204",
+  "description": "Printer how-to from notes, retired guide is a decoy, then append a line. DISTILL-CANARY-03cb05df",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "draft_document",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b21k-draft-04",
+    "ref_calls": 4,
+    "fixture_bytes": 386,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b21k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2",
+    "batch": "b21k"
+  },
+  "web_fixture": [],
+  "files": {
+    "setup/notes.txt": "Printer onboarding notes\n- Printer name: PR-HALL-3, IP 10.20.4.37\n- Driver: download 'HP Universal 7.2' from the IT share \\\\fileserver\\drivers\n- Default paper: A4; double-sided is off by default\n- Badge release: tap badge within 8 hours or the job is deleted\n- Help: ext. 4471 (IT desk), weekdays 08:30-17:30\n",
+    "setup/old-guide.md": "# Printer guide (retired)\n\nPrinter: PR-HALL-1, IP 10.20.4.12\nHelp: ext. 4120\n"
+  },
+  "turns": [
+    {
+      "prompt": "Write a short how-to for new staff based on setup/notes.txt and save it to setup/printer-howto.md. Use numbered steps and a title line starting with '# '. The old guide is retired, so don't reuse its details.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Add a final line at the end that says: Last reviewed: 2026-09-16.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "setup/notes.txt": {
+        "unchanged": true
+      },
+      "setup/old-guide.md": {
+        "unchanged": true
+      },
+      "setup/printer-howto.md": {
+        "contains": [
+          "PR-HALL-3",
+          "10.20.4.37",
+          "HP Universal 7.2",
+          "8 hours",
+          "4471",
+          "08:30-17:30",
+          "Last reviewed: 2026-09-16."
+        ]
+      }
+    }
+  }
+}
