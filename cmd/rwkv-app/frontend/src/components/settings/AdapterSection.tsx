@@ -6,6 +6,7 @@ import type { AdapterEntry, AdapterListing } from '../../../bindings/github.com/
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
 import { Field, GroupTitle } from './ui'
+import { Select } from './Select'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -129,16 +130,17 @@ export default function AdapterSection({ manager }: Props) {
 
       <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
         当前适配器
-        <select
-          aria-label="当前 MiSS 适配器"
-          className="rounded-md h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand"
+        <Select
+          label="当前 MiSS 适配器"
+          className="h-[40px] w-full"
           value={current}
-          onChange={(event) => manager.setAdapterId(event.target.value)}
-        >
-          <option value="">基模（不使用适配器）</option>
-          {adapters.map((entry) => <option key={entry.id} value={entry.id}>{adapterLabel(entry)}</option>)}
-          {current !== '' && !currentOnServer && <option value={current}>{current}{listing ? '（服务器上已不存在）' : ''}</option>}
-        </select>
+          onChange={manager.setAdapterId}
+          options={[
+            { value: '', label: '基模（不使用适配器）' },
+            ...adapters.map((entry) => ({ value: entry.id, label: adapterLabel(entry) })),
+            ...(current !== '' && !currentOnServer ? [{ value: current, label: `${current}${listing ? '（服务器上已不存在）' : ''}` }] : []),
+          ]}
+        />
       </label>
 
       {currentMissing && (

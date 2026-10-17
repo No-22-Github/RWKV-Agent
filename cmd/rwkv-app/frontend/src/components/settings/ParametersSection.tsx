@@ -2,6 +2,7 @@ import { type ProviderManager } from '../../state/providerManager'
 import { FORMAT_PRESETS, formatPresetById, matchFormatPreset } from '../../state/formatPresets'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
 import { GroupTitle, Row, SettingsPane, SaveStatus, Toggle } from './ui'
+import { Select } from './Select'
 import { autosaveHint } from './autosaveHint'
 
 type Props = {
@@ -57,23 +58,22 @@ export default function ParametersSection({ manager }: Props) {
       <section className="mt-[18px]">
         <GroupTitle title="对话格式" />
         <Row label="格式预设" description={formatHint}>
-          <select
-            aria-label="格式预设"
-            className="rounded-md h-[36px] w-[190px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand"
+          <Select
+            label="格式预设"
+            className="w-[230px] flex-none"
             value={formatId}
-            onChange={(event) => {
-              const preset = formatPresetById(event.target.value)
+            onChange={(id) => {
+              const preset = formatPresetById(id)
               if (!preset) return
               manager.setAgentProtocol(preset.agentProtocol)
               manager.setProfile(preset.profile)
               manager.setThinking(preset.thinking)
             }}
-          >
-            {FORMAT_PRESETS.filter((preset) => !preset.hidden || preset.id === formatId).map((preset) => (
-              <option key={preset.id} value={preset.id}>{preset.label}</option>
-            ))}
-            {formatId === 'custom' && <option value="custom">自定义（{manager.profile}）</option>}
-          </select>
+            options={[
+              ...FORMAT_PRESETS.filter((preset) => !preset.hidden || preset.id === formatId).map((preset) => ({ value: preset.id, label: preset.label })),
+              ...(formatId === 'custom' ? [{ value: 'custom', label: `自定义（${manager.profile}）` }] : []),
+            ]}
+          />
         </Row>
       </section>
 
@@ -83,17 +83,13 @@ export default function ParametersSection({ manager }: Props) {
           label="采样预设"
           description={samplingHint}
         >
-          <select
-            aria-label="采样预设"
-            className="rounded-md h-[36px] w-[190px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand"
+          <Select
+            label="采样预设"
+            className="w-[230px] flex-none"
             value={manager.samplingIsCustom ? CUSTOM_PRESET_ID : manager.matchedSamplingPreset}
-            onChange={(event) => manager.applySamplingPreset(event.target.value)}
-          >
-            {SAMPLING_PRESETS.map((preset) => (
-              <option key={preset.id} value={preset.id}>{preset.label}</option>
-            ))}
-            <option value={CUSTOM_PRESET_ID}>自定义</option>
-          </select>
+            onChange={manager.applySamplingPreset}
+            options={[...SAMPLING_PRESETS.map((preset) => ({ value: preset.id, label: preset.label })), { value: CUSTOM_PRESET_ID, label: '自定义' }]}
+          />
         </Row>
         {manager.samplingIsCustom ? (
           <div className="grid grid-cols-3 gap-2 pt-[4px]">

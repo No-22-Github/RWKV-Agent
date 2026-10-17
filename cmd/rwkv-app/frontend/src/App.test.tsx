@@ -86,6 +86,14 @@ function savedRemoteProvider(config: Partial<Config> = {}, profile: Partial<Save
   })
 }
 
+/* 设置页下拉是自绘 combobox：点开后点对应 data-value 的选项。 */
+function chooseOption(label: string, value: string) {
+  fireEvent.click(screen.getByLabelText(label))
+  const option = document.querySelector(`[role="option"][data-value="${value}"]`)
+  if (!option) throw new Error(`${label} has no option ${value}`)
+  fireEvent.click(option)
+}
+
 function openSettings() {
   fireEvent.click(screen.getByRole('button', { name: '设置' }))
 }
@@ -243,7 +251,7 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
-    fireEvent.change(screen.getByLabelText('远端协议'), { target: { value: protocol } })
+    chooseOption('远端协议', protocol)
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'test-model' } })
     fireEvent.change(screen.getByLabelText(protocol === 'openai' ? 'API Key' : '服务密码'), { target: { value: 'test-secret' } })
@@ -266,7 +274,7 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
     fireEvent.change(screen.getByLabelText('DeepSeek API Key'), { target: { value: 'deepseek-secret' } })
-    fireEvent.change(screen.getByLabelText('搜索后端'), { target: { value: 'brave' } })
+    chooseOption('搜索后端', 'brave')
     fireEvent.click(screen.getByLabelText('并发子 Agent'))
     fireEvent.change(screen.getByLabelText('活动批量'), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('子 Agent 并发'), { target: { value: '6' } })
@@ -298,7 +306,7 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'markdown' } })
+    chooseOption('格式预设', 'markdown')
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
@@ -311,7 +319,7 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'think' } })
+    chooseOption('格式预设', 'think')
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
@@ -352,7 +360,7 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    fireEvent.change(screen.getByLabelText('格式预设'), { target: { value: 'think' } })
+    chooseOption('格式预设', 'think')
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
@@ -411,12 +419,14 @@ describe('App', () => {
     switchToRemoteProvider()
     openParametersSection()
     const select = screen.getByLabelText('格式预设')
-    expect(select).toHaveValue('standard')
-    expect(Array.from((select as HTMLSelectElement).options).map((option) => option.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
-    fireEvent.change(select, { target: { value: 'think' } })
-    expect(select).toHaveValue('think')
-    fireEvent.change(select, { target: { value: 'markdown' } })
-    expect(select).toHaveValue('markdown')
+    expect(select).toHaveAttribute('data-value', 'standard')
+    fireEvent.click(select)
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
+    fireEvent.click(select)
+    chooseOption('格式预设', 'think')
+    expect(select).toHaveAttribute('data-value', 'think')
+    chooseOption('格式预设', 'markdown')
+    expect(select).toHaveAttribute('data-value', 'markdown')
   })
 
   it('applies a named sampling preset through auto-apply', async () => {
@@ -426,8 +436,8 @@ describe('App', () => {
     openSettings()
     openParametersSection()
     // 档案没存过采样，后端会归一成 greedy，选择器应当认出它而不是报自定义。
-    expect(screen.getByLabelText('采样预设')).toHaveValue('greedy')
-    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'g1k-agent' } })
+    expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'greedy')
+    chooseOption('采样预设', 'g1k-agent')
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
@@ -444,8 +454,8 @@ describe('App', () => {
     openParametersSection()
     // 预设模式下六个数字是只读的展示，不占编辑位。
     expect(screen.queryByLabelText('温度')).not.toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'g1k-agent' } })
-    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'custom' } })
+    chooseOption('采样预设', 'g1k-agent')
+    chooseOption('采样预设', 'custom')
     // 切到自定义不改数值，从预设那组值出发继续调。
     expect(screen.getByLabelText('温度')).toHaveValue(0.3)
     // 下拉说自定义时说明文字不能说成"选中了预设"。
@@ -453,7 +463,7 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('温度'), { target: { value: '0.9' } })
 
     // 改过的配置不再冒充预设名。
-    expect(screen.getByLabelText('采样预设')).toHaveValue('custom')
+    expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'custom')
     expect(screen.getByText(/六个参数直接决定采样/)).toBeInTheDocument()
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({ temperature: 0.9, topK: 65536, topP: 0.5 })
@@ -474,7 +484,7 @@ describe('App', () => {
     openSettings()
     openParametersSection()
 
-    expect(screen.getByLabelText('采样预设')).toHaveValue('custom')
+    expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'custom')
     expect(screen.getByLabelText('温度')).toHaveValue(0.7)
     expect(screen.getByLabelText('top-k 截断')).toHaveValue(40)
   })
@@ -1004,7 +1014,7 @@ describe('App', () => {
     openSettings()
     openParametersSection()
 
-    expect(screen.getByLabelText('格式预设')).toHaveValue('markdown')
+    expect(screen.getByLabelText('格式预设')).toHaveAttribute('data-value', 'markdown')
     openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
   })
@@ -1039,13 +1049,13 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
     openParametersSection()
-    expect(screen.getByLabelText('格式预设')).toHaveValue('legacy')
+    expect(screen.getByLabelText('格式预设')).toHaveAttribute('data-value', 'legacy')
     openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
     expect(screen.getByLabelText('DeepSeek API Key')).toHaveValue('saved-deepseek')
-    expect(screen.getByLabelText('搜索后端')).toHaveValue('deepseek')
+    expect(screen.getByLabelText('搜索后端')).toHaveAttribute('data-value', 'deepseek')
   })
 
   it('switches to a remembered workspace', async () => {

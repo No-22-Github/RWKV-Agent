@@ -6,6 +6,7 @@ import type { StateEntry, StateListing } from '../../../bindings/github.com/no22
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
 import { GroupTitle } from './ui'
+import { Select } from './Select'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -128,16 +129,17 @@ export default function StateSection({ manager }: Props) {
 
       <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
         当前 State
-        <select
-          aria-label="当前 State"
-          className="rounded-md h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand"
+        <Select
+          label="当前 State"
+          className="h-[40px] w-full"
           value={current}
-          onChange={(event) => manager.setStateId(event.target.value)}
-        >
-          <option value="">零状态（不使用 State）</option>
-          {states.map((entry) => <option key={entry.id} value={entry.id}>{stateLabel(entry)}</option>)}
-          {current !== '' && !currentOnServer && <option value={current}>{currentRecord ? stateLabel(currentRecord) : current}{listing ? '（服务器上已不存在）' : ''}</option>}
-        </select>
+          onChange={manager.setStateId}
+          options={[
+            { value: '', label: '零状态（不使用 State）' },
+            ...states.map((entry) => ({ value: entry.id, label: stateLabel(entry) })),
+            ...(current !== '' && !currentOnServer ? [{ value: current, label: `${currentRecord ? stateLabel(currentRecord) : current}${listing ? '（服务器上已不存在）' : ''}` }] : []),
+          ]}
+        />
       </label>
 
       {currentMissing && (

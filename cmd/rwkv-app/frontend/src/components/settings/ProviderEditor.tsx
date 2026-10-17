@@ -1,6 +1,7 @@
 import { Cloud, Cpu, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import { Field, GroupTitle, SaveStatus, SettingsPane } from './ui'
+import { Select } from './Select'
 import ProfileFooter from './ProfileFooter'
 import AdapterSection from './AdapterSection'
 import StateSection from './StateSection'
@@ -75,11 +76,11 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
           <>
             <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
               接口协议
-              <select aria-label="远端协议" className="rounded-md h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" value={manager.remoteProtocol} onChange={(event) => manager.setRemoteProtocol(event.target.value as 'python' | 'cuda' | 'openai')}>
-                <option value="python">RWKV Lightning Python</option>
-                <option value="cuda">RWKV Lightning CUDA</option>
-                <option value="openai">OpenAI 兼容</option>
-              </select>
+              <Select label="远端协议" className="h-[40px] w-full" value={manager.remoteProtocol} onChange={(value) => manager.setRemoteProtocol(value as 'python' | 'cuda' | 'openai')} options={[
+                { value: 'python', label: 'RWKV Lightning Python' },
+                { value: 'cuda', label: 'RWKV Lightning CUDA' },
+                { value: 'openai', label: 'OpenAI 兼容' },
+              ]} />
             </label>
             {/* 新建连接只在填了内容后才报地址错误，空表单不先挂满红字。 */}
             <Field label="API 地址" value={manager.remoteEndpoint} onChange={manager.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" error={isNew && !manager.remoteEndpoint.trim() ? undefined : manager.draftErrors.endpoint} />
