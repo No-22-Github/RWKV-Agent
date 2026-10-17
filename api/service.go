@@ -446,6 +446,11 @@ func applyConfigDefaults(config *Config) error {
 	}
 	// enableWeb without API keys is valid: web_search/web_fetch stay in the
 	// catalog and answer "not configured" when called (see newWebProviders).
+	switch config.WebSearchBackend {
+	case "", "auto", "deepseek", "brave":
+	default:
+		return fmt.Errorf("webSearchBackend must be auto, deepseek or brave")
+	}
 	if config.Temperature == 0 {
 		config.Temperature = 1
 	}

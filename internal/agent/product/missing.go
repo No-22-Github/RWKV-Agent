@@ -13,8 +13,8 @@ import (
 // agent.ErrProviderUnavailable, so the Runner marks the tool unavailable for
 // the turn and the model tells the user instead of retrying.
 var (
-	ErrSearchNotConfigured = fmt.Errorf("%w: 未配置搜索服务，请在设置里填写 Brave 搜索 key 后再使用联网搜索", agent.ErrProviderUnavailable)
-	ErrFetchNotConfigured  = fmt.Errorf("%w: 未配置网页抓取服务，请在设置里填写 Tavily key 后再使用网页读取", agent.ErrProviderUnavailable)
+	ErrSearchNotConfigured = fmt.Errorf("%w: 未配置搜索服务，请在设置里填写 Brave 或 DeepSeek 的 key 后再使用联网搜索", agent.ErrProviderUnavailable)
+	ErrFetchNotConfigured  = fmt.Errorf("%w: 未配置网页抓取服务，请在设置里填写 Tavily 或 DeepSeek 的 key 后再使用网页读取", agent.ErrProviderUnavailable)
 )
 
 type missingSearch struct{}

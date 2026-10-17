@@ -661,6 +661,7 @@ func webProvidersFor(owner *Service, config Config) (*webProviderSet, error) {
 // message when called, so a connection without keys still opens.
 func newWebProviders(config Config) (*webProviderSet, error) {
 	set := &webProviderSet{search: product.MissingWebSearch(), fetch: product.MissingWebFetch()}
+	routed := assistanttools.RoutedSearch{Route: assistanttools.SearchRoute(config.WebSearchBackend)}
 	if strings.TrimSpace(config.BraveAPIKey) != "" {
 		brave, err := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
 			APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
@@ -668,7 +669,21 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 		if err != nil {
 			return nil, fmt.Errorf("initialize Brave search: %w", err)
 		}
-		set.search = brave
+		routed.Brave = brave
+	}
+	var deepseek *assistanttools.DeepSeekWeb
+	if strings.TrimSpace(config.DeepSeekWebAPIKey) != "" {
+		var err error
+		deepseek, err = assistanttools.NewDeepSeekWeb(assistanttools.DeepSeekConfig{
+			APIKey: config.DeepSeekWebAPIKey, Endpoint: config.DeepSeekWebEndpoint,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initialize DeepSeek web: %w", err)
+		}
+		routed.DeepSeek = deepseek
+	}
+	if routed.Brave != nil || routed.DeepSeek != nil {
+		set.search = routed
 	}
 	if strings.TrimSpace(config.TavilyAPIKey) != "" {
 		tavily, err := assistanttools.NewTavilyFetchProvider(assistanttools.TavilyConfig{
@@ -678,6 +693,11 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 			return nil, fmt.Errorf("initialize Tavily fetch: %w", err)
 		}
 		set.fetch = tavily
+		if deepseek != nil {
+			set.fetch = assistanttools.FallbackFetch{Primary: tavily, Secondary: deepseek}
+		}
+	} else if deepseek != nil {
+		set.fetch = deepseek
 	}
 	return set, nil
 }

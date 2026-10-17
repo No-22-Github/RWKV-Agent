@@ -127,6 +127,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [enableWeb, setEnableWeb] = useState(NEW_CONFIG_DEFAULTS.enableWeb)
   const [braveAPIKey, setBraveAPIKey] = useState('')
   const [tavilyAPIKey, setTavilyAPIKey] = useState('')
+  const [deepseekWebAPIKey, setDeepseekWebAPIKey] = useState('')
+  const [webSearchBackend, setWebSearchBackend] = useState('auto')
   const [enableSubagents, setEnableSubagents] = useState(false)
   const [weatherBackend, setWeatherBackend] = useState(NEW_CONFIG_DEFAULTS.weatherBackend)
   const [enableBash, setEnableBash] = useState(NEW_CONFIG_DEFAULTS.enableBash)
@@ -196,6 +198,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
       braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
+      deepseekWebApiKey: enableWeb ? deepseekWebAPIKey.trim() || undefined : undefined,
+      webSearchBackend: enableWeb && webSearchBackend !== 'auto' ? webSearchBackend : undefined,
       enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
       subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
       maxSteps, maxTokens, decisionMaxTokens,
@@ -406,6 +410,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setProgressiveTools(config.progressiveTools ?? false)
     setProfile(config.profile || '')
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
+    setDeepseekWebAPIKey(config.deepseekWebApiKey || ''); setWebSearchBackend(config.webSearchBackend || 'auto')
     setEnableSubagents(config.enableSubagents || false)
     setWeatherBackend(config.weatherBackend || '')
     setEnableBash(config.enableBash || false)
@@ -627,6 +632,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     browserUploads,
     profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
+    deepseekWebAPIKey, setDeepseekWebAPIKey, webSearchBackend, setWebSearchBackend,
     enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
     subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,

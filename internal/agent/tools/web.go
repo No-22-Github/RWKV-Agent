@@ -58,9 +58,13 @@ type providerRequestGate struct {
 	permit chan struct{}
 }
 
-func newProviderRequestGate() *providerRequestGate {
-	gate := &providerRequestGate{permit: make(chan struct{}, 1)}
-	gate.permit <- struct{}{}
+func newProviderRequestGate() *providerRequestGate { return newProviderRequestGateN(1) }
+
+func newProviderRequestGateN(permits int) *providerRequestGate {
+	gate := &providerRequestGate{permit: make(chan struct{}, permits)}
+	for range permits {
+		gate.permit <- struct{}{}
+	}
 	return gate
 }
 
@@ -458,9 +462,9 @@ func (p *BraveSearchProvider) Search(ctx context.Context, request WebSearchReque
 		}
 		results = append(results, WebSearchResult{
 			SourceID:    fmt.Sprintf("web-%d", len(results)+1),
-			Title:       strings.TrimSpace(item.Title),
+			Title:       plainSnippet(item.Title),
 			URL:         strings.TrimSpace(item.URL),
-			Snippet:     strings.TrimSpace(item.Description),
+			Snippet:     plainSnippet(item.Description),
 			PublishedAt: strings.TrimSpace(item.Age),
 		})
 	}

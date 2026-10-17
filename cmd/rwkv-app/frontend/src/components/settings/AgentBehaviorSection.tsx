@@ -31,12 +31,23 @@ export default function AgentBehaviorSection({ manager }: Props) {
       </div>
       <section>
         <Toggle label="渐进式工具路由" description="可选：先由短 Router 选择能力组，再暴露 schema" checked={manager.progressiveTools} onChange={manager.setProgressiveTools} />
-        <Toggle icon={<Globe2 size={15} />} label="网页搜索与正文获取" description="Brave Search + Tavily Extract" checked={manager.enableWeb} onChange={manager.setEnableWeb} />
+        <Toggle icon={<Globe2 size={15} />} label="网页搜索与正文获取" description="Brave / DeepSeek 搜索 + Tavily 抓取（读不到的页面用 DeepSeek 补）" checked={manager.enableWeb} onChange={manager.setEnableWeb} />
         {manager.enableWeb && (
-          <div className="grid grid-cols-2 gap-[10px] pt-[4px]">
-            <Field label="Brave API Key" value={manager.braveAPIKey} onChange={manager.setBraveAPIKey} type="password" />
-            <Field label="Tavily API Key" value={manager.tavilyAPIKey} onChange={manager.setTavilyAPIKey} type="password" />
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-[10px] pt-[4px]">
+              <Field label="Brave API Key" value={manager.braveAPIKey} onChange={manager.setBraveAPIKey} type="password" />
+              <Field label="Tavily API Key" value={manager.tavilyAPIKey} onChange={manager.setTavilyAPIKey} type="password" />
+              <Field label="DeepSeek API Key" value={manager.deepseekWebAPIKey} onChange={manager.setDeepseekWebAPIKey} type="password" />
+            </div>
+            <label className="flex items-center justify-between gap-[12px] pt-[8px] text-sm text-ink-muted">
+              搜索后端（先用哪个，查不到或出错换另一个）
+              <select aria-label="搜索后端" className="rounded-md h-[36px] w-[210px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.webSearchBackend} onChange={(event) => manager.setWebSearchBackend(event.target.value)}>
+                <option value="auto">自动（中文 DeepSeek，其余 Brave）</option>
+                <option value="deepseek">DeepSeek 优先</option>
+                <option value="brave">Brave 优先</option>
+              </select>
+            </label>
+          </>
         )}
         <Toggle icon={<CloudSun size={15} />} label="实时天气" description="get_weather 工具，免 API Key" checked={manager.weatherBackend !== ''} onChange={(value) => manager.setWeatherBackend(value ? 'open-meteo' : '')} />
         {manager.weatherBackend !== '' && (

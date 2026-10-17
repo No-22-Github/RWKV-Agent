@@ -171,6 +171,20 @@ export class Config {
     "braveEndpoint"?: string;
     "tavilyApiKey"?: string;
     "tavilyEndpoint"?: string;
+
+    /**
+     * DeepSeekWebAPIKey enables DeepSeek's search API as a second web_search
+     * backend and its fetch API as the fallback for pages Tavily cannot read.
+     */
+    "deepseekWebApiKey"?: string;
+    "deepseekWebEndpoint"?: string;
+
+    /**
+     * WebSearchBackend picks which search backend answers first: "auto"
+     * (empty; DeepSeek for queries with Chinese characters, Brave otherwise),
+     * "deepseek" or "brave". The other backend is the fallback either way.
+     */
+    "webSearchBackend"?: string;
     "enableSubagents"?: boolean;
 
     /**

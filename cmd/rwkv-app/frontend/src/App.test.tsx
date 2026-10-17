@@ -265,6 +265,8 @@ describe('App', () => {
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
+    fireEvent.change(screen.getByLabelText('DeepSeek API Key'), { target: { value: 'deepseek-secret' } })
+    fireEvent.change(screen.getByLabelText('搜索后端'), { target: { value: 'brave' } })
     fireEvent.click(screen.getByLabelText('并发子 Agent'))
     fireEvent.change(screen.getByLabelText('活动批量'), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('子 Agent 并发'), { target: { value: '6' } })
@@ -278,6 +280,8 @@ describe('App', () => {
       enableWeb: true,
       braveApiKey: 'brave-secret',
       tavilyApiKey: 'tavily-secret',
+      deepseekWebApiKey: 'deepseek-secret',
+      webSearchBackend: 'brave',
       enableSubagents: true,
       maxActiveBatch: 6,
       remoteBatchWaitMs: 15,
@@ -1012,6 +1016,8 @@ describe('App', () => {
       enableWeb: true,
       braveApiKey: 'saved-brave',
       tavilyApiKey: 'saved-tavily',
+      deepseekWebApiKey: 'saved-deepseek',
+      webSearchBackend: 'deepseek',
     })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       config: provider.config,
@@ -1038,6 +1044,8 @@ describe('App', () => {
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
+    expect(screen.getByLabelText('DeepSeek API Key')).toHaveValue('saved-deepseek')
+    expect(screen.getByLabelText('搜索后端')).toHaveValue('deepseek')
   })
 
   it('switches to a remembered workspace', async () => {

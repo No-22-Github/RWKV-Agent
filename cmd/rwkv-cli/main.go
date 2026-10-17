@@ -140,6 +140,9 @@ type runOptions struct {
 	braveEndpoint            string
 	tavilyAPIKeyEnv          string
 	tavilyEndpoint           string
+	deepseekWebAPIKeyEnv     string
+	deepseekWebEndpoint      string
+	webSearchBackend         string
 	enableSubagents          bool
 	maxActiveBatch           int
 	remoteBatchWait          time.Duration
@@ -563,7 +566,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.profile, "profile", "", "wire profile: preset name (xml-v1, md-v1), preset+modifiers (md-v1+anchor+gate-state), or a canonical spec; overrides --agent-protocol and the individual prefill switches (list them with `agent-eval --list-profiles`)")
 			fs.StringVar(&options.wireOverrides, "wire", "", "longhand wire axis overrides on top of the suite default or --profile: comma-separated key=value (format, thinking, prefill, abstain, terminal, route, catalog, control, feedback, subagent), e.g. \"format=md-fence,prefill=fence\"")
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
-			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
+			fs.BoolVar(&options.enableWeb, "web", false, "enable web_search (Brave/DeepSeek) and web_fetch (Tavily, DeepSeek fallback)")
 			fs.StringVar(&options.weatherBackend, "weather", "", "enable the keyless live get_weather tool: open-meteo or wttr")
 			fs.BoolVar(&options.enableBash, "bash", false, "enable the sandboxed bash tool on --workspace (needs scripts/build-justbash.sh)")
 			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (round-2 e2e: 0/25 → 25/25 on long-page tasks; pass =false for the A/B)")
@@ -571,6 +574,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
 			fs.StringVar(&options.tavilyAPIKeyEnv, "tavily-api-key-env", "TAVILY_API_KEY", "environment variable containing the Tavily API key")
 			fs.StringVar(&options.tavilyEndpoint, "tavily-endpoint", "", "optional Tavily Extract API endpoint")
+			fs.StringVar(&options.deepseekWebAPIKeyEnv, "deepseek-web-api-key-env", "DEEPSEEK_WEB_API_KEY", "environment variable containing the DeepSeek key for its search and fetch APIs")
+			fs.StringVar(&options.deepseekWebEndpoint, "deepseek-web-endpoint", "", "optional DeepSeek API base URL for search and fetch")
+			fs.StringVar(&options.webSearchBackend, "web-search-backend", "auto", "web_search backend tried first: auto (DeepSeek for Chinese queries, Brave otherwise), deepseek or brave")
 			fs.BoolVar(&options.enableSubagents, "subagents", false, "enable concurrent spawn_agents delegation")
 			fs.IntVar(&options.maxActiveBatch, "max-active-batch", 4, "maximum local active generation batch, 1..8")
 			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent Agent requests")
@@ -1784,6 +1790,9 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		BraveEndpoint:          options.braveEndpoint,
 		TavilyAPIKey:           os.Getenv(options.tavilyAPIKeyEnv),
 		TavilyEndpoint:         options.tavilyEndpoint,
+		DeepSeekWebAPIKey:      os.Getenv(options.deepseekWebAPIKeyEnv),
+		DeepSeekWebEndpoint:    options.deepseekWebEndpoint,
+		WebSearchBackend:       options.webSearchBackend,
 		EnableSubagents:        options.enableSubagents,
 		MaxActiveBatch:         options.maxActiveBatch,
 		RemoteBatchWaitMS:      int(options.remoteBatchWait / time.Millisecond),
