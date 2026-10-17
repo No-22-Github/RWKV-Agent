@@ -30,6 +30,7 @@
 # A finished run (adapter-final.pth present) is skipped, so rerunning the
 # script after an interruption only starts what is missing.
 set -euo pipefail
+trap 'echo "train-2-1.sh: line $LINENO failed (exit $?): $BASH_COMMAND" >&2' ERR
 cd "$(dirname "$0")"
 
 MODEL=${MODEL:-../rwkv7-g1k-7.2b-20260930-ctx25600.pth}
@@ -133,7 +134,9 @@ if [[ $SMOKE == 1 ]]; then
   mkdir -p "$OUT/logs"
   cp "$BASE_OUT/.model-ok" "$OUT/"
   smoke_data=$OUT/longest-8.jsonl
-  awk '{print length($0) "\t" NR}' "$DATA" | sort -rn | head -n 8 | cut -f2 |
+  # awk 'NR<=8', not head: head closes the pipe early, sort dies of SIGPIPE
+  # and pipefail turns that into a silent exit 141.
+  awk '{print length($0) "\t" NR}' "$DATA" | sort -rn | awk 'NR<=8' | cut -f2 |
     sort -n | awk 'NR==FNR{want[$1]=1; next} want[FNR]' - "$DATA" >"$smoke_data"
   i=0
   pids=()
