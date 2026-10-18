@@ -106,7 +106,7 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 	}
 	if settings, err := storage.LoadSettings(); err != nil {
 		backend.warning = joinWarning(backend.warning, fmt.Sprintf("读取设置失败：%v", err))
-	} else if cfg := settings.Provider; strings.TrimSpace(cfg.Model) != "" {
+	} else if cfg := withoutRuntimeWeights(settings.Provider); strings.TrimSpace(cfg.Model) != "" {
 		backend.config = cfg
 		backend.hasConfig = true
 		// 远端配置很轻量（不发网络请求，连通性检查在"测试连接"里），启动时自动连上
@@ -201,7 +201,7 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	if err != nil {
 		return status, err
 	}
-	saved, err := s.storage.SaveProvider(id, label, config, true)
+	saved, err := s.storage.SaveProvider(id, label, withoutRuntimeWeights(config), true)
 	if err != nil {
 		return status, fmt.Errorf("模型已配置，但保存设置失败: %w", err)
 	}
@@ -214,6 +214,42 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	return status, nil
 }
 
+// withoutRuntimeWeights 去掉 State 与 MiSS 适配器：它们只在本次运行有效，不写进连接档案。
+// 服务端重启就会清空上传的 State/适配器，记在档案里只会让下次连接报"找不到"。
+// 旧档案里存着的值在启动、保存、比较时一律按没有处理。
+func withoutRuntimeWeights(config agentapi.Config) agentapi.Config {
+	config.StateID = ""
+	config.AdapterID = ""
+	return config
+}
+
+// UnloadModel 释放当前运行的模型：本地模型卸载权重、归还内存，远端断开连接。
+// 档案保留，之后可以再次加载；对话记录不受影响。
+func (s *AppService) UnloadModel() (agentapi.Status, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	if err := s.requireResolvedChanges(); err != nil {
+		return s.currentService().Status(), err
+	}
+	s.mu.Lock()
+	if s.closed {
+		s.mu.Unlock()
+		return agentapi.Status{}, fmt.Errorf("application service is closed")
+	}
+	service := s.service
+	old := s.session
+	s.session = nil
+	s.runtimeProviderID = ""
+	s.mu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+	status := service.Unload()
+	s.emit("model:status", status)
+	s.emit(providersChangedEvent)
+	return status, nil
+}
+
 // SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
 func (s *AppService) SaveProvider(id string, label string, config agentapi.Config) (appstorage.SavedProvider, error) {
 	if err := validateProviderDraft(config); err != nil {
@@ -221,7 +257,7 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	}
 	s.operation.Lock()
 	defer s.operation.Unlock()
-	saved, err := s.storage.SaveProvider(id, label, config, false)
+	saved, err := s.storage.SaveProvider(id, label, withoutRuntimeWeights(config), false)
 	if err != nil {
 		return appstorage.SavedProvider{}, err
 	}
@@ -229,7 +265,7 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	status := s.service.Status()
 	// 保存与运行配置完全一致的档案即认领运行连接；编辑运行中档案不再清掉运行标记——
 	// 连接仍在用旧配置工作，bootstrap 通过 RuntimeOutdated 报告"待重新加载"。
-	if status.State == agentapi.ModelReady && reflect.DeepEqual(s.config, saved.Config) {
+	if status.State == agentapi.ModelReady && reflect.DeepEqual(withoutRuntimeWeights(s.config), saved.Config) {
 		s.runtimeProviderID = saved.ID
 	}
 	s.mu.Unlock()
@@ -253,7 +289,7 @@ func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.
 	}
 	for _, entry := range settings.Providers {
 		if entry.ID == id {
-			return s.ConfigureProvider(ctx, entry.ID, entry.Label, entry.Config)
+			return s.ConfigureProvider(ctx, entry.ID, entry.Label, withoutRuntimeWeights(entry.Config))
 		}
 	}
 	return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
@@ -832,7 +868,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	runtimeOutdated := false
 	for _, entry := range settings.Providers {
 		if entry.ID == runtimeProviderID {
-			runtimeOutdated = !reflect.DeepEqual(entry.Config, config)
+			runtimeOutdated = !reflect.DeepEqual(entry.Config, withoutRuntimeWeights(config))
 			break
 		}
 	}

@@ -269,6 +269,16 @@ export function Status(): $CancellablePromise<api$0.Status> {
 }
 
 /**
+ * UnloadModel 释放当前运行的模型：本地模型卸载权重、归还内存，远端断开连接。
+ * 档案保留，之后可以再次加载；对话记录不受影响。
+ */
+export function UnloadModel(): $CancellablePromise<api$0.Status> {
+    return $Call.ByID(923285738).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * UploadAdapter uploads a local MiSS package (adapter-final.pth or a
  * checkpoint's training.pth) and registers it under id, remembering the file
  * for a re-upload after a server restart. Re-uploading an existing ID adds a

@@ -1,9 +1,8 @@
-import { type ProviderManager } from '../../state/providerManager'
+import { NEW_CONFIG_DEFAULTS, type ProviderManager } from '../../state/providerManager'
 import { FORMAT_PRESETS, formatPresetById, matchFormatPreset } from '../../state/formatPresets'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
-import { GroupTitle, Row, SettingsPane, SaveStatus, Toggle } from './ui'
+import { Button, GroupTitle, NumberField, Row, Toggle } from './ui'
 import { Select } from './Select'
-import { autosaveHint } from './autosaveHint'
 
 type Props = {
   manager: ProviderManager
@@ -34,27 +33,23 @@ export default function ParametersSection({ manager }: Props) {
 
   /* 采样数值的读写口：预设只改这六个值，高级模式直接编辑它们。 */
   const samplingFields = [
-    ['温度', 'sampleTemperature', 'setSampleTemperature', 0, 2, 0.1],
-    ['top-k 截断', 'sampleTopK', 'setSampleTopK', 0, 65536, 1],
-    ['top-p 截断', 'sampleTopP', 'setSampleTopP', 0, 1, 0.05],
-    ['presence 惩罚', 'samplePresencePenalty', 'setSamplePresencePenalty', 0, 2, 0.1],
-    ['frequency 惩罚', 'sampleFrequencyPenalty', 'setSampleFrequencyPenalty', 0, 2, 0.1],
-    ['惩罚衰减', 'samplePenaltyDecay', 'setSamplePenaltyDecay', 0, 1, 0.001],
+    ['温度', 'sampleTemperature', 'setSampleTemperature', 0, 2, 0.1, '越高越发散、越低越保守；top-k 为 1 时不起作用'],
+    ['top-k 截断', 'sampleTopK', 'setSampleTopK', 0, 65536, 1, '只在概率最高的 k 个候选里抽；1 = 总选最可能的，65536 = 不截断'],
+    ['top-p 截断', 'sampleTopP', 'setSampleTopP', 0, 1, 0.05, '只在累计概率到 p 的候选里抽；越小越稳'],
+    ['presence 惩罚', 'samplePresencePenalty', 'setSamplePresencePenalty', 0, 2, 0.1, '出现过的词统一扣分，抑制复读'],
+    ['frequency 惩罚', 'sampleFrequencyPenalty', 'setSampleFrequencyPenalty', 0, 2, 0.1, '按出现次数扣分，出现越多扣得越多'],
+    ['惩罚衰减', 'samplePenaltyDecay', 'setSamplePenaltyDecay', 0, 1, 0.001, '每生成一个 token 旧惩罚乘一次这个数；1 = 永不衰减'],
   ] as const
 
+  /* 默认值即新建连接的默认（providerManager.ts 的 NEW_CONFIG_DEFAULTS 与 DEFAULT_AGENT_LIMITS）。 */
   const budgetFields = [
-    ['最大步数', 'maxSteps', 'setMaxSteps', 2, 64, 1],
-    ['最大输出 token', 'maxTokens', 'setMaxTokens', 1, 32768, 1],
-    ['决策输出 token', 'decisionMaxTokens', 'setDecisionMaxTokens', 0, 4096, 1],
+    ['最大步数', 'maxSteps', 'setMaxSteps', 2, 64, 16, '一次回答最多调几轮工具，到数就收尾作答'],
+    ['最大输出 token', 'maxTokens', 'setMaxTokens', 1, 32768, NEW_CONFIG_DEFAULTS.maxTokens, '单次生成的长度上限，最终回答也受它限制'],
+    ['决策输出 token', 'decisionMaxTokens', 'setDecisionMaxTokens', 0, 4096, NEW_CONFIG_DEFAULTS.decisionMaxTokens, '每一步决定"调哪个工具"时最多写多少，含思考；0 = 按协议自动'],
   ] as const
 
   return (
-    <SettingsPane>
-      <div className="mb-[10px] flex items-center justify-between gap-[12px]">
-        <GroupTitle title="参数" hint={autosaveHint(manager)} />
-        <SaveStatus state={manager.saveState} />
-      </div>
-
+    <>
       <section className="mt-[18px]">
         <GroupTitle title="对话格式" />
         <Row label="格式预设" description={formatHint}>
@@ -92,12 +87,9 @@ export default function ParametersSection({ manager }: Props) {
           />
         </Row>
         {manager.samplingIsCustom ? (
-          <div className="grid grid-cols-3 gap-2 pt-[4px]">
-            {samplingFields.map(([label, key, setter, min, max, step]) => (
-              <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
-                {label}
-                <input aria-label={label} className="rounded-md border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
-              </label>
+          <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px] pt-[10px]">
+            {samplingFields.map(([label, key, setter, min, max, step, hint]) => (
+              <NumberField key={key} label={label} hint={hint} min={min} max={max} step={step} value={manager[key]} onChange={manager[setter]} />
             ))}
           </div>
         ) : (
@@ -111,17 +103,11 @@ export default function ParametersSection({ manager }: Props) {
 
       <section className="mt-[18px]">
         <GroupTitle title="预算" hint="扫参时用的是一次 16 步 / 4096 token 的配置" />
-        <div className="grid grid-cols-3 gap-2 pt-[10px]">
-          {budgetFields.map(([label, key, setter, min, max, step]) => (
-            <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
-              {label}
-              <input aria-label={label} className="rounded-md border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
-            </label>
+        <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px] pt-[10px]">
+          {budgetFields.map(([label, key, setter, min, max, fallback, hint]) => (
+            <NumberField key={key} label={label} hint={hint} min={min} max={max} defaultValue={fallback} value={manager[key]} onChange={manager[setter]} />
           ))}
         </div>
-        <p className="mb-0 mt-[8px] text-xs leading-[1.65] text-ink-muted">
-          决策输出 token 填 0 表示按协议自动（XML 512，其余 96）。
-        </p>
       </section>
 
       <section className="mt-[18px]">
@@ -161,17 +147,12 @@ export default function ParametersSection({ manager }: Props) {
           <span>思考 {manager.promptPreview?.thinkingMode ?? '…'}</span>
           <span>{manager.promptPreview?.native ? '原生工具调用' : '文本续写'}</span>
           <span>工具 {manager.promptPreview?.toolNames.length ?? 0} 项</span>
-          <button
-            aria-label="预览系统提示词"
-            className="rounded-md ml-auto h-[26px] border border-line bg-paper-wash px-[10px] font-sans text-xs text-ink disabled:opacity-40"
-            onClick={() => manager.setPreviewOpen(!manager.previewOpen)}
-            disabled={manager.previewBusy}
-          >{manager.previewBusy ? '生成中…' : manager.previewOpen ? '收起' : '展开'}</button>
+          <Button size="sm" aria-label="预览系统提示词" className="ml-auto font-sans" onClick={() => manager.setPreviewOpen(!manager.previewOpen)} disabled={manager.previewBusy}>{manager.previewBusy ? '生成中…' : manager.previewOpen ? '收起' : '展开'}</Button>
         </div>
         {manager.previewOpen && manager.promptPreview && (
           <pre className="rounded-md m-0 max-h-[420px] overflow-auto whitespace-pre-wrap border border-line bg-paper-wash px-[10px] py-[8px] font-mono text-xs leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{manager.promptPreview.control}</pre>
         )}
       </section>
-    </SettingsPane>
+    </>
   )
 }

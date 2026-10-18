@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { hostOf } from '../endpoint'
 import { useState } from 'react'
-import { Check, Plus } from 'lucide-react'
+import { Check, Cpu, Plus } from 'lucide-react'
 import { Provider, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
+import type { SettingsSection } from '../state/providerManager'
 
 type Props = {
   open: boolean
@@ -14,14 +15,21 @@ type Props = {
   providers: SavedProvider[]
   runtimeProviderId: string
   onActivate: (id: string) => void
-  onOpenSettings: () => void
+  onUnload: () => void
+  onOpenSettings: (section?: SettingsSection) => void
 }
 
 // 收起动画时长；与 tailwind.css 的 --animate-menu-up-out 保持一致。
 const CLOSE_MS = 120
 
-/* 运行配置菜单：从输入框上方的模型标签向上弹出，显示当前运行信息与连接切换；能力与 State 各有自己的标签。 */
-export default function RunConfigDropdown({ open, onClose, ready, busy, status, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
+/*
+ * 运行配置菜单：从输入框上方的模型标签向上弹出，显示当前运行信息与远端连接切换；能力与 State 各有自己的标签。
+ * 只有远端连接能一点就切：本地模型加载要读文件、占内存，放在设置的「本地推理」里显式加载与释放。
+ */
+export default function RunConfigDropdown({ open, onClose, ready, busy, status, providers, runtimeProviderId, onActivate, onUnload, onOpenSettings }: Props) {
+  const remotes = providers.filter((provider) => provider.config.provider !== Provider.ProviderLocal)
+  const runtime = providers.find((provider) => provider.id === runtimeProviderId)
+  const localRunning = ready && runtime?.config.provider === Provider.ProviderLocal
   const ref = useRef<HTMLDivElement>(null)
   // 关闭后多留一个收起动画的时长再卸载；减少动态效果时立即卸载。
   const [mounted, setMounted] = useState(open)
@@ -58,7 +66,6 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
     <div ref={ref} inert={!open} className={`run-config-dropdown absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[340px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
       {/* 当前运行：顶栏芯片只放缩略信息，完整的模型、State、端点、能力在这里。 */}
       {ready && (() => {
-        const runtime = providers.find((provider) => provider.id === runtimeProviderId)
         const endpoint = runtime ? providerMeta(runtime) : hostOf(status.endpoint || '')
         const rows: [string, string, boolean?][] = [
           ['模型', status.model || '—'],
@@ -75,14 +82,17 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
                 <dd className={`m-0 truncate ${mono ? 'font-mono text-2xs leading-[1.8] text-ink' : label === 'State' || label === 'MiSS' ? 'text-ink-muted' : 'text-ink'}`} title={value}>{value}</dd>
               </div>)}
             </dl>
+            {localRunning && (
+              <button type="button" className="mt-[10px] h-[28px] w-full rounded-md border border-line bg-paper text-xs text-ink-soft transition-colors hover:bg-surface-active hover:text-ink disabled:opacity-40" disabled={busy} onClick={onUnload} title="卸载本地模型、归还内存；档案保留">释放本地模型</button>
+            )}
           </div>
         </>)
       })()}
-      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">{ready ? '切换连接' : '已保存连接'}</div>
-      {providers.length === 0 ? (
-        <div className="border-b border-line px-[14px] py-[10px] text-xs text-ink-muted">尚无保存的连接，去设置里连接一次即可记住</div>
+      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">{ready ? '切换远端连接' : '远端连接'}</div>
+      {remotes.length === 0 ? (
+        <div className="border-b border-line px-[14px] py-[10px] text-xs text-ink-muted">尚无保存的远端连接，去设置里添加一个</div>
       ) : (
-        providers.map((provider) => {
+        remotes.map((provider) => {
           const live = ready && provider.id === runtimeProviderId
           return (
             <div key={provider.id} className={`group flex items-center gap-[11px] border-b border-line px-[14px] py-[10px] ${live ? 'bg-brand-wash' : ''}`}>
@@ -105,9 +115,14 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
         })
       )}
 
-      <button className="flex items-center gap-[9px] bg-paper-soft px-[14px] py-[10px] text-left" onClick={onOpenSettings}>
+      <button className="flex items-center gap-[9px] border-b border-line bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => onOpenSettings('本地推理')}>
+        <Cpu size={14} className="text-brand" />
+        <span className="flex-1 text-sm text-ink-soft">本地模型</span>
+        <span className="text-xs text-brand">加载与释放</span>
+      </button>
+      <button className="flex items-center gap-[9px] bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => onOpenSettings('远端连接')}>
         <Plus size={14} className="text-brand" />
-        <span className="flex-1 text-sm text-ink-soft">管理连接档案</span>
+        <span className="flex-1 text-sm text-ink-soft">管理远端连接</span>
         <span className="text-xs text-brand">打开设置</span>
       </button>
     </div>

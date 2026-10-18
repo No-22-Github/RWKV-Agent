@@ -2,16 +2,17 @@ import { useState } from 'react'
 import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { Provider } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
-import type { ProviderManager } from '../../state/providerManager'
+import { kindOf, type ProviderKind, type ProviderManager } from '../../state/providerManager'
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
+import { Button } from './ui'
 import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
+  kind: ProviderKind
   manager: ProviderManager
   ready: boolean
-  onActivateProvider: (id: string) => void
   onDeleteProvider: (id: string) => void
 }
 
@@ -21,8 +22,14 @@ type PendingConfirm =
   | { kind: 'delete'; id: string }
   | null
 
-/* 连接管理：左列表 + 右编辑器的主从式布局。脏表单的切换/新建/删除都经确认框。 */
-export default function ConnectionsSection({ manager, ready, onActivateProvider, onDeleteProvider }: Props) {
+/*
+ * 档案管理：左列表 + 右编辑器的主从式布局，只列一类档案（远端连接或本地模型）。
+ * 点列表行只是打开详情，没有任何副作用；切换远端连接在对话页的模型标签里做。
+ * 脏表单的切换/新建/删除都经确认框。
+ */
+export default function ConnectionsSection({ kind, manager, ready, onDeleteProvider }: Props) {
+  const listed = manager.providers.filter((provider) => kindOf(provider.config) === kind)
+  const local = kind === 'local'
   const [menuForID, setMenuForID] = useState('')
   const [confirm, setConfirm] = useState<PendingConfirm>(null)
 
@@ -33,7 +40,7 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
       return
     }
     if (next.kind === 'switch') manager.selectProvider(next.id)
-    else if (next.kind === 'new') manager.startNewDraft()
+    else if (next.kind === 'new') manager.startNewDraft(kind)
   }
   function requestEdit(id: string) {
     setMenuForID('')
@@ -59,7 +66,7 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
       manager.discardDraft()
     }
     if (pending.kind === 'switch') manager.selectProvider(pending.id)
-    else manager.startNewDraft()
+    else manager.startNewDraft(kind)
   }
 
   const deleteTarget = confirm?.kind === 'delete' ? manager.providers.find((provider) => provider.id === confirm.id) : undefined
@@ -72,21 +79,21 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
   return (
     <div className="flex min-h-0 flex-1">
       <aside className="flex w-[232px] flex-none flex-col border-r border-line bg-paper-sidebar">
-        <div className="flex items-center justify-between px-[14px] pb-[6px] pt-[14px]">
-          <span className="font-mono text-2xs font-medium text-ink-muted">已保存连接</span>
-          <span className="font-mono text-2xs text-ink-ghost">{manager.providers.length}</span>
+        <div className="flex items-center justify-between gap-[6px] py-[10px] pl-[14px] pr-[8px]">
+          <span className="font-mono text-2xs font-medium text-ink-muted">{local ? '本地模型' : '已保存连接'} <span className="text-ink-ghost">{listed.length}</span></span>
+          <Button variant="ghost" size="sm" icon={<Plus size={13} />} onClick={requestNew}>{local ? '添加模型' : '新建连接'}</Button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-[10px] pb-[8px]">
           {manager.editingProviderId === '' && (
             <div className="mb-[4px] flex items-center gap-[9px] rounded-lg border border-dashed border-line-strong bg-surface-active px-[8px] py-[7px]" aria-current="true">
               <span className="h-[7px] w-[7px] flex-none" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-base font-medium text-ink">{manager.draftLabel.trim() || '新连接'}</span>
-                <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">未保存 · 填写后点「保存」</span>
+                <span className="block truncate text-base font-medium text-ink">{manager.draftLabel.trim() || (local ? '新本地模型' : '新连接')}</span>
+                <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">未保存 · 填写后点右上「保存」</span>
               </span>
             </div>
           )}
-          {manager.providers.map((provider) => (
+          {listed.map((provider) => (
             <ProviderRow
               key={provider.id}
               // 正在编辑的行直接显示草稿：改名、换模型时列表同步变化，不等保存落盘。
@@ -98,17 +105,13 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
               onToggleMenu={() => setMenuForID(menuForID === provider.id ? '' : provider.id)}
               onCloseMenu={() => setMenuForID('')}
               onEdit={() => requestEdit(provider.id)}
-              onUse={() => { setMenuForID(''); onActivateProvider(provider.id) }}
               onDelete={() => requestDelete(provider.id)}
             />
           ))}
-          {manager.providers.length === 0 && (
-            <p className="px-[6px] py-[8px] text-xs leading-[1.65] text-ink-muted">还没有保存的连接。在右侧填写并保存即可。</p>
+          {listed.length === 0 && (
+            <p className="px-[6px] py-[8px] text-xs leading-[1.65] text-ink-muted">{local ? '还没有本地模型。在右侧填写模型文件路径并保存，需要时再加载。' : '还没有保存的连接。在右侧填写并保存即可。'}</p>
           )}
         </div>
-        <button className="rounded-md mx-[10px] mb-[12px] mt-[6px] flex h-[32px] flex-none items-center justify-center gap-[6px] border border-line bg-paper-wash text-sm font-medium text-ink shadow-hair transition-colors hover:bg-surface-active" onClick={requestNew}>
-          <Plus size={14} />新建连接
-        </button>
       </aside>
 
       <ProviderEditor
@@ -117,6 +120,7 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
         onTestRemote={() => void manager.testRemote()}
         onSave={() => void manager.saveProviderDraft()}
         onSaveAndUse={() => void manager.saveAndUseProviderDraft()}
+        onUnload={() => void manager.unloadModel()}
         onRequestDelete={() => { if (manager.editingProviderId) requestDelete(manager.editingProviderId) }}
       />
 
@@ -146,7 +150,7 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
   )
 }
 
-function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMenu, onCloseMenu, onEdit, onUse, onDelete }: {
+function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMenu, onCloseMenu, onEdit, onDelete }: {
   provider: SavedProvider
   running: boolean
   selected: boolean
@@ -155,7 +159,6 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
   onToggleMenu: () => void
   onCloseMenu: () => void
   onEdit: () => void
-  onUse: () => void
   onDelete: () => void
 }) {
   const meta = provider.config.provider === Provider.ProviderLocal
@@ -171,19 +174,19 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
             {dirty && <span className="h-[5px] w-[5px] flex-none rounded-full bg-warning" title="有未保存更改" />}
           </span>
           <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">{meta}</span>
-          {running && <span className="mt-[1px] block text-2xs text-brand">运行中</span>}
+          {running && <span className="mt-[1px] block text-2xs text-brand">{provider.config.provider === Provider.ProviderLocal ? '已加载' : '运行中'}</span>}
         </span>
       </button>
-      <div className="flex flex-none items-center gap-[2px]">
-        {!running && (
-          <button className="rounded-md h-[24px] border border-line bg-paper-wash px-[8px] text-xs text-ink-soft opacity-0 transition-opacity hover:border-brand hover:text-brand focus-visible:opacity-100 group-hover:opacity-100" onClick={onUse} title="切换为此连接">使用</button>
-        )}
+      {/* 行上只留「⋯」（删除）：悬停时不再挤掉名称，也没有一碰就切换模型的按钮。 */}
+      <div className="flex flex-none items-center">
         <button className="grid h-[24px] w-[24px] place-items-center border-0 bg-transparent text-ink-muted opacity-0 transition-opacity hover:text-ink focus-visible:opacity-100 group-hover:opacity-100" aria-label={`更多操作 ${provider.label || ''}`} onClick={onToggleMenu}><MoreHorizontal size={14} /></button>
       </div>
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-[10]" onClick={onCloseMenu} aria-hidden="true" />
-          <button className="rounded-md absolute right-[6px] top-[30px] z-[20] flex items-center gap-[7px] border border-line-strong bg-paper-wash px-[10px] py-[7px] text-xs text-danger shadow-pop" onClick={onDelete}><Trash2 size={13} />删除连接</button>
+          <div role="menu" className="absolute right-[6px] top-[30px] z-[20] flex min-w-[140px] flex-col rounded-lg border border-line-strong bg-paper-wash p-[4px] shadow-pop">
+            <button role="menuitem" className="flex items-center gap-[7px] rounded-md border-0 bg-transparent px-[8px] py-[6px] text-left text-xs text-danger hover:bg-danger-wash" onClick={onDelete}><Trash2 size={13} />删除连接</button>
+          </div>
         </>
       )}
     </div>

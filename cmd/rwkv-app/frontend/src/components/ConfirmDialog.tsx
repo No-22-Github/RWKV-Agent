@@ -25,7 +25,10 @@ export default function ConfirmDialog({ open, title, body, actions, onClose }: P
   useEffect(() => {
     if (!open) return
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
+      if (event.key !== 'Escape') return
+      // 标记已处理：外层设置弹窗看到 defaultPrevented 就不再跟着关闭。
+      event.preventDefault()
+      onClose()
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)

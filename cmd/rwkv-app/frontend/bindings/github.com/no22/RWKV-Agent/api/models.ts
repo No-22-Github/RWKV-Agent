@@ -207,6 +207,13 @@ export class Config {
     "compressFetch"?: boolean;
     "maxActiveBatch"?: number;
     "remoteBatchWaitMs"?: number;
+
+    /**
+     * DisableLoopGuard lets RWKV Lightning generations that repeat themselves
+     * verbatim run on to max_tokens; by default they end early (see
+     * continuation.LoopGuard).
+     */
+    "disableLoopGuard"?: boolean;
     "subagentMaxParallel"?: number;
     "subagentMaxSteps"?: number;
     "subagentTimeoutSeconds"?: number;

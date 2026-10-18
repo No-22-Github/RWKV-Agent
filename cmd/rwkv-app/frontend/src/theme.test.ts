@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getInitialTheme, setTheme } from './theme'
+import { getThemePreference, resolveTheme, setThemePreference, watchSystemTheme } from './theme'
 
 const originalStorage = Object.getOwnPropertyDescriptor(window, 'localStorage')
 
@@ -22,8 +22,8 @@ describe('theme storage', () => {
       value: { getItem, setItem },
     })
 
-    expect(getInitialTheme()).toBe('dark')
-    expect(setTheme('light')).toBe('light')
+    expect(getThemePreference()).toBe('dark')
+    expect(setThemePreference('light')).toBe('light')
     expect(getItem).toHaveBeenCalledWith('rwkv-theme-mode')
     expect(setItem).toHaveBeenCalledWith('rwkv-theme-mode', 'light')
     expect(document.documentElement).toHaveAttribute('data-theme', 'light')
@@ -37,8 +37,35 @@ describe('theme storage', () => {
       },
     })
 
-    expect(getInitialTheme()).toBe('light')
-    expect(() => setTheme('dark')).not.toThrow()
+    expect(getThemePreference()).toBe('system')
+    expect(() => setThemePreference('dark')).not.toThrow()
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
+  })
+
+  it('defaults to following the system and tracks its changes', () => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: { getItem: vi.fn(() => null), setItem: vi.fn() },
+    })
+    let listener: ((event: { matches: boolean }) => void) | undefined
+    const matchMedia = vi.fn(() => ({
+      matches: true,
+      addEventListener: (_: string, fn: (event: { matches: boolean }) => void) => { listener = fn },
+      removeEventListener: vi.fn(),
+    }))
+    const originalMatchMedia = window.matchMedia
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: matchMedia })
+    try {
+      expect(getThemePreference()).toBe('system')
+      expect(resolveTheme('system')).toBe('dark')
+      expect(setThemePreference('system')).toBe('dark')
+      const seen: string[] = []
+      const stop = watchSystemTheme((theme) => seen.push(theme))
+      listener?.({ matches: false })
+      expect(seen).toEqual(['light'])
+      stop()
+    } finally {
+      Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
+    }
   })
 })

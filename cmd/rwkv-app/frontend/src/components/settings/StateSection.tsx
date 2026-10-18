@@ -5,7 +5,7 @@ import type { ProviderManager } from '../../state/providerManager'
 import type { StateEntry, StateListing } from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
-import { GroupTitle } from './ui'
+import { Button, GroupTitle } from './ui'
 import { Select } from './Select'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
@@ -125,8 +125,10 @@ export default function StateSection({ manager }: Props) {
 
   return (
     <section className="pb-[24px]">
-      <GroupTitle title="State" hint="仅 CUDA 协议 · 整台部署共享 · 服务端重启后清空" />
+      <GroupTitle title="State" hint="仅 CUDA 协议 · 仅本次运行有效 · 整台部署共享 · 服务端重启后清空" />
 
+      {/* 选择只在本次运行有效、不进档案：只有这个连接正在运行时才能选，平时在对话页的标签里选。 */}
+      {manager.draftIsRunning ? (
       <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
         当前 State
         <Select
@@ -141,29 +143,32 @@ export default function StateSection({ manager }: Props) {
           ]}
         />
       </label>
+      ) : (
+        <p className="mb-0 mt-[8px] text-xs leading-[1.65] text-ink-muted">选择 State 只在本次运行有效，不会存进档案；在对话页输入框上方的标签里选。这里可以先上传、管理服务器上的文件。</p>
+      )}
 
       {currentMissing && (
         <div role="alert" className="mt-[10px] border-l-2 border-warning bg-paper-soft px-[10px] py-[8px] text-xs leading-[1.65] text-ink-soft">
           <p className="m-0">State <span className="font-mono">{current}</span> 已不在服务器上，通常是服务端重启清空了上传目录。连接时会被拒绝。</p>
           <div className="mt-[7px] flex flex-wrap gap-[8px]">
             {currentRecord?.localAvailable && currentRecord.localPath && (
-              <button className="rounded-md flex h-[28px] items-center gap-[5px] border-0 bg-brand px-[10px] text-xs text-brand-fg disabled:opacity-60" disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>
+              <Button variant="primary" size="sm" disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>
                 <RotateCcw size={12} />重新上传 {baseName(currentRecord.localPath)}
-              </button>
+              </Button>
             )}
-            <button className="rounded-md h-[28px] border border-line bg-transparent px-[10px] text-xs text-ink" onClick={() => manager.setStateId('')}>改回零状态</button>
+            <Button size="sm" onClick={() => manager.setStateId('')}>改回零状态</Button>
           </div>
           {currentRecord && !currentRecord.localAvailable && currentRecord.localPath && <p className="mb-0 mt-[6px] text-ink-muted">本机记录的文件已找不到：<span className="font-mono">{currentRecord.localPath}</span></p>}
         </div>
       )}
 
       <div className="mt-[12px] flex items-center gap-[8px]">
-        <button className="rounded-md flex h-[32px] items-center gap-[6px] border border-line bg-paper-wash px-[11px] text-sm text-ink disabled:opacity-50" disabled={!endpointReady || busy} onClick={() => void chooseAndUpload()}>
+        <Button disabled={!endpointReady || busy} onClick={() => void chooseAndUpload()}>
           <Upload size={14} />上传 .pth…
-        </button>
-        <button className="flex h-[32px] items-center gap-[6px] border-0 bg-transparent px-[6px] text-sm text-brand disabled:opacity-50" disabled={!endpointReady || busy} onClick={() => void refresh()} aria-label="刷新 State 列表">
+        </Button>
+        <Button variant="ghost" className="text-brand hover:text-brand" disabled={!endpointReady || busy} onClick={() => void refresh()} aria-label="刷新 State 列表">
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />刷新
-        </button>
+        </Button>
         <span role="status" aria-live="polite" className="min-w-0 flex-1 truncate text-right text-xs text-ink-muted">
           {!endpointReady ? '先填写 API 地址' : uploading ? `正在上传 ${uploading.name} · ${uploading.percent}%` : loading ? '正在读取服务器列表…' : listing ? `服务器上共 ${states.length} 个 State` : ''}
         </span>

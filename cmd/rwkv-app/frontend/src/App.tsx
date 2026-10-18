@@ -32,7 +32,7 @@ import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
-import { getInitialTheme, toggleTheme, type ThemeMode } from './theme'
+import { applyTheme, getThemePreference, setThemePreference, watchSystemTheme, type ThemePreference } from './theme'
 import { useSnackbar } from './snackbar'
 import { writeClipboard } from './trajectory/primitives/clipboard'
 
@@ -90,7 +90,7 @@ export default function App() {
   const [selectedTraceID, setSelectedTraceID] = useState('')
   const [runConfigOpen, setRunConfigOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
+  const [themePreference, setThemePreferenceState] = useState<ThemePreference>(() => getThemePreference())
   const [scrollResetKey, setScrollResetKey] = useState(0)
   const ready = status.state === ModelState.ModelReady
   const manager = useProviderManager({ onStatus: setStatus, ready })
@@ -156,13 +156,17 @@ export default function App() {
   shortcutRef.current = (event) => {
     const mod = event.metaKey || event.ctrlKey
       if (!mod) return
+    // 设置弹窗开着时，新建对话、聚焦输入框这类快捷键不该在背后生效。
+    if (settingsOpen && event.key !== ',') return
     if (event.key.toLowerCase() === 'n') {
       event.preventDefault()
       void newConversation()
     } else if (event.key === ',') {
+      // 开着时不拦：留给设置弹窗自己的监听去关闭（它会先落盘草稿）。
+      if (settingsOpen) return
       event.preventDefault()
       setRunConfigOpen(false)
-      if (!settingsOpen) manager.openSettings()
+      manager.openSettings()
     } else if (event.key.toLowerCase() === 'k') {
       event.preventDefault()
       document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
@@ -180,9 +184,16 @@ export default function App() {
   // 已保存值并不是正在生效的值。
   const runtimeConfig = manager.runtimeConfig
 
-  function handleToggleTheme() {
-    setTheme((current) => toggleTheme(current))
+  function handleThemeChange(preference: ThemePreference) {
+    setThemePreference(preference)
+    setThemePreferenceState(preference)
   }
+
+  // 跟随系统时，系统明暗一变界面就跟着变；固定配色时不订阅。
+  useEffect(() => {
+    if (themePreference !== 'system') return
+    return watchSystemTheme(applyTheme)
+  }, [themePreference])
 
   function applyBootstrap(value: AppBootstrap, options: { preserveDraft?: boolean } = {}) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
@@ -214,6 +225,11 @@ export default function App() {
     if (busy) return
     setBusy(true)
     try { await manager.setRuntimeState(stateId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
+  }
+  async function unloadModelNow() {
+    if (busy) return
+    setRunConfigOpen(false); setBusy(true)
+    try { await manager.unloadModel() } catch (error) { reportError(error) } finally { setBusy(false) }
   }
   async function setAdapterNow(adapterId: string) {
     if (busy) return
@@ -362,7 +378,8 @@ export default function App() {
     : null, [pendingUser, activity])
 
   return <div className="flex h-full w-full bg-paper">
-    {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
+    {/* 设置是浮在对话上的弹窗：对话照常渲染，弹窗开着时整块 inert，读屏与 Tab 键都只在弹窗里。 */}
+    <div className="contents" inert={settingsOpen || undefined} aria-hidden={settingsOpen || undefined}>
       <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => { setSidebarOpen(false); void newConversation() }} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setSidebarOpen(false); manager.openSettings() }} onOpen={(id) => { setSidebarOpen(false); void openConversation(id) }} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
         <header className="app-header [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] wails-mac:pt-[22px] wails-mac:h-[74px] wails-mac:basis-[74px] relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
@@ -372,12 +389,13 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section) => { setRunConfigOpen(false); manager.openSettings(section) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
       </AnimatePresence>
-    </>}
+    </div>
+    {settingsOpen && <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} themePreference={themePreference} onThemeChange={handleThemeChange} onDeleteProvider={(id) => void deleteProviderNow(id)} />}
   </div>
 }
 

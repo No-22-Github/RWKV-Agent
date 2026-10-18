@@ -126,6 +126,36 @@ func (s *Service) Configure(ctx context.Context, config Config, progress func(St
 	return cloneStatus(status), nil
 }
 
+// Unload releases the active provider and whatever it holds (a local model's
+// weights, a remote client) without closing the service. Open sessions are
+// closed; the service returns to idle and can be configured again.
+func (s *Service) Unload() Status {
+	s.mu.Lock()
+	if s.closed {
+		s.mu.Unlock()
+		return Status{State: ModelIdle, Workspace: s.workspace, Message: "Service closed", UpdatedAt: time.Now()}
+	}
+	source := s.source
+	s.source = nil
+	s.config = Config{}
+	s.web = nil
+	sessions := make([]*Session, 0, len(s.sessions))
+	for session := range s.sessions {
+		sessions = append(sessions, session)
+	}
+	s.sessions = make(map[*Session]struct{})
+	s.status = Status{State: ModelIdle, Workspace: s.workspace, Message: "Model released", UpdatedAt: time.Now()}
+	status := cloneStatus(s.status)
+	s.mu.Unlock()
+	for _, session := range sessions {
+		_ = session.Close()
+	}
+	if source != nil {
+		_ = source.close()
+	}
+	return status
+}
+
 // NewSession creates one isolated multi-turn Agent loop.
 func (s *Service) NewSession(ctx context.Context) (*Session, error) {
 	return s.newSession(ctx, 0)

@@ -164,3 +164,67 @@ func TestStateCallsRejectProvidersWithoutUploadedState(t *testing.T) {
 		}
 	}
 }
+
+// State 与 MiSS 适配器只在本次运行有效：运行配置带着它们，档案里不存，
+// 也不因此把运行连接报成"待重新加载"。释放模型后回到空闲、没有运行连接。
+func TestAppServiceKeepsStateOutOfSavedProfileAndUnloads(t *testing.T) {
+	fake := &fakeStateServer{}
+	server := httptest.NewServer(fake)
+	t.Cleanup(server.Close)
+
+	store := testAppStore(t)
+	service, err := agentapi.NewService(agentapi.Options{Workspace: resolvedWorkspace(t)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	statePath := filepath.Join(t.TempDir(), "s316.pth")
+	if err := os.WriteFile(statePath, []byte("fake-state-bytes"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	config := agentapi.Config{
+		Provider: agentapi.ProviderRWKVLightningCUDA,
+		Endpoint: server.URL + "/v1/batch/completions",
+		Model:    "rwkv7",
+	}
+	ctx := context.Background()
+	uploaded, err := backend.UploadState(ctx, config, statePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config.StateID = uploaded.ID
+	status, err := backend.ConfigureProvider(ctx, "", "remote", config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.StateID != uploaded.ID {
+		t.Fatalf("runtime state = %q, want %q", status.StateID, uploaded.ID)
+	}
+	value, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(value.Providers) != 1 || value.Providers[0].Config.StateID != "" {
+		t.Fatalf("saved providers = %+v", value.Providers)
+	}
+	if value.Config.StateID != uploaded.ID || value.RuntimeOutdated {
+		t.Fatalf("runtime config state = %q outdated = %v", value.Config.StateID, value.RuntimeOutdated)
+	}
+
+	status, err = backend.UnloadModel()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.State != agentapi.ModelIdle {
+		t.Fatalf("status after unload = %+v", status)
+	}
+	value, err = backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.RuntimeProviderID != "" || len(value.Providers) != 1 {
+		t.Fatalf("after unload runtime = %q providers = %d", value.RuntimeProviderID, len(value.Providers))
+	}
+}

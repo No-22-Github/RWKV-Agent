@@ -1,19 +1,89 @@
-import { useId, type ReactNode } from 'react'
+import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import type { SaveState } from '../../state/providerManager'
 
-/* 设置表单的三个基础控件：输入框、开关、单行设置。所有 aria-label 供测试与读屏使用。 */
+/* 设置表单的基础控件：按钮、输入框、数字框、分段选择、开关、单行设置。所有 aria-label 供测试与读屏使用。 */
 
-export function Field({ label, value, onChange, placeholder, type = 'text', list, error }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; error?: string }) {
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+
+const BUTTON_VARIANT: Record<ButtonVariant, string> = {
+  primary: 'border-transparent bg-brand font-medium text-brand-fg hover:opacity-90',
+  secondary: 'border-line bg-paper-wash text-ink shadow-hair hover:bg-surface-active',
+  ghost: 'border-transparent bg-transparent text-ink-soft hover:bg-surface-active hover:text-ink',
+  danger: 'border-danger bg-transparent text-danger hover:bg-danger-wash',
+}
+
+/*
+ * 设置页唯一的按钮：高度只有 sm(28) / md(32) 两档，同一行的按钮因此必然对齐。
+ * 新按钮一律用它，不要再手写 h-[..] px-[..]。
+ */
+export function Button({ variant = 'secondary', size = 'md', icon, className = '', children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md'; icon?: ReactNode }) {
+  const sizing = size === 'sm' ? 'h-[28px] gap-[5px] px-[10px] text-xs' : 'h-[32px] gap-[6px] px-[12px] text-sm'
+  return (
+    <button type="button" className={`inline-flex flex-none items-center justify-center whitespace-nowrap rounded-md border transition-colors disabled:pointer-events-none disabled:opacity-40 ${sizing} ${BUTTON_VARIANT[variant]} ${className}`} {...rest}>
+      {icon}
+      {children}
+    </button>
+  )
+}
+
+/* 字段下方的一行说明；error 优先显示。 */
+function FieldNote({ id, hint, error }: { id: string; hint?: ReactNode; error?: string }) {
+  if (error) return <span id={id} className="text-xs text-danger">{error}</span>
+  if (hint) return <span id={id} className="text-2xs leading-[1.55] text-ink-muted">{hint}</span>
+  return null
+}
+
+export function Field({ label, value, onChange, placeholder, type = 'text', list, error, hint, trailing }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; error?: string; hint?: ReactNode; trailing?: ReactNode }) {
   // useId：同名字段（多行请求头）不能共用 id，否则 datalist 与错误说明会串行。
   const id = useId()
-  const errorId = `${id}-error`
+  const noteId = `${id}-note`
   return (
-    <label className="flex flex-col gap-[5px] py-[6px] text-xs text-ink-muted">
-      <span>{label}</span>
-      <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} className={`h-[40px] w-full rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
-      {error && <span id={errorId} className="text-xs text-danger">{error}</span>}
+    <div className="flex flex-col gap-[5px] py-[6px] text-xs text-ink-muted">
+      <label htmlFor={id}>{label}</label>
+      <div className="flex items-center gap-[8px]">
+        <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error || hint ? noteId : undefined} className={`h-[40px] min-w-0 flex-1 rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
+        {trailing}
+      </div>
+      <FieldNote id={noteId} hint={hint} error={error} />
       {list && list.length > 0 && <datalist id={`${id}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
-    </label>
+    </div>
+  )
+}
+
+/*
+ * 数字框：标签 + 一行人话说明 + 取值范围。给了 defaultValue 且当前值不同时，
+ * 标签右侧出现「恢复默认」。
+ */
+export function NumberField({ label, hint, value, onChange, min, max, step = 1, defaultValue }: { label: string; hint: string; value: number; onChange: (value: number) => void; min: number; max: number; step?: number; defaultValue?: number }) {
+  const id = useId()
+  const changed = defaultValue !== undefined && value !== defaultValue
+  return (
+    <div className="flex flex-col gap-[5px] text-xs text-ink-muted">
+      <div className="flex h-[18px] items-center justify-between gap-[6px]">
+        <label htmlFor={id} className="min-w-0 truncate">{label}</label>
+        {changed && <button type="button" className="flex-none border-0 bg-transparent p-0 text-2xs text-brand hover:underline" onClick={() => onChange(defaultValue)} title={`恢复为 ${defaultValue}`}>恢复默认</button>}
+      </div>
+      <input id={id} aria-label={label} aria-describedby={`${id}-note`} className="h-[36px] rounded-md border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" type="number" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
+      <span id={`${id}-note`} className="text-2xs leading-[1.55] text-ink-muted">{hint}<span className="text-ink-ghost">{` · ${min}–${max}${defaultValue !== undefined ? `，默认 ${defaultValue}` : ''}`}</span></span>
+    </div>
+  )
+}
+
+/* 分段选择：两到四个互斥选项并排，比下拉框少点一下。 */
+export function Segmented<T extends string>({ label, value, onChange, options }: { label: string; value: T; onChange: (value: T) => void; options: { value: T; label: string; icon?: ReactNode }[] }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="flex flex-none rounded-lg border border-line bg-surface-active p-[2px]">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          role="radio"
+          aria-checked={value === option.value}
+          className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[10px] text-xs transition-colors ${value === option.value ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted hover:text-ink'}`}
+          onClick={() => onChange(option.value)}
+        >{option.icon}{option.label}</button>
+      ))}
+    </div>
   )
 }
 

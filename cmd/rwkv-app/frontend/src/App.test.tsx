@@ -32,6 +32,7 @@ vi.mock('@wailsio/runtime', () => ({
 
 vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => ({
   Bootstrap: vi.fn(),
+  UnloadModel: vi.fn(),
   FileChanges: vi.fn().mockResolvedValue([]),
   ResolveFileChanges: vi.fn().mockResolvedValue([]),
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
@@ -98,18 +99,19 @@ function openSettings() {
   fireEvent.click(screen.getByRole('button', { name: '设置' }))
 }
 
+/* 生成参数与 Agent 是「模型」分区里连接详情的两个标签。 */
 function openSettingsSection(name: string) {
-  fireEvent.click(screen.getByRole('button', { name }))
+  fireEvent.click(screen.getByRole('tab', { name }))
 }
 
-/* 网页与子 Agent 字段在设置页的 Agent 分区。 */
+/* 网页与子 Agent 字段在连接详情的 Agent 标签。 */
 function openAgentSection() {
   openSettingsSection('Agent')
 }
 
-/* 对话格式、采样、预算与附加约定在设置页的参数分区。 */
+/* 对话格式、采样、预算与附加约定在连接详情的生成参数标签。 */
 function openParametersSection() {
-  openSettingsSection('参数')
+  openSettingsSection('生成参数')
 }
 
 const readyStatus = () => new Status({
@@ -150,8 +152,9 @@ async function waitRuntimeReady() {
   await waitFor(() => expect(document.querySelector('button[title^="rwkv7-test"]')).not.toBeNull())
 }
 
+/* 新建连接默认就在「远端连接」分区：不再有远端/本地切换，这里只确认表单是远端的。 */
 function switchToRemoteProvider() {
-  fireEvent.click(screen.getByRole('button', { name: '远端 Provider' }))
+  expect(screen.getByLabelText('API 地址')).toBeInTheDocument()
 }
 
 beforeEach(() => {
@@ -207,10 +210,10 @@ describe('App', () => {
   it('opens the settings page from the sidebar', () => {
     render(<App />)
     openSettings()
-    expect(screen.getByText('设置')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '连接' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Agent' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '本地模型' })).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '远端连接' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '本地推理' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Agent' })).toBeInTheDocument()
   })
 
   it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
@@ -230,7 +233,7 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: '添加请求头' }))
     fireEvent.change(screen.getByLabelText('Header 名称'), { target: { value: 'CF-Access-Client-Id' } })
     fireEvent.change(screen.getByLabelText('Header 值'), { target: { value: 'secret' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存并连接' }))
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
@@ -255,7 +258,7 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'test-model' } })
     fireEvent.change(screen.getByLabelText(protocol === 'openai' ? 'API Key' : '服务密码'), { target: { value: 'test-secret' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存并连接' }))
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config.provider).toBe(provider)
@@ -516,9 +519,12 @@ describe('App', () => {
       label: 'Draft connection',
     })
     vi.mocked(Backend.SaveProvider).mockResolvedValue(saved)
+    bootstrapWithRunningProvider()
 
     render(<App />)
+    await waitRuntimeReady()
     openSettings()
+    fireEvent.click(screen.getByRole('button', { name: '新建连接' }))
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Draft connection' } })
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://draft.example.test' } })
@@ -533,7 +539,7 @@ describe('App', () => {
       endpoint: 'https://draft.example.test',
       model: 'draft-model',
     })
-    expect(await screen.findByText('档案已保存，尚未连接。')).toBeInTheDocument()
+    expect(await screen.findByText(/档案已保存；当前运行连接保持不变/)).toBeInTheDocument()
   })
 
   it('marks edited fields as an unsaved draft', async () => {
@@ -685,7 +691,7 @@ describe('App', () => {
     expect(draft.topK).toBe(1)
   })
 
-  it('activates a saved provider from the connection list', async () => {
+  it('activates a saved remote connection from the model chip', async () => {
     const provider = savedRemoteProvider({}, { id: 'p1', label: 'Solo connection' })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       providers: [provider],
@@ -702,8 +708,9 @@ describe('App', () => {
 
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
-    openSettings()
-    fireEvent.click(screen.getByRole('button', { name: '使用' }))
+    // 切换只在对话页的模型标签里做；设置里的列表行只是打开详情。
+    fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
+    fireEvent.click(screen.getByTitle('连接到此 Provider'))
 
     await waitFor(() => expect(Backend.ActivateProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
@@ -777,6 +784,24 @@ describe('App', () => {
     await waitFor(() => expect(screen.queryByLabelText('连接名称')).not.toBeInTheDocument())
   })
 
+  it('closes the settings sheet with the close button, a backdrop click or a second Cmd+,', async () => {
+    render(<App />)
+    fireEvent.keyDown(window, { key: ',', metaKey: true })
+    expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: ',', metaKey: true })
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
+
+    openSettings()
+    const backdrop = screen.getByRole('dialog', { name: '设置' }).parentElement!
+    fireEvent.pointerDown(backdrop)
+    fireEvent.click(backdrop)
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
+
+    openSettings()
+    fireEvent.click(screen.getByRole('button', { name: '关闭设置' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
+  })
+
   it('keeps an auto-derived name in sync with the model in the list and on save', async () => {
     const provider = bootstrapWithRunningProvider({}, { label: 'saved-model · saved.example.test' })
     render(<App />)
@@ -797,7 +822,9 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     expect(screen.queryByRole('button', { name: '保存' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '使用中' })).toBeDisabled()
+    // 运行中的档案没有可点的主按钮，只显示状态。
+    expect(screen.queryByRole('button', { name: '使用此连接' })).not.toBeInTheDocument()
+    expect(screen.getAllByText('运行中').length).toBeGreaterThan(0)
 
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv-live-edit' } })
     // 列表行立即跟随草稿，不等落盘。
@@ -831,7 +858,7 @@ describe('App', () => {
     openSettings()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://user:pw@host.test' } })
     expect(await screen.findByText(/未保存：API 地址不能内嵌账号密码/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '使用此连接' })).toBeDisabled()
+    // 远端档案没有切换按钮：这里只确认没有偷偷保存或重连。
     await new Promise((resolve) => setTimeout(resolve, 1000))
     expect(Backend.SaveProvider).not.toHaveBeenCalled()
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
@@ -848,6 +875,41 @@ describe('App', () => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     expect(Backend.SaveProvider).toHaveBeenCalledOnce()
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('keeps local models in their own section and releases a loaded one', async () => {
+    const local = new SavedProvider({
+      id: 'local-provider', label: 'Local model',
+      config: new Config({ provider: Provider.ProviderLocal, model: '/models/m.pth' }),
+      lastUsedAt: new Date().toISOString(),
+    })
+    const remote = savedRemoteProvider({}, { id: 'remote-provider', label: 'Remote connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: readyStatus(),
+      config: local.config,
+      hasConfig: true,
+      providers: [local, remote],
+      activeProviderId: local.id,
+      runtimeProviderId: local.id,
+    }))
+    vi.mocked(Backend.UnloadModel).mockResolvedValue(new Status({ state: ModelState.ModelIdle }))
+    render(<App />)
+    await waitRuntimeReady()
+
+    // 对话页的模型菜单只列远端连接，本地模型走「加载与释放」入口。
+    fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
+    expect(screen.getByText('Remote connection')).toBeInTheDocument()
+    expect(screen.getByTitle('连接到此 Provider')).toBeInTheDocument()
+    expect(screen.queryByText('Local model')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
+
+    // 本地模型在运行时，设置默认进「本地推理」，列表里只有本地模型。
+    openSettings()
+    expect(screen.getByRole('button', { name: '本地推理' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: /^Local model/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Remote connection/ })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '释放模型' }))
+    await waitFor(() => expect(Backend.UnloadModel).toHaveBeenCalledOnce())
   })
 
   it('marks a running local profile as needing a reload and reloads on demand', async () => {
@@ -869,7 +931,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
-    expect(screen.getByText('运行中 · 待重新加载')).toBeInTheDocument()
+    expect(screen.getByText('已加载 · 待重新加载')).toBeInTheDocument()
     expect(screen.getByText(/本地模型仍在用旧配置运行/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '重新加载模型' }))
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
@@ -881,7 +943,7 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
-    expect(screen.getByText('尚无保存的连接，去设置里连接一次即可记住')).toBeInTheDocument()
+    expect(screen.getByText('尚无保存的远端连接，去设置里添加一个')).toBeInTheDocument()
 
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ providers: [savedRemoteProvider({}, { label: 'Pushed connection' })] }))
     await act(async () => { eventHandlers.get('providers:changed')?.({ data: undefined }) })

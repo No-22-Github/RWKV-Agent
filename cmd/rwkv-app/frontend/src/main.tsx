@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { System } from '@wailsio/runtime'
 import App from './App'
 import { SnackbarProvider } from './snackbar-context'
-import { applyTheme, getInitialTheme } from './theme'
+import { applyTheme, getThemePreference, resolveTheme } from './theme'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/500.css'
 import '@fontsource/jetbrains-mono/700.css'
@@ -19,7 +19,7 @@ function detectMacDesktop(): boolean {
 }
 
 document.documentElement.classList.toggle('wails-mac', detectMacDesktop())
-applyTheme(getInitialTheme())
+applyTheme(resolveTheme(getThemePreference()))
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

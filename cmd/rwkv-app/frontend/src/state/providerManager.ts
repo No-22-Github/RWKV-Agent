@@ -17,6 +17,14 @@ export const AUTOSAVE_DELAY_MS = 800
  * saved：最近一次保存成功（message 说明是否已生效）；invalid：字段校验未通过，
  * 不会保存；error：后端拒绝（message 为原因，同一份草稿不会自动重试）。
  */
+/* 设置弹窗的分区；远端连接与本地推理各管一类档案。 */
+export type SettingsSection = '远端连接' | '本地推理' | '外观' | '通用'
+export type ProviderKind = 'remote' | 'local'
+
+export function kindOf(config: Config): ProviderKind {
+  return config.provider === Provider.ProviderLocal ? 'local' : 'remote'
+}
+
 export type SaveState =
   | { kind: 'idle' | 'pending' | 'saving'; message?: string }
   | { kind: 'saved' | 'invalid' | 'error'; message: string }
@@ -100,6 +108,7 @@ function configSignature(config: Config): string {
  */
 export function useProviderManager({ onStatus, ready }: { onStatus: (status: Status) => void; ready: boolean }) {
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>('远端连接')
   const [providers, setProviders] = useState<SavedProvider[]>([])
   const [activeProviderId, setActiveProviderId] = useState('')
   const [runtimeProviderId, setRuntimeProviderId] = useState('')
@@ -115,8 +124,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [remoteModel, setRemoteModel] = useState('')
   const [remoteProtocol, setRemoteProtocol] = useState<keyof typeof REMOTE_BACKENDS>('cuda')
   const [apiKey, setAPIKey] = useState('')
-  const [stateId, setStateId] = useState('')
-  const [adapterId, setAdapterId] = useState('')
   /* 网页版（server 模式）没有系统文件对话框，上传改走浏览器的文件选择框。 */
   const [browserUploads, setBrowserUploads] = useState(false)
   const [headers, setHeaders] = useState<HeaderRow[]>([])
@@ -245,10 +252,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       // 流式由后端统一决定（App 一律流式显示回答），旧档案里的 stream:false 不再带出去。
       stream: undefined,
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
-      // 只有 CUDA 支持上传的 State；切到别的协议时不带出去，否则 Python 会直接拒绝。
-      stateId: remoteProtocol === 'cuda' ? stateId.trim() || undefined : undefined,
-      // MiSS 适配器同理只在 CUDA 上有；它和 State 互不影响，可以同时选。
-      adapterId: remoteProtocol === 'cuda' ? adapterId.trim() || undefined : undefined,
+      // State 与 MiSS 适配器只在本次运行有效，不属于档案：草稿里永远不带。
+      stateId: undefined, adapterId: undefined,
       ...agentCapabilityConfig(),
     })
   }
@@ -334,7 +339,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       setSaveState({ kind: 'saving', message: reconnect ? '正在应用…' : '正在自动保存…' })
       try {
         await Backend.SaveProvider(id, label, config)
-        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, config))
+        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, withRuntimeWeights(config)))
         snapshotRef.current = signature
         snapshotConfigRef.current = configSignature(config)
         failedSignatureRef.current = ''
@@ -400,8 +405,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
-    setStateId(config.provider === Provider.ProviderRWKVLightningCUDA ? config.stateId || '' : '')
-    setAdapterId(config.provider === Provider.ProviderRWKVLightningCUDA ? config.adapterId || '' : '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
     setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
@@ -465,10 +468,10 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       penaltyDecay: sampling.penaltyDecay,
     }
   }
-  function beginNewProvider() {
+  function beginNewProvider(kind: ProviderKind = 'remote') {
     const config = new Config({
       ...draftBaseConfig,
-      provider: Provider.ProviderRWKVLightningCUDA,
+      provider: kind === 'local' ? Provider.ProviderLocal : Provider.ProviderRWKVLightningCUDA,
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined, adapterId: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
       ...agentCapabilityConfig(),
@@ -482,27 +485,42 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     applyConfig(config)
   }
 
-  function openSettings() {
-    const preferred = providers.find((provider) => provider.id === runtimeProviderId)
-      || providers.find((provider) => provider.id === activeProviderId)
-      || providers[0]
-    if (preferred) beginEditingProvider(preferred)
-    else beginNewProvider()
+  /*
+   * 打开设置：不指定分区时，本地模型在运行就进「本地推理」，否则进「远端连接」。
+   * 编辑器总是对准该分区那一类档案：优先运行中的，其次上次用的，再次第一个，都没有就新建。
+   */
+  function openSettings(section?: SettingsSection) {
+    const runtime = providers.find((provider) => provider.id === runtimeProviderId)
+    const next = section ?? (runtime && kindOf(runtime.config) === 'local' ? '本地推理' : '远端连接')
+    setSettingsSection(next)
+    // 每次打开都从已保存的档案重新水合，不沿用上次关闭时的表单。
+    focusKind(next === '本地推理' ? 'local' : 'remote', true)
     setSettingsMessage('')
     setSettingsOpen(true)
+  }
+  /* 让编辑器对准某一类档案；已经在编辑这一类就不动（force 时总是重新水合）。调用方负责先处理未保存的草稿。 */
+  function focusKind(kind: ProviderKind, force = false) {
+    const editing = providers.find((provider) => provider.id === editingProviderId)
+    if (!force && (editing ? kindOf(editing.config) === kind : settingsTab === kind)) return
+    const ofKind = providers.filter((provider) => kindOf(provider.config) === kind)
+    const preferred = ofKind.find((provider) => provider.id === runtimeProviderId)
+      || ofKind.find((provider) => provider.id === activeProviderId)
+      || ofKind[0]
+    if (preferred) beginEditingProvider(preferred)
+    else beginNewProvider(kind)
   }
   function discardDraft() {
     const current = providers.find((provider) => provider.id === editingProviderId)
     if (current) beginEditingProvider(current)
-    else beginNewProvider()
+    else beginNewProvider(settingsTab)
     setSettingsMessage('已放弃未保存更改。')
   }
   function selectProvider(id: string) {
     const provider = providers.find((item) => item.id === id)
     if (provider && provider.id !== editingProviderId) beginEditingProvider(provider)
   }
-  function startNewDraft() {
-    beginNewProvider()
+  function startNewDraft(kind: ProviderKind = settingsTab) {
+    beginNewProvider(kind)
   }
 
   async function refreshProviders() {
@@ -524,7 +542,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   async function setRuntimeCapability(key: 'enableWeb' | 'enableSubagents', value: boolean) {
     const provider = providers.find((item) => item.id === runtimeProviderId)
     if (!provider || provider.config.provider === Provider.ProviderLocal) return
-    const config = new Config({ ...provider.config, [key]: value })
+    const config = withRuntimeWeights(new Config({ ...provider.config, [key]: value }))
     onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
     await refreshProviders()
   }
@@ -533,7 +551,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   async function setRuntimeState(stateId: string) {
     const provider = providers.find((item) => item.id === runtimeProviderId)
     if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
-    const config = new Config({ ...provider.config, stateId: stateId || undefined })
+    const config = new Config({ ...withRuntimeWeights(provider.config), stateId: stateId || undefined })
     onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
     await refreshProviders()
   }
@@ -542,9 +560,49 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   async function setRuntimeAdapter(adapterId: string) {
     const provider = providers.find((item) => item.id === runtimeProviderId)
     if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
-    const config = new Config({ ...provider.config, adapterId: adapterId || undefined })
+    const config = new Config({ ...withRuntimeWeights(provider.config), adapterId: adapterId || undefined })
     onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
     await refreshProviders()
+  }
+
+  /*
+   * 把本次运行选的 State / MiSS 适配器带到一次重连上：它们不在档案里，重连时不带
+   * 就会被悄悄换回零状态。换了端点或协议则不带——那台服务器上未必有这两个 ID。
+   */
+  function withRuntimeWeights(config: Config): Config {
+    const runtime = runtimeConfig
+    if (!runtime || runtime.provider !== config.provider || runtime.endpoint !== config.endpoint || config.provider !== Provider.ProviderRWKVLightningCUDA) return config
+    return new Config({ ...config, stateId: runtime.stateId || undefined, adapterId: runtime.adapterId || undefined })
+  }
+
+  /*
+   * 设置里的 State / 适配器选择器读写的是运行中的那份：只有正在编辑的档案就是运行中的
+   * 连接时才能选，选了立即生效、不进档案。
+   */
+  const stateId = draftIsRunning ? runtimeConfig?.stateId || '' : ''
+  const adapterId = draftIsRunning ? runtimeConfig?.adapterId || '' : ''
+  function setStateId(id: string) {
+    if (!draftIsRunning) return
+    void setRuntimeState(id).catch((error) => setSettingsMessage(errorText(error)))
+  }
+  function setAdapterId(id: string) {
+    if (!draftIsRunning) return
+    void setRuntimeAdapter(id).catch((error) => setSettingsMessage(errorText(error)))
+  }
+
+  /* 释放当前运行的模型：本地模型卸载权重、归还内存；档案保留，可以再加载。 */
+  async function unloadModel() {
+    setSettingsBusy(true)
+    try {
+      onStatus(await Backend.UnloadModel())
+      await refreshProviders()
+      if (settingsOpen) setSettingsMessage('模型已释放，内存已归还；档案保留，需要时再加载。')
+    } catch (error) {
+      if (!settingsOpen) throw error
+      setSettingsMessage(errorText(error))
+    } finally {
+      setSettingsBusy(false)
+    }
   }
 
   async function activateProvider(id: string) {
@@ -561,7 +619,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
         || value.providers.find((provider) => provider.id === value.activeProviderId)
         || value.providers[0]
       if (next) beginEditingProvider(next)
-      else beginNewProvider()
+      else beginNewProvider(settingsTab)
     }
   }
 
@@ -588,7 +646,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       await refreshProviders()
       beginEditingProvider(saved)
-      setSettingsMessage(ready ? '档案已保存；当前运行连接保持不变，点「使用此连接」切换。' : '档案已保存，尚未连接。')
+      setSettingsMessage(settingsTab === 'local'
+        ? '档案已保存；点「加载模型」后才会占用内存。'
+        : ready ? '档案已保存；当前运行连接保持不变，在对话页的模型标签里切换。' : '档案已保存，尚未连接。')
       return true
     } catch (error) {
       setSettingsMessage(errorText(error))
@@ -620,7 +680,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
 
   return {
     // 展示状态
-    settingsOpen, setSettingsOpen,
+    settingsOpen, setSettingsOpen, settingsSection, setSettingsSection,
     providers, activeProviderId, runtimeProviderId, editingProviderId,
     draftLabel, setDraftLabel, draftDirty, draftIsRunning,
     settingsTab, setSettingsTab,
@@ -651,7 +711,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // 派生
     draftConfigValue, draftErrors, draftError, draftNeedsReload, draftBlockReason,
     // 动作
-    openSettings, discardDraft, selectProvider, startNewDraft,
+    openSettings, focusKind, discardDraft, selectProvider, startNewDraft, unloadModel,
     applyProviderBootstrapState, applyConfig, refreshProviders,
     activateProvider, setRuntimeCapability, setRuntimeState, setRuntimeAdapter, deleteProvider, testRemote,
     saveProviderDraft, saveAndUseProviderDraft, flushDraft,
