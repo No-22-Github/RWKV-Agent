@@ -13,6 +13,7 @@ import (
 	"time"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
+	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/appstorage"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -104,9 +105,14 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 	if err := storage.Prepare(); err != nil {
 		backend.warning = fmt.Sprintf("准备应用存储目录失败：%v", err)
 	}
+	// 先读一次共用 Agent 设置：第一次运行新版本时，在任何档案被剥掉 Key 之前从旧档案里收集它们。
+	agent, agentErr := storage.AgentSettings()
+	if agentErr != nil {
+		backend.warning = joinWarning(backend.warning, fmt.Sprintf("读取 Agent 设置失败：%v", agentErr))
+	}
 	if settings, err := storage.LoadSettings(); err != nil {
 		backend.warning = joinWarning(backend.warning, fmt.Sprintf("读取设置失败：%v", err))
-	} else if cfg := withoutRuntimeWeights(settings.Provider); strings.TrimSpace(cfg.Model) != "" {
+	} else if cfg := withAgentSettings(storedProfile(settings.Provider), agent); strings.TrimSpace(cfg.Model) != "" {
 		backend.config = cfg
 		backend.hasConfig = true
 		// 远端配置很轻量（不发网络请求，连通性检查在"测试连接"里），启动时自动连上
@@ -194,6 +200,9 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	if old != nil {
 		_ = old.Close()
 	}
+	if agent, err := s.storage.AgentSettings(); err == nil {
+		config = withAgentSettings(config, agent)
+	}
 	status, err := service.Configure(ctx, liveStreamConfig(config), func(value agentapi.Status) {
 		s.emit("model:status", value)
 	})
@@ -201,7 +210,7 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	if err != nil {
 		return status, err
 	}
-	saved, err := s.storage.SaveProvider(id, label, withoutRuntimeWeights(config), true)
+	saved, err := s.storage.SaveProvider(id, label, storedProfile(config), true)
 	if err != nil {
 		return status, fmt.Errorf("模型已配置，但保存设置失败: %w", err)
 	}
@@ -214,13 +223,81 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	return status, nil
 }
 
-// withoutRuntimeWeights 去掉 State 与 MiSS 适配器：它们只在本次运行有效，不写进连接档案。
-// 服务端重启就会清空上传的 State/适配器，记在档案里只会让下次连接报"找不到"。
-// 旧档案里存着的值在启动、保存、比较时一律按没有处理。
-func withoutRuntimeWeights(config agentapi.Config) agentapi.Config {
+// storedProfile 是写进连接档案的那一份配置，去掉两类不属于档案的字段：
+//   - State 与 MiSS 适配器：只在本次运行有效。服务端重启就会清空上传的 State/适配器，
+//     记在档案里只会让下次连接报"找不到"。
+//   - 共用的 Agent 设置（搜索 Key、搜索路由、天气数据源）：只存一份，见 appstorage.AgentSettings。
+//     档案里的 weatherBackend 只表示"开不开天气工具"，具体数据源取共用设置。
+//
+// 旧档案里存着的这些值在启动、保存、比较时一律按没有处理。
+func storedProfile(config agentapi.Config) agentapi.Config {
 	config.StateID = ""
 	config.AdapterID = ""
+	config.BraveAPIKey = ""
+	config.TavilyAPIKey = ""
+	config.DeepSeekWebAPIKey = ""
+	config.WebSearchBackend = ""
+	if strings.TrimSpace(config.WeatherBackend) != "" {
+		config.WeatherBackend = agentapi.NewConfigWeatherBackend
+	}
 	return config
+}
+
+// withAgentSettings 把共用的 Agent 设置填进一份要运行的配置。
+func withAgentSettings(config agentapi.Config, agent appstorage.AgentSettings) agentapi.Config {
+	config.BraveAPIKey = agent.BraveAPIKey
+	config.TavilyAPIKey = agent.TavilyAPIKey
+	config.DeepSeekWebAPIKey = agent.DeepSeekWebAPIKey
+	config.WebSearchBackend = agent.WebSearchBackend
+	if strings.TrimSpace(config.WeatherBackend) != "" && strings.TrimSpace(agent.WeatherBackend) != "" {
+		config.WeatherBackend = agent.WeatherBackend
+	}
+	return config
+}
+
+// GetAgentSettings 返回所有连接共用的 Agent 设置。
+func (s *AppService) GetAgentSettings() (appstorage.AgentSettings, error) {
+	return s.storage.AgentSettings()
+}
+
+// SaveAgentSettings 保存共用的 Agent 设置，并让运行中的模型下一轮就用上：
+// 只改配置里的 Key 与路由，不重建 provider（本地模型不会重新加载）。
+func (s *AppService) SaveAgentSettings(value appstorage.AgentSettings) (appstorage.AgentSettings, error) {
+	value = appstorage.AgentSettings{
+		BraveAPIKey: strings.TrimSpace(value.BraveAPIKey), TavilyAPIKey: strings.TrimSpace(value.TavilyAPIKey),
+		DeepSeekWebAPIKey: strings.TrimSpace(value.DeepSeekWebAPIKey),
+		WebSearchBackend:  strings.TrimSpace(value.WebSearchBackend), WeatherBackend: strings.TrimSpace(value.WeatherBackend),
+	}
+	switch value.WebSearchBackend {
+	case "", "auto", "deepseek", "brave":
+	default:
+		return appstorage.AgentSettings{}, fmt.Errorf("搜索后端只能是 auto、deepseek 或 brave")
+	}
+	switch value.WeatherBackend {
+	case "", assistanttools.WeatherBackendOpenMeteo, assistanttools.WeatherBackendWttr:
+	default:
+		return appstorage.AgentSettings{}, fmt.Errorf("天气数据源只能是 open-meteo 或 wttr")
+	}
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	if err := s.storage.SaveAgentSettings(value); err != nil {
+		return appstorage.AgentSettings{}, err
+	}
+	s.mu.Lock()
+	service := s.service
+	s.config = withAgentSettings(s.config, value)
+	old := s.session
+	// 会话在建立时装好工具；关掉它，下一轮按新设置重建（对话历史由下一轮恢复）。
+	if service.UpdateConfig(func(config *agentapi.Config) { *config = withAgentSettings(*config, value) }) {
+		s.session = nil
+	} else {
+		old = nil
+	}
+	s.mu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+	return value, nil
 }
 
 // UnloadModel 释放当前运行的模型：本地模型卸载权重、归还内存，远端断开连接。
@@ -257,7 +334,7 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	}
 	s.operation.Lock()
 	defer s.operation.Unlock()
-	saved, err := s.storage.SaveProvider(id, label, withoutRuntimeWeights(config), false)
+	saved, err := s.storage.SaveProvider(id, label, storedProfile(config), false)
 	if err != nil {
 		return appstorage.SavedProvider{}, err
 	}
@@ -265,7 +342,7 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	status := s.service.Status()
 	// 保存与运行配置完全一致的档案即认领运行连接；编辑运行中档案不再清掉运行标记——
 	// 连接仍在用旧配置工作，bootstrap 通过 RuntimeOutdated 报告"待重新加载"。
-	if status.State == agentapi.ModelReady && reflect.DeepEqual(withoutRuntimeWeights(s.config), saved.Config) {
+	if status.State == agentapi.ModelReady && reflect.DeepEqual(storedProfile(s.config), storedProfile(saved.Config)) {
 		s.runtimeProviderID = saved.ID
 	}
 	s.mu.Unlock()
@@ -289,7 +366,7 @@ func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.
 	}
 	for _, entry := range settings.Providers {
 		if entry.ID == id {
-			return s.ConfigureProvider(ctx, entry.ID, entry.Label, withoutRuntimeWeights(entry.Config))
+			return s.ConfigureProvider(ctx, entry.ID, entry.Label, storedProfile(entry.Config))
 		}
 	}
 	return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
@@ -868,7 +945,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	runtimeOutdated := false
 	for _, entry := range settings.Providers {
 		if entry.ID == runtimeProviderID {
-			runtimeOutdated = !reflect.DeepEqual(entry.Config, withoutRuntimeWeights(config))
+			runtimeOutdated = !reflect.DeepEqual(storedProfile(entry.Config), storedProfile(config))
 			break
 		}
 	}

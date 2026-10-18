@@ -1,19 +1,18 @@
 import type { ReactNode } from 'react'
 import { CloudSun, Globe2, Route, SquareTerminal, Users } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
-import { Field, GroupTitle, NumberField, Row, Toggle } from './ui'
-import { Select } from './Select'
+import { Button, GroupTitle, NumberField, Toggle } from './ui'
 
 type Props = {
   manager: ProviderManager
 }
 
 /*
- * Agent 能力分区：模型能做什么——联网（搜索、天气）、工作区工具、调度（工具路由、子 Agent）。字段随当前编辑的
- * 连接档案自动保存；编辑运行中的远端档案时自动重连，更改即时生效——因此本分区
- * 没有保存按钮。删除连接等身份操作在连接页。
+ * 连接详情的「工具」标签：这个连接开哪些工具——联网（搜索、天气）、工作区 bash、调度（工具路由、子 Agent）
+ * 及其预算。字段随连接档案自动保存；编辑运行中的远端档案时自动重连，更改即时生效。
+ * 搜索 Key、搜索后端与天气数据源所有连接共用，在全局「Agent」分区（GlobalAgentSection）。
  *
- * "怎么调用模型"（对话协议、思考模式、采样、预算、附加约定与提示词预览）在参数分区。
+ * "怎么调用模型"（对话协议、思考模式、采样、预算、附加约定与提示词预览）在「生成参数」标签。
  */
 export default function AgentBehaviorSection({ manager }: Props) {
   /* [标签, 字段, setter, 最小, 最大, 默认, 说明]：默认值与 api/service.go 的归一化一致。 */
@@ -28,29 +27,13 @@ export default function AgentBehaviorSection({ manager }: Props) {
   return (
     <>
       <section className="mt-[18px]">
-        <GroupTitle title="联网" />
+        <GroupTitle title="联网" hint="Key、搜索后端与天气数据源所有连接共用" />
+        <div className="flex items-center justify-between gap-[12px] pb-[2px]">
+          <span className="text-2xs text-ink-muted">这里只决定这个连接开不开这些工具。</span>
+          <Button variant="ghost" size="sm" className="text-brand hover:text-brand" onClick={() => manager.setSettingsSection('Agent')}>去设置 Key 与数据源</Button>
+        </div>
         <Toggle icon={<Globe2 size={15} />} label="网页搜索与正文获取" description="web_search 与 web_fetch 两个工具" checked={manager.enableWeb} onChange={manager.setEnableWeb} />
-        {manager.enableWeb && (
-          <SubSettings>
-            <Row label="搜索后端" description="先用哪个；查不到或出错时换另一个">
-              <Select label="搜索后端" className="w-[230px] flex-none" value={manager.webSearchBackend} onChange={manager.setWebSearchBackend} options={SEARCH_BACKENDS} />
-            </Row>
-            <div className="grid grid-cols-3 gap-[10px] pt-[6px]">
-              <Field label="Brave API Key" hint="英文搜索更准" value={manager.braveAPIKey} onChange={manager.setBraveAPIKey} type="password" />
-              <Field label="DeepSeek API Key" hint="中文搜索更准，也给抓取兜底" value={manager.deepseekWebAPIKey} onChange={manager.setDeepseekWebAPIKey} type="password" />
-              <Field label="Tavily API Key" hint="读取网页正文" value={manager.tavilyAPIKey} onChange={manager.setTavilyAPIKey} type="password" />
-            </div>
-            <p className="m-0 pb-[4px] text-2xs leading-[1.6] text-ink-muted">搜索用 Brave 或 DeepSeek，填一个就能用；正文抓取用 Tavily，读不到的页面再用 DeepSeek 补。</p>
-          </SubSettings>
-        )}
         <Toggle icon={<CloudSun size={15} />} label="实时天气" description="get_weather 工具，免 API Key" checked={manager.weatherBackend !== ''} onChange={(value) => manager.setWeatherBackend(value ? 'open-meteo' : '')} />
-        {manager.weatherBackend !== '' && (
-          <SubSettings>
-            <Row label="天气数据源">
-              <Select label="天气数据源" className="w-[230px] flex-none" value={manager.weatherBackend} onChange={manager.setWeatherBackend} options={WEATHER_BACKENDS} />
-            </Row>
-          </SubSettings>
-        )}
       </section>
 
       <section className="mt-[22px]">
@@ -75,17 +58,6 @@ export default function AgentBehaviorSection({ manager }: Props) {
     </>
   )
 }
-
-const SEARCH_BACKENDS = [
-  { value: 'auto', label: '自动', hint: '中文查询先用 DeepSeek，其余先用 Brave' },
-  { value: 'deepseek', label: 'DeepSeek 优先' },
-  { value: 'brave', label: 'Brave 优先' },
-]
-
-const WEATHER_BACKENDS = [
-  { value: 'open-meteo', label: 'Open-Meteo', hint: '7 天预报' },
-  { value: 'wttr', label: 'wttr.in', hint: '3 天预报' },
-]
 
 /* 开关打开后才出现的子设置：左侧细线缩进，表明从属于上面那个开关。 */
 function SubSettings({ children }: { children: ReactNode }) {

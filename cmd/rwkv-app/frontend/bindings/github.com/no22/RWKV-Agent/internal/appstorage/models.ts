@@ -12,6 +12,41 @@ import * as api$0 from "../../api/models.js";
 // @ts-ignore: Unused imports
 import * as tools$0 from "../agent/tools/models.js";
 
+/**
+ * AgentSettings 是所有连接档案共用的 Agent 设置：搜索与抓取的 API Key、搜索路由、
+ * 天气数据源。它们和用哪个模型无关，只存一份，不再复制进每个档案。
+ * 各工具开不开仍由档案里的 enableWeb / weatherBackend 决定。
+ */
+export class AgentSettings {
+    "braveApiKey"?: string;
+    "tavilyApiKey"?: string;
+    "deepseekWebApiKey"?: string;
+
+    /**
+     * WebSearchBackend："" 或 auto（中文先 DeepSeek，其余先 Brave）、deepseek、brave。
+     */
+    "webSearchBackend"?: string;
+
+    /**
+     * WeatherBackend：open-meteo 或 wttr；空按 open-meteo。
+     */
+    "weatherBackend"?: string;
+
+    /** Creates a new AgentSettings instance. */
+    constructor($$source: Partial<AgentSettings> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AgentSettings instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AgentSettings {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AgentSettings($$parsedSource as Partial<AgentSettings>);
+    }
+}
+
 export class DisplayMessage {
     "files"?: FileArtifact[];
     "id": string;

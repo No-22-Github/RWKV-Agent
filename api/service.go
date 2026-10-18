@@ -126,6 +126,22 @@ func (s *Service) Configure(ctx context.Context, config Config, progress func(St
 	return cloneStatus(status), nil
 }
 
+// UpdateConfig edits the active configuration in place without rebuilding the
+// provider, so a loaded local model stays loaded. Only fields read when a
+// session is assembled (tool keys, routes) may change this way; sessions
+// opened afterwards see the change and the cached web providers are rebuilt.
+// It reports whether a provider was active.
+func (s *Service) UpdateConfig(update func(*Config)) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed || s.source == nil {
+		return false
+	}
+	update(&s.config)
+	s.web = nil
+	return true
+}
+
 // Unload releases the active provider and whatever it holds (a local model's
 // weights, a remote client) without closing the service. Open sessions are
 // closed; the service returns to idle and can be configured again.

@@ -18,7 +18,7 @@ export const AUTOSAVE_DELAY_MS = 800
  * 不会保存；error：后端拒绝（message 为原因，同一份草稿不会自动重试）。
  */
 /* 设置弹窗的分区；远端连接与本地推理各管一类档案。 */
-export type SettingsSection = '远端连接' | '本地推理' | '外观' | '通用'
+export type SettingsSection = '远端连接' | '本地推理' | 'Agent' | '外观' | '通用'
 export type ProviderKind = 'remote' | 'local'
 
 export function kindOf(config: Config): ProviderKind {
@@ -132,10 +132,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [progressiveTools, setProgressiveTools] = useState(false)
   const [profile, setProfile] = useState(NEW_CONFIG_DEFAULTS.profile)
   const [enableWeb, setEnableWeb] = useState(NEW_CONFIG_DEFAULTS.enableWeb)
-  const [braveAPIKey, setBraveAPIKey] = useState('')
-  const [tavilyAPIKey, setTavilyAPIKey] = useState('')
-  const [deepseekWebAPIKey, setDeepseekWebAPIKey] = useState('')
-  const [webSearchBackend, setWebSearchBackend] = useState('auto')
   const [enableSubagents, setEnableSubagents] = useState(false)
   const [weatherBackend, setWeatherBackend] = useState(NEW_CONFIG_DEFAULTS.weatherBackend)
   const [enableBash, setEnableBash] = useState(NEW_CONFIG_DEFAULTS.enableBash)
@@ -203,10 +199,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     return {
       profile: profile || undefined, wire: wireOverride(),
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
-      braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
-      tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
-      deepseekWebApiKey: enableWeb ? deepseekWebAPIKey.trim() || undefined : undefined,
-      webSearchBackend: enableWeb && webSearchBackend !== 'auto' ? webSearchBackend : undefined,
+      // 搜索 Key、搜索路由与天气数据源是所有连接共用的（见 agentSettings.ts），不进档案；
+      // 档案里的 weatherBackend 只表示开不开天气工具。
+      braveApiKey: undefined, tavilyApiKey: undefined, deepseekWebApiKey: undefined, webSearchBackend: undefined,
       enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
       subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
       maxSteps, maxTokens, decisionMaxTokens,
@@ -412,10 +407,10 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setInjectSessionTime(config.injectSessionTime || false)
     setProgressiveTools(config.progressiveTools ?? false)
     setProfile(config.profile || '')
-    setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
-    setDeepseekWebAPIKey(config.deepseekWebApiKey || ''); setWebSearchBackend(config.webSearchBackend || 'auto')
+    setEnableWeb(config.enableWeb || false)
     setEnableSubagents(config.enableSubagents || false)
-    setWeatherBackend(config.weatherBackend || '')
+    // 天气工具开关：有值即开；具体数据源取共用设置，这里统一写成默认值，免得旧档案里的 wttr 让草稿一打开就"脏"。
+    setWeatherBackend(config.weatherBackend ? NEW_CONFIG_DEFAULTS.weatherBackend : '')
     setEnableBash(config.enableBash || false)
     setMaxActiveBatch(config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch)
     setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
@@ -691,8 +686,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     adapterId, setAdapterId,
     browserUploads,
     profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
-    enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
-    deepseekWebAPIKey, setDeepseekWebAPIKey, webSearchBackend, setWebSearchBackend,
+    enableWeb, setEnableWeb,
     enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
     subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,

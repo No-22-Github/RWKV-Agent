@@ -33,6 +33,8 @@ vi.mock('@wailsio/runtime', () => ({
 vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => ({
   Bootstrap: vi.fn(),
   UnloadModel: vi.fn(),
+  GetAgentSettings: vi.fn().mockResolvedValue({}),
+  SaveAgentSettings: vi.fn().mockImplementation(async (value) => value),
   FileChanges: vi.fn().mockResolvedValue([]),
   ResolveFileChanges: vi.fn().mockResolvedValue([]),
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
@@ -104,9 +106,9 @@ function openSettingsSection(name: string) {
   fireEvent.click(screen.getByRole('tab', { name }))
 }
 
-/* 网页与子 Agent 字段在连接详情的 Agent 标签。 */
+/* 网页与子 Agent 开关在连接详情的「工具」标签。 */
 function openAgentSection() {
-  openSettingsSection('Agent')
+  openSettingsSection('工具')
 }
 
 /* 对话格式、采样、预算与附加约定在连接详情的生成参数标签。 */
@@ -213,7 +215,8 @@ describe('App', () => {
     expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '远端连接' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '本地推理' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Agent' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: '工具' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Agent' })).toBeInTheDocument()
   })
 
   it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
@@ -267,17 +270,36 @@ describe('App', () => {
     expect(config.agentProtocol).toBe('xml')
   })
 
-  it('passes web credentials and concurrent subagent budgets through auto-apply', async () => {
+  it('saves web credentials once in the shared Agent section, not in the profile', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    fireEvent.click(screen.getByRole('button', { name: 'Agent' }))
+    await waitFor(() => expect(Backend.GetAgentSettings).toHaveBeenCalled())
+    fireEvent.change(await screen.findByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
+    fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
+    fireEvent.change(screen.getByLabelText('DeepSeek API Key'), { target: { value: 'deepseek-secret' } })
+    chooseOption('搜索后端', 'brave')
+    chooseOption('天气数据源', 'wttr')
+
+    await waitFor(() => expect(Backend.SaveAgentSettings).toHaveBeenCalled(), { timeout: 3000 })
+    expect(vi.mocked(Backend.SaveAgentSettings).mock.calls.at(-1)![0]).toMatchObject({
+      braveApiKey: 'brave-secret', tavilyApiKey: 'tavily-secret', deepseekWebApiKey: 'deepseek-secret',
+      webSearchBackend: 'brave', weatherBackend: 'wttr',
+    })
+    expect(await screen.findByText('已保存，下一轮对话生效')).toBeInTheDocument()
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('passes web and concurrent subagent switches through auto-apply', async () => {
     bootstrapWithRunningProvider()
     render(<App />)
     await waitRuntimeReady()
     openSettings()
     openAgentSection()
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
-    fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
-    fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
-    fireEvent.change(screen.getByLabelText('DeepSeek API Key'), { target: { value: 'deepseek-secret' } })
-    chooseOption('搜索后端', 'brave')
     fireEvent.click(screen.getByLabelText('并发子 Agent'))
     fireEvent.change(screen.getByLabelText('活动批量'), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('子 Agent 并发'), { target: { value: '6' } })
@@ -289,10 +311,6 @@ describe('App', () => {
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config).toMatchObject({
       enableWeb: true,
-      braveApiKey: 'brave-secret',
-      tavilyApiKey: 'tavily-secret',
-      deepseekWebApiKey: 'deepseek-secret',
-      webSearchBackend: 'brave',
       enableSubagents: true,
       maxActiveBatch: 6,
       remoteBatchWaitMs: 15,
@@ -1114,7 +1132,15 @@ describe('App', () => {
     expect(screen.getByLabelText('格式预设')).toHaveAttribute('data-value', 'legacy')
     openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
-    expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
+    // 共用的 Key 与搜索后端由后端从旧档案迁出，在全局「Agent」分区里显示。
+    vi.mocked(Backend.GetAgentSettings).mockResolvedValue({
+      braveApiKey: 'saved-brave', tavilyApiKey: 'saved-tavily', deepseekWebApiKey: 'saved-deepseek', webSearchBackend: 'deepseek',
+    })
+    fireEvent.click(screen.getByRole('button', { name: '关闭设置' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
+    openSettings()
+    fireEvent.click(screen.getByRole('button', { name: 'Agent' }))
+    expect(await screen.findByDisplayValue('saved-brave')).toBeInTheDocument()
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
     expect(screen.getByLabelText('DeepSeek API Key')).toHaveValue('saved-deepseek')
     expect(screen.getByLabelText('搜索后端')).toHaveAttribute('data-value', 'deepseek')

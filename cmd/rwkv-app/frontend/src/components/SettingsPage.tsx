@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Cloud, Cpu, Palette, Settings2, X } from 'lucide-react'
+import { Bot, Cloud, Cpu, Palette, Settings2, X } from 'lucide-react'
 import type { Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import { kindOf, type ProviderManager, type SettingsSection } from '../state/providerManager'
 import type { ThemePreference } from '../theme'
 import ConfirmDialog, { type ConfirmAction } from './ConfirmDialog'
 import ConnectionsSection from './settings/ConnectionsSection'
 import GeneralSection, { AppearanceSection } from './settings/GeneralSection'
+import GlobalAgentSection from './settings/GlobalAgentSection'
+import type { AgentSettingsState } from '../state/agentSettings'
 
 
 type Props = {
   manager: ProviderManager
+  agent: AgentSettingsState
   status: Status
   ready: boolean
   onChooseWorkspace: () => void | Promise<void>
@@ -21,6 +24,7 @@ type Props = {
 const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
   { id: '远端连接', icon: <Cloud size={15} /> },
   { id: '本地推理', icon: <Cpu size={15} /> },
+  { id: 'Agent', icon: <Bot size={15} /> },
   { id: '外观', icon: <Palette size={15} /> },
   { id: '通用', icon: <Settings2 size={15} /> },
 ]
@@ -31,7 +35,7 @@ const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
  * 远端连接与本地推理分开：本地模型有加载与释放的代价，远端只是换个地址，两者不混在一个列表里。
  * 连接、生成参数与 Agent 编辑的都是同一份档案，所以收在同一个详情下的三个标签里。
  */
-export default function SettingsPage({ manager, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider }: Props) {
+export default function SettingsPage({ manager, agent, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider }: Props) {
   const section = manager.settingsSection
   // 切分区前草稿没法自动保存时，先问；问完再去这里。
   const [pendingSection, setPendingSection] = useState<SettingsSection | null>(null)
@@ -171,6 +175,8 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
 
           {connectionSection
             ? <ConnectionsSection key={section} kind={section === '本地推理' ? 'local' : 'remote'} manager={manager} ready={ready} onDeleteProvider={onDeleteProvider} />
+            : section === 'Agent'
+              ? <GlobalAgentSection agent={agent} />
             : section === '外观'
               ? <AppearanceSection themePreference={themePreference} onThemeChange={onThemeChange} />
               : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} />}

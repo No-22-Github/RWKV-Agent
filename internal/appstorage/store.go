@@ -58,7 +58,22 @@ type Settings struct {
 	Provider      agentapi.Config `json:"provider"` // 兼容字段：镜像当前 active 档案的 Config（旧版本读取路径仍可用）
 	Providers     []SavedProvider `json:"providers,omitempty"`
 	ActiveID      string          `json:"activeProviderId,omitempty"`
-	UpdatedAt     time.Time       `json:"updatedAt"`
+	// Agent 是所有连接共用的 Agent 设置；nil 表示还没从旧档案迁移过（见 AgentSettings）。
+	Agent     *AgentSettings `json:"agent,omitempty"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+}
+
+// AgentSettings 是所有连接档案共用的 Agent 设置：搜索与抓取的 API Key、搜索路由、
+// 天气数据源。它们和用哪个模型无关，只存一份，不再复制进每个档案。
+// 各工具开不开仍由档案里的 enableWeb / weatherBackend 决定。
+type AgentSettings struct {
+	BraveAPIKey       string `json:"braveApiKey,omitempty"`
+	TavilyAPIKey      string `json:"tavilyApiKey,omitempty"`
+	DeepSeekWebAPIKey string `json:"deepseekWebApiKey,omitempty"`
+	// WebSearchBackend："" 或 auto（中文先 DeepSeek，其余先 Brave）、deepseek、brave。
+	WebSearchBackend string `json:"webSearchBackend,omitempty"`
+	// WeatherBackend：open-meteo 或 wttr；空按 open-meteo。
+	WeatherBackend string `json:"weatherBackend,omitempty"`
 }
 
 // SavedProvider 是一条可复用的"连接档案/预设"：配置一次、持久化，之后从下拉栏直接切换重连。
@@ -220,6 +235,64 @@ func (s *Store) LoadSettings() (Settings, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.loadLocked()
+}
+
+// AgentSettings 返回共用的 Agent 设置。旧版本把 Key 存在各个档案里：第一次读取时
+// 从档案里收集（运行档案优先，其次按列表顺序取第一个非空值）并落盘，之后以这份为准。
+func (s *Store) AgentSettings() (AgentSettings, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	settings, err := s.loadLocked()
+	if err != nil {
+		return AgentSettings{}, err
+	}
+	if settings.Agent != nil {
+		return *settings.Agent, nil
+	}
+	migrated := collectAgentSettings(settings)
+	settings.Agent = &migrated
+	if err := s.writeSettingsLocked(settings); err != nil {
+		return AgentSettings{}, err
+	}
+	return migrated, nil
+}
+
+// SaveAgentSettings 覆盖保存共用的 Agent 设置。
+func (s *Store) SaveAgentSettings(value AgentSettings) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	settings, err := s.loadLocked()
+	if err != nil {
+		return err
+	}
+	settings.Agent = &value
+	return s.writeSettingsLocked(settings)
+}
+
+func collectAgentSettings(settings Settings) AgentSettings {
+	ordered := make([]agentapi.Config, 0, len(settings.Providers))
+	for _, entry := range settings.Providers {
+		if entry.ID == settings.ActiveID {
+			ordered = append([]agentapi.Config{entry.Config}, ordered...)
+		} else {
+			ordered = append(ordered, entry.Config)
+		}
+	}
+	var value AgentSettings
+	pick := func(target *string, read func(agentapi.Config) string) {
+		for _, config := range ordered {
+			if v := strings.TrimSpace(read(config)); v != "" {
+				*target = v
+				return
+			}
+		}
+	}
+	pick(&value.BraveAPIKey, func(c agentapi.Config) string { return c.BraveAPIKey })
+	pick(&value.TavilyAPIKey, func(c agentapi.Config) string { return c.TavilyAPIKey })
+	pick(&value.DeepSeekWebAPIKey, func(c agentapi.Config) string { return c.DeepSeekWebAPIKey })
+	pick(&value.WebSearchBackend, func(c agentapi.Config) string { return c.WebSearchBackend })
+	pick(&value.WeatherBackend, func(c agentapi.Config) string { return c.WeatherBackend })
+	return value
 }
 
 // migrateSettingsV1 把 v1（单档 Provider）转换为 v2（档案列表 + active）。仅在内存中转换，

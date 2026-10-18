@@ -159,11 +159,20 @@ export function FileChanges(): $CancellablePromise<api$0.FileChange[]> {
 }
 
 /**
+ * GetAgentSettings 返回所有连接共用的 Agent 设置。
+ */
+export function GetAgentSettings(): $CancellablePromise<appstorage$0.AgentSettings> {
+    return $Call.ByID(1765250366).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
+/**
  * ListAdapters lists the deployment's adapters and joins local records.
  */
 export function ListAdapters(config: api$0.Config): $CancellablePromise<$models.AdapterListing> {
     return $Call.ByID(582991906, config).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType6($result);
     });
 }
 
@@ -172,7 +181,7 @@ export function ListAdapters(config: api$0.Config): $CancellablePromise<$models.
  */
 export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$0.RemoteModel[]> {
     return $Call.ByID(3365822742, config).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -181,7 +190,7 @@ export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$
  */
 export function ListStates(config: api$0.Config): $CancellablePromise<$models.StateListing> {
     return $Call.ByID(260521560, config).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType9($result);
     });
 }
 
@@ -196,7 +205,7 @@ export function NewConversation(): $CancellablePromise<void> {
  */
 export function OpenConversation(id: string): $CancellablePromise<$models.ConversationView> {
     return $Call.ByID(2245178561, id).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType10($result);
     });
 }
 
@@ -216,7 +225,7 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
     return $Call.ByID(766505949, config).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType11($result);
     });
 }
 
@@ -244,11 +253,21 @@ export function ResolveFileChanges(reviewed: api$0.FileChange[], accept: boolean
 }
 
 /**
+ * SaveAgentSettings 保存共用的 Agent 设置，并让运行中的模型下一轮就用上：
+ * 只改配置里的 Key 与路由，不重建 provider（本地模型不会重新加载）。
+ */
+export function SaveAgentSettings(value: appstorage$0.AgentSettings): $CancellablePromise<appstorage$0.AgentSettings> {
+    return $Call.ByID(1675591009, value).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
+/**
  * SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType12($result);
     });
 }
 
@@ -286,7 +305,7 @@ export function UnloadModel(): $CancellablePromise<api$0.Status> {
  */
 export function UploadAdapter(config: api$0.Config, id: string, path: string): $CancellablePromise<$models.AdapterEntry> {
     return $Call.ByID(270781990, config, id, path).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType13($result);
     });
 }
 
@@ -297,7 +316,7 @@ export function UploadAdapter(config: api$0.Config, id: string, path: string): $
  */
 export function UploadBrowserAdapter(config: api$0.Config, id: string, token: string): $CancellablePromise<$models.AdapterEntry> {
     return $Call.ByID(878917108, config, id, token).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType13($result);
     });
 }
 
@@ -308,7 +327,7 @@ export function UploadBrowserAdapter(config: api$0.Config, id: string, token: st
  */
 export function UploadBrowserState(config: api$0.Config, token: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(111862102, config, token).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType14($result);
     });
 }
 
@@ -319,7 +338,7 @@ export function UploadBrowserState(config: api$0.Config, token: string): $Cancel
  */
 export function UploadState(config: api$0.Config, path: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(320817040, config, path).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType14($result);
     });
 }
 
@@ -329,12 +348,13 @@ const $$createType1 = $models.AppBootstrap.createFrom;
 const $$createType2 = api$0.Result.createFrom;
 const $$createType3 = tools$0.FileChange.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = $models.AdapterListing.createFrom;
-const $$createType6 = api$0.RemoteModel.createFrom;
-const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = $models.StateListing.createFrom;
-const $$createType9 = $models.ConversationView.createFrom;
-const $$createType10 = api$0.AgentPromptPreview.createFrom;
-const $$createType11 = appstorage$0.SavedProvider.createFrom;
-const $$createType12 = $models.AdapterEntry.createFrom;
-const $$createType13 = $models.StateEntry.createFrom;
+const $$createType5 = appstorage$0.AgentSettings.createFrom;
+const $$createType6 = $models.AdapterListing.createFrom;
+const $$createType7 = api$0.RemoteModel.createFrom;
+const $$createType8 = $Create.Array($$createType7);
+const $$createType9 = $models.StateListing.createFrom;
+const $$createType10 = $models.ConversationView.createFrom;
+const $$createType11 = api$0.AgentPromptPreview.createFrom;
+const $$createType12 = appstorage$0.SavedProvider.createFrom;
+const $$createType13 = $models.AdapterEntry.createFrom;
+const $$createType14 = $models.StateEntry.createFrom;

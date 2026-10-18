@@ -25,7 +25,7 @@ type Props = {
 /*
  * 右侧详情：点列表中的档案进入，表单即档案本身。页头（名称、状态、动作）固定，
  * 下面三个标签编辑同一份档案：连接或模型（来源与凭据）、生成参数（格式、采样、预算）、
- * Agent（能力开关）。切换档案时停留在当前标签。
+ * 工具（能力开关与预算）。切换档案时停留在当前标签。
  *
  * 页头动作按类别分开：远端连接只有新建时的「保存」，切换在对话页做；本地模型有加载、
  * 重新加载与释放——它们占内存、要时间，必须由用户显式触发。
@@ -39,7 +39,8 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
   const tabs: { id: Tab; label: string }[] = [
     { id: 'source', label: local ? '模型' : '连接' },
     { id: 'params', label: '生成参数' },
-    { id: 'agent', label: 'Agent' },
+    // 「工具」是这个连接开哪些工具；所有连接共用的 Key 与数据源在全局「Agent」分区。
+    { id: 'agent', label: '工具' },
   ]
   const headerRows = manager.headers
   const addHeader = () => manager.setHeaders([...headerRows, { id: Date.now(), name: '', value: '' }])
@@ -110,8 +111,8 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
       <SettingsPane>
       {isNew ? (
         <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">{local
-          ? '填写模型文件路径后点右上「保存」建档，「保存并加载」会立即读入模型。建档后所有改动自动保存，上方「生成参数」「Agent」两个标签也属于这个模型。'
-          : '填写连接信息后点右上「保存」建档；建档后所有改动自动保存，在对话页的模型标签里切换到它。上方「生成参数」「Agent」两个标签也属于这个连接。'}</p>
+          ? '填写模型文件路径后点右上「保存」建档，「保存并加载」会立即读入模型。建档后所有改动自动保存，上方「生成参数」「工具」两个标签也属于这个模型。'
+          : '填写连接信息后点右上「保存」建档；建档后所有改动自动保存，在对话页的模型标签里切换到它。上方「生成参数」「工具」两个标签也属于这个连接。'}</p>
       ) : manager.draftNeedsReload ? (
         <p role="status" className="mb-0 mt-[12px] rounded-md border border-warning/40 bg-paper-soft px-[10px] py-[7px] text-xs leading-[1.65] text-ink-soft">更改已保存，但本地模型仍在用旧配置运行。点右上「重新加载模型」使其生效（会重新加载模型文件）。</p>
       ) : null}
@@ -161,7 +162,7 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
         <section className="mt-[18px]">
           <GroupTitle title="危险操作" />
           <div className="flex items-center gap-[20px] py-[11px]">
-            <span className="min-w-0 flex-1 text-xs leading-[1.55] text-ink-muted">{`删除这个${noun}档案，连同它的参数与 Agent 设置；不可撤销。`}</span>
+            <span className="min-w-0 flex-1 text-xs leading-[1.55] text-ink-muted">{`删除这个${noun}档案，连同它的生成参数与工具设置；不可撤销。`}</span>
             <Button variant="danger" icon={<Trash2 size={13} />} onClick={onRequestDelete} disabled={manager.settingsBusy} aria-label="删除连接">删除连接</Button>
           </div>
         </section>

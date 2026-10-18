@@ -32,6 +32,7 @@ import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
+import { useAgentSettings } from './state/agentSettings'
 import { applyTheme, getThemePreference, setThemePreference, watchSystemTheme, type ThemePreference } from './theme'
 import { useSnackbar } from './snackbar'
 import { writeClipboard } from './trajectory/primitives/clipboard'
@@ -94,6 +95,7 @@ export default function App() {
   const [scrollResetKey, setScrollResetKey] = useState(0)
   const ready = status.state === ModelState.ModelReady
   const manager = useProviderManager({ onStatus: setStatus, ready })
+  const agentSettings = useAgentSettings(manager.settingsOpen)
   const { show: notify } = useSnackbar()
   // 进行中的一轮：Wails 绑定返回可取消的 Promise，取消会中断后端 ctx。
   const runningChat = useRef<{ cancel: () => void } | null>(null)
@@ -395,7 +397,7 @@ export default function App() {
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
       </AnimatePresence>
     </div>
-    {settingsOpen && <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} themePreference={themePreference} onThemeChange={handleThemeChange} onDeleteProvider={(id) => void deleteProviderNow(id)} />}
+    {settingsOpen && <SettingsPage manager={manager} agent={agentSettings} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} themePreference={themePreference} onThemeChange={handleThemeChange} onDeleteProvider={(id) => void deleteProviderNow(id)} />}
   </div>
 }
 
