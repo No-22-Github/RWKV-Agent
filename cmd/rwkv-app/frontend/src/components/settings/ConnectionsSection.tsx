@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import { ChevronRight, Plus } from 'lucide-react'
 import { Provider } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import { kindOf, type ProviderKind, type ProviderManager } from '../../state/providerManager'
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
-import { Button } from './ui'
+import { Button, Notice, RunningBadge, Section, SettingsPane } from './ui'
 import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
@@ -19,41 +19,37 @@ type Props = {
 type PendingConfirm =
   | { kind: 'switch'; id: string }
   | { kind: 'new' }
+  | { kind: 'back' }
   | { kind: 'delete'; id: string }
   | null
 
 /*
- * 档案管理：左列表 + 右编辑器的主从式布局，只列一类档案（远端连接或本地模型）。
- * 点列表行只是打开详情，没有任何副作用；切换远端连接在对话页的模型标签里做。
- * 脏表单的切换/新建/删除都经确认框。
+ * 档案管理分两层：先是整页宽的列表，点一行进入详情（manager.settingsDetail），详情页头的「‹」回到列表。
+ * 只列一类档案（远端连接或本地模型）。点列表行只是打开详情，没有任何副作用；切换远端连接在对话页的模型标签里做。
+ * 离开详情（返回、换档案、新建）前先把草稿落盘，落不了盘的经确认框。
  */
 export default function ConnectionsSection({ kind, manager, ready, onDeleteProvider }: Props) {
   const listed = manager.providers.filter((provider) => kindOf(provider.config) === kind)
   const local = kind === 'local'
-  const [menuForID, setMenuForID] = useState('')
   const [confirm, setConfirm] = useState<PendingConfirm>(null)
 
+  function go(next: Exclude<PendingConfirm, null | { kind: 'delete' }>) {
+    if (next.kind === 'switch') manager.selectProvider(next.id)
+    else if (next.kind === 'new') manager.startNewDraft(kind)
+    manager.setSettingsDetail(next.kind !== 'back')
+  }
+
   /* 离开当前草稿：能自动保存的直接落盘后离开；新建未建档、校验不过或保存失败才问。 */
-  async function leaveDraft(next: Exclude<PendingConfirm, null>) {
+  async function leaveDraft(next: Exclude<PendingConfirm, null | { kind: 'delete' }>) {
     if (manager.draftDirty && !(await manager.flushDraft())) {
       setConfirm(next)
       return
     }
-    if (next.kind === 'switch') manager.selectProvider(next.id)
-    else if (next.kind === 'new') manager.startNewDraft(kind)
+    go(next)
   }
   function requestEdit(id: string) {
-    setMenuForID('')
-    if (id === manager.editingProviderId) return
-    void leaveDraft({ kind: 'switch', id })
-  }
-  function requestNew() {
-    setMenuForID('')
-    void leaveDraft({ kind: 'new' })
-  }
-  function requestDelete(id: string) {
-    setMenuForID('')
-    setConfirm({ kind: 'delete', id })
+    if (id === manager.editingProviderId) manager.setSettingsDetail(true)
+    else void leaveDraft({ kind: 'switch', id })
   }
 
   async function resolveConfirm(action: 'save' | 'discard' | 'cancel') {
@@ -65,8 +61,7 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
     } else {
       manager.discardDraft()
     }
-    if (pending.kind === 'switch') manager.selectProvider(pending.id)
-    else manager.startNewDraft(kind)
+    go(pending)
   }
 
   const deleteTarget = confirm?.kind === 'delete' ? manager.providers.find((provider) => provider.id === confirm.id) : undefined
@@ -77,55 +72,47 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
   }
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <aside className="flex w-[232px] flex-none flex-col border-r border-line bg-paper-sidebar">
-        <div className="flex items-center justify-between gap-[6px] py-[10px] pl-[14px] pr-[8px]">
-          <span className="font-mono text-2xs font-medium text-ink-muted">{local ? '本地模型' : '已保存连接'} <span className="text-ink-ghost">{listed.length}</span></span>
-          <Button variant="ghost" size="sm" icon={<Plus size={13} />} onClick={requestNew}>{local ? '添加模型' : '新建连接'}</Button>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-[10px] pb-[8px]">
-          {manager.editingProviderId === '' && (
-            <div className="mb-[4px] flex items-center gap-[9px] rounded-lg border border-dashed border-line-strong bg-surface-active px-[8px] py-[7px]" aria-current="true">
-              <span className="h-[7px] w-[7px] flex-none" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-base font-medium text-ink">{manager.draftLabel.trim() || (local ? '新本地模型' : '新连接')}</span>
-                <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">未保存 · 填写后点右上「保存」</span>
-              </span>
+    <div className="flex min-h-0 min-w-0 flex-1">
+      {manager.settingsDetail ? (
+        <ProviderEditor
+          manager={manager}
+          ready={ready}
+          backLabel={local ? '本地模型' : '远端连接'}
+          onBack={() => void leaveDraft({ kind: 'back' })}
+          onTestRemote={() => void manager.testRemote()}
+          onSave={() => void manager.saveProviderDraft()}
+          onSaveAndUse={() => void manager.saveAndUseProviderDraft()}
+          onUnload={() => void manager.unloadModel()}
+          onRequestDelete={() => { if (manager.editingProviderId) setConfirm({ kind: 'delete', id: manager.editingProviderId }) }}
+        />
+      ) : (
+        <SettingsPane>
+          {manager.settingsMessage && <Notice>{manager.settingsMessage}</Notice>}
+          <Section
+            title={local ? '本地模型' : '远端连接'}
+            action={<Button size="sm" icon={<Plus size={14} />} onClick={() => void leaveDraft({ kind: 'new' })}>{local ? '添加模型' : '新建连接'}</Button>}
+          >
+            <div role="list" aria-label={local ? '本地模型列表' : '远端连接列表'}>
+            {listed.map((provider) => (
+              <ProviderRow
+                key={provider.id}
+                // 正在编辑的行直接显示草稿：改名、换模型后回到列表立刻看到，不等保存落盘。
+                provider={provider.id === manager.editingProviderId ? draftAsProvider(provider) : provider}
+                running={ready && provider.id === manager.runtimeProviderId}
+                attention={provider.id === manager.editingProviderId && manager.draftDirty && (manager.saveState.kind === 'invalid' || manager.saveState.kind === 'error')}
+                onEdit={() => requestEdit(provider.id)}
+              />
+            ))}
             </div>
-          )}
-          {listed.map((provider) => (
-            <ProviderRow
-              key={provider.id}
-              // 正在编辑的行直接显示草稿：改名、换模型时列表同步变化，不等保存落盘。
-              provider={provider.id === manager.editingProviderId ? draftAsProvider(provider) : provider}
-              running={ready && provider.id === manager.runtimeProviderId}
-              selected={provider.id === manager.editingProviderId}
-              dirty={provider.id === manager.editingProviderId && manager.draftDirty && (manager.saveState.kind === 'invalid' || manager.saveState.kind === 'error')}
-              menuOpen={menuForID === provider.id}
-              onToggleMenu={() => setMenuForID(menuForID === provider.id ? '' : provider.id)}
-              onCloseMenu={() => setMenuForID('')}
-              onEdit={() => requestEdit(provider.id)}
-              onDelete={() => requestDelete(provider.id)}
-            />
-          ))}
-          {listed.length === 0 && (
-            <p className="px-[6px] py-[8px] text-xs leading-[1.65] text-ink-muted">{local ? '还没有本地模型。在右侧填写模型文件路径并保存，需要时再加载。' : '还没有保存的连接。在右侧填写并保存即可。'}</p>
-          )}
-        </div>
-      </aside>
-
-      <ProviderEditor
-        manager={manager}
-        ready={ready}
-        onTestRemote={() => void manager.testRemote()}
-        onSave={() => void manager.saveProviderDraft()}
-        onSaveAndUse={() => void manager.saveAndUseProviderDraft()}
-        onUnload={() => void manager.unloadModel()}
-        onRequestDelete={() => { if (manager.editingProviderId) requestDelete(manager.editingProviderId) }}
-      />
+            {listed.length === 0 && (
+              <p className="m-0 py-[14px] text-sm text-ink-muted">{local ? '还没有本地模型。' : '还没有远端连接。'}</p>
+            )}
+          </Section>
+        </SettingsPane>
+      )}
 
       <ConfirmDialog
-        open={confirm?.kind === 'switch' || confirm?.kind === 'new'}
+        open={confirm !== null && confirm.kind !== 'delete'}
         title="有未保存的更改"
         body={`${manager.draftBlockReason || '当前连接档案的更改还没有保存。'}要如何处理？`}
         actions={[
@@ -138,7 +125,7 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
       />
       <ConfirmDialog
         open={confirm?.kind === 'delete'}
-        title="删除连接"
+        title={local ? '删除模型' : '删除连接'}
         body={deleteTarget ? `将删除「${deleteTarget.label || deleteTarget.config.model || '未命名连接'}」，此操作不可撤销。` : '将删除该连接，此操作不可撤销。'}
         actions={[
           { label: '删除', variant: 'danger', onClick: () => { const pending = confirm; setConfirm(null); if (pending?.kind === 'delete') onDeleteProvider(pending.id) } },
@@ -150,46 +137,38 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
   )
 }
 
-function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMenu, onCloseMenu, onEdit, onDelete }: {
+/* 列表行：名称 + 一行协议与地址，右侧是运行状态和进入详情的箭头。整行可点。 */
+function ProviderRow({ provider, running, attention, onEdit }: {
   provider: SavedProvider
   running: boolean
-  selected: boolean
-  dirty: boolean
-  menuOpen: boolean
-  onToggleMenu: () => void
-  onCloseMenu: () => void
+  attention: boolean
   onEdit: () => void
-  onDelete: () => void
 }) {
-  const meta = provider.config.provider === Provider.ProviderLocal
-    ? `本地模型 · ${provider.config.model.split(/[\\/]/).at(-1) || provider.config.model}`
+  const isLocal = provider.config.provider === Provider.ProviderLocal
+  const meta = isLocal
+    ? provider.config.model.split(/[\\/]/).at(-1) || provider.config.model
     : [provider.config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : provider.config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA', hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
+  const name = provider.label || provider.config.model || '未命名连接'
+  // 自动命名的连接名里已经带了主机名，副标题只留协议，不把同一个地址念两遍。
+  const host = hostOf(provider.config.endpoint)
+  const subtitle = !isLocal && host && name.includes(host) ? meta.replace(` · ${host}`, '') : meta
   return (
-    <div className={`group relative mb-[4px] flex items-stretch rounded-lg border px-[8px] py-[7px] transition-colors ${selected ? 'border-line-strong bg-surface-active' : 'border-transparent hover:bg-surface-active'}`}>
-      <button className="flex min-w-0 flex-1 items-center gap-[9px] border-0 bg-transparent p-0 text-left" onClick={onEdit} title={provider.label || provider.config.model || '未命名连接'}>
-        <span className={`h-[7px] w-[7px] flex-none rounded-full ${running ? 'bg-brand-bright' : 'bg-transparent'}`} title={running ? '运行中' : undefined} />
-        <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-[6px]">
-            <span className="min-w-0 truncate text-base font-medium text-ink">{provider.label || provider.config.model || '未命名连接'}</span>
-            {dirty && <span className="h-[5px] w-[5px] flex-none rounded-full bg-warning" title="有未保存更改" />}
-          </span>
-          <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">{meta}</span>
-          {running && <span className="mt-[1px] block text-2xs text-brand">{provider.config.provider === Provider.ProviderLocal ? '已加载' : '运行中'}</span>}
+    <div role="listitem" className="border-b border-line-soft last:border-b-0">
+    <button
+      className="group flex min-h-[56px] w-full items-center gap-[16px] border-0 bg-transparent px-0 py-[10px] text-left"
+      onClick={onEdit}
+      title={name}
+    >
+      <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+        <span className="flex min-w-0 items-center gap-[6px]">
+          <span className="min-w-0 truncate text-base text-ink group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-[3px]">{name}</span>
+          {attention && <span className="h-[6px] w-[6px] flex-none rounded-full bg-warning" title="有未保存更改" />}
         </span>
-      </button>
-      {/* 行上只留「⋯」（删除）：悬停时不再挤掉名称，也没有一碰就切换模型的按钮。 */}
-      <div className="flex flex-none items-center">
-        <button className="grid h-[24px] w-[24px] place-items-center border-0 bg-transparent text-ink-muted opacity-0 transition-opacity hover:text-ink focus-visible:opacity-100 group-hover:opacity-100" aria-label={`更多操作 ${provider.label || ''}`} onClick={onToggleMenu}><MoreHorizontal size={14} /></button>
-      </div>
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 z-[10]" onClick={onCloseMenu} aria-hidden="true" />
-          <div role="menu" className="absolute right-[6px] top-[30px] z-[20] flex min-w-[140px] flex-col rounded-lg border border-line-strong bg-paper-wash p-[4px] shadow-pop">
-            <button role="menuitem" className="flex items-center gap-[7px] rounded-md border-0 bg-transparent px-[8px] py-[6px] text-left text-xs text-danger hover:bg-danger-wash" onClick={onDelete}><Trash2 size={13} />删除连接</button>
-          </div>
-        </>
-      )}
+        <span className="truncate text-sm text-ink-muted">{subtitle}</span>
+      </span>
+      {running && <RunningBadge>{isLocal ? '已加载' : '运行中'}</RunningBadge>}
+      <ChevronRight size={15} className="flex-none text-ink-ghost transition-colors group-hover:text-ink-muted" />
+    </button>
     </div>
   )
 }
-

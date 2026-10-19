@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Events } from '@wailsio/runtime'
-import { Check, RefreshCw, RotateCcw, Trash2, Upload } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import type { AdapterEntry, AdapterListing } from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
-import { Button, Field, GroupTitle } from './ui'
-import { Select } from './Select'
+import { Button, TextInput } from './ui'
+import { MissingCurrent, ServerFiles } from './ServerFiles'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -125,119 +125,43 @@ export default function AdapterSection({ manager }: Props) {
   const busy = loading || uploading !== null
 
   return (
-    <section className="pb-[24px]">
-      <GroupTitle title="MiSS 适配器" hint="仅 CUDA 协议 · 仅本次运行有效 · 可与 State 同时使用 · 服务端重启后清空" />
-
-      {/* 选择只在本次运行有效、不进档案：只有这个连接正在运行时才能选，平时在对话页的标签里选。 */}
-      {manager.draftIsRunning ? (
-      <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
-        当前适配器
-        <Select
-          label="当前 MiSS 适配器"
-          className="h-[40px] w-full"
-          value={current}
-          onChange={manager.setAdapterId}
-          options={[
-            { value: '', label: '基模（不使用适配器）' },
-            ...adapters.map((entry) => ({ value: entry.id, label: adapterLabel(entry) })),
-            ...(current !== '' && !currentOnServer ? [{ value: current, label: `${current}${listing ? '（服务器上已不存在）' : ''}` }] : []),
-          ]}
-        />
-      </label>
-      ) : (
-        <p className="mb-0 mt-[8px] text-xs leading-[1.65] text-ink-muted">选择适配器只在本次运行有效，不会存进档案；在对话页输入框上方的标签里选。这里可以先上传、管理服务器上的文件。</p>
-      )}
-
-      {currentMissing && (
-        <div role="alert" className="mt-[10px] border-l-2 border-warning bg-paper-soft px-[10px] py-[8px] text-xs leading-[1.65] text-ink-soft">
-          <p className="m-0">适配器 <span className="font-mono">{current}</span> 已不在服务器上，通常是服务端重启清空了注册。连接时会被拒绝。</p>
-          <div className="mt-[7px] flex flex-wrap gap-[8px]">
+    <div>
+      <ServerFiles
+        noun="适配器"
+        items={adapters.map((entry) => ({
+          id: entry.id,
+          title: entry.id,
+          meta: [entry.version ? shortVersion(entry.version) : '', entry.rank ? `rank ${entry.rank}` : '', entry.alpha ? `alpha ${entry.alpha}` : '', entry.versions > 1 ? `${entry.versions} 个版本` : '', entry.localPath ? baseName(entry.localPath) : ''].filter(Boolean).join(' · '),
+          metaTitle: [entry.versions > 1 ? '有多个版本时生成用最新注册的' : '', entry.localPath ? `本机上传：${entry.localPath}` : ''].filter(Boolean).join('\n') || undefined,
+        }))}
+        missing={missing.map((entry) => ({ id: entry.id, title: `${entry.id} · ${baseName(entry.localPath || '')}`, canReupload: Boolean(entry.localAvailable && entry.localPath) }))}
+        current={current}
+        selectable={manager.draftIsRunning}
+        alert={currentMissing && (
+          <MissingCurrent actions={<>
             {currentRecord?.localAvailable && currentRecord.localPath && (
-              <Button variant="primary" size="sm" disabled={busy} onClick={() => void upload(currentRecord.id, currentRecord.localPath!)}>
-                <RotateCcw size={12} />重新上传 {baseName(currentRecord.localPath)}
-              </Button>
+              <Button variant="primary" size="sm" icon={<RotateCcw size={12} />} disabled={busy} onClick={() => void upload(currentRecord.id, currentRecord.localPath!)}>重新上传 {baseName(currentRecord.localPath)}</Button>
             )}
             <Button size="sm" onClick={() => manager.setAdapterId('')}>改回基模</Button>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-[12px] flex items-center gap-[8px]">
-        <Button disabled={!endpointReady || busy} onClick={() => void chooseFile()}>
-          <Upload size={14} />上传 .pth…
-        </Button>
-        <Button variant="ghost" className="text-brand hover:text-brand" disabled={!endpointReady || busy} onClick={() => void refresh()} aria-label="刷新适配器列表">
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />刷新
-        </Button>
-        <span role="status" aria-live="polite" className="min-w-0 flex-1 truncate text-right text-xs text-ink-muted">
-          {!endpointReady ? '先填写 API 地址' : uploading ? `正在上传 ${uploading.name} · ${uploading.percent}%` : loading ? '正在读取服务器列表…' : listing ? `服务器上共 ${adapters.length} 个适配器` : ''}
-        </span>
-      </div>
-      {uploading && (
-        <div className="mt-[6px] h-[3px] w-full bg-line-soft"><div className="h-full bg-brand transition-[width] duration-200" style={{ width: `${uploading.percent}%` }} /></div>
-      )}
-
+          </>}>正在用的适配器已不在服务器上（服务端重启会清空），连接时会被拒绝。</MissingCurrent>
+        )}
+        onUse={manager.setAdapterId}
+        onDelete={(id) => { const entry = adapters.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: true }) }}
+        onReupload={(id) => { const entry = missing.find((item) => item.id === id); if (entry?.localPath) void upload(entry.id, entry.localPath) }}
+        onForget={(id) => { const entry = missing.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: false }) }}
+        upload={{ ready: endpointReady, busy, loading, uploading, error, notice, onUpload: () => void chooseFile(), onRefresh: () => void refresh() }}
+      />
       {pending && !uploading && (
-        <div className="mt-[8px] border-l-2 border-line bg-paper-soft px-[10px] pb-[6px] pt-[8px]">
-          <p className="m-0 mb-[4px] truncate text-xs text-ink-soft" title={pending.file.kind === 'path' ? pending.file.path : undefined}>文件：<span className="font-mono">{pending.file.name}</span></p>
-          <div className="flex items-end gap-[8px]">
-            <div className="flex-1"><Field label="适配器 ID" value={pending.id} onChange={(id) => setPending({ ...pending, id })} placeholder="r16-lr3e-5" /></div>
-            <Button variant="primary" className="mb-[6px] h-[40px]" disabled={!pending.id.trim() || busy} onClick={() => void upload(pending.id, pending.file)}>上传</Button>
-            <Button variant="ghost" className="mb-[6px] h-[40px]" onClick={() => setPending(null)}>取消</Button>
+        <div className="mt-[10px] border-t border-line-soft pt-[10px]">
+          <p className="m-0 mb-[6px] truncate text-sm text-ink-muted" title={pending.file.kind === 'path' ? pending.file.path : undefined}>{pending.file.name} · 生成时按 ID 选用，重复的 ID 会成为新版本</p>
+          <div className="flex items-center gap-[8px]">
+            <TextInput label="适配器 ID" className="flex-1" value={pending.id} onChange={(id) => setPending({ ...pending, id })} placeholder="r16-lr3e-5" />
+            <Button variant="primary" disabled={!pending.id.trim() || busy} onClick={() => void upload(pending.id, pending.file)}>上传</Button>
+            <Button variant="ghost" onClick={() => setPending(null)}>取消</Button>
           </div>
-          <p className="m-0 text-2xs text-ink-muted">生成时按这个 ID 选用；用已有的 ID 上传会成为它的新版本。</p>
         </div>
       )}
 
-      {error && <p role="alert" className="mb-0 mt-[8px] text-xs leading-[1.6] text-danger">{error}</p>}
-      {notice && !error && <p className="mb-0 mt-[8px] text-xs text-brand">{notice}</p>}
-
-      {adapters.length > 0 && (
-        <ul aria-label="服务器上的 MiSS 适配器" className="m-0 mt-[12px] list-none border-t border-line-soft p-0">
-          {adapters.map((entry) => {
-            const selected = entry.id === current
-            const origin = entry.localPath ? `本机上传：${entry.localPath}` : ''
-            return (
-              <li key={entry.id} className={`flex items-center gap-[10px] border-b border-line-soft px-[4px] py-[9px] ${selected ? 'bg-brand-wash' : ''}`}>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <span className="flex min-w-0 items-baseline gap-[8px]">
-                    <span className="truncate font-mono text-sm font-medium text-ink">{entry.id}</span>
-                    {entry.version && <span className="flex-none font-mono text-2xs text-ink-muted" title={entry.version}>{shortVersion(entry.version)}</span>}
-                  </span>
-                  <span className="truncate text-2xs text-ink-muted" title={origin || undefined}>
-                    {[entry.rank ? `rank ${entry.rank}` : '', entry.alpha ? `alpha ${entry.alpha}` : '', entry.versions > 1 ? `${entry.versions} 个版本，生成用最新注册的` : '', origin].filter(Boolean).join(' · ')}
-                  </span>
-                </div>
-                {selected ? (
-                  <span className="flex flex-none items-center gap-[4px] text-xs text-brand"><Check size={12} />使用中</span>
-                ) : (
-                  <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-brand" onClick={() => manager.setAdapterId(entry.id)}>使用</button>
-                )}
-                <button className="grid h-[28px] w-[28px] flex-none place-items-center border-0 bg-transparent text-ink-muted hover:text-danger" aria-label={`删除适配器 ${entry.id}`} title="从服务器删除注册" onClick={() => setPendingDelete({ entry, serverSide: true })}><Trash2 size={14} /></button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-
-      {missing.length > 0 && (
-        <details className="mt-[12px] text-xs text-ink-muted">
-          <summary className="cursor-pointer select-none">本机上传过、服务器上已不存在（{missing.length}）</summary>
-          <ul className="m-0 mt-[6px] list-none p-0">
-            {missing.map((entry) => (
-              <li key={entry.id} className="flex items-center gap-[10px] border-b border-line-soft px-[4px] py-[7px]">
-                <span className="min-w-0 flex-1 truncate" title={entry.localPath || undefined}>
-                  <span className="font-mono">{entry.id}</span> · {baseName(entry.localPath || '')}{entry.localAvailable ? '' : ' · 本地文件已不存在'}
-                </span>
-                {entry.localAvailable && entry.localPath && (
-                  <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-brand disabled:opacity-50" disabled={busy} onClick={() => void upload(entry.id, entry.localPath!)}>重新上传</button>
-                )}
-                <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-ink-muted" onClick={() => setPendingDelete({ entry, serverSide: false })}>忘记</button>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
 
       <ConfirmDialog
         open={pendingDelete !== null}
@@ -251,12 +175,8 @@ export default function AdapterSection({ manager }: Props) {
         ]}
         onClose={() => setPendingDelete(null)}
       />
-    </section>
+    </div>
   )
-}
-
-function adapterLabel(entry: AdapterEntry): string {
-  return entry.version ? `${entry.id} · ${shortVersion(entry.version)}` : entry.id
 }
 
 function shortVersion(version: string): string {

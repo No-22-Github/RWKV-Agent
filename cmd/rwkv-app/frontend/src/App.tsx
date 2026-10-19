@@ -393,7 +393,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section) => { setRunConfigOpen(false); manager.openSettings(section) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section, options) => { setRunConfigOpen(false); manager.openSettings(section, options) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
@@ -653,7 +653,14 @@ function IconButton({ label, disabled, onClick, children }: { label: string; dis
 }
 
 function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, onStop, onKeyDown }: { chips: React.ReactNode; prompt: string; setPrompt: (value: string) => void; busy: boolean; running?: boolean; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
-  function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
+  // 高度跟随 prompt 重算：发送清空、切换对话、点快速开始都会改 prompt 而不触发 onChange。
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const element = textareaRef.current
+    if (!element) return
+    element.style.height = 'auto'
+    element.style.height = `${Math.min(element.scrollHeight, 180)}px`
+  }, [prompt])
   // 问候与快速开始都在流外(absolute)：输入框尺寸恒定，空↔对话仅位移，不改尺寸。
   return <div className="composer">
     <div className="relative min-w-0">
@@ -666,7 +673,7 @@ function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, on
       {/* 输入框上方的运行标签：模型、State、能力、工作区 */}
       <div className="mb-[8px]">{chips}</div>
       <div data-running={running || undefined} className="composer-box data-running:running-ring relative flex min-h-[52px] min-w-0 items-end rounded-lg border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
-        <textarea aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.4] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+        <textarea ref={textareaRef} aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.4] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => setPrompt(event.target.value)} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-center p-[12px_12px_12px_6px]">
           {busy || running
             // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。

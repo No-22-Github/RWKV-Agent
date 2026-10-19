@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Events } from '@wailsio/runtime'
-import { Check, RefreshCw, RotateCcw, Trash2, Upload } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import type { StateEntry, StateListing } from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
-import { Button, GroupTitle } from './ui'
-import { Select } from './Select'
+import { Button } from './ui'
+import { MissingCurrent, ServerFiles } from './ServerFiles'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -124,107 +124,32 @@ export default function StateSection({ manager }: Props) {
   const busy = loading || uploading !== null
 
   return (
-    <section className="pb-[24px]">
-      <GroupTitle title="State" hint="仅 CUDA 协议 · 仅本次运行有效 · 整台部署共享 · 服务端重启后清空" />
-
-      {/* 选择只在本次运行有效、不进档案：只有这个连接正在运行时才能选，平时在对话页的标签里选。 */}
-      {manager.draftIsRunning ? (
-      <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
-        当前 State
-        <Select
-          label="当前 State"
-          className="h-[40px] w-full"
-          value={current}
-          onChange={manager.setStateId}
-          options={[
-            { value: '', label: '零状态（不使用 State）' },
-            ...states.map((entry) => ({ value: entry.id, label: stateLabel(entry) })),
-            ...(current !== '' && !currentOnServer ? [{ value: current, label: `${currentRecord ? stateLabel(currentRecord) : current}${listing ? '（服务器上已不存在）' : ''}` }] : []),
-          ]}
-        />
-      </label>
-      ) : (
-        <p className="mb-0 mt-[8px] text-xs leading-[1.65] text-ink-muted">选择 State 只在本次运行有效，不会存进档案；在对话页输入框上方的标签里选。这里可以先上传、管理服务器上的文件。</p>
-      )}
-
-      {currentMissing && (
-        <div role="alert" className="mt-[10px] border-l-2 border-warning bg-paper-soft px-[10px] py-[8px] text-xs leading-[1.65] text-ink-soft">
-          <p className="m-0">State <span className="font-mono">{current}</span> 已不在服务器上，通常是服务端重启清空了上传目录。连接时会被拒绝。</p>
-          <div className="mt-[7px] flex flex-wrap gap-[8px]">
+    <div>
+      <ServerFiles
+        noun="State"
+        items={states.map((entry) => ({
+          id: entry.id,
+          title: entry.filename || entry.id,
+          meta: [formatBytes(entry.sizeBytes), formatTime(entry.created), entry.id !== entry.filename ? entry.id : ''].filter(Boolean).join(' · '),
+          metaTitle: entry.localPath ? `本机上传：${entry.localPath}` : undefined,
+        }))}
+        missing={missing.map((entry) => ({ id: entry.id, title: entry.filename || entry.id, canReupload: Boolean(entry.localAvailable && entry.localPath) }))}
+        current={current}
+        selectable={manager.draftIsRunning}
+        alert={currentMissing && (
+          <MissingCurrent actions={<>
             {currentRecord?.localAvailable && currentRecord.localPath && (
-              <Button variant="primary" size="sm" disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>
-                <RotateCcw size={12} />重新上传 {baseName(currentRecord.localPath)}
-              </Button>
+              <Button variant="primary" size="sm" icon={<RotateCcw size={12} />} disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>重新上传 {baseName(currentRecord.localPath)}</Button>
             )}
             <Button size="sm" onClick={() => manager.setStateId('')}>改回零状态</Button>
-          </div>
-          {currentRecord && !currentRecord.localAvailable && currentRecord.localPath && <p className="mb-0 mt-[6px] text-ink-muted">本机记录的文件已找不到：<span className="font-mono">{currentRecord.localPath}</span></p>}
-        </div>
-      )}
-
-      <div className="mt-[12px] flex items-center gap-[8px]">
-        <Button disabled={!endpointReady || busy} onClick={() => void chooseAndUpload()}>
-          <Upload size={14} />上传 .pth…
-        </Button>
-        <Button variant="ghost" className="text-brand hover:text-brand" disabled={!endpointReady || busy} onClick={() => void refresh()} aria-label="刷新 State 列表">
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />刷新
-        </Button>
-        <span role="status" aria-live="polite" className="min-w-0 flex-1 truncate text-right text-xs text-ink-muted">
-          {!endpointReady ? '先填写 API 地址' : uploading ? `正在上传 ${uploading.name} · ${uploading.percent}%` : loading ? '正在读取服务器列表…' : listing ? `服务器上共 ${states.length} 个 State` : ''}
-        </span>
-      </div>
-      {uploading && (
-        <div className="mt-[6px] h-[3px] w-full bg-line-soft"><div className="h-full bg-brand transition-[width] duration-200" style={{ width: `${uploading.percent}%` }} /></div>
-      )}
-
-      {error && <p role="alert" className="mb-0 mt-[8px] text-xs leading-[1.6] text-danger">{error}</p>}
-      {notice && !error && <p className="mb-0 mt-[8px] text-xs text-brand">{notice}</p>}
-
-      {states.length > 0 && (
-        <ul aria-label="服务器上的 State" className="m-0 mt-[12px] list-none border-t border-line-soft p-0">
-          {states.map((entry) => {
-            const selected = entry.id === current
-            return (
-              <li key={entry.id} className={`flex items-center gap-[10px] border-b border-line-soft px-[4px] py-[9px] ${selected ? 'bg-brand-wash' : ''}`}>
-                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                  <span className="flex min-w-0 items-baseline gap-[8px]">
-                    <span className="truncate text-sm font-medium text-ink">{entry.filename || '（无文件名）'}</span>
-                    {entry.id !== entry.filename && <span className="flex-none font-mono text-2xs text-ink-muted">{entry.id}</span>}
-                  </span>
-                  <span className="truncate text-2xs text-ink-muted" title={entry.localPath || undefined}>
-                    {formatBytes(entry.sizeBytes)} · {entry.tensorCount} tensors · {formatTime(entry.created)}{entry.localPath ? ` · 本机上传：${entry.localPath}` : ''}
-                  </span>
-                </div>
-                {selected ? (
-                  <span className="flex flex-none items-center gap-[4px] text-xs text-brand"><Check size={12} />使用中</span>
-                ) : (
-                  <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-brand" onClick={() => manager.setStateId(entry.id)}>使用</button>
-                )}
-                <button className="grid h-[28px] w-[28px] flex-none place-items-center border-0 bg-transparent text-ink-muted hover:text-danger" aria-label={`删除 State ${entry.id}`} title="从服务器删除" onClick={() => setPendingDelete({ entry, serverSide: true })}><Trash2 size={14} /></button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-
-      {missing.length > 0 && (
-        <details className="mt-[12px] text-xs text-ink-muted">
-          <summary className="cursor-pointer select-none">本机上传过、服务器上已不存在（{missing.length}）</summary>
-          <ul className="m-0 mt-[6px] list-none p-0">
-            {missing.map((entry) => (
-              <li key={entry.id} className="flex items-center gap-[10px] border-b border-line-soft px-[4px] py-[7px]">
-                <span className="min-w-0 flex-1 truncate" title={entry.localPath || undefined}>
-                  <span className="font-mono">{entry.id}</span> · {entry.filename}{entry.localAvailable ? '' : ' · 本地文件已不存在'}
-                </span>
-                {entry.localAvailable && entry.localPath && (
-                  <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-brand disabled:opacity-50" disabled={busy} onClick={() => void upload(entry.localPath!, entry.id)}>重新上传</button>
-                )}
-                <button className="flex-none border-0 bg-transparent px-[6px] text-xs text-ink-muted" onClick={() => setPendingDelete({ entry, serverSide: false })}>忘记</button>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
+          </>}>正在用的 State 已不在服务器上（服务端重启会清空），连接时会被拒绝。</MissingCurrent>
+        )}
+        onUse={manager.setStateId}
+        onDelete={(id) => { const entry = states.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: true }) }}
+        onReupload={(id) => { const entry = missing.find((item) => item.id === id); if (entry?.localPath) void upload(entry.localPath, entry.id) }}
+        onForget={(id) => { const entry = missing.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: false }) }}
+        upload={{ ready: endpointReady, busy, loading, uploading, error, notice, onUpload: () => void chooseAndUpload(), onRefresh: () => void refresh() }}
+      />
 
       <ConfirmDialog
         open={pendingDelete !== null}
@@ -238,14 +163,8 @@ export default function StateSection({ manager }: Props) {
         ]}
         onClose={() => setPendingDelete(null)}
       />
-    </section>
+    </div>
   )
-}
-
-/* 部分部署直接用文件名当 state_id，两者相同时只显示一次。 */
-function stateLabel(entry: StateEntry): string {
-  if (!entry.filename || entry.filename === entry.id) return entry.id
-  return `${entry.filename} · ${entry.id}`
 }
 
 function formatBytes(value: number): string {

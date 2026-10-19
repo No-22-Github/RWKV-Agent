@@ -101,9 +101,23 @@ function openSettings() {
   fireEvent.click(screen.getByRole('button', { name: '设置' }))
 }
 
+/* 连接分区先显示列表：有已保存档案时点进正在编辑的那一行（默认是运行中的），新建草稿本来就在详情里。 */
+function openDetail() {
+  if (screen.queryByRole('tablist', { name: '连接详情' })) return
+  const list = screen.getByRole('list', { name: /列表$/ })
+  fireEvent.click(within(list).getAllByRole('button')[0])
+}
+
 /* 生成参数与 Agent 是「模型」分区里连接详情的两个标签。 */
 function openSettingsSection(name: string) {
+  openDetail()
   fireEvent.click(screen.getByRole('tab', { name }))
+}
+
+/* 请求头、State 这类不常改的项收在「高级」的折叠行里。 */
+function expandDisclosure(label: string) {
+  const button = screen.getByRole('button', { name: new RegExp(`^${label}`) })
+  if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button)
 }
 
 /* 网页与子 Agent 开关在连接详情的「工具」标签。 */
@@ -156,6 +170,7 @@ async function waitRuntimeReady() {
 
 /* 新建连接默认就在「远端连接」分区：不再有远端/本地切换，这里只确认表单是远端的。 */
 function switchToRemoteProvider() {
+  openDetail()
   expect(screen.getByLabelText('API 地址')).toBeInTheDocument()
 }
 
@@ -233,6 +248,7 @@ describe('App', () => {
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
+    expandDisclosure('请求头')
     fireEvent.click(screen.getByRole('button', { name: '添加请求头' }))
     fireEvent.change(screen.getByLabelText('Header 名称'), { target: { value: 'CF-Access-Client-Id' } })
     fireEvent.change(screen.getByLabelText('Header 值'), { target: { value: 'secret' } })
@@ -402,8 +418,9 @@ describe('App', () => {
     openSettings()
     switchToRemoteProvider()
     openParametersSection()
-    // 预览默认展开：设置页打开即按当前草稿拉取。
-    expect(screen.getByRole('button', { name: '预览系统提示词' })).toHaveTextContent('收起')
+    // 预览默认收起，展开时才按当前草稿拉取。
+    expect(screen.getByRole('button', { name: /^系统提示词预览/ })).toHaveAttribute('aria-expanded', 'false')
+    expandDisclosure('系统提示词预览')
 
     expect(await screen.findByText(/You are a local-first assistant/)).toBeInTheDocument()
     expect(screen.getByText(/协议 rwkv-g1-envelope-v1/)).toBeInTheDocument()
@@ -420,6 +437,7 @@ describe('App', () => {
     openSettings()
     switchToRemoteProvider()
     openParametersSection()
+    expandDisclosure('系统提示词预览')
     const toggle = screen.getByRole('checkbox', { name: '注入会话启动时间' })
     expect(toggle).not.toBeChecked()
     expect(await screen.findByText('原有系统提示词')).toBeInTheDocument()
@@ -442,7 +460,8 @@ describe('App', () => {
     const select = screen.getByLabelText('格式预设')
     expect(select).toHaveAttribute('data-value', 'standard')
     fireEvent.click(select)
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
+    // 选项第一行是名称，第二行是用途说明（hint）。
+    expect(screen.getAllByRole('option').map((option) => option.firstElementChild?.firstElementChild?.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
     fireEvent.click(select)
     chooseOption('格式预设', 'think')
     expect(select).toHaveAttribute('data-value', 'think')
@@ -568,7 +587,7 @@ describe('App', () => {
     expect(await screen.findByText('未保存更改')).toBeInTheDocument()
   })
 
-  it('keeps the running badge on the list row while editing another profile', async () => {
+  it('marks only the running profile in the list and opens others without the badge', async () => {
     const runtime = savedRemoteProvider({}, { id: 'runtime-provider', label: 'Runtime connection' })
     const backup = savedRemoteProvider({
       endpoint: 'https://backup.example.test',
@@ -597,12 +616,16 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
-    fireEvent.click(screen.getByRole('button', { name: /^Backup connection/ }))
+    // 设置打开先看列表：运行中的那一行带徽标，其他行没有。
+    const list = screen.getByRole('list', { name: '远端连接列表' })
+    expect(within(list).getByRole('button', { name: /^Runtime connection/ })).toHaveTextContent('运行中')
+    expect(within(list).getByRole('button', { name: /^Backup connection/ })).not.toHaveTextContent('运行中')
+    fireEvent.click(within(list).getByRole('button', { name: /^Backup connection/ }))
 
     expect(screen.getByLabelText('连接名称')).toHaveValue('Backup connection')
-    expect(screen.getByText('当前运行：').parentElement).toHaveTextContent('Runtime connection')
-    expect(screen.getByText('运行中')).toBeInTheDocument()
-    expect(screen.getByText('已保存')).toBeInTheDocument()
+    expect(screen.queryByText('运行中')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
+    expect(await screen.findByRole('button', { name: /^Runtime connection/ })).toHaveTextContent('运行中')
   })
 
   it('auto-saves a valid edit before switching profiles instead of asking', async () => {
@@ -619,8 +642,10 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
+    openDetail()
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'edited-model' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Second connection/ }))
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('first-provider')
@@ -642,14 +667,16 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
+    openDetail()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'not a url' } })
     expect(screen.getByLabelText('API 地址')).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByText('API 地址必须是 http:// 或 https:// 开头的完整地址')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
 
     const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
     expect(within(dialog).queryByRole('button', { name: '保存' })).not.toBeInTheDocument()
     fireEvent.click(within(dialog).getByRole('button', { name: '放弃更改' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Second connection/ }))
     expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
     expect(Backend.SaveProvider).not.toHaveBeenCalled()
   })
@@ -699,6 +726,8 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openParametersSection()
+    expandDisclosure('系统提示词预览')
     await waitFor(() => expect(Backend.PreviewSystemPrompt).toHaveBeenCalled())
     const draft = vi.mocked(Backend.PreviewSystemPrompt).mock.calls[0][0]
     expect(draft.profile).toBeUndefined()
@@ -825,9 +854,11 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     expect(screen.getByLabelText('连接名称')).toHaveValue('')
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'next-model' } })
-    expect(screen.getByRole('button', { name: /^next-model · saved\.example\.test/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
+    expect(await screen.findByRole('button', { name: /^next-model · saved\.example\.test/ })).toBeInTheDocument()
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
     // 空名称交给后端按新模型重新派生。
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe(provider.id)
@@ -839,14 +870,13 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     expect(screen.queryByRole('button', { name: '保存' })).not.toBeInTheDocument()
     // 运行中的档案没有可点的主按钮，只显示状态。
     expect(screen.queryByRole('button', { name: '使用此连接' })).not.toBeInTheDocument()
     expect(screen.getAllByText('运行中').length).toBeGreaterThan(0)
 
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv-live-edit' } })
-    // 列表行立即跟随草稿，不等落盘。
-    expect(screen.getByRole('button', { name: /^Saved connection/ })).toHaveTextContent('Saved connection')
     expect(screen.getByText('待保存…')).toBeInTheDocument()
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
@@ -861,8 +891,10 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Renamed connection' } })
-    expect(screen.getByRole('button', { name: /^Renamed connection/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
+    expect(await screen.findByRole('button', { name: /^Renamed connection/ })).toBeInTheDocument()
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][1]).toBe('Renamed connection')
@@ -874,6 +906,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://user:pw@host.test' } })
     expect(await screen.findByText(/未保存：API 地址不能内嵌账号密码/)).toBeInTheDocument()
     // 远端档案没有切换按钮：这里只确认没有偷偷保存或重连。
@@ -888,6 +921,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'duplicate-model' } })
     expect(await screen.findByText(/保存失败：another provider profile/, undefined, { timeout: 3000 })).toBeInTheDocument()
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -926,6 +960,8 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '本地推理' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('button', { name: /^Local model/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Remote connection/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Local model/ })).toHaveTextContent('已加载')
+    openDetail()
     fireEvent.click(screen.getByRole('button', { name: '释放模型' }))
     await waitFor(() => expect(Backend.UnloadModel).toHaveBeenCalledOnce())
   })
@@ -949,6 +985,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
+    openDetail()
     expect(screen.getByText('已加载 · 待重新加载')).toBeInTheDocument()
     expect(screen.getByText(/本地模型仍在用旧配置运行/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '重新加载模型' }))
@@ -1120,10 +1157,14 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
+    openDetail()
 
     expect(screen.getByLabelText('API 地址')).toHaveValue('https://saved.example.test')
     expect(screen.getByLabelText('模型 ID')).toHaveValue('saved-model')
     expect(screen.getByLabelText(/服务密码/)).toHaveValue('saved-password')
+    // 请求头收在折叠行里，摘要只露名称不露值。
+    expect(screen.getByRole('button', { name: /^请求头/ })).toHaveTextContent('X-Service-Key')
+    expandDisclosure('请求头')
     expect(screen.getByLabelText('Header 名称')).toHaveValue('X-Service-Key')
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')

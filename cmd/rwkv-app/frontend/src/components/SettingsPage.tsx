@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bot, Cloud, Cpu, Palette, Settings2, X } from 'lucide-react'
 import type { Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
-import { kindOf, type ProviderManager, type SettingsSection } from '../state/providerManager'
+import { type ProviderManager, type SettingsSection } from '../state/providerManager'
 import type { ThemePreference } from '../theme'
 import ConfirmDialog, { type ConfirmAction } from './ConfirmDialog'
 import ConnectionsSection from './settings/ConnectionsSection'
@@ -80,7 +80,12 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
       setPendingSection(next)
       return
     }
-    if (kind) manager.focusKind(kind)
+    if (kind) {
+      // 换到另一类档案从列表开始（那一类一个都没有时直接进新建草稿）；回到同一类则停在原来的列表或详情。
+      const sameKind = kind === manager.settingsTab
+      const target = manager.focusKind(kind)
+      if (!sameKind) manager.setSettingsDetail(target === 'new')
+    }
     manager.setSettingsSection(next)
   }
   async function resolveSection(action: 'save' | 'discard') {
@@ -92,7 +97,7 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
     } else {
       manager.discardDraft()
     }
-    manager.focusKind(next === '本地推理' ? 'local' : 'remote', true)
+    manager.setSettingsDetail(manager.focusKind(next === '本地推理' ? 'local' : 'remote', true) === 'new')
     manager.setSettingsSection(next)
   }
 
@@ -107,7 +112,6 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
     manager.setSettingsOpen(false)
   }
 
-  const runtime = manager.providers.find((provider) => provider.id === manager.runtimeProviderId)
   const draftSection: SettingsSection = manager.settingsTab === 'local' ? '本地推理' : '远端连接'
   const connectionSection = section === '远端连接' || section === '本地推理'
   const creating = manager.editingProviderId === ''
@@ -135,14 +139,14 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
         tabIndex={-1}
         className="flex h-[min(780px,100%)] w-[min(1140px,100%)] animate-sheet-in overflow-hidden rounded-xl border border-line bg-paper text-ink shadow-pop outline-0 motion-reduce:animate-none"
       >
-        <aside className="flex w-[184px] flex-none flex-col border-r border-line bg-paper-sidebar py-[16px]">
-          <div className="px-[20px] pb-[14px] text-lg font-semibold">设置</div>
+        <aside className="flex w-[200px] flex-none flex-col border-r border-line bg-paper-sidebar px-[10px] py-[18px]">
+          <div className="px-[10px] pb-[14px] text-md font-semibold text-ink">设置</div>
           <nav aria-label="设置分区" className="flex flex-col gap-[2px]">
             {NAV_ITEMS.map(({ id, icon }) => (
               <button
                 key={id}
                 aria-current={section === id ? 'page' : undefined}
-                className={`mx-[10px] flex items-center gap-[9px] rounded-md px-[10px] py-[7px] text-left text-base transition-colors ${section === id ? 'bg-surface-active font-medium text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`}
+                className={`flex h-[34px] items-center gap-[10px] rounded-md border-0 px-[10px] text-left text-base transition-colors ${section === id ? 'bg-surface-active font-medium text-ink' : 'bg-transparent text-ink-soft hover:bg-surface-active hover:text-ink'}`}
                 onClick={() => void requestSection(id)}
               >
                 <span className="flex-none text-ink-muted">{icon}</span>
@@ -153,25 +157,9 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
           </nav>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-[52px] flex-none items-center justify-between gap-[16px] border-b border-line pl-[24px] pr-[12px]">
-            <span className="text-md font-semibold">{section}</span>
-            <span className="flex min-w-0 items-center gap-[12px]">
-              {connectionSection && (
-                <span className="flex min-w-0 items-center gap-[7px] text-2xs text-ink-muted">
-                  {ready && runtime ? (
-                    <>
-                      <span className="h-[6px] w-[6px] flex-none rounded-full bg-brand-bright" />
-                      当前运行{kindOf(runtime.config) === 'local' ? '（本地）' : ''}：<span className="min-w-0 truncate font-medium text-ink-soft">{runtime.label || runtime.config.model || '未命名连接'}</span>
-                    </>
-                  ) : (
-                    '当前没有运行的模型'
-                  )}
-                </span>
-              )}
-              <button className="grid h-[30px] w-[30px] flex-none place-items-center rounded-md border-0 bg-transparent text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" aria-label="关闭设置" title="关闭（Esc）" onClick={() => void requestClose()}><X size={16} /></button>
-            </span>
-          </header>
+        {/* 内容区没有自己的页头：标题就是各分区的第一个 Section 或详情页的名称；关闭按钮浮在右上角。 */}
+        <main className="relative flex min-w-0 flex-1 flex-col">
+          <button className="absolute right-[12px] top-[12px] z-[1] grid h-[30px] w-[30px] place-items-center rounded-md border-0 bg-transparent text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" aria-label="关闭设置" title="关闭（Esc）" onClick={() => void requestClose()}><X size={16} /></button>
 
           {connectionSection
             ? <ConnectionsSection key={section} kind={section === '本地推理' ? 'local' : 'remote'} manager={manager} ready={ready} onDeleteProvider={onDeleteProvider} />

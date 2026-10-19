@@ -1,7 +1,19 @@
 import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { ChevronDown, RotateCcw } from 'lucide-react'
 import type { SaveState } from '../../state/providerManager'
 
-/* 设置表单的基础控件：按钮、输入框、数字框、分段选择、开关、单行设置。所有 aria-label 供测试与读屏使用。 */
+/*
+ * 设置页的基础控件。版式只有一种：一行 = 左边标签（可带一行灰色说明）+ 右边控件，行与行之间一条细线；
+ * 若干行组成一个 Section，Section 之间靠标题和留白分开。
+ *
+ * 字号只用三档，不要在分区组件里再加第四档：
+ *   标题  text-md font-semibold text-ink        Section 标题、详情页名称、导航页头
+ *   正文  text-base text-ink                    行标签、输入框、按钮、标签页
+ *   说明  text-sm text-ink-muted                行说明、列表副标题、保存状态
+ *
+ * 说明文字是例外不是默认：只给「不看会填错」的行写，取值范围放进 title，预设的用途放进下拉选项的 hint。
+ * 所有 aria-label 供测试与读屏使用。
+ */
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
@@ -9,7 +21,7 @@ const BUTTON_VARIANT: Record<ButtonVariant, string> = {
   primary: 'border-transparent bg-brand font-medium text-brand-fg hover:opacity-90',
   secondary: 'border-line bg-paper-wash text-ink shadow-hair hover:bg-surface-active',
   ghost: 'border-transparent bg-transparent text-ink-soft hover:bg-surface-active hover:text-ink',
-  danger: 'border-danger bg-transparent text-danger hover:bg-danger-wash',
+  danger: 'border-line bg-paper-wash text-danger shadow-hair hover:border-danger hover:bg-danger-wash',
 }
 
 /*
@@ -17,7 +29,7 @@ const BUTTON_VARIANT: Record<ButtonVariant, string> = {
  * 新按钮一律用它，不要再手写 h-[..] px-[..]。
  */
 export function Button({ variant = 'secondary', size = 'md', icon, className = '', children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md'; icon?: ReactNode }) {
-  const sizing = size === 'sm' ? 'h-[28px] gap-[5px] px-[10px] text-xs' : 'h-[32px] gap-[6px] px-[12px] text-sm'
+  const sizing = size === 'sm' ? 'h-[28px] gap-[5px] px-[10px] text-sm' : 'h-[32px] gap-[6px] px-[12px] text-base'
   return (
     <button type="button" className={`inline-flex flex-none items-center justify-center whitespace-nowrap rounded-md border transition-colors disabled:pointer-events-none disabled:opacity-40 ${sizing} ${BUTTON_VARIANT[variant]} ${className}`} {...rest}>
       {icon}
@@ -26,46 +38,68 @@ export function Button({ variant = 'secondary', size = 'md', icon, className = '
   )
 }
 
-/* 字段下方的一行说明；error 优先显示。 */
-function FieldNote({ id, hint, error }: { id: string; hint?: ReactNode; error?: string }) {
-  if (error) return <span id={id} className="text-xs text-danger">{error}</span>
-  if (hint) return <span id={id} className="text-2xs leading-[1.55] text-ink-muted">{hint}</span>
-  return null
+/* 输入框本体：32px 高，和 Select、Button 对齐。宽度由调用方给。 */
+export function TextInput({ label, value, onChange, placeholder, type = 'text', list, invalid, id, describedBy, className = '' }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; invalid?: boolean; id?: string; describedBy?: string; className?: string }) {
+  const own = useId()
+  const inputId = id || own
+  return (
+    <>
+      <input
+        id={inputId}
+        aria-label={label}
+        aria-invalid={invalid ? true : undefined}
+        aria-describedby={describedBy}
+        className={`h-[32px] min-w-0 rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 transition-colors placeholder:text-ink-ghost hover:border-line-strong focus:border-brand ${invalid ? 'border-danger' : 'border-line'} ${className}`}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        list={list ? `${inputId}-list` : undefined}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      {list && list.length > 0 && <datalist id={`${inputId}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
+    </>
+  )
 }
 
-export function Field({ label, value, onChange, placeholder, type = 'text', list, error, hint, trailing }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; error?: string; hint?: ReactNode; trailing?: ReactNode }) {
-  // useId：同名字段（多行请求头）不能共用 id，否则 datalist 与错误说明会串行。
-  const id = useId()
-  const noteId = `${id}-note`
+/* 一行设置：左标签 + 说明（或错误），右控件。 */
+export function Row({ label, description, error, htmlFor, children }: { label: ReactNode; description?: ReactNode; error?: string; htmlFor?: string; children?: ReactNode }) {
+  const noteId = htmlFor ? `${htmlFor}-note` : undefined
   return (
-    <div className="flex flex-col gap-[5px] py-[6px] text-xs text-ink-muted">
-      <label htmlFor={id}>{label}</label>
-      <div className="flex items-center gap-[8px]">
-        <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error || hint ? noteId : undefined} className={`h-[40px] min-w-0 flex-1 rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
-        {trailing}
+    <div className="flex min-h-[52px] items-center gap-[24px] border-b border-line-soft py-[10px] last:border-b-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+        {htmlFor ? <label htmlFor={htmlFor} className="text-base text-ink">{label}</label> : <span className="text-base text-ink">{label}</span>}
+        {error
+          ? <span id={noteId} className="text-sm leading-[1.5] text-danger">{error}</span>
+          : description && <span id={noteId} className="text-sm leading-[1.5] text-ink-muted [overflow-wrap:anywhere]">{description}</span>}
       </div>
-      <FieldNote id={noteId} hint={hint} error={error} />
-      {list && list.length > 0 && <datalist id={`${id}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
+      {children && <div className="flex flex-none items-center gap-[8px]">{children}</div>}
     </div>
   )
 }
 
-/*
- * 数字框：标签 + 一行人话说明 + 取值范围。给了 defaultValue 且当前值不同时，
- * 标签右侧出现「恢复默认」。
- */
-export function NumberField({ label, hint, value, onChange, min, max, step = 1, defaultValue }: { label: string; hint: string; value: number; onChange: (value: number) => void; min: number; max: number; step?: number; defaultValue?: number }) {
+/* 文本行：输入框固定宽度靠右，长地址在框里横向滚动，不撑满整行。分组标题已经说明了是什么时（如「API Key」组里只写服务名），用 inputLabel 给读屏一个完整名称。 */
+export function TextRow({ label, inputLabel, description, value, onChange, placeholder, type, list, error, trailing, width = 'w-[300px]' }: { label: string; inputLabel?: string; description?: ReactNode; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; error?: string; trailing?: ReactNode; width?: string }) {
+  const id = useId()
+  return (
+    <Row label={label} description={description} error={error} htmlFor={id}>
+      <TextInput id={id} label={inputLabel || label} value={value} onChange={onChange} placeholder={placeholder} type={type} list={list} invalid={Boolean(error)} describedBy={error || description ? `${id}-note` : undefined} className={width} />
+      {trailing}
+    </Row>
+  )
+}
+
+/* 数字行：窄输入框靠右；取值范围放在悬停提示里，偏离默认值时出现「恢复默认」小按钮。 */
+export function NumberRow({ label, description, value, onChange, min, max, step = 1, defaultValue }: { label: string; description?: string; value: number; onChange: (value: number) => void; min: number; max: number; step?: number; defaultValue?: number }) {
   const id = useId()
   const changed = defaultValue !== undefined && value !== defaultValue
+  const range = `${min}–${max}${defaultValue !== undefined ? `，默认 ${defaultValue}` : ''}`
   return (
-    <div className="flex flex-col gap-[5px] text-xs text-ink-muted">
-      <div className="flex h-[18px] items-center justify-between gap-[6px]">
-        <label htmlFor={id} className="min-w-0 truncate">{label}</label>
-        {changed && <button type="button" className="flex-none border-0 bg-transparent p-0 text-2xs text-brand hover:underline" onClick={() => onChange(defaultValue)} title={`恢复为 ${defaultValue}`}>恢复默认</button>}
-      </div>
-      <input id={id} aria-label={label} aria-describedby={`${id}-note`} className="h-[36px] rounded-md border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" type="number" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
-      <span id={`${id}-note`} className="text-2xs leading-[1.55] text-ink-muted">{hint}<span className="text-ink-ghost">{` · ${min}–${max}${defaultValue !== undefined ? `，默认 ${defaultValue}` : ''}`}</span></span>
-    </div>
+    <Row label={label} description={description} htmlFor={id}>
+      {changed && (
+        <button type="button" className="grid h-[28px] w-[28px] place-items-center rounded-md border-0 bg-transparent text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" onClick={() => onChange(defaultValue)} aria-label={`${label}恢复默认`} title={`恢复为 ${defaultValue}`}><RotateCcw size={13} /></button>
+      )}
+      <input id={id} aria-label={label} title={range} className="h-[32px] w-[104px] rounded-md border border-line bg-paper-wash px-[10px] text-right text-base tabular-nums text-ink outline-0 transition-colors hover:border-line-strong focus:border-brand" type="number" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
+    </Row>
   )
 }
 
@@ -79,7 +113,7 @@ export function Segmented<T extends string>({ label, value, onChange, options }:
           type="button"
           role="radio"
           aria-checked={value === option.value}
-          className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[10px] text-xs transition-colors ${value === option.value ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted hover:text-ink'}`}
+          className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[10px] text-sm transition-colors ${value === option.value ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted hover:text-ink'}`}
           onClick={() => onChange(option.value)}
         >{option.icon}{option.label}</button>
       ))}
@@ -88,10 +122,10 @@ export function Segmented<T extends string>({ label, value, onChange, options }:
 }
 
 const SAVE_STATE_TONE: Record<SaveState['kind'], string> = {
-  idle: 'text-ink-ghost',
+  idle: 'text-ink-muted',
   pending: 'text-ink-muted',
   saving: 'text-ink-muted',
-  saved: 'text-ink-ghost',
+  saved: 'text-ink-muted',
   invalid: 'text-warning',
   error: 'text-danger',
 }
@@ -100,44 +134,76 @@ const SAVE_STATE_TONE: Record<SaveState['kind'], string> = {
 export function SaveStatus({ state }: { state: SaveState }) {
   const text = state.kind === 'invalid' ? `未保存：${state.message}` : state.message || ''
   return (
-    <span role="status" aria-live="polite" className={`min-w-0 truncate font-mono text-2xs ${SAVE_STATE_TONE[state.kind]}`} title={text || undefined}>{text}</span>
+    <span role="status" aria-live="polite" className={`min-w-0 truncate text-sm ${SAVE_STATE_TONE[state.kind]}`} title={text || undefined}>{text}</span>
   )
 }
 
-export function Toggle({ icon, label, description, checked, onChange }: { icon?: ReactNode; label: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {
+/* 开关行。说明可省；开关本身就是 label 的一部分，点整行都能切换。 */
+export function Toggle({ label, description, checked, onChange }: { label: string; description?: string; checked: boolean; onChange: (value: boolean) => void }) {
   return (
-    <label className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
-      <span className="flex min-w-0 flex-1 items-start gap-[10px] text-base text-ink-strong">
-        {icon && <span className="mt-[1px] flex-none text-ink-muted">{icon}</span>}
-        <span className="flex min-w-0 flex-col gap-[2px]">
-          <span>{label}</span>
-          <span className="text-xs leading-[1.55] text-ink-muted">{description}</span>
-        </span>
+    <label className="flex min-h-[52px] cursor-pointer items-center justify-between gap-[24px] border-b border-line-soft py-[10px] last:border-b-0">
+      <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+        <span className="text-base text-ink">{label}</span>
+        {description && <span className="text-sm leading-[1.5] text-ink-muted">{description}</span>}
       </span>
-      <input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[18px] w-[32px] flex-none cursor-pointer appearance-none rounded-[9px] bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[13px] after:w-[13px] after:rounded-full after:bg-paper after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[15px]" />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[20px] w-[34px] flex-none cursor-pointer appearance-none rounded-full bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[16px] after:w-[16px] after:rounded-full after:bg-paper after:shadow-hair after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[14px]" />
     </label>
   )
 }
 
-export function Row({ label, description, children }: { label: string; description?: string; children: ReactNode }) {
+/* 一组设置：标题 + 若干行。标题右侧可放一个次要动作（链接式按钮、保存状态）。 */
+export function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex items-center gap-[20px] border-b border-line-soft px-0 py-[11px]">
-      <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-        <span className="text-base text-ink-strong">{label}</span>
-        {description && <span className="text-xs leading-[1.55] text-ink-muted">{description}</span>}
+    <section className="mt-[32px] first:mt-0">
+      <div className="flex min-h-[28px] items-center justify-between gap-[12px]">
+        <h3 className="m-0 text-md font-semibold text-ink">{title}</h3>
+        {action}
       </div>
-      {children}
+      <div className="mt-[2px]">{children}</div>
+    </section>
+  )
+}
+
+/*
+ * 折叠行：不常改的东西（请求头、State、提示词预览）平时只露一行摘要，点开在下面展开。
+ * 展开区域缩进到一块浅底卡片里，表明它从属于这一行。
+ */
+export function Disclosure({ label, summary, open, onToggle, children }: { label: string; summary?: ReactNode; open: boolean; onToggle: () => void; children: ReactNode }) {
+  const id = useId()
+  return (
+    <div className="border-b border-line-soft last:border-b-0">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        className="flex min-h-[52px] w-full items-center gap-[24px] border-0 bg-transparent px-0 py-[10px] text-left"
+        onClick={onToggle}
+      >
+        <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+          <span className="text-base text-ink">{label}</span>
+          {summary && <span className="truncate text-sm leading-[1.5] text-ink-muted">{summary}</span>}
+        </span>
+        <ChevronDown size={15} className={`flex-none text-ink-muted transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && <div id={id} className="mb-[14px] rounded-lg bg-paper-soft px-[14px] py-[10px]">{children}</div>}
     </div>
   )
 }
 
-/* 分组标题：小型大写字 + 分隔线 */
-export function GroupTitle({ title, hint }: { title: string; hint?: string }) {
+/* 运行状态徽标：列表行与详情页头共用。 */
+export function RunningBadge({ tone = 'running', children }: { tone?: 'running' | 'warning'; children: string }) {
   return (
-    <div className="mb-[6px] flex items-baseline gap-[10px] border-b border-line pb-[8px]">
-      <h3 className="m-0 font-mono text-2xs font-semibold text-ink-muted">{title}</h3>
-      {hint && <span className="text-2xs text-ink-ghost">{hint}</span>}
-    </div>
+    <span className="flex flex-none items-center gap-[6px] rounded-full border border-line px-[8px] py-[2px] text-sm text-ink-soft">
+      <span className={`h-[6px] w-[6px] rounded-full ${tone === 'warning' ? 'bg-warning' : 'bg-brand-bright'}`} />
+      {children}
+    </span>
+  )
+}
+
+/* 页内提示条：操作结果、需要用户动手的状态。只放这一类，不放常驻说明。 */
+export function Notice({ tone = 'neutral', children }: { tone?: 'neutral' | 'warning'; children: ReactNode }) {
+  return (
+    <p role="status" aria-live="polite" className={`mb-[20px] mt-0 rounded-md border px-[12px] py-[8px] text-sm leading-[1.6] text-ink-soft [overflow-wrap:anywhere] ${tone === 'warning' ? 'border-warning/40 bg-paper-soft' : 'border-line bg-paper-soft'}`}>{children}</p>
   )
 }
 
@@ -149,12 +215,14 @@ export function GroupTitle({ title, hint }: { title: string; hint?: string }) {
  * 以下；漏掉它时内层 overflow-auto 永远等不到受限高度、滚动条不出现，多出来的
  * 内容又被 body 的 overflow:hidden 裁掉——现象就是"下面明显还有内容但够不着"。
  * 这条契约只写在这里一处，避免再被复制到第 N 个分区时漏掉。
+ *
+ * 左右各留 56px：弹窗右上角的关闭按钮悬在内容区之上，窄窗口时不能压住标题行的按钮。
  */
-export function SettingsPane({ children, footer, bottomPad = true }: { children: ReactNode; footer?: ReactNode; bottomPad?: boolean }) {
+export function SettingsPane({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   return (
     <div className="flex min-w-0 min-h-0 flex-1 flex-col">
       <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-auto">
-        <div className={`mx-auto w-[min(720px,calc(100%-56px))] flex-none pt-[22px] ${bottomPad ? 'pb-[24px]' : ''}`}>
+        <div className={`${PANE_WIDTH} flex-none pb-[40px] pt-[28px]`}>
           {children}
         </div>
       </div>
@@ -162,3 +230,6 @@ export function SettingsPane({ children, footer, bottomPad = true }: { children:
     </div>
   )
 }
+
+/* 详情页与 SettingsPane 同宽的固定页头容器。 */
+export const PANE_WIDTH = 'mx-auto w-[min(640px,calc(100%-112px))]'

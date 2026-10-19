@@ -1,43 +1,38 @@
 import type { AgentSettingsState } from '../../state/agentSettings'
-import { Field, GroupTitle, Row, SaveStatus, SettingsPane } from './ui'
+import { Row, SaveStatus, Section, SettingsPane, TextRow } from './ui'
 import { Select } from './Select'
 
 /*
  * 全局 Agent 分区：所有连接共用、和用哪个模型无关的设置——搜索与抓取的 Key、
- * 搜索与正文抓取先用谁、天气数据源。只存一份，换连接不用重填。某个连接开不开这些工具，
- * 在那个连接详情的「工具」标签里。
+ * 搜索与正文抓取先用谁、天气数据源。只存一份，换连接不用重填，改了下一轮对话就生效。
+ * 某个连接开不开这些工具，在那个连接详情的「工具」标签里。
  */
 export default function GlobalAgentSection({ agent }: { agent: AgentSettingsState }) {
   const { value, update } = agent
   return (
     <SettingsPane>
-      <div className="mb-[14px] flex items-center justify-between gap-[12px]">
-        <p className="m-0 text-xs leading-[1.65] text-ink-muted">这里的设置所有连接共用，改了下一轮对话就生效。每个连接开不开网页搜索、天气，在连接详情的「工具」标签里。</p>
-        <SaveStatus state={agent.saveState} />
-      </div>
+      {/* 先放"怎么用"（选哪个后端、哪个数据源），再放"用什么账号"（各服务的 Key）：两类东西不混在一组里。 */}
+      <Section title="网页搜索与读取">
+        <Row label="搜索后端" description="查不到或出错时自动换另一个">
+          <Select label="搜索后端" className="w-[240px]" value={value.webSearchBackend || 'auto'} onChange={(next) => update({ webSearchBackend: next === 'auto' ? '' : next })} options={SEARCH_BACKENDS} />
+        </Row>
+        <Row label="正文抓取" description="读不到的页面自动换另一个">
+          <Select label="正文抓取" className="w-[240px]" value={value.webFetchBackend || 'tavily'} onChange={(next) => update({ webFetchBackend: next === 'tavily' ? '' : next })} options={FETCH_BACKENDS} />
+        </Row>
+      </Section>
 
-      <section>
-        <GroupTitle title="网页搜索与正文获取" hint="web_search · web_fetch" />
-        <Row label="搜索后端" description="先用哪个；查不到或出错时换另一个">
-          <Select label="搜索后端" className="w-[230px] flex-none" value={value.webSearchBackend || 'auto'} onChange={(next) => update({ webSearchBackend: next === 'auto' ? '' : next })} options={SEARCH_BACKENDS} />
+      <Section title="实时天气">
+        <Row label="数据源" description="免 API Key">
+          <Select label="天气数据源" className="w-[240px]" value={value.weatherBackend || 'open-meteo'} onChange={(next) => update({ weatherBackend: next })} options={WEATHER_BACKENDS} />
         </Row>
-        <Row label="正文抓取" description="先用哪个；读不到的页面换另一个">
-          <Select label="正文抓取" className="w-[230px] flex-none" value={value.webFetchBackend || 'tavily'} onChange={(next) => update({ webFetchBackend: next === 'tavily' ? '' : next })} options={FETCH_BACKENDS} />
-        </Row>
-        <div className="grid grid-cols-3 gap-[10px] pt-[6px]">
-          <Field label="Brave API Key" hint="英文搜索更准" value={value.braveApiKey || ''} onChange={(next) => update({ braveApiKey: next })} type="password" />
-          <Field label="DeepSeek API Key" hint="中文搜索更准，也能读网页正文" value={value.deepseekWebApiKey || ''} onChange={(next) => update({ deepseekWebApiKey: next })} type="password" />
-          <Field label="Tavily API Key" hint="读取网页正文" value={value.tavilyApiKey || ''} onChange={(next) => update({ tavilyApiKey: next })} type="password" />
-        </div>
-        <p className="m-0 pb-[4px] pt-[4px] text-2xs leading-[1.6] text-ink-muted">搜索用 Brave 或 DeepSeek，填一个就能用；正文抓取默认先用 Tavily，读不到的页面再用 DeepSeek 补，也可以改成先用 DeepSeek。都不填时工具仍在，调用会提示未配置。</p>
-      </section>
+      </Section>
 
-      <section className="mt-[22px]">
-        <GroupTitle title="实时天气" hint="get_weather · 免 API Key" />
-        <Row label="天气数据源">
-          <Select label="天气数据源" className="w-[230px] flex-none" value={value.weatherBackend || 'open-meteo'} onChange={(next) => update({ weatherBackend: next })} options={WEATHER_BACKENDS} />
-        </Row>
-      </section>
+      {/* 保存状态挂在最常敲字的地方：整页任何一项改动都在这里报「已保存」。 */}
+      <Section title="API Key" action={<SaveStatus state={agent.saveState} />}>
+        <TextRow label="Brave" inputLabel="Brave API Key" description="英文搜索" width="w-[240px]" value={value.braveApiKey || ''} onChange={(next) => update({ braveApiKey: next })} type="password" placeholder="未设置" />
+        <TextRow label="DeepSeek" inputLabel="DeepSeek API Key" description="中文搜索，也能读网页正文" width="w-[240px]" value={value.deepseekWebApiKey || ''} onChange={(next) => update({ deepseekWebApiKey: next })} type="password" placeholder="未设置" />
+        <TextRow label="Tavily" inputLabel="Tavily API Key" description="读取网页正文" width="w-[240px]" value={value.tavilyApiKey || ''} onChange={(next) => update({ tavilyApiKey: next })} type="password" placeholder="未设置" />
+      </Section>
     </SettingsPane>
   )
 }

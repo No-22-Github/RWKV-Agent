@@ -6,7 +6,7 @@ import { shortRunName } from '../runNames'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import RunConfigDropdown from './RunConfigDropdown'
-import type { SettingsSection } from '../state/providerManager'
+import type { OpenSettingsOptions, SettingsSection } from '../state/providerManager'
 
 /*
  * 输入框上方的一排运行标签（参照 Claude Code）：从左到右是「谁来跑 → 带什么跑 → 在哪跑」。
@@ -30,7 +30,7 @@ type Props = {
   onSetAdapter: (adapterId: string) => Promise<void>
   onChooseWorkspace: () => void
   onUnload: () => void
-  onOpenSettings: (section?: SettingsSection) => void
+  onOpenSettings: (section?: SettingsSection, options?: OpenSettingsOptions) => void
 }
 
 const chipClass = 'flex h-[26px] min-w-0 items-center gap-[6px] rounded-lg border border-line bg-paper-wash px-[9px] text-xs text-ink-soft shadow-hair transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-60'
@@ -54,8 +54,8 @@ export default function RunChips(props: Props) {
       </button>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} providers={providers} runtimeProviderId={runtimeProviderId} onActivate={props.onActivate} onUnload={props.onUnload} onOpenSettings={props.onOpenSettings} />
     </div>
-    {supportsState && runtimeConfig && <AdapterChip config={runtimeConfig} current={status.adapterId || ''} busy={busy} onSelect={props.onSetAdapter} onManage={() => props.onOpenSettings('远端连接')} />}
-    {supportsState && runtimeConfig && <StateChip config={runtimeConfig} current={status.stateId || ''} busy={busy} onSelect={props.onSetState} onManage={() => props.onOpenSettings('远端连接')} />}
+    {supportsState && runtimeConfig && <AdapterChip config={runtimeConfig} current={status.adapterId || ''} busy={busy} onSelect={props.onSetAdapter} onManage={() => props.onOpenSettings('远端连接', { focus: 'adapter' })} />}
+    {supportsState && runtimeConfig && <StateChip config={runtimeConfig} current={status.stateId || ''} busy={busy} onSelect={props.onSetState} onManage={() => props.onOpenSettings('远端连接', { focus: 'state' })} />}
     {ready && <>
       <CapabilityToggle icon={<Globe size={13} />} label="网页搜索" checked={Boolean(runtimeConfig?.enableWeb)} disabled={busy || local} local={local} onChange={(value) => props.onToggleCapability('enableWeb', value)} />
       <CapabilityToggle icon={<Network size={13} />} label="子 Agent" checked={Boolean(runtimeConfig?.enableSubagents)} disabled={busy || local} local={local} onChange={(value) => props.onToggleCapability('enableSubagents', value)} />

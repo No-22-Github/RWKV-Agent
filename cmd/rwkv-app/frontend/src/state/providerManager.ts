@@ -19,6 +19,8 @@ export const AUTOSAVE_DELAY_MS = 800
  */
 /* 设置弹窗的分区；远端连接与本地推理各管一类档案。 */
 export type SettingsSection = '远端连接' | '本地推理' | 'Agent' | '外观' | '通用'
+export type SettingsFocus = 'state' | 'adapter' | null
+export type OpenSettingsOptions = { detail?: boolean; focus?: SettingsFocus }
 export type ProviderKind = 'remote' | 'local'
 
 export function kindOf(config: Config): ProviderKind {
@@ -109,6 +111,10 @@ function configSignature(config: Config): string {
 export function useProviderManager({ onStatus, ready }: { onStatus: (status: Status) => void; ready: boolean }) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('远端连接')
+  // 连接分区是两层：先看列表，点进一行才看详情。新建草稿永远在详情里。
+  const [settingsDetail, setSettingsDetail] = useState(false)
+  // 从对话页「管理」入口进来时要直接展开的折叠项；只在打开那一刻读一次。
+  const [settingsFocus, setSettingsFocus] = useState<SettingsFocus>(null)
   const [providers, setProviders] = useState<SavedProvider[]>([])
   const [activeProviderId, setActiveProviderId] = useState('')
   const [runtimeProviderId, setRuntimeProviderId] = useState('')
@@ -154,7 +160,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [promptPreview, setPromptPreview] = useState<AgentPromptPreview | null>(null)
-  const [previewOpen, setPreviewOpen] = useState(true)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [taskControl, setTaskControl] = useState('')
   const [injectSessionTime, setInjectSessionTime] = useState(false)
@@ -484,25 +490,36 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
    * 打开设置：不指定分区时，本地模型在运行就进「本地推理」，否则进「远端连接」。
    * 编辑器总是对准该分区那一类档案：优先运行中的，其次上次用的，再次第一个，都没有就新建。
    */
-  function openSettings(section?: SettingsSection) {
+  /*
+   * 打开设置：不指定分区时，本地模型在运行就进「本地推理」，否则进「远端连接」。
+   * 连接分区默认停在列表；detail 为真时直接进当前档案的详情（对话页「管理 State」这类入口）。
+   * 这一类一个档案都没有时直接进新建草稿。
+   */
+  function openSettings(section?: SettingsSection, options: OpenSettingsOptions = {}) {
     const runtime = providers.find((provider) => provider.id === runtimeProviderId)
     const next = section ?? (runtime && kindOf(runtime.config) === 'local' ? '本地推理' : '远端连接')
     setSettingsSection(next)
     // 每次打开都从已保存的档案重新水合，不沿用上次关闭时的表单。
-    focusKind(next === '本地推理' ? 'local' : 'remote', true)
+    const editing = focusKind(next === '本地推理' ? 'local' : 'remote', true)
+    setSettingsDetail(editing === 'new' || Boolean(options.detail || options.focus))
+    setSettingsFocus(options.focus ?? null)
     setSettingsMessage('')
     setSettingsOpen(true)
   }
-  /* 让编辑器对准某一类档案；已经在编辑这一类就不动（force 时总是重新水合）。调用方负责先处理未保存的草稿。 */
-  function focusKind(kind: ProviderKind, force = false) {
+  /*
+   * 让编辑器对准某一类档案；已经在编辑这一类就不动（force 时总是重新水合）。调用方负责先处理未保存的草稿。
+   * 返回编辑器现在对准的是已有档案还是新建草稿。
+   */
+  function focusKind(kind: ProviderKind, force = false): 'existing' | 'new' {
     const editing = providers.find((provider) => provider.id === editingProviderId)
-    if (!force && (editing ? kindOf(editing.config) === kind : settingsTab === kind)) return
+    if (!force && (editing ? kindOf(editing.config) === kind : settingsTab === kind)) return editingProviderId === '' ? 'new' : 'existing'
     const ofKind = providers.filter((provider) => kindOf(provider.config) === kind)
     const preferred = ofKind.find((provider) => provider.id === runtimeProviderId)
       || ofKind.find((provider) => provider.id === activeProviderId)
       || ofKind[0]
     if (preferred) beginEditingProvider(preferred)
     else beginNewProvider(kind)
+    return preferred ? 'existing' : 'new'
   }
   function discardDraft() {
     const current = providers.find((provider) => provider.id === editingProviderId)
@@ -615,6 +632,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
         || value.providers[0]
       if (next) beginEditingProvider(next)
       else beginNewProvider(settingsTab)
+      // 删掉的是正在看的那个：回到列表，不跳进另一个档案的详情。
+      setSettingsDetail(false)
     }
   }
 
@@ -675,7 +694,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
 
   return {
     // 展示状态
-    settingsOpen, setSettingsOpen, settingsSection, setSettingsSection,
+    settingsOpen, setSettingsOpen, settingsSection, setSettingsSection, settingsDetail, setSettingsDetail, settingsFocus,
     providers, activeProviderId, runtimeProviderId, editingProviderId,
     draftLabel, setDraftLabel, draftDirty, draftIsRunning,
     settingsTab, setSettingsTab,
