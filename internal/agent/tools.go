@@ -28,6 +28,14 @@ type workspace struct {
 	filesystem  WorkspaceFS
 	root        string
 	unavailable bool
+	// work-v3 only (zero values keep work-v2 behavior byte-identical):
+	// hidden is a top-level directory that list_files and search_text skip
+	// unless the call targets it; lineCounts adds a line count to list_files
+	// entries; scratch maps hidden-directory paths onto a host directory when
+	// web pages cannot be staged in the workspace view.
+	hidden     string
+	lineCounts bool
+	scratch    string
 }
 
 // WorkspaceResolver exposes the existing workspace containment policy to
@@ -158,6 +166,9 @@ func (w *workspace) absoluteCandidates(path string) []string {
 }
 
 func (w *workspace) resolve(path string) (string, error) {
+	if target, ok := w.resolveScratch(path); ok {
+		return target, nil
+	}
 	if w == nil || w.unavailable {
 		return "", fmt.Errorf("没有打开工作区：本地文件工具需要先打开一个工作区才能使用。请停止调用文件工具，直接告诉用户先在应用中打开一个工作区（“打开工作区”按钮）")
 	}
@@ -287,6 +298,11 @@ func (w *workspace) resolveNotYetExisting(joined string) (string, error) {
 }
 
 func (w *workspace) relative(path string) string {
+	if w.scratch != "" && strings.HasPrefix(path, w.scratch+string(filepath.Separator)) {
+		if value, err := filepath.Rel(w.scratch, path); err == nil {
+			return filepath.ToSlash(value)
+		}
+	}
 	value, err := filepath.Rel(w.root, path)
 	if err != nil || value == "." {
 		return value
@@ -349,9 +365,10 @@ type listFilesArgs struct {
 }
 
 type fileEntry struct {
-	Path string `json:"path"`
-	Type string `json:"type"`
-	Size int64  `json:"size,omitempty"`
+	Path  string `json:"path"`
+	Type  string `json:"type"`
+	Size  int64  `json:"size,omitempty"`
+	Lines *int   `json:"lines,omitempty"`
 }
 
 type listFilesResult struct {
@@ -380,7 +397,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err != nil {
 		return nil, err
 	}
-	info, err := t.workspace.fs().Stat(target)
+	info, err := t.workspace.fsFor(target).Stat(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
@@ -389,7 +406,8 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	baseDepth := pathDepth(t.workspace.relative(target))
 	result := listFilesResult{Entries: make([]fileEntry, 0, args.MaxResults)}
-	err = t.workspace.fs().WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+	countBudget := &lineCountBudget{remaining: listFilesLineCountBudget}
+	err = t.workspace.fsFor(target).WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -400,7 +418,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 			return nil
 		}
 		relative := t.workspace.relative(path)
-		if entry.IsDir() && shouldSkipDirectory(entry.Name()) {
+		if entry.IsDir() && (shouldSkipDirectory(entry.Name()) || t.workspace.skipHidden(target, path)) {
 			return filepath.SkipDir
 		}
 		if pathDepth(relative)-baseDepth > args.MaxDepth {
@@ -420,6 +438,9 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 			item.Type = "symlink"
 		} else if value, statErr := entry.Info(); statErr == nil {
 			item.Size = value.Size()
+			if t.workspace.lineCounts {
+				item.Lines = countBudget.lines(t.workspace.fsFor(target), path, value)
+			}
 		}
 		result.Entries = append(result.Entries, item)
 		return nil
@@ -568,7 +589,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if err != nil {
 		return nil, err
 	}
-	info, err := t.workspace.fs().Stat(target)
+	info, err := t.workspace.fsFor(target).Stat(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
@@ -578,7 +599,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			return err
 		}
 		if entry.IsDir() {
-			if path != target && shouldSkipDirectory(entry.Name()) {
+			if path != target && (shouldSkipDirectory(entry.Name()) || t.workspace.skipHidden(target, path)) {
 				return filepath.SkipDir
 			}
 			return nil
@@ -590,7 +611,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		if err != nil || !value.Mode().IsRegular() || value.Size() > maxSearchFileBytes {
 			return nil
 		}
-		matches, binary, err := searchFileWithFS(t.workspace.fs(), path, args.Query, args.CaseSensitive, args.MaxResults-len(result.Matches))
+		matches, binary, err := searchFileWithFS(t.workspace.fsFor(target), path, args.Query, args.CaseSensitive, args.MaxResults-len(result.Matches))
 		if err != nil || binary {
 			return err
 		}
@@ -613,7 +634,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			err = nil
 		}
 	} else {
-		err = t.workspace.fs().WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+		err = t.workspace.fsFor(target).WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
 			}
