@@ -1,0 +1,73 @@
+{
+  "id": "hyb-34090",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Larch Conferencing). DISTILL-CANARY-bebc8a34",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34090",
+    "ref_calls": 3,
+    "fixture_bytes": 59,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Larch",
+      "url": "https://larch-conferencing.example/pricing",
+      "url_match": "larch-conferencing.example/pricing",
+      "title": "Pricing - Larch Conferencing",
+      "snippet": "Seat pricing.",
+      "content": "# Pricing\n\nTeams of 30 seats and above get a discount.\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "finance/larch-invoice.txt": "Larch Conferencing - 25 seats - annual - paid 2026-02\n",
+    "finance/other.txt": "misc\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Larch Conferencing seat count did we buy, per the invoice file?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "25"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "30 seats",
+          "30seats"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

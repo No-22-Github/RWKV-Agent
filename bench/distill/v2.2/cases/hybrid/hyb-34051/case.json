@@ -1,0 +1,89 @@
+{
+  "id": "hyb-34051",
+  "description": "The user says there is nothing local; the first and only data source is the web (涵碧湖游船). DISTILL-CANARY-8dafc29c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34051",
+    "ref_calls": 3,
+    "fixture_bytes": 22,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "涵碧湖游船",
+      "url": "https://hanbihu-boat.example/price",
+      "url_match": "hanbihu-boat.example/price",
+      "title": "游船票价 - 涵碧湖",
+      "snippet": "涵碧湖游船价格。",
+      "content": "# 游船票价\n\n环湖一圈（约 40 分钟）：成人 60 元，儿童 30 元。包船 480 元/小时。\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "files": {
+    "计划/国庆.md": "去杭州附近转转\n"
+  },
+  "turns": [
+    {
+      "prompt": "涵碧湖游船现在一圈多少钱，网上应该有，我本地没记。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "包船呢？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "480"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

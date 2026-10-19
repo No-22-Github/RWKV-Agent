@@ -1,0 +1,142 @@
+{
+  "id": "web-34037",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (云梯招聘). DISTILL-CANARY-4a3eb2ae",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34037",
+    "ref_calls": 3,
+    "fixture_bytes": 103,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云梯招聘",
+      "url": "https://yunti-job.example/pricing",
+      "url_match": "yunti-job.example/pricing",
+      "title": "企业服务价格 - 云梯招聘",
+      "snippet": "职位发布价格。",
+      "content": "# 企业服务价格\n\n单个职位 30 天：299 元。\n三个职位套餐：699 元。\n新企业首个职位免费。\n",
+      "published_at": "2026-09-03"
+    }
+  ],
+  "files": {
+    "hr/招聘.md": "# 招聘\n\n在云梯招聘上发职位，价格经常变，别按去年的算。\n",
+    "hr/岗位.csv": "岗位,人数\n前端,2\n"
+  },
+  "turns": [
+    {
+      "prompt": "岗位.csv 里前端招几个人？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "云梯招聘上发一个职位，现在怎么收费？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "299"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 3,
+      "list_files": 3
+    }
+  }
+}

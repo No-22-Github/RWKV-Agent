@@ -1,0 +1,89 @@
+{
+  "id": "hyb-34055",
+  "description": "The user says there is nothing local; the first and only data source is the web (朔风航空). DISTILL-CANARY-663d39b0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34055",
+    "ref_calls": 3,
+    "fixture_bytes": 13,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "朔风航空",
+      "url": "https://shuofeng-air.example/baggage",
+      "url_match": "shuofeng-air.example/baggage",
+      "title": "行李规定 - 朔风航空",
+      "snippet": "托运与手提行李规定。",
+      "content": "# 行李规定\n\n经济舱托运额度 20 公斤；手提 7 公斤。超重每公斤收 30 元。\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "出差/机票.txt": "周四 08:45\n"
+  },
+  "turns": [
+    {
+      "prompt": "朔风航空托运行李现在最多能带多少公斤？我没存过它的规定，网上查吧。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "20"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "超重怎么收费？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "30"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "id": "hyb-34061",
+  "description": "The user says there is nothing local; the first and only data source is the web (岩松考试中心). DISTILL-CANARY-62981699",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34061",
+    "ref_calls": 3,
+    "fixture_bytes": 10,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "岩松考试中心",
+      "url": "https://yansong-exam.example/notice/autumn",
+      "url_match": "yansong-exam.example/notice/autumn",
+      "title": "秋季考试报名公告 - 岩松考试中心",
+      "snippet": "秋季场报名时间。",
+      "content": "# 秋季考试报名公告\n\n报名时间：2026 年 9 月 15 日至 9 月 28 日，考试日期 11 月 14 日。\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "files": {
+    "学习/复习.txt": "刷真题\n"
+  },
+  "turns": [
+    {
+      "prompt": "岩松考试中心下一次计算机等级考试什么时候报名截止？我手头没有简章，帮我上网找。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains_any": [
+          "2026-09-28",
+          "2026/9/28",
+          "2026年9月28日",
+          "2026 年 9 月 28 日",
+          "9月28日",
+          "9 月 28 日",
+          "9月28号",
+          "September 28",
+          "28 September",
+          "Sep 28",
+          "28 Sep",
+          "28.9.2026",
+          "September 28, 2026",
+          "Sep 28, 2026",
+          "28/09/2026",
+          "09/28/2026",
+          "2026/09/28",
+          "2026.09.28"
+        ]
+      }
+    },
+    {
+      "prompt": "考试是哪天？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains_any": [
+          "2026-11-14",
+          "2026/11/14",
+          "2026年11月14日",
+          "2026 年 11 月 14 日",
+          "11月14日",
+          "11 月 14 日",
+          "11月14号",
+          "November 14",
+          "14 November",
+          "Nov 14",
+          "14 Nov",
+          "14.11.2026",
+          "November 14, 2026",
+          "Nov 14, 2026",
+          "14/11/2026",
+          "11/14/2026",
+          "2026/11/14",
+          "2026.11.14"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "hyb-34011",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (栖云笔记). DISTILL-CANARY-c6f291a1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34011",
+    "ref_calls": 3,
+    "fixture_bytes": 125,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "栖云笔记",
+      "url": "https://qiyun-notes.example/changelog/windows",
+      "url_match": "qiyun-notes.example/changelog/windows",
+      "title": "Windows 更新日志 - 栖云笔记",
+      "snippet": "栖云笔记 Windows 版更新日志。",
+      "content": "# Windows 更新日志\n\n6.8.1（2026-09-17）修复同步冲突。\n6.8.0（2026-08-29）新增表格块。\n",
+      "published_at": "2026-09-17"
+    }
+  ],
+  "files": {
+    "软件清单.md": "# 常用软件\n\n- 栖云笔记（Windows，同事推荐，还没装）\n- 7-Zip\n",
+    "软件清单备注.txt": "装之前先看一下它最近有没有更新\n"
+  },
+  "turns": [
+    {
+      "prompt": "栖云笔记的 Windows 版最近一次更新是哪天发布的？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains_any": [
+          "2026-09-17",
+          "2026/9/17",
+          "2026年9月17日",
+          "2026 年 9 月 17 日",
+          "9月17日",
+          "9 月 17 日",
+          "9月17号",
+          "September 17",
+          "17 September",
+          "Sep 17",
+          "17 Sep",
+          "17.9.2026",
+          "September 17, 2026",
+          "Sep 17, 2026",
+          "17/09/2026",
+          "09/17/2026",
+          "2026/09/17",
+          "2026.09.17"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

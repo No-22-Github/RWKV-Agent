@@ -1,0 +1,72 @@
+{
+  "id": "web-34049",
+  "description": "The user says there is nothing local; the first and only data source is the web (橙子打印). DISTILL-CANARY-80bfa26a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34049",
+    "ref_calls": 2,
+    "fixture_bytes": 16,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "橙子打印",
+      "url": "https://chengzi-print.example/price",
+      "url_match": "chengzi-print.example/price",
+      "title": "价格表 - 橙子打印",
+      "snippet": "打印价格。",
+      "content": "# 价格表\n\nA4 黑白 0.3 元/张；A4 彩色 1.5 元/张；A3 彩色 4 元/张。\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "杂项/记事.txt": "周五交报告\n"
+  },
+  "turns": [
+    {
+      "prompt": "查一下橙子打印店 A3 彩打一张多少钱，我文件夹里没有这家的价格表。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

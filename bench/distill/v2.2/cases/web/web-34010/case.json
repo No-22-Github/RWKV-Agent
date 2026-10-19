@@ -1,0 +1,129 @@
+{
+  "id": "web-34010",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Hollowpine Fitness). DISTILL-CANARY-45452931",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34010",
+    "ref_calls": 3,
+    "fixture_bytes": 113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Hollowpine",
+      "url": "https://hollowpine-fitness.example/join",
+      "url_match": "hollowpine-fitness.example/join",
+      "title": "Join - Hollowpine Fitness",
+      "snippet": "Membership options and fees.",
+      "content": "# Join\n\nMonthly: 39 dollars. No joining fee until 31 October 2026, then 49 dollars.\nAnnual: 399 dollars.\n",
+      "published_at": "2026-09-11"
+    }
+  ],
+  "files": {
+    "budget/gym-membership-2026.md": "# Budget\n\nGym: Hollowpine Fitness membership, monthly. Compare options before January.\n",
+    "budget/annual-discount-question.txt": "Ask about annual discount\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the monthly membership price at Hollowpine Fitness right now?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "39"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

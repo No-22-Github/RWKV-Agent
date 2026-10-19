@@ -1,0 +1,85 @@
+{
+  "id": "hyb-34086",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Ptarmigan Cloud). DISTILL-CANARY-7d55bcb4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34086",
+    "ref_calls": 4,
+    "fixture_bytes": 88,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Ptarmigan",
+      "url": "https://ptarmigan-cloud.example/docs/limits",
+      "url_match": "ptarmigan-cloud.example/docs/limits",
+      "title": "Rate limits - Ptarmigan Cloud",
+      "snippet": "API rate limits.",
+      "content": "# Rate limits\n\nDefault: 300 requests per minute.\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "runbook/limits.md": "# Limits\n\nPtarmigan Cloud API: our agreed limit is 600 requests per minute.\n",
+    "runbook/alerts.txt": "page at 90%\n"
+  },
+  "turns": [
+    {
+      "prompt": "According to our runbook, what's the Ptarmigan Cloud API rate limit we agreed?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "600"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "300 requests",
+          "300requests"
+        ]
+      }
+    },
+    {
+      "prompt": "and the default on their docs?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "300"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

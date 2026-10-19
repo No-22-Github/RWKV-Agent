@@ -1,0 +1,141 @@
+{
+  "id": "hyb-34013",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (岚山驿站). DISTILL-CANARY-71aedaaf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34013",
+    "ref_calls": 5,
+    "fixture_bytes": 118,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "岚山驿站",
+      "url": "https://lanshan-inn.example/guest-info",
+      "url_match": "lanshan-inn.example/guest-info",
+      "title": "入住须知 - 岚山驿站",
+      "snippet": "入住、退房与早餐时间。",
+      "content": "# 入住须知\n\n入住 15:00 起，退房 11:30 前。早餐 7:30–9:30。\n延迟退房每小时加收 30 元。\n",
+      "published_at": "2026-09-09"
+    }
+  ],
+  "files": {
+    "旅行/行程.md": "# 周末行程\n\n周五晚入住岚山驿站，周日上午在山上走走再回。退房别太晚。\n",
+    "旅行/清单.txt": "雨伞\n充电宝\n"
+  },
+  "turns": [
+    {
+      "prompt": "岚山驿站的退房时间是几点？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "11:30"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    },
+    {
+      "prompt": "延迟退房一小时多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "30"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

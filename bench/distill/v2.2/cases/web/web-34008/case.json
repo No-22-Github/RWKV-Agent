@@ -1,0 +1,138 @@
+{
+  "id": "web-34008",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Cobbleway Runtime). DISTILL-CANARY-e2045610",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34008",
+    "ref_calls": 5,
+    "fixture_bytes": 128,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Cobbleway",
+      "url": "https://cobbleway.example/download",
+      "url_match": "cobbleway.example/download",
+      "title": "Download - Cobbleway Runtime",
+      "snippet": "Installers and release channels.",
+      "content": "# Download\n\nStable: 7.4.2 (2026-09-14)\nBeta: 7.5.0-beta.3\nSecurity fixes: 7.4 and 7.3 lines only. Nightly builds are unsupported.\n",
+      "published_at": "2026-09-14"
+    }
+  ],
+  "files": {
+    "docker/Dockerfile": "FROM base:slim\n# TODO: install the Cobbleway Runtime here\nCOPY app /app\n",
+    "docs/setup.md": "Cobbleway Runtime is installed in the image build step.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Cobbleway Runtime release is the current stable one?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "7.4.2"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    },
+    {
+      "prompt": "And which older line still gets security fixes?",
+      "expect": {
+        "output_contains": [
+          "7.3"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

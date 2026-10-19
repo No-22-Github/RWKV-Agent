@@ -1,0 +1,79 @@
+{
+  "id": "web-34012",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Alder Cloud). DISTILL-CANARY-9ad19b21",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34012",
+    "ref_calls": 3,
+    "fixture_bytes": 138,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Alder",
+      "url": "https://alder-cloud.example/docs/free-tier",
+      "url_match": "alder-cloud.example/docs/free-tier",
+      "title": "Free tier - Alder Cloud docs",
+      "snippet": "What the free tier includes.",
+      "content": "# Free tier\n\nFunctions: 2 million requests per month, 400,000 GB-seconds of compute.\nBeyond that: 0.20 dollars per million requests.\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "infra/overview.md": "# Infra overview\n\nSmall webhooks run as Alder Cloud functions to stay on the free tier. Watch the quota.\n",
+    "infra/alerts.md": "Alert when usage > 80%.\n",
+    "infra/owner.txt": "ops team\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the free tier request limit on Alder Cloud functions now?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains_any": [
+          "2 million",
+          "2,000,000",
+          "2M",
+          "200 万",
+          "200万",
+          "两百万"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

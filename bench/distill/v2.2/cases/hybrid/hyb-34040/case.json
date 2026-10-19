@@ -1,0 +1,138 @@
+{
+  "id": "hyb-34040",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (栗林露营地). DISTILL-CANARY-cee90c97",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34040",
+    "ref_calls": 5,
+    "fixture_bytes": 85,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "栗林露营地",
+      "url": "https://lilin-camp.example/book",
+      "url_match": "lilin-camp.example/book",
+      "title": "订位须知 - 栗林露营地",
+      "snippet": "营位价格与预订规则。",
+      "content": "# 订位须知\n\n普通帐篷位 120 元/晚；景观位 180 元/晚。\n国庆期间需至少提前 7 天预订。\n",
+      "published_at": "2026-09-11"
+    }
+  ],
+  "files": {
+    "周末/露营.md": "# 露营\n\n国庆去栗林露营地，价格和订位规则还没看。\n",
+    "周末/装备.txt": "帐篷\n睡袋\n"
+  },
+  "turns": [
+    {
+      "prompt": "栗林露营地一晚帐篷位多少钱？要提前几天订？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    },
+    {
+      "prompt": "国庆要提前几天？",
+      "expect": {
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

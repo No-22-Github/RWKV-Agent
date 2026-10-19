@@ -1,0 +1,129 @@
+{
+  "id": "web-34033",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Kestrel Fibre). DISTILL-CANARY-197ab9db",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34033",
+    "ref_calls": 3,
+    "fixture_bytes": 122,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Kestrel",
+      "url": "https://kestrel-fibre.example/plans",
+      "url_match": "kestrel-fibre.example/plans",
+      "title": "Plans - Kestrel Fibre",
+      "snippet": "Home fibre plans and prices.",
+      "content": "# Plans\n\n300 Mbps: 29 dollars per month.\n500 Mbps: 39 dollars per month.\n1 Gbps: 55 dollars per month.\nInstallation is free in September.\n",
+      "published_at": "2026-09-12"
+    }
+  ],
+  "files": {
+    "home/internet.md": "# Home internet\n\nThinking of switching to Kestrel Fibre. Need the 500 Mbps price.\n",
+    "home/contract.txt": "current provider contract ends in March\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the monthly price of Kestrel Fibre's 500 Mbps plan?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "39"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

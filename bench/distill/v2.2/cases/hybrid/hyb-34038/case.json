@@ -1,0 +1,129 @@
+{
+  "id": "hyb-34038",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Cinderford Council). DISTILL-CANARY-0796bfe7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34038",
+    "ref_calls": 3,
+    "fixture_bytes": 105,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Cinderford",
+      "url": "https://cinderford-council.example/garden-waste",
+      "url_match": "cinderford-council.example/garden-waste",
+      "title": "Garden waste permits - Cinderford Council",
+      "snippet": "Permit prices and renewals.",
+      "content": "# Garden waste permits\n\nAnnual permit: 54 pounds, valid 1 October 2026 to 30 September 2027.\nSecond bin: 30 pounds.\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "house/garden.md": "# Garden\n\nNeed the Cinderford Council garden waste permit before the autumn clear-up.\n",
+    "house/bins.txt": "green bin Tuesdays\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much is a garden waste permit from Cinderford Council this year?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "54"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

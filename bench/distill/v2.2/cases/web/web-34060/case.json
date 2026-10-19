@@ -1,0 +1,76 @@
+{
+  "id": "web-34060",
+  "description": "The user says there is nothing local; the first and only data source is the web (Quillon Proxy). DISTILL-CANARY-73429798",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34060",
+    "ref_calls": 2,
+    "fixture_bytes": 8,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Quillon",
+      "url": "https://quillon-proxy.example/kb/tunnel-reset-52",
+      "url_match": "quillon-proxy.example/kb/tunnel-reset-52",
+      "title": "tunnel reset 52 - Quillon Proxy KB",
+      "snippet": "Explains reset reason 52.",
+      "content": "# tunnel reset 52\n\nReset reason 52 means the peer idle timeout (300 s) was reached. Increase keepalive or the idle timeout.\n",
+      "published_at": "2026-06-18"
+    }
+  ],
+  "files": {
+    "logs/old.log": "started\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillon Proxy logs show 'tunnel reset 52'. I have no docs for it here; search the web for what that means.",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains_any": [
+          "idle",
+          "Idle",
+          "timeout",
+          "Timeout",
+          "空闲",
+          "超时"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

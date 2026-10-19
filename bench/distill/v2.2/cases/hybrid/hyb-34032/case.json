@@ -1,0 +1,129 @@
+{
+  "id": "hyb-34032",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (睡莲面包房). DISTILL-CANARY-422e2567",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34032",
+    "ref_calls": 3,
+    "fixture_bytes": 94,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "睡莲面包房",
+      "url": "https://shuilian-bakery.example/hours",
+      "url_match": "shuilian-bakery.example/hours",
+      "title": "营业时间 - 睡莲面包房",
+      "snippet": "门店营业时间。",
+      "content": "# 营业时间\n\n周一至周五 7:00–19:00；周六、周日 8:30–17:00。\n每月第一个周一休息。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "生活/早餐.md": "# 早餐计划\n\n周末想去睡莲面包房买早餐，时间要查一下。\n",
+    "生活/地址.txt": "河边路 18 号\n"
+  },
+  "turns": [
+    {
+      "prompt": "睡莲面包房周末几点开门？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "8:30"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

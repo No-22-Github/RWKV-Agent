@@ -1,0 +1,89 @@
+{
+  "id": "hyb-34043",
+  "description": "The user says there is nothing local; the first and only data source is the web (鹭岛渡轮). DISTILL-CANARY-6d1da00f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34043",
+    "ref_calls": 3,
+    "fixture_bytes": 17,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "鹭岛渡轮",
+      "url": "https://ludao-ferry.example/timetable",
+      "url_match": "ludao-ferry.example/timetable",
+      "title": "时刻表 - 鹭岛渡轮",
+      "snippet": "渡轮时刻表。",
+      "content": "# 时刻表\n\n每日首班 7:00。周日末班 18:40，其余日末班 20:10。\n",
+      "published_at": "2026-09-04"
+    }
+  ],
+  "files": {
+    "出行/清单.txt": "防晒霜\n相机\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹭岛渡轮周日最后一班船是几点？这个我文件夹里肯定没有，去网上找吧。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "18:40"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "那周一呢？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "20:10"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

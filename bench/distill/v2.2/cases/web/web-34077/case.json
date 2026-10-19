@@ -1,0 +1,73 @@
+{
+  "id": "web-34077",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Sedgewick DB). DISTILL-CANARY-9ddb5f73",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34077",
+    "ref_calls": 3,
+    "fixture_bytes": 103,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Sedgewick",
+      "url": "https://sedgewickdb.example/support-policy",
+      "url_match": "sedgewickdb.example/support-policy",
+      "title": "Support policy - Sedgewick DB",
+      "snippet": "Support.",
+      "content": "# Support policy\n\nSedgewick DB 3.x: supported. 2.x: end of life 2026-12-31.\n",
+      "published_at": "2026-08-05"
+    }
+  ],
+  "files": {
+    "README.md": "# Inventory service\n\nStorage: Sedgewick DB 2.8.3 (self-hosted).\n",
+    "ops/roadmap.md": "Q4: evaluate newer Sedgewick DB major.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Sedgewick DB version does our inventory service actually run?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "2.8.3"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "2026-12-31",
+          "December 31"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "web-34083",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (松萝文档). DISTILL-CANARY-5b3ab1a4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34083",
+    "ref_calls": 3,
+    "fixture_bytes": 105,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "松萝文档",
+      "url": "https://songluo-docs.example/notice",
+      "url_match": "songluo-docs.example/notice",
+      "title": "服务公告 - 松萝文档",
+      "snippet": "松萝文档公告。",
+      "content": "# 服务公告\n\n松萝文档将于 2027-03-31 停止服务。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "docs/迁移计划.md": "# 迁移计划\n\n松萝文档将在 2026-12-01 前完成迁出，之后只读。\n",
+    "docs/负责人.txt": "迁移负责人：阿杰\n"
+  },
+  "turns": [
+    {
+      "prompt": "咱们项目文档里写的松萝文档计划什么时候迁移走？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "2026-12-01",
+          "2026/12/1",
+          "2026年12月1日",
+          "2026 年 12 月 1 日",
+          "12月1日",
+          "12 月 1 日",
+          "12月1号",
+          "December 1",
+          "1 December",
+          "Dec 1",
+          "1 Dec",
+          "1.12.2026",
+          "December 1, 2026",
+          "Dec 1, 2026",
+          "01/12/2026",
+          "12/01/2026",
+          "2026/12/01",
+          "2026.12.01"
+        ],
+        "output_excludes": [
+          "2027-03-31"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

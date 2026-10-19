@@ -1,0 +1,73 @@
+{
+  "id": "hyb-34067",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Ravenhill Mail). DISTILL-CANARY-5c01d0dd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34067",
+    "ref_calls": 3,
+    "fixture_bytes": 121,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Ravenhill",
+      "url": "https://ravenhill-mail.example/help/limits",
+      "url_match": "ravenhill-mail.example/help/limits",
+      "title": "Sending limits - Ravenhill Mail Help",
+      "snippet": "Limits for attachments.",
+      "content": "# Sending limits\n\nAttachment size: 35 MB per message.\n",
+      "published_at": "2026-08-14"
+    }
+  ],
+  "files": {
+    "notes/inbox-config.md": "# Mail setup\n\nShared inbox runs on Ravenhill Mail. Attachment limit we configured: 25 MB per message.\n",
+    "notes/owners.txt": "Lena - inbox owner\n"
+  },
+  "turns": [
+    {
+      "prompt": "In our mail-setup notes, what attachment limit did we write down for Ravenhill Mail?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "25"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "35 MB",
+          "35MB"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

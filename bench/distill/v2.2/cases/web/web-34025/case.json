@@ -1,0 +1,90 @@
+{
+  "id": "web-34025",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Gorsefield Auth). DISTILL-CANARY-90d3e47e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34025",
+    "ref_calls": 3,
+    "fixture_bytes": 101,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Gorsefield",
+      "url": "https://gorsefield.example/changelog/keys",
+      "url_match": "gorsefield.example/changelog/keys",
+      "title": "Legacy API keys retirement - Gorsefield Auth",
+      "snippet": "Retirement schedule for legacy keys.",
+      "content": "# Legacy API keys retirement\n\nLegacy keys stop working on 2026-11-30. Use scoped tokens instead.\n",
+      "published_at": "2026-08-18"
+    }
+  ],
+  "files": {
+    "config/auth.yaml": "provider: gorsefield\nmode: legacy_key\n",
+    "config/NOTES.md": "Auth runs on Gorsefield Auth with the legacy key mode for now.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Are Gorsefield Auth's legacy API keys being removed? When?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains_any": [
+          "2026-11-30",
+          "2026/11/30",
+          "2026年11月30日",
+          "2026 年 11 月 30 日",
+          "11月30日",
+          "11 月 30 日",
+          "11月30号",
+          "November 30",
+          "30 November",
+          "Nov 30",
+          "30 Nov",
+          "30.11.2026",
+          "November 30, 2026",
+          "Nov 30, 2026",
+          "30/11/2026",
+          "11/30/2026",
+          "2026/11/30",
+          "2026.11.30"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

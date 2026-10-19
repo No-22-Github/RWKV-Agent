@@ -1,0 +1,77 @@
+{
+  "id": "hyb-34034",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (紫藤公证处). DISTILL-CANARY-20035b3e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34034",
+    "ref_calls": 4,
+    "fixture_bytes": 120,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "紫藤公证处",
+      "url": "https://ziteng-notary.example/fees",
+      "url_match": "ziteng-notary.example/fees",
+      "title": "收费标准 - 紫藤公证处",
+      "snippet": "公证事项收费标准。",
+      "content": "# 收费标准\n\n委托公证：200 元/份（不涉及财产处分）；涉及房产处分的委托公证按标的额 0.3% 收取，不低于 300 元。\n",
+      "published_at": "2026-08-31"
+    }
+  ],
+  "files": {
+    "家事/委托.md": "# 委托办理\n\n需要办一份房产委托公证，已选定紫藤公证处，费用待确认。\n",
+    "家事/证件.txt": "身份证、房产证\n"
+  },
+  "turns": [
+    {
+      "prompt": "办一份房产委托公证，紫藤公证处收费多少？",
+      "expect": {
+        "required_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "300",
+          "0.3%",
+          "0.3 %",
+          "千分之三"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

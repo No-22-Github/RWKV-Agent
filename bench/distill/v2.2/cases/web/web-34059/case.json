@@ -1,0 +1,72 @@
+{
+  "id": "web-34059",
+  "description": "The user says there is nothing local; the first and only data source is the web (麦穗超市). DISTILL-CANARY-7b3a6fb2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A2-34059",
+    "ref_calls": 2,
+    "fixture_bytes": 14,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "麦穗超市",
+      "url": "https://maisui-mart.example/member-day",
+      "url_match": "maisui-mart.example/member-day",
+      "title": "会员日 - 麦穗超市",
+      "snippet": "会员日活动说明。",
+      "content": "# 会员日\n\n每月 8 日、18 日、28 日为会员日，全场 95 折。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "采购/清单.txt": "牛奶\n鸡蛋\n"
+  },
+  "turns": [
+    {
+      "prompt": "麦穗超市的会员日是每月几号？这个我没记过，去网上看看。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "search_text",
+          "read_file"
+        ],
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "web-34080",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Tidewater ORM). DISTILL-CANARY-ad117206",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34080",
+    "ref_calls": 3,
+    "fixture_bytes": 67,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tidewater",
+      "url": "https://tidewater-orm.example/releases",
+      "url_match": "tidewater-orm.example/releases",
+      "title": "Releases - Tidewater ORM",
+      "snippet": "Releases.",
+      "content": "# Releases\n\n2.9.0 (stable, 2026-09-09)\n2.8.4\n",
+      "published_at": "2026-09-09"
+    }
+  ],
+  "files": {
+    "requirements.lock": "tidewater-orm==2.6.1\nclickrunner==8.1.0\n",
+    "docs/stack.md": "Data layer: Tidewater ORM.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Tidewater ORM version is pinned in our lockfile?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "2.6.1"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "2.9.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

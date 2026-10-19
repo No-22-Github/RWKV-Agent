@@ -1,0 +1,85 @@
+{
+  "id": "hyb-34068",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (砚池云盘). DISTILL-CANARY-e5783872",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34068",
+    "ref_calls": 4,
+    "fixture_bytes": 140,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "砚池云盘",
+      "url": "https://yanchi-drive.example/pricing",
+      "url_match": "yanchi-drive.example/pricing",
+      "title": "套餐与价格 - 砚池云盘",
+      "snippet": "套餐对比。",
+      "content": "# 套餐与价格\n\n免费版：20 GB。个人版：2 TB，每月 69 元。\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "运维/备份策略.md": "# 备份说明\n\n每周日凌晨把 /data 同步到砚池云盘。免费版容量按 15 GB 规划，超了再议。\n",
+    "运维/负责人.txt": "账号归属：运维组\n"
+  },
+  "turns": [
+    {
+      "prompt": "咱们备份说明里写的砚池云盘免费版容量是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "20 GB",
+          "20GB"
+        ]
+      }
+    },
+    {
+      "prompt": "它们网站上现在写的是多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "20"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

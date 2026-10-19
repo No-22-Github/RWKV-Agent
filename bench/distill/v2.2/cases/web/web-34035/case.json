@@ -1,0 +1,99 @@
+{
+  "id": "web-34035",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Wrenwood Notifier). DISTILL-CANARY-ac8f884b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34035",
+    "ref_calls": 5,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Wrenwood",
+      "url": "https://wrenwood.example/notices/sms",
+      "url_match": "wrenwood.example/notices/sms",
+      "title": "SMS channel notice - Wrenwood Notifier",
+      "snippet": "Changes to SMS delivery.",
+      "content": "# SMS channel notice\n\nThe SMS channel is deprecated and will be removed on 2027-03-31. Use the push channel instead.\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "files": {
+    "alerts/config.json": "{\n  \"notifier\": \"wrenwood\",\n  \"channels\": [\"sms\", \"email\"]\n}\n",
+    "alerts/README.md": "Alerts go out through Wrenwood Notifier on SMS and email.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Is the SMS channel in Wrenwood Notifier going away? What replaces it?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains_any": [
+          "2027-03-31",
+          "2027/3/31",
+          "2027年3月31日",
+          "2027 年 3 月 31 日",
+          "3月31日",
+          "3 月 31 日",
+          "3月31号",
+          "March 31",
+          "31 March",
+          "Mar 31",
+          "31 Mar",
+          "31.3.2027",
+          "March 31, 2027",
+          "Mar 31, 2027",
+          "31/03/2027",
+          "03/31/2027",
+          "2027/03/31",
+          "2027.03.31"
+        ]
+      }
+    },
+    {
+      "prompt": "So which channel do I switch to?",
+      "expect": {
+        "output_contains_any": [
+          "push",
+          "Push"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

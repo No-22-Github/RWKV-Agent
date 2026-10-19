@@ -1,0 +1,72 @@
+{
+  "id": "web-34087",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (琴岛输入法). DISTILL-CANARY-3c60643f",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34087",
+    "ref_calls": 3,
+    "fixture_bytes": 76,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "琴岛输入法",
+      "url": "https://qindao-ime.example/android",
+      "url_match": "qindao-ime.example/android",
+      "title": "安卓版 - 琴岛输入法",
+      "snippet": "安卓版。",
+      "content": "# 安卓版\n\n最新版本 9.1.0。\n",
+      "published_at": "2026-09-13"
+    }
+  ],
+  "files": {
+    "手机/应用清单.md": "# 应用清单\n\n- 琴岛输入法 8.2.4\n- 天气 App 3.0\n",
+    "手机/说明.txt": "半年更新一次\n"
+  },
+  "turns": [
+    {
+      "prompt": "我手机应用清单里记的琴岛输入法是什么版本？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "8.2.4"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "9.1.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

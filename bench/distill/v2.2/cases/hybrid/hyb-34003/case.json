@@ -1,0 +1,141 @@
+{
+  "id": "hyb-34003",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (苔原云盘). DISTILL-CANARY-07a73347",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34003",
+    "ref_calls": 5,
+    "fixture_bytes": 130,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "苔原云盘",
+      "url": "https://taiyuan-drive.example/pricing",
+      "url_match": "taiyuan-drive.example/pricing",
+      "title": "套餐与价格 - 苔原云盘",
+      "snippet": "苔原云盘免费版与付费套餐对比。",
+      "content": "# 套餐与价格\n\n免费版：20 GB，单文件上限 2 GB。\n个人版：2 TB，每月 69 元。\n团队版：每人 5 TB，每月 148 元。\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "运维/备份说明.md": "# 备份说明\n\n每周日凌晨把 /data 同步到苔原云盘。目前没有付费，先用免费版。\n",
+    "运维/账号.txt": "账号归属：运维组\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们团队备份用的苔原云盘，免费版现在有多少容量？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "20"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    },
+    {
+      "prompt": "那它个人版一个月多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "69"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": "hyb-34078",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (听涛笔记). DISTILL-CANARY-e0a4d58b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34078",
+    "ref_calls": 4,
+    "fixture_bytes": 98,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "听涛笔记",
+      "url": "https://tingtao-notes.example/changelog/windows",
+      "url_match": "tingtao-notes.example/changelog/windows",
+      "title": "Windows 更新日志 - 听涛笔记",
+      "snippet": "更新日志。",
+      "content": "# Windows 更新日志\n\n6.8.1（2026-09-17）\n",
+      "published_at": "2026-09-17"
+    }
+  ],
+  "files": {
+    "已装软件.md": "# 常用软件\n\n- 听涛笔记 6.5.0（Windows，已安装）\n- 7-Zip\n",
+    "已装软件备注.txt": "每季度检查一次更新\n"
+  },
+  "turns": [
+    {
+      "prompt": "我的软件清单里记的听涛笔记是哪个版本？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "6.5.0"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "6.8.1"
+        ]
+      }
+    },
+    {
+      "prompt": "官网上现在最新是哪一版？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "6.8.1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

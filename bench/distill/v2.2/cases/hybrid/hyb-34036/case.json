@@ -1,0 +1,140 @@
+{
+  "id": "hyb-34036",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (青禾社区医院). DISTILL-CANARY-d73b1339",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "b22a-A1-34036",
+    "ref_calls": 5,
+    "fixture_bytes": 99,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青禾社区医院",
+      "url": "https://qinghe-clinic.example/vaccine",
+      "url_match": "qinghe-clinic.example/vaccine",
+      "title": "疫苗接种 - 青禾社区医院",
+      "snippet": "秋季流感疫苗价格与预约。",
+      "content": "# 秋季流感疫苗\n\n四价流感疫苗 128 元/针，60 岁以上老人免费。\n需提前一天线上预约。\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "家庭/疫苗.md": "# 疫苗\n\n全家秋季打流感疫苗，青禾社区医院就近。价格没查。\n",
+    "家庭/名单.txt": "爸、妈、我\n"
+  },
+  "turns": [
+    {
+      "prompt": "青禾社区医院今年的流感疫苗多少钱一针？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "128"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    },
+    {
+      "prompt": "老人也要交钱吗？",
+      "expect": {
+        "output_contains_any": [
+          "免费",
+          "free",
+          "Free",
+          "不用"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

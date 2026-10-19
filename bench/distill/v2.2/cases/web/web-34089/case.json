@@ -1,0 +1,84 @@
+{
+  "id": "web-34089",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (潮汐健康). DISTILL-CANARY-076613c2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34089",
+    "ref_calls": 4,
+    "fixture_bytes": 93,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "潮汐健康",
+      "url": "https://chaoxi-health.example/packages",
+      "url_match": "chaoxi-health.example/packages",
+      "title": "套餐 - 潮汐健康",
+      "snippet": "套餐价格。",
+      "content": "# 套餐\n\n基础套餐 428 元。\n",
+      "published_at": "2026-09-11"
+    }
+  ],
+  "files": {
+    "体检/套餐.md": "# 体检套餐\n\n潮汐健康 基础套餐 398 元，含血常规与心电图。\n",
+    "体检/预约.txt": "周六上午\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们体检套餐文件里，潮汐健康的基础套餐价格是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "398"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "428"
+        ]
+      }
+    },
+    {
+      "prompt": "官网上基础套餐现在多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "428"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

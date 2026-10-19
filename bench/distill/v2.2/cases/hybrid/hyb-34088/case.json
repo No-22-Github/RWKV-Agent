@@ -1,0 +1,72 @@
+{
+  "id": "hyb-34088",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (Corrie Water). DISTILL-CANARY-0e167945",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34088",
+    "ref_calls": 3,
+    "fixture_bytes": 85,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Corrie",
+      "url": "https://corrie-water.example/tariffs",
+      "url_match": "corrie-water.example/tariffs",
+      "title": "Tariffs - Corrie Water",
+      "snippet": "Tariffs.",
+      "content": "# Tariffs\n\nAverage household quarterly bill: 96.10 pounds.\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {
+    "house/water-letter.txt": "Corrie Water: quarterly bill for your address is 87.40 pounds.\n",
+    "house/other.txt": "meter read in October\n"
+  },
+  "turns": [
+    {
+      "prompt": "What did the council letter in our folder say the Corrie Water bill is per quarter?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "87.40"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "96.10"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

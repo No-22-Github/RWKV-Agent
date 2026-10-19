@@ -1,0 +1,85 @@
+{
+  "id": "web-34081",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (樱桃停车场). DISTILL-CANARY-7827112f",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34081",
+    "ref_calls": 4,
+    "fixture_bytes": 95,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "樱桃停车场",
+      "url": "https://yingtao-parking.example/monthly",
+      "url_match": "yingtao-parking.example/monthly",
+      "title": "月租价格 - 樱桃停车场",
+      "snippet": "月租。",
+      "content": "# 月租价格\n\n月租 360 元。\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "物业/公告.md": "# 物业公告\n\n樱桃停车场月租 300 元，每季度结算一次。\n",
+    "物业/联系人.txt": "物业电话见门口\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们物业公告里写的樱桃停车场月租多少钱？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "300"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "360 元",
+          "360元"
+        ]
+      }
+    },
+    {
+      "prompt": "停车场自己网站上现在写多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "360"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

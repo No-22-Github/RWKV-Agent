@@ -1,0 +1,129 @@
+{
+  "id": "web-34001",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (雾灯图表). DISTILL-CANARY-b2ac75cf",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34001",
+    "ref_calls": 3,
+    "fixture_bytes": 160,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "雾灯图表",
+      "url": "https://wudeng-chart.example/releases",
+      "url_match": "wudeng-chart.example/releases",
+      "title": "版本发布 - 雾灯图表",
+      "snippet": "雾灯图表历史版本与发布说明。",
+      "content": "# 版本发布\n\n- 5.3.0-rc.1（预发布）2026-09-12\n- 5.2.1（稳定版）2026-09-10\n- 5.2.0 2026-08-21\n- 4.9.8（长期支持）2026-05-03\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "看板说明-销售部.md": "# 销售看板\n\n折线图用雾灯图表绘制。升级前要先确认和现有页面是否兼容。\n",
+    "看板待办清单.md": "- [ ] 看板加载慢\n- [ ] 雾灯图表的主题色统一\n"
+  },
+  "turns": [
+    {
+      "prompt": "雾灯图表现在最新的稳定版是哪个版本？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "5.2.1"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

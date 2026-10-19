@@ -1,0 +1,84 @@
+{
+  "id": "web-34066",
+  "description": "Control: the answer is in the workspace file the user means; going online would yield a different value (星轨图表). DISTILL-CANARY-501ff25c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b22a-A0-34066",
+    "ref_calls": 4,
+    "fixture_bytes": 132,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "星轨图表",
+      "url": "https://xinggui-chart.example/releases",
+      "url_match": "xinggui-chart.example/releases",
+      "title": "版本发布 - 星轨图表",
+      "snippet": "星轨图表历史版本与发布说明。",
+      "content": "# 版本发布\n\n- 5.2.1（稳定版）2026-09-10\n- 5.2.0 2026-08-21\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "package.json": "{\n  \"name\": \"sales-board\",\n  \"dependencies\": {\n    \"xinggui-chart\": \"4.9.8\"\n  }\n}\n",
+    "README.md": "# 销售看板\n\n折线图用星轨图表绘制。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们看板项目现在用的星轨图表是哪个版本？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "4.9.8"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "5.2.1"
+        ]
+      }
+    },
+    {
+      "prompt": "那它官网上现在最新稳定版是多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "5.2.1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

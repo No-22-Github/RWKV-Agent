@@ -1,0 +1,77 @@
+{
+  "id": "web-34029",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Ironbark Queue). DISTILL-CANARY-2b38d144",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34029",
+    "ref_calls": 3,
+    "fixture_bytes": 122,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Ironbark",
+      "url": "https://ironbarkqueue.example/docs/exit-codes",
+      "url_match": "ironbarkqueue.example/docs/exit-codes",
+      "title": "Worker exit codes - Ironbark Queue",
+      "snippet": "Exit status table for workers.",
+      "content": "# Exit codes\n\n0 - clean stop\n64 - bad arguments\n78 - invalid configuration file\n137 - killed by the OOM killer\n",
+      "published_at": "2026-07-11"
+    }
+  ],
+  "files": {
+    "ops/runbook.md": "# Runbook\n\nIronbark Queue workers sometimes stop with a numeric exit status. Look the code up, don't guess.\n",
+    "ops/pager.txt": "on-call: Dana\n"
+  },
+  "turns": [
+    {
+      "prompt": "What does exit status 78 mean when Ironbark Queue worker stops?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains_any": [
+          "configuration",
+          "Configuration",
+          "config",
+          "Config",
+          "配置"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}

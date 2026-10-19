@@ -1,0 +1,129 @@
+{
+  "id": "web-34018",
+  "description": "Related local files lack the answer; the model checks locally once or twice then goes online (Thistledown Bank). DISTILL-CANARY-8c0e7591",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22a-A1-34018",
+    "ref_calls": 3,
+    "fixture_bytes": 124,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22a",
+    "subtype": "A1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Thistledown",
+      "url": "https://thistledown-bank.example/savings",
+      "url_match": "thistledown-bank.example/savings",
+      "title": "Basic savings account - Thistledown Bank",
+      "snippet": "Rates for savings accounts.",
+      "content": "# Basic savings\n\nVariable rate: 3.15% AER, effective 15 September 2026. Minimum balance: none.\n",
+      "published_at": "2026-09-15"
+    }
+  ],
+  "files": {
+    "finance/accounts.md": "# Accounts\n\nSavings sit in the Thistledown Bank basic account. Rates change, so check before moving money.\n",
+    "finance/todo.txt": "review insurance\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the current savings rate on Thistledown Bank's basic account?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "3.15"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "网页",
+          "网站",
+          "官网",
+          "页面",
+          "搜索",
+          "网上",
+          "网络",
+          "在线",
+          "来源",
+          "根据",
+          "查到",
+          "查询",
+          "web",
+          "website",
+          "page",
+          "online",
+          "source",
+          "according",
+          "site",
+          "official",
+          "search",
+          "http",
+          "docs",
+          "documentation",
+          "found",
+          "查了",
+          "公告",
+          "文档",
+          "资料",
+          "官方",
+          "页",
+          "站",
+          "网",
+          "查",
+          "来自",
+          "据",
+          "per ",
+          "from ",
+          "Web",
+          "Website",
+          "Page",
+          "Online",
+          "Source",
+          "According",
+          "Site",
+          "Official",
+          "Search",
+          "Http",
+          "Docs",
+          "Documentation",
+          "Found",
+          "Per ",
+          "From "
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "search_text": 2,
+      "list_files": 2
+    }
+  }
+}
