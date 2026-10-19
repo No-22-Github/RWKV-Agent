@@ -25,6 +25,7 @@ bench/distill/
 | [v1.41](v1.41/) | **待继续制作**：先修b12样板，承接v1.4缺口 | [计划](v1.41/distill-allocation-v1.41.md)（v1.4 的增量）、**[放量提示（DeepSeek 老师，保留思考）](v1.41/scale-prompt-deepseek.md)** | [现行联合配额](v1.41/reports/v141-allocation-20261011.json)、[10-10历史进度](v1.41/reports/v141-status-20261010.md) | 9xxx（b12） | — |
 | [v1.42](v1.42/) | **已出题，待老师跑题**：b14 300 题（bash 200、天气 100），补「调用之后做对」 | [计划](v1.42/distill-allocation-v1.42.md)（v1.41 §4–§5 的增量） | [b14 出题报告](v1.42/reports/b14-authoring.md)、[构成统计](v1.42/reports/b14-stats.json)、[8 字符去重](v1.42/reports/b14-dedup.json) | 10001–10300（b14） | — |
 | [v2.0](v2.0/) | **试点，待跑老师**：MiSS 带思考数据；老师无 suffix、每步思考；题目声明 `tool_policy`，目录随机抽、随机排序；按步切行 | [计划](v2.0/distill-allocation-v2.0.md)、[出题规格](v2.0/authoring-v2.0.md) | [b20a](v2.0/reports/b20a-authoring.md)–[b20d](v2.0/reports/b20d-authoring.md)、[b20s 选题](v2.0/reports/b20s-selection.json) | b20s `<前缀>-2xxxx`（1.x 选题）、20001–20140（b20a–c）、nt-21001–21200（b20d） | — |
+| [v2.2](v2.2/) | **已出计划，待出题**：在 v2.1 包上修边界（本地搜空→上网、给网址直接读、注入防御、计算器边界、大文件先看规模） | [计划](v2.2/distill-allocation-v2.2.md)、[出题任务书](v2.2/authoring-v2.2.md) | — | 34001–34450（b22a–e） | — |
 
 ## common/
 
