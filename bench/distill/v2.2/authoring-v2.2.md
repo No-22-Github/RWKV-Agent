@@ -128,6 +128,8 @@
 
 同 v2.1：**不要打开** `bench/exam/`、`bench/workbank/`、`bench/bfcl*`、`bench/boundary*`、`bench/bashprobe*`、`bench/weatherprobe*`、`bench/primitive*`。分配文档里提到的考卷现象只用来说明要教什么行为，不要去找原题，也不要模仿原题的题面。主 Agent 交付后做去污染检查，撞题整题删掉。
 
+- **fixture 文件名不要用通用名**（README.md、CHANGELOG.md、notes.md、todo.md、config.yaml、app.log、access.log、orders.csv、data.csv 之类），表格的列名也不要用最常见的那几个。10-20 验收时，b22a/b22c/b22e 共 29 题的 prompt 相似度只有 0–0.24，却因为文件名和测试集同名被去污染标记；而 run_teacher.sh 会在老师运行前把被标记的题直接删掉。用带业务含义的名字，例如 `logs/edge-proxy-0913.log`、`售后/退款对账明细-q2.csv`。
+
 ## 4. 比例
 
 - 每批中文 ≥ 50%；多轮（≥ 2 个用户轮）≥ 30%（b22d 的 D1 可降到 15%，b22f 的 F4 全部是多轮）；L0 ≤ 20%（b22f 不出 L0）。
