@@ -1,0 +1,20 @@
+## Traps
+TR-TRUNC, TR-MULTISRC
+
+## Reference solution
+turn1 read_file 读预算表；turn2 web_fetch 长页面 -> read_file 跳到价格章节；turn3 算总价；turn4 与第一轮预算比较，差额 136
+
+## Why the answer is unique
+The last turn compares the web price total with the budget read in the first turn.
+
+## Estimated trajectory tokens
+10201
+(fixture: muyu-materials.example/price/floor-2026q4=5986)
+
+
+## Five alternative phrasings of the task
+1. 主卧翻新的预算表在家装文件夹里，实木复合地板那一项预算是多少？
+2. 麻烦帮我：主卧翻新的预算表在家装文件夹里，实木复合地板那一项预算是多少？
+3. 主卧翻新的预算表在家装文件夹里，实木复合地板那一项预算是多少？（用中文回答）
+4. 想请你看看：主卧翻新的预算表在家装文件夹里，实木复合地板那一项预算是多少？
+5. 再确认一下：主卧翻新的预算表在家装文件夹里，实木复合地板那一项预算是多少？
