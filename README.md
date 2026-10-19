@@ -142,6 +142,18 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 并发上限与 `rwkv-lab run check` 闸门）。历次结果与结论在
 [docs/evaluations/](docs/evaluations/)，不同 Harness 版本或题库版本的分数不可直接比较。
 
+## 训练数据与权重
+
+GitHub 放**源**，Hugging Face 放**发布物**：
+
+| 放在哪 | 内容 |
+| --- | --- |
+| 本仓库 `bench/` | 蒸馏题目、老师动作脚本、考卷、冻结证据——要跟代码版本一起走，能按任意对话格式重新渲染 |
+| [No-22/rwkv-agent-distill](https://huggingface.co/datasets/No-22/rwkv-agent-distill) | 实际训练过的打包训练集（v1.41 不带思考、v2.1 带思考），与训练时逐字节一致 |
+| [No-22/rwkv-agent-weights](https://huggingface.co/No-22/rwkv-agent-weights) | 训出的 State / MiSS 权重，按基模分目录，`index.json` 记录基模、数据版本、超参与跑分 |
+
+划分规则和各目录说明见 [bench/README.md](bench/README.md#hugging-face-上的训练包与权重)。
+
 ## 测试
 
 ```sh

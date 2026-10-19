@@ -50,11 +50,19 @@
 | `local/runs/` | 所有原始跑分（run.json / trace.jsonl） | 否，但只有冻结进 `archive/` 的才算证据 |
 | `local/state_output/` | state 训练扫描产物 | 否 |
 
-## 迁移到 Hugging Face 的边界
+## Hugging Face 上的训练包与权重
 
-现在入库数据量小，先放在仓库里。满足以下任一条件时，把对应目录迁到 HF dataset repo，仓库里只留本表中的指针和 sha256：
+GitHub 放**源**，Hugging Face 放**发布物**（2026-10-19 起）：
 
-- 单个目录超过约 50 MB，或 `bench/` 合计超过约 200 MB；
-- 要公开发布训练集（首选迁移各版本 `teacher/` 加一份打包好的 `rows`）。
+| 仓库 | 内容 |
+| --- | --- |
+| [No-22/rwkv-agent-distill](https://huggingface.co/datasets/No-22/rwkv-agent-distill) | 实际训练过、训出当前推荐权重的打包训练集：v1.41（不带思考，final-20261013）与 v2.1（带思考 8k，final-20261018），各含 `rows` / `segments` / `train` 与 `SHA256SUMS` |
+| [No-22/rwkv-agent-weights](https://huggingface.co/No-22/rwkv-agent-weights) | State v1.41（`v141b-s1224`）与 MiSS v2.1（三个学习率）；第一层目录是基模，换基模另开目录；`index.json` 记录基模 sha、数据版本与 sha、超参、跑分 |
 
-题目（`*/cases/`）和词表要跟代码版本一起走，建议一直留在仓库里。
+划分规则：
+
+- **留在仓库**：题目 `*/cases/`、老师动作脚本 `distill/<版本>/teacher/`、词表、考卷（workbank、exam、bashprobe 等）和冻结证据。它们要跟代码版本一起走，渲染、lint、判分都直接读；考卷也不放进训练数据仓库。
+- **放 HF**：打包好的训练集和训出的权重。它们是派生物，按本页「入库原则」本就不进 git；只发布真正训练过、对应推荐权重的版本，其余版本留在 `local/`。
+- 新发版时：训练包和权重同时上 HF，在 HF README 写明来源批次和对应的 git 提交；本仓库的报告里引用 HF 路径和 sha256，不复制文件。
+
+仓库里的入库数据如果以后单个目录超过约 50 MB 或合计超过约 200 MB，再考虑把其中**不跟代码走**的部分（冻结证据、老师脚本）迁到 HF。
