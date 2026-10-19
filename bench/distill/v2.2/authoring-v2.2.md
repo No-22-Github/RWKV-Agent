@@ -1,6 +1,8 @@
-# v2.2 出题任务书（b22a–b22e，修边界）
+# v2.2 出题任务书（b22a–b22f，修边界 + 8–16K 长任务，work-v3 目录）
 
-> 2026-10-19。整体计划和为什么出这几批见 [distill-allocation-v2.2.md](distill-allocation-v2.2.md)。基础规格按顺序**全部读完**：[v2.1 第三波任务书](../v2.1/authoring-v2.1-wave3.md) → [v2.1 出题规格](../v2.1/authoring-v2.1.md) → [v2.0 出题规格](../v2.0/authoring-v2.0.md) → [b20abc 判据修订记录](../v2.0/reports/b20abc-judge-fix.md)。下面只写 v2.2 新增或改动的部分；没提到的一律按 v2.1 第三波执行（题族独立、App 暂存、终答长度、上下文长度、must_offer 含完整路径、裸数字判据等）。
+> 2026-10-19。整体计划和为什么出这几批见 [distill-allocation-v2.2.md](distill-allocation-v2.2.md)。基础规格按顺序**全部读完**：[v2.1 第三波任务书](../v2.1/authoring-v2.1-wave3.md) → [v2.1 出题规格](../v2.1/authoring-v2.1.md) → [v2.0 出题规格](../v2.0/authoring-v2.0.md) → [b20abc 判据修订记录](../v2.0/reports/b20abc-judge-fix.md)。下面只写 v2.2 新增或改动的部分；没提到的一律按 v2.1 第三波执行（题族独立、App 暂存、终答长度、must_offer 含完整路径、裸数字判据等）。
+>
+> **10-19 改：工具目录换成 work-v3**（[work-v3-tools.md](../../../docs/design/work-v3-tools.md)，§8 是实际实现）。工具的变化见下面 §1.1，出题和判据都以 work-v3 为准。上下文上限从 8K 放宽到 16K，新增 b22f 专门出 8–16K 的长任务。
 
 ## 0. 这一轮和以前不一样的地方
 
@@ -20,8 +22,26 @@
 | b22c | 34201–34260 | web / doc / log / hyb | 60 | C1 网页里藏指令（25）、C2 本地文件里藏指令（25）、C0 对照：用户本人要求（10） |
 | b22d | 34301–34370 | nt / hyb | 70 | D1 心算即可（30）、D2 计算器报错后恢复（20）、D0 对照：该用计算器（20） |
 | b22e | 34401–34450 | log / tab / fs | 50 | E1 大日志定位（25）、E2 大表格统计（15）、E3 大目录清点（10） |
+| b22f | 34501–34580 | web / doc / hyb | 80 | F1 长网页写报告/摘要（30）、F2 多个网页对比（20）、F3 多份长文档汇总（15）、F4 长多轮会话（15） |
 
-工具目录仍是 `work-v2`（14 个工具），题目写到 `bench/distill/v2.2/cases/<场景>/<题号>/`，生成脚本放 `bench/distill/tools/<批次名>/build.py` + `README.md`。`Batch(salt=<批次名>, author="llm:claude-sonnet-<批次名>", version="v2.2", tool_catalog="work-v2")`，`extra_tags={"batch": <批次名>, "subtype": <子类代号>}`。
+工具目录是 **`work-v3`（13 个工具）**，题目写到 `bench/distill/v2.2/cases/<场景>/<题号>/`，生成脚本放 `bench/distill/tools/<批次名>/build.py` + `README.md`。`Batch(salt=<批次名>, author="llm:claude-sonnet-<批次名>", version="v2.2", tool_catalog="work-v3")`，`extra_tags={"batch": <批次名>, "subtype": <子类代号>}`。
+
+### 1.1 work-v3 的工具（出题和写判据时按这个来）
+
+13 个工具：`list_files read_file search_text write_file replace_lines append_file calculator data_query datetime web_search web_fetch get_weather bash`。**没有 `read_lines` 了**，`tool_policy`、`required_tools`、`forbidden_tools`、`max_calls` 里都不许出现它。
+
+- **read_file**：参数 `path`、可选 `start_line` / `end_line`。每行带 `N: ` 行号。不给范围时只返回一屏：最多 200 行或 12KB，先到为准。没读完时，结果里有 `total_lines` 和一条中文 note（告诉模型往后读用 `start_line=…`，或者用 search_text / bash 处理整个文件）。所以**超过 200 行的文件，模型一次读不全**，出题时要考虑到这一点。
+- **list_files**：每个文本文件带 `lines`（行数），模型读之前就能看到文件有多大。
+- **replace_lines**：`end_line` 超过末行时自动截到末行；返回值里的 `around` 带行号显示改动处前后 3 行。
+- **write_file / append_file / replace_lines**：内容每行都带连续的 `N: ` 前缀时会被拒绝（防止把行号抄进文件）。
+- **web_fetch**：3000 token 以内的页面整页返回。更长的页面存成 `.web/<序号>-<域名>.md`，例如 `.web/1-example.com.md`；结果里只给开头（≤ 1200 token）、`saved_as`、`total_lines`、`outline`（标题行和行号，最多 40 条，标题少于 3 个时不给）和一条中文 note。之后用 `read_file`（`path` 写 `.web/1-example.com.md`，`start_line` 跳到目录里的章节）或 `search_text`（`path` 写 `.web`）接着读。
+  - `.web/` 是只读存档：写入会报错；不出现在改动面板；`expect.files` 不比较它。
+  - 不指定 path 的 `search_text` / `list_files` **看不到** `.web/`。
+  - 序号按本题第几次存下长页面来编。fixture 里网页的 `url` 决定文件名里的域名。
+- **calculator**：在 abs/min/max/round 之外，新增 `sqrt pow ln log10 exp`。乘方写 `pow(a, b)`；`^` 和 `**` 会报错，并提示用 pow 或 bash。阶乘、组合数、三角函数、积分仍然不支持，报错里会提示改用 bash 的 awk。
+- **data_query**：`sum/avg/min/max` 同时给了 field 和 expression 时用 expression；`count` 带了多余的 field 时忽略它。
+- **web_search** 的描述里不再写后端名字，其余不变。
+- 上下文：训练按 **16K token** 切，单行超过 16K 的会被丢掉。只有 b22f 要求轨迹做到 8–16K，其余批次照旧以短为好。
 
 家族名 `<批次名>-<子类代号>-<序号>`，例如 `b22a-A1-034007`。
 
@@ -73,8 +93,8 @@
   - `tool_policy` 一半题 `must_offer` 含 `calculator`（模型看得到计算器也不该用），一半不写约束。
   - 判据：`tools: []`（必须零调用）；`expected_number` + `tolerance` 或 `output_contains_token`。
   - 题面风格要和 D0 接近，例如都是"帮我算一下……"，区别只在运算量。
-- **D2 计算器报错后恢复（20）**：运算需要计算器不支持的函数（开方、对数、幂次、阶乘、组合数）或超长表达式。通过路径：调一次计算器 → 报错 → 改用 bash `awk` 或分步手算 → 作答。
-  - 先用 `casegen.Sidecar` 或 gate 实测计算器对这些写法的确切报错，只选**确实会报错**的写法出题。
+- **D2 计算器报错后恢复（20）**：运算需要 work-v3 计算器**仍然不支持**的东西：阶乘、组合数、三角函数、取整到指定倍数以外的特殊函数，或者用户自己写成 `^`、`**` 的式子。注意开方、乘方、对数**已经支持**，不能拿来出这一类题。通过路径：调一次计算器 → 报错（报错里会提示用 bash 的 awk，乘方会提示用 pow）→ 改用 pow、bash `awk` 或分步手算 → 作答。
+  - 对照 `internal/agent/tools/compute_v3.go` 和 `evaluateWith`（`internal/agent/tools/assistant.go`）的实现确认写法**确实会报错**再出题；拿不准的写法不要用。
   - 判据：不卡工具（bash 或分步手算都算对），只判结果：`expected_number` + `tolerance`；`max_calls: {"calculator": 2}`（原样重试第三次就不过）。
 - **D0 对照（20）**：数值大（六位以上）、步骤多（四步以上）、要精确到分或小数点后四位（贷款月供、复利、多项加权平均）。通过路径：调计算器。
   - 判据：不卡工具（calculator 或 bash 都算对），只判结果：`expected_number` + 很小的 `tolerance`（数值难到心算基本不可能对）。
@@ -82,14 +102,27 @@
 
 ### b22e 大文件先看规模（50）
 
-要教的行为：面对大文件，先用 bash 的 `wc -l`、`head`、`ls -la` 看规模和格式，再用 `grep`/`awk`/`sort | uniq -c` 定位或统计；不要 read_file 整篇读入。
+要教的行为：面对大文件，**先看规模再动手**：用 list_files 的 `lines`，或 bash 的 `wc -l`、`head` 看规模和格式，再用 `grep -n` / `awk` / `sort | uniq -c` 定位或统计；需要看原文时，用 read_file 的 `start_line` 直接跳到 grep 找到的行号附近。不要一屏一屏往下翻，也不要只凭第一屏下结论。work-v3 里 read_file 一次只给一屏，所以**只读第一屏就作答的答卷一定是错的**，这正是这批要防的。
 
-- fixture 规模：日志 2000–5000 行、CSV 2000–4000 行、目录 300 个文件以上。**每行要短**（日志一行 ≤ 120 字符），总量控制在 500KB 以内；文件用 build.py 按固定种子生成，内容要像真实数据（时间戳连续、字段有分布），不要大段重复同一行。
-- **E1 大日志（25）**：找某类错误第一次出现的时间、统计某时间窗口内某状态码次数、找出现最多的报错。
+- fixture 规模：日志 2000–5000 行、CSV 2000–4000 行、目录 300 个文件以上。**每行要短**（日志一行 ≤ 120 字符），总量控制在 500KB 以内；文件用 build.py 按固定种子生成，内容要像真实数据（时间戳连续、字段有分布），不要大段重复同一行。**答案所在的行或决定答案的数据必须在第 200 行之后**，或者需要全文统计。
+- **E1 大日志（25）**：找某类错误第一次出现的时间、统计某时间窗口内某状态码次数、找出现最多的报错。其中 8 题要先 grep 出行号，再用 read_file 读那附近的上下文才能答（例如"报错前 5 行在做什么"）。
 - **E2 大表格（15）**：按列分组求和、找最大/最小行、去重计数。
 - **E3 大目录（10）**：按扩展名计数、找最大的几个文件、找某天之后改过的文件。
-- 判据：`required_tools: ["bash"]`；`max_calls: {"read_file": 1}`（允许读一个小的说明文件，大文件整篇读就超了——在 NOTES.md 里写清哪个文件是小文件）；答案用 `expected_number` 或 `output_contains_token`。
+- 判据：`required_tools: ["bash"]`；`max_calls: {"read_file": 3}`，防止一屏一屏翻完整个文件；答案用 `expected_number` 或 `output_contains_token`。
 - 沙箱限制见 [v2.1 计划记录](../v2.1/authoring-v2.1.md) 与 v2.1 第二波报告：无 python/perl/sqlite3/bc；awk 无 strftime、asort 输出空行；sort 无 -g；`awk -F'|'` 要写 `-F'[|]'`。参考命令必须在 just-bash 里真跑过（`casegen.Sidecar`）。
+
+### b22f 8–16K 的长任务（80）
+
+要教的行为：在**已经很长的上下文**里继续正确调用工具、最后写出有依据的长答案，不忘前面读到的内容。v2.1 的 16K 包里，8K 以上的轨迹只有 4.4%，网页题最长才 5.5K，而 App 里写报告、写摘要的任务几乎都会超过 8K。这批题的轨迹要**真的长到 8–16K token**。
+
+- 长度靠 fixture 撑：网页 `content` 每页 3000–6000 token（中文约 4500–9000 字，英文约 12–24KB），要有 3 个以上 `##` 标题，混入真实页面常见的无关段落（导航文字、相关文章、评论、版权声明），但不要整段重复。估算用 `len(text)/1.5`（中文）或 `len(text)/4`（英文）粗算 token，交付报告里列出每题 fixture 的估算 token 数。
+- 关键事实要**分散**在页面的不同章节，而且至少有一条在开头 1200 token 之后，逼模型用 outline 跳着读，或者用 search_text 在 `.web/` 里搜。
+- **F1 长网页写报告/摘要（30）**：一到两个长页面，用户要一份要点摘要、调研报告或对比表，一半题要求写进工作区文件（`report.md` 之类）。判据：`required_tools: ["web_fetch"]`；`output_contains`（或写文件题的 `expect.files.contains`）放 3–5 个分散在不同章节的事实，其中至少 2 个在第一屏之后；`output_excludes` 放页面里被明确否定或已过时的旧值。
+- **F2 多个网页对比（20）**：2–3 个长页面（不同网址、不同站点），比较版本、价格、政策条款等，要说清哪个新、哪个官方。判据同 F1，事实要覆盖每个页面。
+- **F3 多份长文档汇总（15）**：工作区里 3–5 份 400–1200 行的文档（会议纪要、规范、日志说明），汇总成一份文件。判据用 `expect.files.contains` 判汇总文件；`max_calls: {"read_file": 12}`。
+- **F4 长多轮会话（15）**：3–5 个用户轮，前几轮读文件、查网页、改文件，最后一轮要求基于**前面几轮**的结果做决定或写总结（例如"按刚才查到的三个数，改一下预算表并告诉我差多少"）。最后一轮的判据必须用到第一轮的事实。
+- 终答长度：F1、F2 的 task_type 用 `summarize_page` 或 `draft_document`（终答放宽到 2000 字）；其余照常 600 字以内，长内容写进文件。
+- 每题在 NOTES.md 里写：预计的通过路径（几步、每步读什么）和预计的轨迹 token 数（8–16K 之间）。超过 16K 的题会在训练时被整行丢掉，**必须控制在 16K 以内**：两个页面合计不要超过 12000 token。
 
 ## 3. 不许碰测试集
 
@@ -97,7 +130,7 @@
 
 ## 4. 比例
 
-- 每批中文 ≥ 50%；多轮（≥ 2 个用户轮）≥ 30%（b22d 的 D1 可降到 15%）；L0 ≤ 20%。
+- 每批中文 ≥ 50%；多轮（≥ 2 个用户轮）≥ 30%（b22d 的 D1 可降到 15%，b22f 的 F4 全部是多轮）；L0 ≤ 20%（b22f 不出 L0）。
 - 子类数量按 §1 的表，偏差不超过 ±3 题。
 - 对照组和正向组的中英比例、多轮比例、平均题面长度要接近（交付报告里分子类列出来）。
 
@@ -105,8 +138,8 @@
 
 ```bash
 cd bench/distill/tools/<批次名> && python3 build.py && python3 build.py && git status --short ../../v2.2   # 两次结果一致
-RWKV_LAB=local/bin/rwkv-lab-v21 bench/distill/tools/gate.sh v2.2 '<你的题号 glob>'   # lint 0 违规、verify 全过
-local/bin/rwkv-lab-v21 corpus loadcheck --cases bench/distill/v2.2/cases
+RWKV_LAB=local/bin/rwkv-lab-v3 bench/distill/tools/gate.sh v2.2 '<你的题号 glob>'   # lint 0 违规、verify 全过
+local/bin/rwkv-lab-v3 corpus loadcheck --cases bench/distill/v2.2/cases
 ```
 
 - 只写自己题号段和自己批次的工具目录，不改别的批次、不改 Go 代码、不提交 git、不调用任何付费模型 API、不跑老师。
