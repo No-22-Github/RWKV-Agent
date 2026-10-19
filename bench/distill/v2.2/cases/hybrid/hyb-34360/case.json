@@ -1,0 +1,56 @@
+{
+  "id": "hyb-34360",
+  "description": "D0: Invoice total. DISTILL-CANARY-2e73c4e1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "9100"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34360",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Total up these invoices for me: 14 items at $128.45 and 3 items at $2,310.80. Add 8.25% sales tax, then take 3% off the taxed total for paying early. What is due? Two decimals.",
+      "expect": {
+        "expected_number": 9167.45,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    },
+    {
+      "prompt": "What would it be without the early-payment discount?",
+      "expect": {
+        "expected_number": 9450.98,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  }
+}

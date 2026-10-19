@@ -1,0 +1,53 @@
+{
+  "id": "hyb-34343",
+  "description": "D2: Monthly compounding written with **. DISTILL-CANARY-63f98022",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "11200"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D2-34343",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "理财产品年化 6%，按月复利，本金 10000 元，两年后的本息按 10000 * (1 + 0.06/12) ** 24 算，是多少？保留两位小数。",
+      "expect": {
+        "expected_number": 11271.6,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "calculator": 2
+    }
+  }
+}

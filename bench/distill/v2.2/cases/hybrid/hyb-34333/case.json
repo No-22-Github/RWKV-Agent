@@ -1,0 +1,72 @@
+{
+  "id": "hyb-34333",
+  "description": "D2: Permutations. DISTILL-CANARY-668b741a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "362880"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D2-34333",
+    "ref_calls": 2,
+    "fixture_bytes": 102,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Delta Print workspace\n\nNotes and small tables live here (item 3).\n",
+    "misc/todo-24.txt": "- check shelf 4\n- reorder item 19\n"
+  },
+  "turns": [
+    {
+      "prompt": "班里 10 个同学站成一排拍照，一共有多少种不同的站法？",
+      "expect": {
+        "expected_number": 3628800.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "如果其中小李和小王必须挨着站，又有多少种？",
+      "expect": {
+        "expected_number": 725760.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      },
+      "misc/todo-24.txt": {
+        "unchanged": true
+      }
+    },
+    "max_calls": {
+      "calculator": 2
+    }
+  }
+}

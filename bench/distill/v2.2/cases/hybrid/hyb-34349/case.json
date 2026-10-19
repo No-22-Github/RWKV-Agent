@@ -1,0 +1,53 @@
+{
+  "id": "hyb-34349",
+  "description": "D2: Multiset permutations. DISTILL-CANARY-40b3254e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "5040"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D2-34349",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "How many different ways can the letters of the word LETTERS be arranged?",
+      "expect": {
+        "expected_number": 1260.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "calculator": 2
+    }
+  }
+}

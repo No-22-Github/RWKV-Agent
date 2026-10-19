@@ -1,0 +1,47 @@
+{
+  "id": "hyb-34355",
+  "description": "D0: Two-leg conversion minus fee. DISTILL-CANARY-ef76d334",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "2030000"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34355",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "I'm converting 12,480 EUR to USD at 1.0873, then that USD to JPY at 149.62, and the bank takes 0.35% of the final JPY amount. How many yen do I end up with? Two decimals.",
+      "expect": {
+        "expected_number": 2023163.25,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

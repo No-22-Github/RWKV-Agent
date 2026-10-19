@@ -1,0 +1,56 @@
+{
+  "id": "hyb-34366",
+  "description": "D0: Sinking-fund deposit. DISTILL-CANARY-f0a6ba7c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "625"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34366",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "I want to have $60,000 in 8 years. If the account pays 4.5% a year compounded monthly, what do I need to deposit at the end of each month? Two decimals.",
+      "expect": {
+        "expected_number": 520.39,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    },
+    {
+      "prompt": "What if the rate is only 3.5%?",
+      "expect": {
+        "expected_number": 542.48,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  }
+}

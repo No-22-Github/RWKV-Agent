@@ -1,0 +1,61 @@
+{
+  "id": "hyb-34356",
+  "description": "D0: Doubling time. DISTILL-CANARY-b15fa064",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "16.9"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34356",
+    "ref_calls": 1,
+    "fixture_bytes": 106,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 海盐面包房 workspace\n\nNotes and small tables live here (item 6).\n",
+    "misc/todo-45.txt": "- check shelf 7\n- reorder item 28\n"
+  },
+  "turns": [
+    {
+      "prompt": "年化 4.25% 复利，本金翻一倍至少要多少年？保留两位小数。",
+      "expect": {
+        "expected_number": 16.65,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "README.md": {
+        "unchanged": true
+      },
+      "misc/todo-45.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

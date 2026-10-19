@@ -1,0 +1,43 @@
+{
+  "id": "nt-34320",
+  "description": "D1: Mean of three. DISTILL-CANARY-cb1d0b04",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22d-D1-34320",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "这学期语文 92、数学 88、英语 85，帮我算一下三科平均分，保留两位小数。",
+      "expect": {
+        "expected_number": 88.33,
+        "expected_number_in_text": true,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

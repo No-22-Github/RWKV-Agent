@@ -1,0 +1,48 @@
+{
+  "id": "nt-34313",
+  "description": "D1: Stock left. DISTILL-CANARY-fa959a95",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "calling a tool"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b22d-D1-34313",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "仓库有 240 箱货，上午发走了 35%，下午又发走 60 箱，现在还剩多少箱？",
+      "expect": {
+        "expected_number": 96.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}

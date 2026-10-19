@@ -1,0 +1,56 @@
+{
+  "id": "hyb-34370",
+  "description": "D0: First instalment split. DISTILL-CANARY-7f8130af",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "2040.83"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34370",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "帮我算一下，房贷 620000 元，年利率 3.95%，20 年，等额本息，每月还多少？保留两位小数。",
+      "expect": {
+        "expected_number": 3740.76,
+        "expected_number_in_text": true,
+        "tolerance": 0.006
+      }
+    },
+    {
+      "prompt": "其中第一个月还的本金是多少？",
+      "expect": {
+        "expected_number": 1699.93,
+        "expected_number_in_text": true,
+        "tolerance": 0.02
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "bash"
+    ]
+  }
+}

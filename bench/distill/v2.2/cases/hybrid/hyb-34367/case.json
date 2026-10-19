@@ -1,0 +1,47 @@
+{
+  "id": "hyb-34367",
+  "description": "D0: Tiling cost. DISTILL-CANARY-ee0376c5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "4000"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22d-D0-34367",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22d",
+    "subtype": "D0"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "圆形水池直径 6.4 米，池壁高 1.2 米，池底和池壁内侧都要贴砖，每平方米 85.6 元（π 取 3.14159265），贴砖一共多少钱？保留两位小数。",
+      "expect": {
+        "expected_number": 4819.05,
+        "expected_number_in_text": true,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator"
+    ]
+  }
+}
