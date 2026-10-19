@@ -710,5 +710,13 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 	} else if deepseek != nil {
 		set.fetch = deepseek
 	}
+	// work-v3: the keyless local reader goes first; a page it cannot read
+	// (HTTP error, anti-bot page, too little text) falls through to the keyed
+	// backends chosen above.
+	var keyed assistanttools.WebFetchProvider
+	if strings.TrimSpace(config.TavilyAPIKey) != "" || deepseek != nil {
+		keyed = set.fetch
+	}
+	set.fetch = assistanttools.FallbackFetch{Primary: assistanttools.ReadabilityFetch{}, Secondary: keyed}
 	return set, nil
 }

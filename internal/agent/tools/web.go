@@ -131,8 +131,14 @@ type WebFetchRequest struct {
 type WebFetchResult struct {
 	SourceID  string `json:"source_id"`
 	URL       string `json:"url"`
+	Title     string `json:"title,omitempty"`
 	Content   string `json:"content"`
 	Truncated bool   `json:"truncated,omitempty"`
+	// work-v3 long pages only (work-v2 never sets them): the archive file,
+	// its line count and its heading outline.
+	SavedAs    string   `json:"saved_as,omitempty"`
+	TotalLines int      `json:"total_lines,omitempty"`
+	Outline    []string `json:"outline,omitempty"`
 }
 
 type WebFetchProvider interface {

@@ -404,10 +404,15 @@ func TestWebToolsStayListedWithoutKeys(t *testing.T) {
 		case "web_search":
 			_, called["web_search"] = tool.Execute(context.Background(), json.RawMessage(`{"query":"golang","max_results":3}`))
 		case "web_fetch":
-			_, called["web_fetch"] = tool.Execute(context.Background(), json.RawMessage(`{"urls":["https://example.com/"]}`))
+			// work-v3: web_fetch reads pages without a key, so it no longer
+			// answers "not configured"; only its presence is checked here.
+			called["web_fetch"] = nil
 		}
 	}
 	for name, err := range called {
+		if name == "web_fetch" {
+			continue
+		}
 		if err == nil || !errors.Is(err, agent.ErrProviderUnavailable) || !strings.Contains(err.Error(), "未配置") {
 			t.Fatalf("%s error = %v", name, err)
 		}
