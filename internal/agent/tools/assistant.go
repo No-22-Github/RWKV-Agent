@@ -319,6 +319,12 @@ type calculatorResult struct {
 }
 
 func evaluateExpression(expression ast.Expr, variables map[string]float64) (float64, error) {
+	return evaluateWith(expression, variables, false)
+}
+
+// evaluateWith is the shared evaluator; extended adds work-v3's sqrt, pow, ln,
+// log10 and exp (work-v2's calculator and data_query keep extended=false).
+func evaluateWith(expression ast.Expr, variables map[string]float64, extended bool) (float64, error) {
 	switch value := expression.(type) {
 	case *ast.BasicLit:
 		if value.Kind != token.INT && value.Kind != token.FLOAT {
@@ -332,9 +338,9 @@ func evaluateExpression(expression ast.Expr, variables map[string]float64) (floa
 		}
 		return result, nil
 	case *ast.ParenExpr:
-		return evaluateExpression(value.X, variables)
+		return evaluateWith(value.X, variables, extended)
 	case *ast.UnaryExpr:
-		operand, err := evaluateExpression(value.X, variables)
+		operand, err := evaluateWith(value.X, variables, extended)
 		if err != nil {
 			return 0, err
 		}
@@ -347,11 +353,11 @@ func evaluateExpression(expression ast.Expr, variables map[string]float64) (floa
 			return 0, fmt.Errorf("operator %s is not allowed", value.Op)
 		}
 	case *ast.BinaryExpr:
-		left, err := evaluateExpression(value.X, variables)
+		left, err := evaluateWith(value.X, variables, extended)
 		if err != nil {
 			return 0, err
 		}
-		right, err := evaluateExpression(value.Y, variables)
+		right, err := evaluateWith(value.Y, variables, extended)
 		if err != nil {
 			return 0, err
 		}
@@ -382,7 +388,7 @@ func evaluateExpression(expression ast.Expr, variables map[string]float64) (floa
 		}
 		arguments := make([]float64, len(value.Args))
 		for index, argument := range value.Args {
-			result, err := evaluateExpression(argument, variables)
+			result, err := evaluateWith(argument, variables, extended)
 			if err != nil {
 				return 0, err
 			}
@@ -421,6 +427,11 @@ func evaluateExpression(expression ast.Expr, variables map[string]float64) (floa
 			factor := math.Pow10(places)
 			return math.Round(arguments[0]*factor) / factor, nil
 		default:
+			if extended {
+				if result, ok, err := extendedFunction(function.Name, arguments); ok {
+					return result, err
+				}
+			}
 			return 0, fmt.Errorf("function %q is not allowed", function.Name)
 		}
 	default:
