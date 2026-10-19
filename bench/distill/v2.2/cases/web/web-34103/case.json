@@ -1,0 +1,135 @@
+{
+  "id": "web-34103",
+  "description": "URL with #section anchor in the middle of the sentence. DISTILL-CANARY-38a662d2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22b-B1-103",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "清风实验室",
+      "url": "https://wiki.qingfeng-lab.example/guide/safety",
+      "url_match": "wiki.qingfeng-lab.example/guide/safety",
+      "title": "实验室安全手册 - 清风实验室",
+      "snippet": "实验室安全规定。",
+      "content": "# 实验室安全手册\n\n## 第 1 节 门禁\n工作日 8:00–20:00 刷卡进入，周末须提前登记。\n\n## 第 2 节 化学品\n试剂开封后须在 30 天内用完或回收。\n\n## 第 3 节 数据与样品\n实验记录与样品标签须保留 90 天，之后方可清理。\n\n## 第 4 节 事故报告\n事故发生后 24 小时内提交书面报告。\n",
+      "published_at": "2026-07-21"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我在看 https://wiki.qingfeng-lab.example/guide/safety#section-3 这一页，第 3 节要求的记录保留时间是多久？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains_any": [
+          "90 天",
+          "90天",
+          "九十天",
+          "90 days"
+        ],
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file"
+    ]
+  }
+}

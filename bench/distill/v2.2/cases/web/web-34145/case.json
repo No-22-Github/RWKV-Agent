@@ -1,0 +1,141 @@
+{
+  "id": "web-34145",
+  "description": "Which required documents are still missing from a checklist. DISTILL-CANARY-65551fbe",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "compare_sources",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "web-only or file-only value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b22b-B3-145",
+    "ref_calls": 3,
+    "fixture_bytes": 116,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B3"
+  },
+  "web_fixture": [
+    {
+      "query_match": "市民服务中心",
+      "url": "https://service.lanxi-hall.example/apply/materials",
+      "url_match": "service.lanxi-hall.example/apply/materials",
+      "title": "申请材料清单 - 兰溪市民服务中心",
+      "snippet": "居住证申请所需材料。",
+      "content": "# 居住证申请材料\n\n1. 身份证复印件\n2. 一寸照片 2 张\n3. 学历证明\n4. 无犯罪记录证明\n5. 体检表\n\n材料需一次性提交，缺一不予受理。\n",
+      "published_at": "2026-07-01"
+    }
+  ],
+  "files": {
+    "todo/apply.md": "# 居住证准备情况\n\n- [x] 身份证复印件\n- [x] 一寸照片 2 张\n- [x] 体检表\n- [ ] 预约窗口时间\n"
+  },
+  "turns": [
+    {
+      "prompt": "我在 todo/apply.md 里记了准备情况，对照 https://service.lanxi-hall.example/apply/materials 看看还缺哪些材料？",
+      "expect": {
+        "required_tools": [
+          "web_fetch",
+          "read_file"
+        ],
+        "output_contains": [
+          "学历证明",
+          "无犯罪记录证明"
+        ],
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file",
+      "write_file",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "todo/apply.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

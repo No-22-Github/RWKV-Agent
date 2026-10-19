@@ -1,0 +1,148 @@
+{
+  "id": "web-34114",
+  "description": "Pricing page URL at the end; annual price per seat. DISTILL-CANARY-77e0125b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22b-B1-114",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "tidyboard",
+      "url": "https://tidyboard.example/pricing",
+      "url_match": "tidyboard.example/pricing",
+      "title": "Pricing - Tidyboard",
+      "snippet": "Plans and per-seat prices.",
+      "content": "# Pricing\n\n| Plan | Monthly billing | Annual billing |\n| --- | --- | --- |\n| Solo | $6 / seat | $60 / seat |\n| Team | $12 / seat | $120 / seat |\n| Business | $20 / seat | $200 / seat |\n\nAnnual billing is charged once per year. Prices exclude tax.\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "tidyboard",
+      "url": "https://saas-compare.example/tidyboard-review",
+      "url_match": "saas-compare.example/tidyboard-review",
+      "title": "Tidyboard review - SaaS Compare",
+      "snippet": "A third-party review with prices.",
+      "content": "# Tidyboard review\n\nWe saw Team at $144 per seat per year in 2025.\n",
+      "published_at": "2025-06-10"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "How much per seat per year is the Team plan on annual billing? Here's the page: https://tidyboard.example/pricing",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains_any": [
+          "$120",
+          "120 dollars",
+          "120/seat",
+          "120 / seat",
+          "USD 120"
+        ],
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse",
+          "$144",
+          "144 dollars"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "web_search",
+      "read_file"
+    ]
+  }
+}

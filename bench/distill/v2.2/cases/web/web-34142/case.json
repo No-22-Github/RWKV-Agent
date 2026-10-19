@@ -1,0 +1,141 @@
+{
+  "id": "web-34142",
+  "description": "Bump a pinned dependency to the fixed version named in an advisory. DISTILL-CANARY-30fba594",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "web-only or file-only value"
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "b22b-B3-142",
+    "ref_calls": 4,
+    "fixture_bytes": 47,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B3"
+  },
+  "web_fixture": [
+    {
+      "query_match": "pyfern",
+      "url": "https://advisories.pyfern.example/PF-2026-031",
+      "url_match": "advisories.pyfern.example/pf-2026-031",
+      "title": "PF-2026-031 - tablekit path traversal",
+      "snippet": "Security advisory for tablekit.",
+      "content": "# PF-2026-031\n\nAffected: tablekit < 2.8.4\nFixed in: tablekit 2.8.4\n\nUpgrade to 2.8.4 or later. Versions 2.9.x are not affected.\n",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "requirements.txt": "flasklet==1.4.0\ntablekit==2.7.1\nzipwise==0.9.3\n"
+  },
+  "turns": [
+    {
+      "prompt": "https://advisories.pyfern.example/PF-2026-031 这个安全公告说 tablekit 要升到哪个版本？照着改 requirements.txt，其他行别动。",
+      "expect": {
+        "required_tools": [
+          "web_fetch",
+          "read_file"
+        ],
+        "output_contains": [
+          "2.8.4"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file",
+      "write_file",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "requirements.txt": {
+        "equals": "flasklet==1.4.0\ntablekit==2.8.4\nzipwise==0.9.3\n"
+      }
+    }
+  }
+}

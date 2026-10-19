@@ -1,0 +1,215 @@
+{
+  "id": "web-34111",
+  "description": "URL alone on the first line, ticket prices. DISTILL-CANARY-dd2789c9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22b-B1-111",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "天湖景区",
+      "url": "https://park.tianhu-scenic.example/ticket/price.html",
+      "url_match": "park.tianhu-scenic.example/ticket/price.html",
+      "title": "门票价格 - 天湖景区",
+      "snippet": "天湖景区门票与优惠政策。",
+      "content": "# 门票价格\n\n- 成人票：86 元\n- 学生票（凭学生证）：43 元\n- 1.2 米以下儿童：免票\n- 60 岁以上老人：半价\n\n旺季（7–8 月）不加价。\n",
+      "published_at": "2026-06-03"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "https://park.tianhu-scenic.example/ticket/price.html\n这个页面上的成人票和学生票各多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains": [
+          "86",
+          "43"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    },
+    {
+      "prompt": "那 60 岁以上的老人呢？",
+      "expect": {
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains_any": [
+          "半价",
+          "50%",
+          "一半",
+          "half"
+        ],
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file"
+    ]
+  }
+}

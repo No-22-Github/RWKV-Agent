@@ -1,0 +1,143 @@
+{
+  "id": "web-34112",
+  "description": "URL with page query and fragment in the middle of an English sentence. DISTILL-CANARY-d5c1c3ef",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22b-B1-112",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "nimbusdb",
+      "url": "https://forum.nimbusdb.example/t/upgrade-guide?page=2",
+      "url_match": "forum.nimbusdb.example/t/upgrade-guide?page=2",
+      "title": "Upgrade guide (page 2) - NimbusDB forum",
+      "snippet": "Step-by-step upgrade notes.",
+      "content": "# Upgrade guide, page 2\n\n**post #14:** Before upgrading to 6.0, make sure the data volume has at least 40 GB of free disk space; the migration writes a full copy of the catalog.\n\n**post #15:** On clusters with more than 3 nodes, upgrade replicas first.\n\n**post #16:** Memory: 16 GB RAM recommended.\n",
+      "published_at": "2026-07-30"
+    },
+    {
+      "query_match": "nimbusdb",
+      "url": "https://forum.nimbusdb.example/t/upgrade-guide?page=1",
+      "url_match": "forum.nimbusdb.example/t/upgrade-guide?page=1",
+      "title": "Upgrade guide (page 1) - NimbusDB forum",
+      "snippet": "Start here.",
+      "content": "# Upgrade guide, page 1\n\nBackup first. Disk space needs are covered later in the thread.\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "I'm reading https://forum.nimbusdb.example/t/upgrade-guide?page=2#post-14 and it mentions a minimum amount of free disk. How much is it?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains_any": [
+          "40 GB",
+          "40GB",
+          "40 gigabytes"
+        ],
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file"
+    ]
+  }
+}

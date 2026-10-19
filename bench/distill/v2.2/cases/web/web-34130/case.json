@@ -1,0 +1,143 @@
+{
+  "id": "web-34130",
+  "description": "URL followed by a full stop; forum post author and points. DISTILL-CANARY-e11245ef",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b22b-B1-130",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b22b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v3",
+    "batch": "b22b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "cinderyard",
+      "url": "https://news.cinderyard.example/item?id=48213",
+      "url_match": "news.cinderyard.example/item?id=48213",
+      "title": "Why we moved off microservices | Cinderyard News",
+      "snippet": "312 points by marlowe_k",
+      "content": "# Why we moved off microservices\n\n312 points by marlowe_k, 5 hours ago | 148 comments\n\nWe collapsed 41 services back into 6. Deploy time fell from 40 minutes to 7.\n\n---\n**top comment** by tessa_r (96 points): we did the same thing last year.\n",
+      "published_at": "2026-09-14"
+    },
+    {
+      "query_match": "cinderyard",
+      "url": "https://news.cinderyard.example/item?id=48120",
+      "url_match": "news.cinderyard.example/item?id=48120",
+      "title": "Show: a tiny queue in Go | Cinderyard News",
+      "snippet": "88 points by oddvar",
+      "content": "# Show: a tiny queue in Go\n\n88 points by oddvar, 1 day ago | 21 comments\n",
+      "published_at": "2026-09-13"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Got this link from a colleague, see https://news.cinderyard.example/item?id=48213. Who posted it and how many points does it have?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "forbidden_tools": [
+          "read_file",
+          "search_text"
+        ],
+        "output_contains": [
+          "marlowe_k",
+          "312"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "我没有上网",
+          "没有上网",
+          "无法上网",
+          "不能上网",
+          "没有联网",
+          "无法联网",
+          "不能联网",
+          "没法联网",
+          "没有网页工具",
+          "没有浏览网页",
+          "无法浏览网页",
+          "无法访问网页",
+          "无法访问网址",
+          "无法访问链接",
+          "没有访问网页",
+          "不能访问网页",
+          "没有访问网络",
+          "无法访问互联网",
+          "无法访问外部网站",
+          "没有网络访问",
+          "cannot browse",
+          "Cannot browse",
+          "can't browse",
+          "Can't browse",
+          "can’t browse",
+          "Can’t browse",
+          "no web access",
+          "No web access",
+          "no internet access",
+          "No internet access",
+          "don't have access to the internet",
+          "Don't have access to the internet",
+          "don’t have access to the internet",
+          "Don’t have access to the internet",
+          "do not have access to the internet",
+          "Do not have access to the internet",
+          "don't have internet access",
+          "Don't have internet access",
+          "don’t have internet access",
+          "Don’t have internet access",
+          "unable to browse",
+          "Unable to browse",
+          "unable to access the web",
+          "Unable to access the web",
+          "unable to access external",
+          "Unable to access external",
+          "cannot access external",
+          "Cannot access external",
+          "can't access external",
+          "Can't access external",
+          "can’t access external",
+          "Can’t access external",
+          "cannot access the internet",
+          "Cannot access the internet",
+          "can't access the internet",
+          "Can't access the internet",
+          "can’t access the internet",
+          "Can’t access the internet",
+          "don't have the ability to browse",
+          "Don't have the ability to browse",
+          "don’t have the ability to browse",
+          "Don’t have the ability to browse",
+          "no ability to browse",
+          "No ability to browse"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "web_fetch",
+      "read_file"
+    ]
+  }
+}
