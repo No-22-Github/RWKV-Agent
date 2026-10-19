@@ -437,6 +437,10 @@ func publicEvent(event agent.Event) Event {
 		DelayMS:       event.DelayMS,
 		Text:          terminal.SanitizeModelText(event.Text),
 	}
+	if event.StepTrace != nil {
+		step := publicStep(*event.StepTrace)
+		value.StepTrace = &step
+	}
 	if event.Err != nil {
 		value.Error = event.Err.Error()
 	}
@@ -471,60 +475,64 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 		})
 	}
 	for _, step := range value.Steps {
-		converted := Step{
-			Number:       step.Number,
-			Stage:        string(step.Stage),
-			Request:      publicPromptTrace(step.Request),
-			ModelOutput:  step.ModelOutput,
-			FinishReason: string(step.FinishReason),
-			Usage: Usage{
-				PromptTokens:     step.Usage.PromptTokens,
-				CompletionTokens: step.Usage.CompletionTokens,
-				CacheReadTokens:  step.Usage.PromptCacheReadTokens,
-				CacheWriteTokens: step.Usage.PromptCacheWriteTokens,
-				ReasoningTokens:  step.Usage.ReasoningTokens,
-			},
-			StartedAtMS:      step.StartedAtMS,
-			ModelDurationMS:  step.ModelDurationMS,
-			FirstTokenAtMS:   step.FirstTokenAtMS,
-			ModelError:       step.ModelError,
-			ActionType:       step.ActionType,
-			Tool:             step.Tool,
-			ToolArguments:    string(step.ToolArguments),
-			ToolResult:       string(step.ToolResult),
-			ToolExecuted:     step.ToolExecuted,
-			ToolEvidence:     step.ToolEvidence,
-			ToolUnavailable:  step.ToolUnavailable,
-			ToolRejected:     step.ToolRejected,
-			ToolError:        step.ToolError,
-			ProtocolError:    step.ProtocolError,
-			ProtocolRepaired: step.ProtocolRepaired,
-			StageViolation:   step.StageViolation,
-			ToolRetries:      publicToolRetries(step.ToolRetries),
-			ToolDurationMS:   step.ToolDurationMS,
-			NoToolRationale:  step.NoToolRationale,
-			NoToolAnswer:     step.NoToolAnswer,
-		}
-		for _, subagent := range step.Subagents {
-			child := SubagentTrace{
-				Index: subagent.Index, Task: subagent.Task, Status: subagent.Status,
-				Error: subagent.Error, Route: string(subagent.Route),
-				Bundles: append([]string(nil), subagent.Bundles...), StartedAtMS: subagent.StartedAtMS,
-				DurationMS: subagent.DurationMS,
-				Output:     subagent.Output, Sources: append([]string(nil), subagent.Sources...),
-			}
-			for _, childStep := range subagent.Steps {
-				child.Steps = append(child.Steps, SubagentStep{
-					Number: childStep.Number, Tool: childStep.Tool,
-					Arguments: string(childStep.Arguments), Status: childStep.Status, Error: childStep.Error,
-					Retries: publicToolRetries(childStep.Retries),
-				})
-			}
-			converted.Subagents = append(converted.Subagents, child)
-		}
-		result.Steps = append(result.Steps, converted)
+		result.Steps = append(result.Steps, publicStep(step))
 	}
 	return result
+}
+
+func publicStep(step agent.Step) Step {
+	converted := Step{
+		Number:       step.Number,
+		Stage:        string(step.Stage),
+		Request:      publicPromptTrace(step.Request),
+		ModelOutput:  step.ModelOutput,
+		FinishReason: string(step.FinishReason),
+		Usage: Usage{
+			PromptTokens:     step.Usage.PromptTokens,
+			CompletionTokens: step.Usage.CompletionTokens,
+			CacheReadTokens:  step.Usage.PromptCacheReadTokens,
+			CacheWriteTokens: step.Usage.PromptCacheWriteTokens,
+			ReasoningTokens:  step.Usage.ReasoningTokens,
+		},
+		StartedAtMS:      step.StartedAtMS,
+		ModelDurationMS:  step.ModelDurationMS,
+		FirstTokenAtMS:   step.FirstTokenAtMS,
+		ModelError:       step.ModelError,
+		ActionType:       step.ActionType,
+		Tool:             step.Tool,
+		ToolArguments:    string(step.ToolArguments),
+		ToolResult:       string(step.ToolResult),
+		ToolExecuted:     step.ToolExecuted,
+		ToolEvidence:     step.ToolEvidence,
+		ToolUnavailable:  step.ToolUnavailable,
+		ToolRejected:     step.ToolRejected,
+		ToolError:        step.ToolError,
+		ProtocolError:    step.ProtocolError,
+		ProtocolRepaired: step.ProtocolRepaired,
+		StageViolation:   step.StageViolation,
+		ToolRetries:      publicToolRetries(step.ToolRetries),
+		ToolDurationMS:   step.ToolDurationMS,
+		NoToolRationale:  step.NoToolRationale,
+		NoToolAnswer:     step.NoToolAnswer,
+	}
+	for _, subagent := range step.Subagents {
+		child := SubagentTrace{
+			Index: subagent.Index, Task: subagent.Task, Status: subagent.Status,
+			Error: subagent.Error, Route: string(subagent.Route),
+			Bundles: append([]string(nil), subagent.Bundles...), StartedAtMS: subagent.StartedAtMS,
+			DurationMS: subagent.DurationMS,
+			Output:     subagent.Output, Sources: append([]string(nil), subagent.Sources...),
+		}
+		for _, childStep := range subagent.Steps {
+			child.Steps = append(child.Steps, SubagentStep{
+				Number: childStep.Number, Tool: childStep.Tool,
+				Arguments: string(childStep.Arguments), Status: childStep.Status, Error: childStep.Error,
+				Retries: publicToolRetries(childStep.Retries),
+			})
+		}
+		converted.Subagents = append(converted.Subagents, child)
+	}
+	return converted
 }
 
 func publicPromptTrace(value *agent.PromptTrace) *PromptTrace {

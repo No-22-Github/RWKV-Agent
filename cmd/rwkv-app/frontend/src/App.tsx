@@ -29,7 +29,7 @@ import { stepThoughts } from './components/LiveThought'
 import type { Thought } from './components/ToolActivity'
 import { metaStats } from './runNames'
 import TrajectoryView from './trajectory/TrajectoryView'
-import type { LiveTurn } from './trajectory/rwkv-adapter'
+import type { LiveEvent, LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
 import { useAgentSettings } from './state/agentSettings'
@@ -60,6 +60,8 @@ type AgentActivity = {
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
   attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string; text?: string
+  // step_done 带上这一步的完整记录，轨迹页据此把跑完的步骤画成最终样子。
+  stepTrace?: LiveEvent['stepTrace']
 }
 type ChatTurn = { user?: Message; response?: Message }
 

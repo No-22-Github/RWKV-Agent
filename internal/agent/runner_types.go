@@ -197,6 +197,11 @@ const (
 	// EventThinkingDelta carries newly generated text of the step's leading
 	// think block, for live display only; the step's ModelOutput keeps it.
 	EventThinkingDelta EventKind = "thinking_delta"
+	// EventStepDone carries a finished step's full trace in StepTrace, so a
+	// live view can show it exactly as the settled Result will. A step is
+	// finished once the next one starts; the turn's last step arrives with
+	// the Result instead.
+	EventStepDone EventKind = "step_done"
 )
 
 type Event struct {
@@ -215,7 +220,9 @@ type Event struct {
 	StatusCode    int
 	DelayMS       int64
 	Text          string
-	Err           error
+	// StepTrace is the finished step, set only on EventStepDone.
+	StepTrace *Step
+	Err       error
 }
 
 // ToolRetryTrace is a presentation-only record of one transport retry. It is

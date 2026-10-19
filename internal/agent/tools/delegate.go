@@ -138,6 +138,10 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 				Kind: agent.EventSubagentStart, SubagentIndex: index + 1, SubagentTask: task,
 			})
 			result, err := t.options.Run(batchContext, task, func(event agent.Event) {
+				if event.Kind == agent.EventStepDone {
+					// A sub-agent's steps reach the parent through its SubagentTrace.
+					return
+				}
 				event.SubagentIndex = index + 1
 				event.SubagentTask = task
 				emit(event)

@@ -30,6 +30,8 @@ export type LiveEvent = {
   kind: string; at: number; step?: number; parentStep?: number; tool?: string; arguments?: string
   route?: string; bundles?: string[]; subagentIndex?: number; subagentTask?: string
   durationMs?: number; attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string
+  /** The finished step, on step_done: the same record the settled trace will hold. */
+  stepTrace?: Step
 }
 
 /** The turn still running: its prompt plus the events received so far. */
@@ -146,18 +148,7 @@ function buildMessageTurn(builder: Builder, message: AdapterMessage, turn: numbe
   })
 
   const steps = trace?.steps ?? []
-  steps.forEach((step, position) => {
-    const title = t('group.step', { step: step.number })
-    const usage = stepUsage(step)
-    builder.request(turn, step.number, title, {
-      status: step.modelError ? 'error' : 'complete', startedAt: step.startedAtMs, durationMs: step.modelDurationMs,
-      error: step.modelError || undefined, usage, prompt: step.request,
-    })
-    const cells = [stepMessageCell(builder, message, step, usage, position === steps.length - 1)]
-    if (step.tool) cells.push(stepToolCell(builder, message, step))
-    for (const child of step.subagents ?? []) cells.push(...subagentCells(builder, message, step, child))
-    groups.push({ title, cells })
-  })
+  steps.forEach((step, position) => groups.push(stepGroup(builder, message, turn, step, position === steps.length - 1)))
 
   if (!trace && message.trajectory?.length) {
     for (const call of message.trajectory) {
@@ -200,6 +191,24 @@ function buildMessageTurn(builder: Builder, message: AdapterMessage, turn: numbe
   }
 
   builder.turns.push({ turn, groups: groups.map(toGroupModel) })
+}
+
+/**
+ * One finished step: its request record and its cells. The settled trace and
+ * the live turn (on step_done) both draw steps through here, so a step looks
+ * the same while the turn runs as after it ends.
+ */
+function stepGroup(builder: Builder, message: AdapterMessage, turn: number, step: Step, last: boolean): Group {
+  const title = builder.t('group.step', { step: step.number })
+  const usage = stepUsage(step)
+  builder.request(turn, step.number, title, {
+    status: step.modelError ? 'error' : 'complete', startedAt: step.startedAtMs, durationMs: step.modelDurationMs,
+    error: step.modelError || undefined, usage, prompt: step.request,
+  })
+  const cells = [stepMessageCell(builder, message, step, usage, last)]
+  if (step.tool) cells.push(stepToolCell(builder, message, step))
+  for (const child of step.subagents ?? []) cells.push(...subagentCells(builder, message, step, child))
+  return { title, cells }
 }
 
 function userCell(builder: Builder, prompt: string, startedAt: number | null): TrajectoryCellProps {
@@ -369,5 +378,5 @@ function parseTime(value?: string): number | null {
   return Number.isFinite(time) && time > Date.UTC(2000, 0, 1) ? time : null
 }
 
-export { userCell, toGroupModel, finite, seconds }
+export { userCell, stepGroup, toGroupModel, finite, seconds }
 export type { Builder, Group }

@@ -103,4 +103,29 @@ describe('TrajectoryView', () => {
     expect(within(ledger).getAllByText('list_files').length).toBeGreaterThan(0)
     expect(document.querySelector('[data-running]')).not.toBeNull()
   })
+
+  it('draws a finished live step from step_done exactly like the settled trace', () => {
+    const [finished, answering] = readmeTurn().trace!.steps!
+    render(<TrajectoryView messages={[]} live={{
+      id: 'live', prompt: '读取 README', startedAt: started,
+      events: [
+        { kind: 'model_start', step: 1, at: started + 10 },
+        { kind: 'model_done', step: 1, durationMs: 500, at: started + 510 },
+        { kind: 'tool_start', step: 1, tool: 'read_file', arguments: '{"path":"README.md"}', at: started + 520 },
+        { kind: 'tool_done', step: 1, tool: 'read_file', durationMs: 300, at: started + 820 },
+        { kind: 'step_done', step: 1, stepTrace: finished, at: started + 830 },
+        { kind: 'model_start', step: answering.number, at: started + 840 },
+      ],
+    }} />)
+    const ledger = screen.getByRole('table')
+    // 跑完的一步带着工具结果和请求记录，不再是「无输出」占位
+    expect(within(ledger).getByText(/本地优先/)).toBeInTheDocument()
+    expect(within(ledger).queryByText('无输出')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '请求 #1' }))
+    const inspector = screen.getByRole('complementary', { name: '事件详情' })
+    expect(within(inspector).getByText('read_file, list_files')).toBeInTheDocument()
+    // 只有正在跑的第 2 步还是实时占位
+    expect(within(ledger).getByText('正在决定下一步…')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '请求 #2' })).toBeInTheDocument()
+  })
 })

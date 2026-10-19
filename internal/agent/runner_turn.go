@@ -40,11 +40,13 @@ type runnerTurn struct {
 	task     string
 	observer func(Event)
 
-	result       Result
-	activeSpecs  []ToolSpec
-	activeTools  map[string]Tool
-	messages     []Message
-	turnMessages []Message
+	result Result
+	// publishedSteps counts result.Steps already sent as step_done.
+	publishedSteps int
+	activeSpecs    []ToolSpec
+	activeTools    map[string]Tool
+	messages       []Message
+	turnMessages   []Message
 
 	retries                 int
 	routeViolations         int
@@ -180,6 +182,7 @@ func (turn *runnerTurn) assembleTurnMessages(history []Message, control string) 
 func (turn *runnerTurn) run() (Result, error) {
 	var preview *answerPreview
 	for step := 1; step <= turn.r.options.MaxSteps; step++ {
+		turn.publishFinishedSteps()
 		// Reaching another step means the previous one did not end the turn:
 		// its streamed text was not the answer.
 		preview.retract()
@@ -955,6 +958,16 @@ func (turn *runnerTurn) retryRespondRoute(step int, modelAction string) error {
 			"the conversation and do not call workspace tools.",
 	)
 	return nil
+}
+
+// publishFinishedSteps emits step_done for every step recorded since the last
+// call. It runs at the top of each step: nothing changes a step after the loop
+// moves on, so what it sends is what the settled Result will hold.
+func (turn *runnerTurn) publishFinishedSteps() {
+	for ; turn.publishedSteps < len(turn.result.Steps); turn.publishedSteps++ {
+		finished := turn.result.Steps[turn.publishedSteps]
+		turn.r.observe(Event{Kind: EventStepDone, Step: finished.Number, StepTrace: &finished}, turn.observer)
+	}
 }
 
 func (turn *runnerTurn) currentStep() *Step {

@@ -1,14 +1,22 @@
 /*
  * The running turn, rebuilt from agent:event as it streams. Events carry no
- * timestamps of their own, so each is stamped on arrival (`at`). Records stay
- * open (no duration, no result) until their *_done event arrives, which the
- * ledger shows as pending and the timeline as a start marker only.
+ * timestamps of their own, so each is stamped on arrival (`at`).
+ *
+ * A finished step arrives whole on step_done and is drawn by stepGroup, the
+ * same code that draws the settled trace; its earlier events are skipped.
+ * Only the step still running is built from events: its records stay open (no
+ * duration, no result) until their *_done event arrives, which the ledger
+ * shows as pending and the timeline as a start marker only.
  */
+import type { Step } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { TrajectoryCellProps } from './trajectory-record.ts'
-import type { Builder, Group, LiveEvent, LiveTurn } from './rwkv-adapter.ts'
-import { toGroupModel, userCell } from './rwkv-adapter.ts'
+import type { AdapterMessage, Builder, Group, LiveEvent, LiveTurn } from './rwkv-adapter.ts'
+import { stepGroup, toGroupModel, userCell } from './rwkv-adapter.ts'
 
 type Scope = { group: Group; message?: TrajectoryCellProps; tool?: TrajectoryCellProps; agents: Map<number, TrajectoryCellProps> }
+
+/** Events that belong to one step and that step_done supersedes. */
+const STEP_EVENTS = new Set(['model_start', 'model_done', 'protocol_retry', 'tool_start', 'tool_retry', 'tool_done'])
 
 export function buildLiveTurn(builder: Builder, live: LiveTurn, turn: number) {
   const { t } = builder
@@ -17,6 +25,11 @@ export function buildLiveTurn(builder: Builder, live: LiveTurn, turn: number) {
   const steps = new Map<number, Scope>()
   let routeAttempt = 0
   let route: TrajectoryCellProps | undefined
+  const finished = new Map<number, Step>()
+  for (const event of live.events) {
+    if (event.kind === 'step_done' && !event.subagentIndex && event.stepTrace) finished.set(event.step || event.stepTrace.number, event.stepTrace)
+  }
+  const liveMessage: AdapterMessage = { id: live.id, role: 'assistant', content: '' }
 
   const scope = (step: number): Scope => {
     let entry = steps.get(step)
@@ -29,7 +42,20 @@ export function buildLiveTurn(builder: Builder, live: LiveTurn, turn: number) {
   }
 
   for (const event of live.events) {
-    if (event.subagentIndex) { applySubagentEvent(builder, live, scope, event); continue }
+    if (event.subagentIndex) {
+      if (!finished.has(event.parentStep || 1)) applySubagentEvent(builder, live, scope, event)
+      continue
+    }
+    const finishedStep = finished.get(event.step || 1)
+    if (event.kind === 'step_done') {
+      // The group was opened at model_start, so it keeps its place in the turn.
+      if (finishedStep) scope(finishedStep.number).group.cells = stepGroup(builder, liveMessage, turn, finishedStep, false).cells
+      continue
+    }
+    if (finishedStep && STEP_EVENTS.has(event.kind)) {
+      if (event.kind === 'model_start') scope(event.step || 1)
+      continue
+    }
     if (event.kind === 'route_start') {
       routeAttempt += 1
       route = { index: builder.next(), recordId: `route\u0000${live.id}\u0000${routeAttempt}`, kind: 'message', text: '正在选择能力组', timeSeconds: null, startedAt: event.at }

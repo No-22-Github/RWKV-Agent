@@ -46,6 +46,10 @@ func (r *traceRecorder) append(record TraceRecord) {
 }
 
 func (r *traceRecorder) runnerEvent(event agent.Event) {
+	if event.Kind == agent.EventStepDone {
+		// The turn_result record already holds every step.
+		return
+	}
 	value := &RunnerEventTrace{
 		Kind:  event.Kind,
 		Step:  event.Step,

@@ -178,6 +178,10 @@ const (
 	// EventThinkingDelta streams the current step's thinking for live display;
 	// a new Step starts a new thought.
 	EventThinkingDelta EventKind = "thinking_delta"
+	// EventStepDone carries a finished step in StepTrace, in the same form as
+	// Result.Steps, so a live view can show it as the settled turn will. The
+	// turn's last step arrives with the Result instead.
+	EventStepDone EventKind = "step_done"
 )
 
 // Event is a transport-safe Agent loop event.
@@ -197,6 +201,7 @@ type Event struct {
 	StatusCode    int       `json:"statusCode,omitempty"`
 	DelayMS       int64     `json:"delayMs,omitempty"`
 	Text          string    `json:"text,omitempty"`
+	StepTrace     *Step     `json:"stepTrace,omitempty"`
 	Error         string    `json:"error,omitempty"`
 }
 
