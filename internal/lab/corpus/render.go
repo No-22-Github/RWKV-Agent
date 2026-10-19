@@ -94,7 +94,7 @@ func RunRender(args RenderArgs) int {
 		return 2
 	}
 	if !eval.IsWorkToolCatalog(args.ToolCatalog) {
-		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (work-v1, work-v2)\n", args.ToolCatalog)
+		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (work-v1, work-v2, work-v3)\n", args.ToolCatalog)
 		return 2
 	}
 	// --source has no default on purpose: a default would silently label a
@@ -181,6 +181,12 @@ func RunRender(args RenderArgs) int {
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 2
+		}
+	}
+
+	if args.ToolCatalog == eval.WorkV3ToolCatalogName {
+		if renamed := renameScriptToolsV3(entries); renamed > 0 {
+			fmt.Fprintf(stderr, "work-v3: %d read_lines action(s) replayed as read_file\n", renamed)
 		}
 	}
 
@@ -336,4 +342,36 @@ func SetAsideUnloadable(casesPath, parking string) ([]unloadable, error) {
 		}
 		rejected = append(rejected, unloadable{caseID: caseID, reason: reason})
 	}
+}
+
+// renameScriptToolsV3 rewrites teacher actions for work-v3, where read_file
+// takes read_lines' start_line/end_line range (work-v3-tools.md §2.12): only
+// the tool name changes, the arguments stay as the teacher wrote them.
+func renameScriptToolsV3(entries []*lab.OrderedMap) int {
+	renamed := 0
+	for _, entry := range entries {
+		outputs, _ := entry.Get("outputs")
+		list, _ := outputs.([]any)
+		for _, item := range list {
+			var get func(string) (any, bool)
+			var set func(string, any)
+			switch typed := item.(type) {
+			case *lab.OrderedMap:
+				get, set = typed.Get, typed.Set
+			case map[string]any:
+				get = func(key string) (any, bool) { value, ok := typed[key]; return value, ok }
+				set = func(key string, value any) { typed[key] = value }
+			default:
+				continue
+			}
+			value, _ := get("text")
+			text, ok := value.(string)
+			if !ok || !strings.Contains(text, `"name":"read_lines"`) {
+				continue
+			}
+			set("text", strings.ReplaceAll(text, `"name":"read_lines"`, `"name":"read_file"`))
+			renamed++
+		}
+	}
+	return renamed
 }

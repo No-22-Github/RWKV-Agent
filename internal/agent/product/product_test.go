@@ -30,12 +30,27 @@ func TestToolsCanonicalOrder(t *testing.T) {
 	}
 	want := []string{
 		"list_files", "read_file", "search_text",
-		"read_lines", "write_file", "replace_lines", "append_file",
+		"write_file", "replace_lines", "append_file",
 		"calculator", "data_query", "datetime",
 		"web_search", "web_fetch", "get_weather", "bash", "spawn_agents",
 	}
 	if got := names(tools); !reflect.DeepEqual(got, want) {
 		t.Fatalf("order = %v, want %v", got, want)
+	}
+	// work-v2 stays assemblable, in its own order, for old runs.
+	set.Catalog = CatalogWorkV2
+	tools, err = Tools(set, Backends{Workspace: t.TempDir(), Bash: BashBackend{CatalogOnly: true}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantV2 := []string{
+		"list_files", "read_file", "search_text",
+		"read_lines", "write_file", "replace_lines", "append_file",
+		"calculator", "data_query", "datetime",
+		"web_search", "web_fetch", "get_weather", "bash", "spawn_agents",
+	}
+	if got := names(tools); !reflect.DeepEqual(got, wantV2) {
+		t.Fatalf("work-v2 order = %v, want %v", got, wantV2)
 	}
 }
 

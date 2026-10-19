@@ -54,7 +54,7 @@ func productCaseTools(config Config, workspace string, testCase Case) ([]agent.T
 	if err != nil {
 		return nil, nil, fmt.Errorf("staged workspace (needs the just-bash sidecar, scripts/build-justbash.sh): %w", err)
 	}
-	catalog, err := product.Tools(product.AppDefaultToolSet(), productBackends(config, workspace, testCase, view))
+	catalog, err := product.Tools(productToolSet(config.ToolCatalog), productBackends(config, workspace, testCase, view))
 	if err != nil {
 		_ = view.Close()
 		return nil, nil, err
@@ -106,8 +106,20 @@ func reviewStagedChanges(view *tools.StagedWorkspace, accept bool) error {
 	return err
 }
 
+// productToolSet is the App directory for one bank catalog name: work-v2
+// stays reproducible, anything else is the current App (work-v3).
+func productToolSet(catalog string) product.ToolSet {
+	set := product.AppDefaultToolSet()
+	if catalog == WorkV2ToolCatalogName {
+		set.Catalog = product.CatalogWorkV2
+	} else {
+		set.Catalog = product.CatalogWorkV3
+	}
+	return set
+}
+
 // productCatalogHash pins the schemas of the App directory for the manifest.
-func productCatalogHash(tempDir string) string {
+func productCatalogHash(tempDir, catalogName string) string {
 	root, err := os.MkdirTemp(tempDir, "rwkv-agent-catalog-")
 	if err != nil {
 		return ""
@@ -119,7 +131,7 @@ func productCatalogHash(tempDir string) string {
 	}
 	backends := productBackends(Config{}, workspace, Case{}, nil)
 	backends.Bash.CatalogOnly = true
-	catalog, err := product.Tools(product.AppDefaultToolSet(), backends)
+	catalog, err := product.Tools(productToolSet(catalogName), backends)
 	if err != nil {
 		return ""
 	}

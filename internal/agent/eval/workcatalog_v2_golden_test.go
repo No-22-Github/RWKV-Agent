@@ -8,7 +8,7 @@ import "testing"
 const workV2AppCatalogHash = "be0c317843959b20a82b016bd4eadf13ed17eca6a43ac9411ba94f9a7095fa35"
 
 func TestWorkV2AppCatalogHashFrozen(t *testing.T) {
-	if got := productCatalogHash(t.TempDir()); got != workV2AppCatalogHash {
+	if got := productCatalogHash(t.TempDir(), WorkV2ToolCatalogName); got != workV2AppCatalogHash {
 		t.Fatalf("work-v2 App catalog hash drifted: got %s, want %s", got, workV2AppCatalogHash)
 	}
 }

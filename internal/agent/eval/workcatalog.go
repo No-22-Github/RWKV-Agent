@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 )
@@ -20,9 +21,14 @@ const WorkToolCatalogName = "work-v1"
 // sidecar) and get_weather backed by the case's weather fixture.
 const WorkV2ToolCatalogName = "work-v2"
 
+// WorkV3ToolCatalogName is the 2026-10-19 refactor (docs/design/work-v3-tools.md):
+// read_file absorbs read_lines, web_fetch archives long pages under .web/.
+// It is always the App directory (product.Tools).
+const WorkV3ToolCatalogName = "work-v3"
+
 // IsWorkToolCatalog reports whether name is one of the fixed bank catalogs.
 func IsWorkToolCatalog(name string) bool {
-	return name == WorkToolCatalogName || name == WorkV2ToolCatalogName
+	return name == WorkToolCatalogName || name == WorkV2ToolCatalogName || name == WorkV3ToolCatalogName
 }
 
 // workToolCatalogClock is the fixed datetime every work-v1 case runs against
@@ -43,9 +49,19 @@ var workToolCatalogNames = []string{
 
 var workV2ToolCatalogNames = append(append([]string(nil), workToolCatalogNames...), "bash", "get_weather")
 
+var workV3ToolCatalogNames = []string{
+	"list_files", "read_file", "search_text",
+	"write_file", "replace_lines", "append_file",
+	"calculator", "data_query", "datetime",
+	"web_search", "web_fetch", "get_weather", "bash",
+}
+
 func workCatalogNames(name string) []string {
-	if name == WorkV2ToolCatalogName {
+	switch name {
+	case WorkV2ToolCatalogName:
 		return workV2ToolCatalogNames
+	case WorkV3ToolCatalogName:
+		return workV3ToolCatalogNames
 	}
 	return workToolCatalogNames
 }
@@ -76,6 +92,9 @@ func buildWorkToolCatalog(
 	fetchBudgetTokens int,
 	tokenCount func(string) int,
 ) ([]agent.Tool, error) {
+	if name == WorkV3ToolCatalogName {
+		return buildWorkV3Catalog(workspace, fixture, weather, tokenCount)
+	}
 	workspaceTools, err := agent.WorkspaceTools(workspace)
 	if err != nil {
 		return nil, err
@@ -162,4 +181,27 @@ func workToolCatalogHash(catalog []agent.Tool) string {
 		digest.Write([]byte{'\n'})
 	}
 	return hex.EncodeToString(digest.Sum(nil))
+}
+
+// buildWorkV3Catalog is work-v3 outside the App harness: the same
+// product.Tools assembly on the case workspace (no staged view, bash applies
+// to disk, long pages archived in a host scratch directory).
+func buildWorkV3Catalog(workspace string, fixture []WebFixtureEntry, weather []WeatherFixtureEntry, tokenCount func(string) int) ([]agent.Tool, error) {
+	web := webFixtureProviders{entries: fixture}
+	set := product.AppDefaultToolSet()
+	set.Catalog = product.CatalogWorkV3
+	catalog, err := product.Tools(set, product.Backends{
+		Workspace: workspace,
+		Clock:     fixedAssistantClock{value: workToolCatalogClock},
+		Web:       product.WebBackend{Search: web, Fetch: web, TokenCount: tokenCount},
+		Weather:   weatherFixtureProvider{entries: weather},
+		Bash:      product.BashBackend{ApplyToDisk: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if err := requireWorkCatalogShape(WorkV3ToolCatalogName, catalog); err != nil {
+		return nil, err
+	}
+	return catalog, nil
 }

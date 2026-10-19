@@ -227,7 +227,7 @@ func TestCanonicalToolOrder(t *testing.T) {
 	}
 	want := []string{
 		"list_files", "read_file", "search_text",
-		"read_lines", "write_file", "replace_lines", "append_file",
+		"write_file", "replace_lines", "append_file",
 		"calculator", "data_query", "datetime",
 		"web_search", "web_fetch", "get_weather", "bash",
 	}

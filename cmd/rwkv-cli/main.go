@@ -1865,17 +1865,22 @@ func runAgentEval(args []string) error {
 		if options.evalCasesPath == "" || agenteval.IsPrimitiveSuite(suite) {
 			return errors.New("--harness app/raw needs bank cases or an exam manifest under --cases")
 		}
-		if options.evalToolCatalog != "" && options.evalToolCatalog != agenteval.WorkV2ToolCatalogName {
-			return fmt.Errorf("--harness %s offers the App directory (work-v2), not %s", options.evalHarness, options.evalToolCatalog)
+		// The App directory is work-v3; work-v2 stays selectable so runs from
+		// before 2026-10-19 reproduce (docs/design/work-v3-tools.md §2.13).
+		switch options.evalToolCatalog {
+		case "":
+			options.evalToolCatalog = agenteval.WorkV3ToolCatalogName
+		case agenteval.WorkV2ToolCatalogName, agenteval.WorkV3ToolCatalogName:
+		default:
+			return fmt.Errorf("--harness %s offers the App directory (work-v3, or work-v2 for old runs), not %s", options.evalHarness, options.evalToolCatalog)
 		}
-		options.evalToolCatalog = agenteval.WorkV2ToolCatalogName
 	}
 	if options.evalToolCatalog != "" && !agenteval.IsWorkToolCatalog(options.evalToolCatalog) {
-		return fmt.Errorf("unsupported --tool-catalog %q (known: %s, %s)", options.evalToolCatalog,
-			agenteval.WorkToolCatalogName, agenteval.WorkV2ToolCatalogName)
+		return fmt.Errorf("unsupported --tool-catalog %q (known: %s, %s, %s)", options.evalToolCatalog,
+			agenteval.WorkToolCatalogName, agenteval.WorkV2ToolCatalogName, agenteval.WorkV3ToolCatalogName)
 	}
 	if agenteval.IsWorkToolCatalog(options.evalToolCatalog) && suite == agenteval.SuitePrimitive {
-		return errors.New("--tool-catalog work-v1/work-v2 requires a bank case directory or custom case file, not a Primitive suite")
+		return errors.New("--tool-catalog work-v1/work-v2/work-v3 requires a bank case directory or custom case file, not a Primitive suite")
 	}
 	if !agenteval.IsPrimitiveSuite(suite) && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
 		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")

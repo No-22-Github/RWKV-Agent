@@ -44,6 +44,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	report := Report{
 		Manifest: runManifest(config, runID, started),
 	}
+	config.Cases = adaptCasesToCatalog(config.Cases, config.ToolCatalog)
 	report.Summary.RunID = runID
 
 	type caseRun struct {
@@ -213,7 +214,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	// not depend on fixtures) and pin its schema hash in the manifest.
 	toolCatalogHash := ""
 	if IsProductHarness(config.ProductHarness) {
-		toolCatalogHash = productCatalogHash(config.TempDir)
+		toolCatalogHash = productCatalogHash(config.TempDir, config.ToolCatalog)
 	} else if IsWorkToolCatalog(config.ToolCatalog) {
 		root, err := os.MkdirTemp(config.TempDir, "rwkv-agent-catalog-")
 		if err != nil {

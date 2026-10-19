@@ -386,3 +386,26 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 - [SWE-agent 论文 arXiv 2405.15793](https://hyper.ai/papers/2405.15793)
 - [OpenAI apply_patch 指南](https://developers.openai.com/api/docs/guides/tools-apply-patch)
 - Claude Code 的 Read / Edit / WebFetch 参数取自本会话里工具的实际定义。
+
+## 8. 实现记录：与上文规格的出入（2026-10-19，M1–M4 已实现）
+
+实现时改了下面几处，**以这里为准**：
+
+| 位置 | 原规格 | 实际实现 | 原因 |
+|---|---|---|---|
+| §2.1 读到末尾之后 | `第 {a} 行之后没有内容` | `文件只有 {total} 行，没有第 {a} 行。` | 原句在 start_line 大于总行数时读不通 |
+| §2.1 区间超过 200 行 | 不得超过 | 按一屏截断并给出 note，不报错 | 报错只会让模型重试一次；截断后它照样能接着读 |
+| §2.3 返回字段 | `replaced: "2..2"` | 沿用 work-v2 的 `replaced_from` / `replaced_to` / `total_lines`，加 `around` 和 `end_line_clamped` | 和老返回值保持一致，训练过的字段名不变 |
+| §2.7 bash 写 `.web/` | 不生效 | 能写进暂存区，但不出现在改动面板，也不落盘 | 拦 bash 写入要改 sidecar；不落盘已经够用 |
+| §2.7 无暂存区时 | — | 存档放在主机临时目录，read_file / search_text / list_files 能读，bash 读不到 | 没有暂存区就没有 bash 能看到的共享文件系统 |
+| §2.9 `^` 乘方 | 新增 `^` | **不加**，乘方写 `pow(a, b)`；遇到 `^` 或 `**` 时报错，并提示写法 | Go 的表达式解析里 `^` 和 `+` 同级，`2*3^2` 会被算成 36，而且不报错 |
+| §2.12 read_file 动作 | 补上 `start_line:null,end_line:null` | 原样保留 | 参数解码不强制 required，`{"path":P}` 在 work-v3 里照常可用；只有 read_lines 改名为 read_file |
+| §2.13 题库迁移 | 写迁移脚本改题目文件 | **不改题目文件**。用 work-v3 跑分或渲染时，在运行时把题目里的 `read_lines` 当成 `read_file`（`eval.adaptCasesToCatalog`） | 题目文件一改，work-v2 就复现不了历史分数 |
+| §3 非 App 路径 | — | `--tool-catalog work-v3` 不加 `--harness app` 时也走 `product.Tools`，但 bash 用的是真实时钟 | 现行的跑分和渲染都用 `--harness app`，这条路径基本不用 |
+
+**已验证的内容：**
+
+- `go test ./internal/... ./api/ ./cmd/rwkv-cli/` 全部通过。
+- work-v2 的两条金样测试都会在改坏时失败：故意往 v2 的 read_file 描述里加一个空格，目录哈希测试失败；故意改动 note 文字，v3 测试失败。
+- 用 work-v3 重渲染 b21p（75 题）：201 行全部生成，每行训练片段的文本和 v2.1 原包逐字相同，作废的 6 题也和原来一样。工具返回值已经是带行号的新格式，系统提示词里的 bash 那句也换成了新句子。
+- 真实网页冒烟（`RWKV_LIVE_WEB=1`）：GitHub README 约 8 万字，会存档；arXiv 摘要页正常；gov.cn 读不到，交给 Tavily / DeepSeek 回退；携程只读到页脚（约 1400 字），**没有**被识别成反爬页。这是已知缺口。
