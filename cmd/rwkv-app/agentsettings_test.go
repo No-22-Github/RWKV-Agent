@@ -57,15 +57,18 @@ func TestAppServiceSharesAgentSettingsAcrossProfiles(t *testing.T) {
 		t.Fatalf("runtime config = %+v outdated = %v", value.Config, value.RuntimeOutdated)
 	}
 
-	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{BraveAPIKey: "brave-new", WeatherBackend: "open-meteo"}); err != nil {
+	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{BraveAPIKey: "brave-new", WeatherBackend: "open-meteo", WebFetchBackend: "deepseek"}); err != nil {
 		t.Fatal(err)
 	}
 	value, err = backend.Bootstrap()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if value.Config.BraveAPIKey != "brave-new" || value.Config.WebSearchBackend != "" || value.Config.WeatherBackend != "open-meteo" || value.RuntimeOutdated {
+	if value.Config.BraveAPIKey != "brave-new" || value.Config.WebSearchBackend != "" || value.Config.WebFetchBackend != "deepseek" || value.Config.WeatherBackend != "open-meteo" || value.RuntimeOutdated {
 		t.Fatalf("runtime config after save = %+v outdated = %v", value.Config, value.RuntimeOutdated)
+	}
+	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{WebFetchBackend: "brave"}); err == nil {
+		t.Fatal("unknown fetch backend saved")
 	}
 	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{WebSearchBackend: "google"}); err == nil {
 		t.Fatal("unknown search backend accepted")

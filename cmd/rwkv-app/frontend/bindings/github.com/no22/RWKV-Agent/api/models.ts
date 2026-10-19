@@ -185,6 +185,13 @@ export class Config {
      * "deepseek" or "brave". The other backend is the fallback either way.
      */
     "webSearchBackend"?: string;
+
+    /**
+     * WebFetchBackend picks which fetch backend reads pages first: "tavily"
+     * (empty) or "deepseek". With both keys set, the other backend reads the
+     * pages the first one returned no text for.
+     */
+    "webFetchBackend"?: string;
     "enableSubagents"?: boolean;
 
     /**

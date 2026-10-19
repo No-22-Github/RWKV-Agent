@@ -497,6 +497,11 @@ func applyConfigDefaults(config *Config) error {
 	default:
 		return fmt.Errorf("webSearchBackend must be auto, deepseek or brave")
 	}
+	switch config.WebFetchBackend {
+	case "", "tavily", "deepseek":
+	default:
+		return fmt.Errorf("webFetchBackend must be tavily or deepseek")
+	}
 	if config.Temperature == 0 {
 		config.Temperature = 1
 	}

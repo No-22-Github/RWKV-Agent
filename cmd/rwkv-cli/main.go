@@ -143,6 +143,7 @@ type runOptions struct {
 	deepseekWebAPIKeyEnv     string
 	deepseekWebEndpoint      string
 	webSearchBackend         string
+	webFetchBackend          string
 	enableSubagents          bool
 	maxActiveBatch           int
 	remoteBatchWait          time.Duration
@@ -577,6 +578,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.deepseekWebAPIKeyEnv, "deepseek-web-api-key-env", "DEEPSEEK_WEB_API_KEY", "environment variable containing the DeepSeek key for its search and fetch APIs")
 			fs.StringVar(&options.deepseekWebEndpoint, "deepseek-web-endpoint", "", "optional DeepSeek API base URL for search and fetch")
 			fs.StringVar(&options.webSearchBackend, "web-search-backend", "auto", "web_search backend tried first: auto (DeepSeek for Chinese queries, Brave otherwise), deepseek or brave")
+			fs.StringVar(&options.webFetchBackend, "web-fetch-backend", "tavily", "web_fetch backend tried first: tavily or deepseek; the other reads the pages it returned no text for")
 			fs.BoolVar(&options.enableSubagents, "subagents", false, "enable concurrent spawn_agents delegation")
 			fs.IntVar(&options.maxActiveBatch, "max-active-batch", 4, "maximum local active generation batch, 1..8")
 			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent Agent requests")
@@ -1793,6 +1795,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		DeepSeekWebAPIKey:      os.Getenv(options.deepseekWebAPIKeyEnv),
 		DeepSeekWebEndpoint:    options.deepseekWebEndpoint,
 		WebSearchBackend:       options.webSearchBackend,
+		WebFetchBackend:        options.webFetchBackend,
 		EnableSubagents:        options.enableSubagents,
 		MaxActiveBatch:         options.maxActiveBatch,
 		RemoteBatchWaitMS:      int(options.remoteBatchWait / time.Millisecond),

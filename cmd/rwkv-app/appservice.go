@@ -237,6 +237,7 @@ func storedProfile(config agentapi.Config) agentapi.Config {
 	config.TavilyAPIKey = ""
 	config.DeepSeekWebAPIKey = ""
 	config.WebSearchBackend = ""
+	config.WebFetchBackend = ""
 	if strings.TrimSpace(config.WeatherBackend) != "" {
 		config.WeatherBackend = agentapi.NewConfigWeatherBackend
 	}
@@ -249,6 +250,7 @@ func withAgentSettings(config agentapi.Config, agent appstorage.AgentSettings) a
 	config.TavilyAPIKey = agent.TavilyAPIKey
 	config.DeepSeekWebAPIKey = agent.DeepSeekWebAPIKey
 	config.WebSearchBackend = agent.WebSearchBackend
+	config.WebFetchBackend = agent.WebFetchBackend
 	if strings.TrimSpace(config.WeatherBackend) != "" && strings.TrimSpace(agent.WeatherBackend) != "" {
 		config.WeatherBackend = agent.WeatherBackend
 	}
@@ -267,11 +269,17 @@ func (s *AppService) SaveAgentSettings(value appstorage.AgentSettings) (appstora
 		BraveAPIKey: strings.TrimSpace(value.BraveAPIKey), TavilyAPIKey: strings.TrimSpace(value.TavilyAPIKey),
 		DeepSeekWebAPIKey: strings.TrimSpace(value.DeepSeekWebAPIKey),
 		WebSearchBackend:  strings.TrimSpace(value.WebSearchBackend), WeatherBackend: strings.TrimSpace(value.WeatherBackend),
+		WebFetchBackend: strings.TrimSpace(value.WebFetchBackend),
 	}
 	switch value.WebSearchBackend {
 	case "", "auto", "deepseek", "brave":
 	default:
 		return appstorage.AgentSettings{}, fmt.Errorf("搜索后端只能是 auto、deepseek 或 brave")
+	}
+	switch value.WebFetchBackend {
+	case "", "tavily", "deepseek":
+	default:
+		return appstorage.AgentSettings{}, fmt.Errorf("正文抓取只能是 tavily 或 deepseek")
 	}
 	switch value.WeatherBackend {
 	case "", assistanttools.WeatherBackendOpenMeteo, assistanttools.WeatherBackendWttr:

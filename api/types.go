@@ -101,14 +101,18 @@ type Config struct {
 	TavilyAPIKey     string `json:"tavilyApiKey,omitempty"`
 	TavilyEndpoint   string `json:"tavilyEndpoint,omitempty"`
 	// DeepSeekWebAPIKey enables DeepSeek's search API as a second web_search
-	// backend and its fetch API as the fallback for pages Tavily cannot read.
+	// backend and its fetch API as a second web_fetch backend.
 	DeepSeekWebAPIKey   string `json:"deepseekWebApiKey,omitempty"`
 	DeepSeekWebEndpoint string `json:"deepseekWebEndpoint,omitempty"`
 	// WebSearchBackend picks which search backend answers first: "auto"
 	// (empty; DeepSeek for queries with Chinese characters, Brave otherwise),
 	// "deepseek" or "brave". The other backend is the fallback either way.
 	WebSearchBackend string `json:"webSearchBackend,omitempty"`
-	EnableSubagents  bool   `json:"enableSubagents,omitempty"`
+	// WebFetchBackend picks which fetch backend reads pages first: "tavily"
+	// (empty) or "deepseek". With both keys set, the other backend reads the
+	// pages the first one returned no text for.
+	WebFetchBackend string `json:"webFetchBackend,omitempty"`
+	EnableSubagents bool   `json:"enableSubagents,omitempty"`
 	// WeatherBackend offers the keyless live get_weather tool through
 	// "open-meteo" or "wttr"; empty leaves the tool out of the catalog.
 	WeatherBackend string `json:"weatherBackend,omitempty"`

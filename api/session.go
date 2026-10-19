@@ -695,6 +695,9 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 		set.fetch = tavily
 		if deepseek != nil {
 			set.fetch = assistanttools.FallbackFetch{Primary: tavily, Secondary: deepseek}
+			if config.WebFetchBackend == "deepseek" {
+				set.fetch = assistanttools.FallbackFetch{Primary: deepseek, Secondary: tavily}
+			}
 		}
 	} else if deepseek != nil {
 		set.fetch = deepseek

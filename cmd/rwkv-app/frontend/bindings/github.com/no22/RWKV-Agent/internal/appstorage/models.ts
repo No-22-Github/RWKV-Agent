@@ -28,6 +28,11 @@ export class AgentSettings {
     "webSearchBackend"?: string;
 
     /**
+     * WebFetchBackend："" 或 tavily（先 Tavily）、deepseek（先 DeepSeek）；另一个给读不到的页面兜底。
+     */
+    "webFetchBackend"?: string;
+
+    /**
      * WeatherBackend：open-meteo 或 wttr；空按 open-meteo。
      */
     "weatherBackend"?: string;

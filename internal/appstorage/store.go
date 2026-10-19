@@ -72,6 +72,8 @@ type AgentSettings struct {
 	DeepSeekWebAPIKey string `json:"deepseekWebApiKey,omitempty"`
 	// WebSearchBackend："" 或 auto（中文先 DeepSeek，其余先 Brave）、deepseek、brave。
 	WebSearchBackend string `json:"webSearchBackend,omitempty"`
+	// WebFetchBackend："" 或 tavily（先 Tavily）、deepseek（先 DeepSeek）；另一个给读不到的页面兜底。
+	WebFetchBackend string `json:"webFetchBackend,omitempty"`
 	// WeatherBackend：open-meteo 或 wttr；空按 open-meteo。
 	WeatherBackend string `json:"weatherBackend,omitempty"`
 }
@@ -291,6 +293,7 @@ func collectAgentSettings(settings Settings) AgentSettings {
 	pick(&value.TavilyAPIKey, func(c agentapi.Config) string { return c.TavilyAPIKey })
 	pick(&value.DeepSeekWebAPIKey, func(c agentapi.Config) string { return c.DeepSeekWebAPIKey })
 	pick(&value.WebSearchBackend, func(c agentapi.Config) string { return c.WebSearchBackend })
+	pick(&value.WebFetchBackend, func(c agentapi.Config) string { return c.WebFetchBackend })
 	pick(&value.WeatherBackend, func(c agentapi.Config) string { return c.WeatherBackend })
 	return value
 }

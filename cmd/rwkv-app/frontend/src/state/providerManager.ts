@@ -201,7 +201,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
       // 搜索 Key、搜索路由与天气数据源是所有连接共用的（见 agentSettings.ts），不进档案；
       // 档案里的 weatherBackend 只表示开不开天气工具。
-      braveApiKey: undefined, tavilyApiKey: undefined, deepseekWebApiKey: undefined, webSearchBackend: undefined,
+      braveApiKey: undefined, tavilyApiKey: undefined, deepseekWebApiKey: undefined, webSearchBackend: undefined, webFetchBackend: undefined,
       enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
       subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
       maxSteps, maxTokens, decisionMaxTokens,
