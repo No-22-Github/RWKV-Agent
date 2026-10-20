@@ -22,7 +22,7 @@ const WorkToolCatalogName = "work-v1"
 const WorkV2ToolCatalogName = "work-v2"
 
 // WorkV3ToolCatalogName is the 2026-10-19 refactor (docs/design/work-v3-tools.md):
-// read_file absorbs read_lines, web_fetch archives long pages under .web/.
+// read_file absorbs read_lines, web_fetch cuts long pages to a shared budget.
 // It is always the App directory (product.Tools).
 const WorkV3ToolCatalogName = "work-v3"
 
@@ -185,7 +185,7 @@ func workToolCatalogHash(catalog []agent.Tool) string {
 
 // buildWorkV3Catalog is work-v3 outside the App harness: the same
 // product.Tools assembly on the case workspace (no staged view, bash applies
-// to disk, long pages archived in a host scratch directory).
+// to disk).
 func buildWorkV3Catalog(workspace string, fixture []WebFixtureEntry, weather []WeatherFixtureEntry, tokenCount func(string) int) ([]agent.Tool, error) {
 	web := webFixtureProviders{entries: fixture}
 	set := product.AppDefaultToolSet()

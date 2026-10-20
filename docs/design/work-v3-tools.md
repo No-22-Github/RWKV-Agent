@@ -423,7 +423,7 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 | 计数 | App 远端模式也用随包的 RWKV 词表计数（`api/session.go` `webTokenizerPath`）。之前远端只能粗估，代码多的页面会少算约 35% |
 | 不变 | 本地 go-readability 排第一、读不到再回退 Tavily / DeepSeek（§2.6 抓取链）照旧 |
 
-`.web/` 相关的工作区约定（`list_files` / `search_text` 默认跳过 `.web/`、写入 `.web/` 报只读）暂时留在代码里，现在没有东西会写进去。`saved_as` / `total_lines` / `outline` 字段、`WebArchive` 和 `PageStore` 已删除。
+`.web/` 相关的东西已全部删除：`saved_as` / `total_lines` / `outline` 字段，`WebArchive` / `PageStore`，无工作区时的主机临时目录（`WorkspaceV3Options.ScratchDir`），`list_files` / `search_text` 跳过 `.web/`，写入 `.web/` 报只读，以及改动面板隐藏 `.web/`（`StagedWorkspace.HideFromReview`）。用户工作区里如果真有 `.web` 目录，现在和普通目录一样对待。
 
 **依据**是 10-20 的长网页容量探针（`local/runs/probe-longpage-20261020/`，不入库）：
 - 方法：4 个真实网页截到 2K–20K token，按 App 第二步的提示词发给 MiSS r16-lr2e-5-e2。

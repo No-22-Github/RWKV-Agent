@@ -34,15 +34,14 @@ const (
 	readFileV3MoreNote   = "只显示了第 %d–%d 行，文件共 %d 行。往后读用 start_line=%d；要查找或统计，用 search_text，或用 bash 的 grep、wc、awk 处理整个文件。"
 	readFileV3PastNote   = "文件只有 %d 行，没有第 %d 行。"
 	readFileV3TooBig     = "文件超过 8MB，用 bash 的 head、grep、wc 处理。"
-	scratchReadOnlyError = ".web/ 是网页存档，只读。"
 	numberedContentError = `content 里每一行都带着 "N: " 行号前缀，这是 read_file 显示用的，不属于文件内容。去掉前缀后再写。`
 )
 
 // FileToolsV3 returns work-v3's read_file plus the three writing tools, all on
-// one resolver (same containment, scratch mapping and view as list_files and
-// search_text from agent.WorkspaceToolsV3).
-func FileToolsV3(root string, view agent.WorkspaceFS, options agent.WorkspaceV3Options) (read agent.Tool, edits []agent.Tool, err error) {
-	resolver, err := agent.NewWorkspaceResolverV3(root, view, options)
+// one resolver (same containment and view as list_files and search_text from
+// agent.WorkspaceToolsV3).
+func FileToolsV3(root string, view agent.WorkspaceFS) (read agent.Tool, edits []agent.Tool, err error) {
+	resolver, err := agent.NewWorkspaceResolverV3(root, view)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -92,7 +91,7 @@ func (t *readFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if err != nil {
 		return nil, err
 	}
-	lines, err := readTextLinesV3(t.workspace.FSFor(target), target)
+	lines, err := readTextLinesV3(t.workspace.FS(), target)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -232,9 +231,6 @@ func looksNumbered(content string) bool {
 
 // guardWrite is the shared work-v3 check before any write.
 func guardWrite(path, content string) error {
-	if agent.IsScratchPath(path) {
-		return errors.New(scratchReadOnlyError)
-	}
 	if looksNumbered(content) {
 		return fmt.Errorf("%w: %s", agent.ErrInvalidToolArguments, numberedContentError)
 	}

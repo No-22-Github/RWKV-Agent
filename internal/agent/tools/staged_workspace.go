@@ -39,35 +39,6 @@ type StagedWorkspace struct {
 	root, binary, id string
 	revision         int64
 	closed           bool
-	// hidden is a workspace-relative directory (work-v3: ".web") whose
-	// changes never reach the file-changes panel or the disk.
-	hidden string
-}
-
-// HideFromReview keeps every change under dir out of Changes and Resolve:
-// work-v3's web archive lives in the view (bash can read it) but is never
-// offered for review or written back.
-func (w *StagedWorkspace) HideFromReview(dir string) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	w.hidden = strings.Trim(filepath.ToSlash(dir), "/")
-}
-
-func (w *StagedWorkspace) isHidden(path string) bool {
-	return w.hidden != "" && (path == w.hidden || strings.HasPrefix(path, w.hidden+"/"))
-}
-
-func (w *StagedWorkspace) visible(changes []FileChange) []FileChange {
-	if w.hidden == "" {
-		return changes
-	}
-	out := changes[:0:0]
-	for _, c := range changes {
-		if !w.isHidden(c.Path) {
-			out = append(out, c)
-		}
-	}
-	return out
 }
 
 func NewStagedWorkspace(root, binary string) (*StagedWorkspace, error) {
@@ -235,7 +206,7 @@ func (w *StagedWorkspace) Changes() ([]FileChange, error) {
 	if r.Changes == nil {
 		r.Changes = []FileChange{}
 	}
-	return w.visible(r.Changes), e
+	return r.Changes, e
 }
 func (w *StagedWorkspace) Close() error {
 	w.mu.Lock()
@@ -260,7 +231,7 @@ func (w *StagedWorkspace) Resolve(reviewed []FileChange, accept bool) ([]FileCha
 		return nil, e
 	}
 	current := map[string]FileChange{}
-	for _, c := range w.visible(r.Changes) {
+	for _, c := range r.Changes {
 		current[c.Path] = c
 	}
 	selected := map[string]FileChange{}

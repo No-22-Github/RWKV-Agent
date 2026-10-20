@@ -17,9 +17,6 @@ import (
 //	get_weather                                   (Weather)
 //	bash                                          (Bash)
 //	spawn_agents                                  (Subagents)
-//
-// web_fetch cuts long pages to a shared budget; nothing is written for it
-// (the .web/ archive was dropped on 2026-10-20).
 func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 	var filesystem agent.WorkspaceFS
 	switch {
@@ -28,14 +25,13 @@ func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 	case b.View != nil:
 		filesystem = b.View
 	}
-	options := agent.WorkspaceV3Options{}
-	read, edits, err := assistanttools.FileToolsV3(b.Workspace, filesystem, options)
+	read, edits, err := assistanttools.FileToolsV3(b.Workspace, filesystem)
 	if err != nil {
 		return nil, fmt.Errorf("initialize file tools: %w", err)
 	}
 	var tools []agent.Tool
 	if set.Files {
-		workspace, err := agent.WorkspaceToolsV3(b.Workspace, filesystem, options)
+		workspace, err := agent.WorkspaceToolsV3(b.Workspace, filesystem)
 		if err != nil {
 			return nil, fmt.Errorf("initialize workspace tools: %w", err)
 		}

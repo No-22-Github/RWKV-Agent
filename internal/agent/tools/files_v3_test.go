@@ -56,13 +56,13 @@ func call(t *testing.T, tool agent.Tool, args string) (map[string]any, error) {
 	return out, nil
 }
 
-func v3Tools(t *testing.T, root string, options agent.WorkspaceV3Options) map[string]agent.Tool {
+func v3Tools(t *testing.T, root string) map[string]agent.Tool {
 	t.Helper()
-	read, edits, err := FileToolsV3(root, nil, options)
+	read, edits, err := FileToolsV3(root, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	workspace, err := agent.WorkspaceToolsV3(root, nil, options)
+	workspace, err := agent.WorkspaceToolsV3(root, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func v3Tools(t *testing.T, root string, options agent.WorkspaceV3Options) map[st
 
 func TestReadFileV3FirstScreenAndNote(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{"big.log": numberedFile(5000, 20)})
-	got, err := call(t, v3Tools(t, root, agent.WorkspaceV3Options{})["read_file"], `{"path":"big.log","start_line":null,"end_line":null}`)
+	got, err := call(t, v3Tools(t, root)["read_file"], `{"path":"big.log","start_line":null,"end_line":null}`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +93,7 @@ func TestReadFileV3FirstScreenAndNote(t *testing.T) {
 
 func TestReadFileV3ByteCap(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{"wide.csv": numberedFile(300, 100)})
-	got, err := call(t, v3Tools(t, root, agent.WorkspaceV3Options{})["read_file"], `{"path":"wide.csv","start_line":null,"end_line":null}`)
+	got, err := call(t, v3Tools(t, root)["read_file"], `{"path":"wide.csv","start_line":null,"end_line":null}`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func TestReadFileV3ByteCap(t *testing.T) {
 
 func TestReadFileV3ReadsPast64KiB(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{"huge.txt": numberedFile(3000, 40)})
-	tools := v3Tools(t, root, agent.WorkspaceV3Options{})
+	tools := v3Tools(t, root)
 	got, err := call(t, tools["read_file"], `{"path":"huge.txt","start_line":2900,"end_line":null}`)
 	if err != nil {
 		t.Fatal(err)
@@ -127,7 +127,7 @@ func TestReadFileV3ReadsPast64KiB(t *testing.T) {
 
 func TestReadFileV3LongLine(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{"one.json": strings.Repeat("a", 5000) + "\n"})
-	got, err := call(t, v3Tools(t, root, agent.WorkspaceV3Options{})["read_file"], `{"path":"one.json","start_line":null,"end_line":null}`)
+	got, err := call(t, v3Tools(t, root)["read_file"], `{"path":"one.json","start_line":null,"end_line":null}`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func TestReadFileV3LongLine(t *testing.T) {
 
 func TestReplaceLinesV3ClampsAndEchoes(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{"app.yaml": "name: billing\nport: 8443\nregion: eu-west\n"})
-	tools := v3Tools(t, root, agent.WorkspaceV3Options{})
+	tools := v3Tools(t, root)
 	got, err := call(t, tools["replace_lines"], `{"path":"app.yaml","start_line":3,"end_line":999,"content":"region: us-east"}`)
 	if err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestReplaceLinesV3ClampsAndEchoes(t *testing.T) {
 
 func TestWriteGuards(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{})
-	tools := v3Tools(t, root, agent.WorkspaceV3Options{})
+	tools := v3Tools(t, root)
 	if _, err := call(t, tools["write_file"], `{"path":"a.txt","content":"1: a\n2: b\n3: c\n"}`); err == nil || !strings.Contains(err.Error(), "行号前缀") {
 		t.Fatalf("numbered content accepted: %v", err)
 	}
@@ -163,60 +163,6 @@ func TestWriteGuards(t *testing.T) {
 	}
 	if _, err := call(t, tools["write_file"], `{"path":"b.yaml","content":"1: a\n5: b\n"}`); err != nil {
 		t.Fatalf("non-consecutive numbers rejected: %v", err)
-	}
-	if _, err := call(t, tools["append_file"], `{"path":".web/x.md","content":"hi"}`); err == nil || !strings.Contains(err.Error(), "只读") {
-		t.Fatalf(".web write accepted: %v", err)
-	}
-}
-
-func TestListAndSearchHideWebArchive(t *testing.T) {
-	root := writeWorkspace(t, map[string]string{
-		"notes.txt":             "alpha\nbeta\n",
-		".web/1-example.com.md": "alpha from the web\n",
-	})
-	tools := v3Tools(t, root, agent.WorkspaceV3Options{})
-	listing, err := call(t, tools["list_files"], `{"path":null,"max_depth":null,"max_results":null}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	entries := listing["entries"].([]any)
-	if len(entries) != 1 || entries[0].(map[string]any)["lines"].(float64) != 2 {
-		t.Fatalf("listing = %v", entries)
-	}
-	found, err := call(t, tools["search_text"], `{"query":"alpha","path":null,"case_sensitive":null,"max_results":null}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if n := len(found["matches"].([]any)); n != 1 {
-		t.Fatalf("workspace-wide search saw the archive: %v", found)
-	}
-	inArchive, err := call(t, tools["search_text"], `{"query":"alpha","path":".web","case_sensitive":null,"max_results":null}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if n := len(inArchive["matches"].([]any)); n != 1 {
-		t.Fatalf("archive search = %v", inArchive)
-	}
-}
-
-func TestScratchWithoutWorkspace(t *testing.T) {
-	scratch := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(scratch, ".web"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(scratch, ".web", "1-example.com.md"), []byte("# Title\nbody\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	tools := v3Tools(t, "", agent.WorkspaceV3Options{ScratchDir: scratch})
-	got, err := call(t, tools["read_file"], `{"path":".web/1-example.com.md","start_line":null,"end_line":null}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got["content"] != "1: # Title\n2: body\n" || got["path"] != ".web/1-example.com.md" {
-		t.Fatalf("scratch read = %v", got)
-	}
-	if _, err := call(t, tools["read_file"], `{"path":"a.txt","start_line":null,"end_line":null}`); err == nil || !strings.Contains(err.Error(), "没有打开工作区") {
-		t.Fatalf("workspace path without workspace: %v", err)
 	}
 }
 
