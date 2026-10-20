@@ -91,6 +91,11 @@ def main():
         shutil.copytree(src, dst)
         rebuilt = {}
         for key, value in case.items():
+            if key == "tool_policy":
+                # The loader checks must_offer against offered_tools, so the
+                # written policy has to use work-v3 names too.
+                value = {k: v3_names(v) if k in ("must_offer", "never_offer") else v
+                         for k, v in value.items()}
             rebuilt[key] = value
             if key == "turns":
                 rebuilt["offered_tools"] = offered
