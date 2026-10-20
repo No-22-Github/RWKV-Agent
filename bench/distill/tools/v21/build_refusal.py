@@ -82,13 +82,14 @@ def prepare(args):
     batch_dir = REPO / "local/runs/distill" / args.batch
     script = {json.loads(l)["case_id"]: json.loads(l) for l in open(batch_dir / "script.jsonl", encoding="utf-8")}
     passed = {json.loads(l)["meta"]["case_id"] for l in open(args.rows, encoding="utf-8")}
+    wanted = {l.strip() for l in open(args.ids_file) if l.strip()} if args.ids_file else None
     traces = sorted(str(p) for p in batch_dir.glob("teacher-k*/trace.jsonl"))
     finals = last_final_calls(traces)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=False)
     probes, sources = [], []
     for sid in sorted(script, key=lambda s: hashlib.sha256((args.batch + s).encode()).hexdigest()):
-        if sid not in passed:
+        if sid not in passed or (wanted is not None and sid.rsplit("--p", 1)[0] not in wanted):
             continue
         entry = script[sid]
         outs = entry["outputs"]
@@ -231,6 +232,7 @@ def main():
     p.add_argument("--rows", required=True, help="rendered rows.jsonl of that batch (passing cases)")
     p.add_argument("--out", required=True)
     p.add_argument("--limit", type=int, default=0)
+    p.add_argument("--ids-file", help="only these base case ids (v2.2: rebuild the refusals the work-v3 replay dropped)")
     t = sub.add_parser("teacher")
     t.add_argument("--out", required=True)
     t.add_argument("--model", default="Qwen/Qwen3.7-Flash")
