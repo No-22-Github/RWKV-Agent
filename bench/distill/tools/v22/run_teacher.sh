@@ -9,6 +9,7 @@
 #   bench/distill/tools/v22/run_teacher.sh b22a 'web-34*'
 #   CASES=bench/distill/v2.1/cases bench/distill/tools/v22/run_teacher.sh v21-redo '*' 1 local/runs/distill/v21-v3/reteacher-ids/v2.1.txt
 #   TEACHER_ENV_FILE=~/.commandcode_key.sh TEACHER_MODEL=<model> REASONING_EFFORT=max PARALLEL=16 run_teacher.sh ...   (optional overrides)
+#   SYSTEM_SUFFIX=bench/distill/v2.2/teacher/b22c-suffix.txt run_teacher.sh ...   (teacher-only instruction; never reaches rendered rows)
 #
 # Output: local/runs/distill/v22/<batch>/{cases,toolsets.jsonl,decontam.txt,teacher-k<i>}.
 # Credentials: TEACHER_ENV_FILE (default ~/.llm_api_key.sh) (API_BASE / API_KEY / MODEL_NAME).
@@ -41,7 +42,7 @@ echo "cases after decontam: $(find "$T/cases" -name case.json | wc -l)"
 source "${TEACHER_ENV_FILE:-$HOME/.llm_api_key.sh}"   # must export API_BASE, API_KEY (and MODEL_NAME unless TEACHER_MODEL is set)
 for i in $(seq 0 $((k - 1))); do
   local/bin/rwkv-cli-chat-v3 agent-eval --completion chat-completions --api-url "$API_BASE" --model "${TEACHER_MODEL:-$MODEL_NAME}" \
-    --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} \
+    --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} ${SYSTEM_SUFFIX:+--chat-system-suffix "$SYSTEM_SUFFIX"} \
     --temperature 0.3 --top-p 1 \
     --harness app --tool-catalog work-v3 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism "${PARALLEL:-12}" --case-timeout 40m --remote-batch-wait 0s \

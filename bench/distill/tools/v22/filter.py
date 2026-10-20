@@ -40,7 +40,13 @@ Checks:
   reasoning_markup   a step's reasoning carries tool or think markup
                      (<tool_call>, <tool_code>, </function_code>, </think>...)
 Steps without reasoning are counted (render replays them as an empty think
-block) but do not drop the path.
+block) but do not drop the path, unless --require-reasoning.
+
+Optional, for batches drawn from several teacher samples (b22c, 10-20):
+  --require-reasoning      drop a path with any supervised step lacking reasoning
+  --max-step-reasoning N   drop a path with any step's reasoning over N chars
+  --one-per-case           keep only the first surviving path of each case (input
+                           order = sample order), renamed <case>--p1
 """
 import argparse
 import collections
@@ -114,7 +120,7 @@ def load_cases(root):
 LONG_TASKS = {"rewrite_text", "draft_document", "code_help", "summarize_page"}
 
 
-def check(entry, case):
+def check(entry, case, require_reasoning=False, max_step_reasoning=0):
     reasons = []
     daily = case.get("tags", {}).get("batch") == "b20d"
     final_cap = 2500 if daily else 2000 if case.get("tags", {}).get("task_type") in LONG_TASKS else 600
@@ -126,6 +132,10 @@ def check(entry, case):
             continue
         reasoning = (out.get("reasoning") or "").strip()
         total += len(reasoning)
+        if require_reasoning and not reasoning:
+            reasons.append("reasoning_missing")
+        if max_step_reasoning and len(reasoning) > max_step_reasoning:
+            reasons.append("reasoning_step_cap")
         if len(reasoning) > (5000 if daily else 3000):
             reasons.append("reasoning_too_long")
         if META.search(reasoning):
@@ -158,7 +168,11 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", required=True)
     ap.add_argument("--exclude-ids", help="file of case ids rerun in another batch; their paths here are dropped as superseded")
+    ap.add_argument("--require-reasoning", action="store_true")
+    ap.add_argument("--max-step-reasoning", type=int, default=0)
+    ap.add_argument("--one-per-case", action="store_true")
     args = ap.parse_args()
+    taken = set()
     excluded = {l.strip() for l in open(args.exclude_ids) if l.strip()} if args.exclude_ids else set()
     cases = load_cases(args.cases)
     kept, drops, empty_steps, steps = [], collections.Counter(), 0, 0
@@ -167,7 +181,14 @@ def main():
     for line in open(args.script, encoding="utf-8"):
         entry = json.loads(line)
         base = re.sub(r"--p\d+$", "", entry["case_id"])
-        reasons = ["superseded"] if base in excluded else check(entry, cases[base])
+        reasons = ["superseded"] if base in excluded else check(
+            entry, cases[base], args.require_reasoning, args.max_step_reasoning)
+        if not reasons and args.one_per_case:
+            if base in taken:
+                reasons = ["case_already_kept"]
+            else:
+                taken.add(base)
+                entry["case_id"] = base + "--p1"
         for out in entry["outputs"]:
             if out.get("supervised", True):
                 steps += 1
