@@ -93,9 +93,14 @@ def main():
         for key, value in case.items():
             if key == "tool_policy":
                 # The loader checks must_offer against offered_tools, so the
-                # written policy has to use work-v3 names too.
+                # written policy has to use work-v3 names too. A v2.0 policy
+                # that needs read_file but bans read_lines (whole-file reads
+                # only) maps both to read_file; must_offer wins.
                 value = {k: v3_names(v) if k in ("must_offer", "never_offer") else v
                          for k, v in value.items()}
+                if "never_offer" in value:
+                    must_names = set(value.get("must_offer", []))
+                    value["never_offer"] = [t for t in value["never_offer"] if t not in must_names]
             rebuilt[key] = value
             if key == "turns":
                 rebuilt["offered_tools"] = offered
