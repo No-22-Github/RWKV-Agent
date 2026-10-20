@@ -148,7 +148,7 @@ func assembleSessionTools(config Config, owner *Service, workspace string, depth
 	backends := product.Backends{
 		Workspace: workspace,
 		View:      view,
-		Web:       product.WebBackend{TokenCount: product.TokenCounter(config.TokenizerPath)},
+		Web:       product.WebBackend{TokenCount: product.TokenCounter(webTokenizerPath(config))},
 		Bash:      product.BashBackend{CatalogOnly: owner == nil},
 		Delegation: product.DelegationBackend{
 			MaxParallel: config.SubagentMaxParallel,
@@ -719,4 +719,19 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 	}
 	set.fetch = assistanttools.FallbackFetch{Primary: assistanttools.ReadabilityFetch{}, Secondary: keyed}
 	return set, nil
+}
+
+// webTokenizerPath is the vocabulary web_fetch counts page tokens with. Remote
+// providers carry no tokenizer of their own, so they use the bundled RWKV
+// vocabulary; without it web_fetch falls back to a rough estimate that
+// undercounts code-heavy pages by about a third (2026-10-20).
+func webTokenizerPath(config Config) string {
+	if path := strings.TrimSpace(config.TokenizerPath); path != "" {
+		return path
+	}
+	path, err := ResolveTokenizer("", "")
+	if err != nil {
+		return ""
+	}
+	return path
 }

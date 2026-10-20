@@ -1,5 +1,7 @@
 # b22f 出题报告（v2.2，题号 34501–34580，共 80 题，work-v3）
 
+> **10-20 已存档**：这批题按 `.web/` 存档再读设计。web_fetch 改为 6K 截断后（[work-v3-tools.md](../../../../docs/design/work-v3-tools.md) §9），题目已移到 `bench/distill/v2.2/cases-shelved/`，本轮不跑老师。
+
 主题：8–16K token 的长任务。生成脚本 `bench/distill/tools/b22f/`（`build.py` 固定种子，连跑两次 240 个文件逐字节一致）。
 
 ## 构成

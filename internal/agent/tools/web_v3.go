@@ -3,114 +3,45 @@ package tools
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
-	"sync"
-	"unicode/utf8"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// work-v3 web_fetch (docs/design/work-v3-tools.md §2.6–§2.7): a short page is
-// returned whole; a long page is saved under .web/ and only its opening lines
-// and heading outline come back. The rest is read with read_file/search_text
-// — restorable compression, no new arguments.
-const (
-	webFetchV3ShortTokens  = 3000
-	webFetchV3HeadTokens   = 1200
-	webFetchV3BudgetTokens = 6000
-	webFetchV3Outline      = 40
-	webFetchV3OutlineRunes = 80
+// work-v3 web_fetch (docs/design/work-v3-tools.md §2.6, as revised
+// 2026-10-20): Markdown link targets and images are dropped, then the pages
+// share one 6000-token budget; a page over its share keeps its leading whole
+// lines and is flagged truncated. The 10-20 long-page probe found the MiSS
+// weights summarize soundly up to ~12K tokens of page but read facts reliably
+// only to ~6K, and the archive-then-read path (.web/) asked too much of a 7B
+// model, so long pages are cut rather than archived.
+const webFetchV3BudgetTokens = 6000
+
+const webFetchV3Description = "Fetch up to four public web pages as readable Markdown. A long page comes back cut to its opening part."
+
+const truncatedWebFetchNote = "有的页面较长，只给出了前面一部分（truncated 为 true），后面已省略；重复抓取同一网址也拿不到更多内容。"
+
+var (
+	markdownImage = regexp.MustCompile(`!\[(?:\\.|[^\]\\])*\]\((?:[^()\s]|\([^()]*\))*(?:\s+"[^"]*")?\)`)
+	markdownLink  = regexp.MustCompile(`\[((?:\\.|[^\]\\])*)\]\((?:[^()\s]|\([^()]*\))*(?:\s+"[^"]*")?\)`)
 )
 
-const webFetchV3Description = "Fetch up to four public web pages as readable Markdown. A short page comes back whole; a long page is saved under .web/ and only its opening lines and outline come back, so read the rest with read_file or search_text."
-
-const longWebFetchNote = "有的页面较长，只显示了开头。全文已存到 saved_as 里的文件：用 read_file 的 start_line 跳到 outline 里的章节，或用 search_text 在 .web/ 里搜关键词。"
-
-// PageStore persists one archived page at .web/<name>.
-type PageStore interface {
-	SavePage(name, content string) error
-}
-
-// WebArchive names archived pages in call order (.web/<n>-<host>.md) so a
-// replay of the same actions writes the same files.
-type WebArchive struct {
-	mu    sync.Mutex
-	store PageStore
-	count int
-}
-
-func NewWebArchive(store PageStore) *WebArchive { return &WebArchive{store: store} }
-
-func (a *WebArchive) save(pageURL, content string) (string, error) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.count++
-	name := fmt.Sprintf("%d-%s.md", a.count, archiveHost(pageURL))
-	if err := a.store.SavePage(name, content); err != nil {
-		a.count--
-		return "", err
-	}
-	return agent.WebScratchDir + "/" + name, nil
-}
-
-var hostUnsafe = regexp.MustCompile(`[^a-z0-9.-]`)
-
-func archiveHost(pageURL string) string {
-	host := strings.ToLower(pageURL)
-	if index := strings.Index(host, "://"); index >= 0 {
-		host = host[index+3:]
-	}
-	if index := strings.IndexAny(host, "/?#"); index >= 0 {
-		host = host[:index]
-	}
-	if index := strings.LastIndex(host, "@"); index >= 0 {
-		host = host[index+1:]
-	}
-	if index := strings.Index(host, ":"); index >= 0 {
-		host = host[:index]
-	}
-	host = hostUnsafe.ReplaceAllString(strings.TrimPrefix(host, "www."), "")
-	if host == "" {
-		return "page"
-	}
-	return host
-}
-
-// StagedPageStore writes archived pages into the staged workspace view, so
-// bash sees them under /workspace/.web; the view hides that prefix from the
-// file-changes panel and never applies it to disk.
-type StagedPageStore struct{ View *StagedWorkspace }
-
-func (s StagedPageStore) SavePage(name, content string) error {
-	dir := filepath.Join(s.View.root, agent.WebScratchDir)
-	if err := s.View.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	return s.View.WriteFile(filepath.Join(dir, name), []byte(content), 0o644)
-}
-
-// DirPageStore writes archived pages under Dir/.web on the host disk, for
-// sessions without a staged workspace (agent.WorkspaceV3Options.ScratchDir).
-type DirPageStore struct{ Dir string }
-
-func (s DirPageStore) SavePage(name, content string) error {
-	dir := filepath.Join(s.Dir, agent.WebScratchDir)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644)
+// stripLinkTargets drops images and keeps only the text of inline links: on
+// real pages the URLs are most of the tokens (a Wikipedia article halves)
+// and the model answers from the text; the page's own URL stays in the result.
+func stripLinkTargets(content string) string {
+	content = markdownImage.ReplaceAllString(content, "")
+	return markdownLink.ReplaceAllString(content, "$1")
 }
 
 // WebToolsV3 is work-v3's web pair: web_search with a backend-neutral
-// description and the archiving web_fetch.
-func WebToolsV3(options WebOptions, archive *WebArchive) []agent.Tool {
+// description and the cutting web_fetch.
+func WebToolsV3(options WebOptions) []agent.Tool {
 	return []agent.Tool{
 		&webSearchV3Tool{inner: &webSearchTool{provider: options.Search}},
-		&webFetchV3Tool{provider: options.Fetch, archive: archive, tokenCount: options.TokenCount},
+		&webFetchV3Tool{provider: options.Fetch, tokenCount: options.TokenCount},
 	}
 }
 
@@ -128,7 +59,6 @@ func (t *webSearchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any
 
 type webFetchV3Tool struct {
 	provider   WebFetchProvider
-	archive    *WebArchive
 	tokenCount func(string) int
 }
 
@@ -171,40 +101,11 @@ func (t *webFetchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		return nil, err
 	}
 	results = fillMissingPages(args.URLs, results)
-	budget := webFetchV3BudgetTokens
-	archived := false
-	for index := range results {
-		page := &results[index]
-		page.Content = strings.TrimSpace(page.Content)
-		if page.Content == "" {
-			continue
-		}
-		tokens := t.countTokens(page.Content)
-		if tokens <= webFetchV3ShortTokens && tokens <= budget {
-			budget -= tokens
-			continue
-		}
-		stored := page.Content + "\n"
-		if t.archive == nil {
-			return nil, fmt.Errorf("web_fetch: no page archive configured")
-		}
-		saved, err := t.archive.save(page.URL, stored)
-		if err != nil {
-			return nil, err
-		}
-		lines := strings.Split(page.Content, "\n")
-		head, used := t.head(lines, min(webFetchV3HeadTokens, budget))
-		budget -= used
-		page.Content = head
-		page.SavedAs = saved
-		page.TotalLines = len(lines)
-		page.Outline = outline(lines)
-		archived = true
-	}
+	truncated := t.fit(results)
 	value := map[string]any{"pages": results}
 	var notes []string
-	if archived {
-		notes = append(notes, longWebFetchNote)
+	if truncated {
+		notes = append(notes, truncatedWebFetchNote)
 	}
 	if !WebFetchHasContent(value) {
 		notes = append(notes, emptyWebFetchNote)
@@ -217,43 +118,68 @@ func (t *webFetchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	return value, nil
 }
 
-// head keeps whole leading lines within limit tokens.
-func (t *webFetchV3Tool) head(lines []string, limit int) (string, int) {
-	var out strings.Builder
-	used := 0
-	for _, line := range lines {
-		cost := t.countTokens(line + "\n")
-		if used+cost > limit {
-			break
-		}
-		used += cost
-		out.WriteString(line)
-		out.WriteByte('\n')
-	}
-	return out.String(), used
-}
-
-var headingLine = regexp.MustCompile(`^#{1,3} \S`)
-
-// outline lists the page's "#".."###" headings with their line numbers in the
-// archived file; fewer than three headings is no outline.
-func outline(lines []string) []string {
-	var entries []string
-	for index, line := range lines {
-		if !headingLine.MatchString(line) {
+// fit strips link targets and cuts the pages to the shared budget. Pages are
+// served smallest first, each taking at most an even share of what is left, so
+// a short page is never cut to make room for a long one and two long pages
+// split the budget. It reports whether any page was cut.
+func (t *webFetchV3Tool) fit(results []WebFetchResult) bool {
+	tokens := make([]int, len(results))
+	var order []int
+	for index := range results {
+		page := &results[index]
+		page.Content = strings.TrimSpace(stripLinkTargets(page.Content))
+		if page.Content == "" {
 			continue
 		}
-		text := line
-		if utf8.RuneCountInString(text) > webFetchV3OutlineRunes {
-			text = string([]rune(text)[:webFetchV3OutlineRunes]) + "…"
+		tokens[index] = t.countTokens(page.Content)
+		order = append(order, index)
+	}
+	sort.SliceStable(order, func(a, b int) bool { return tokens[order[a]] < tokens[order[b]] })
+	budget, cut := webFetchV3BudgetTokens, false
+	for position, index := range order {
+		share := budget / (len(order) - position)
+		if tokens[index] <= share {
+			budget -= tokens[index]
+			continue
 		}
-		entries = append(entries, fmt.Sprintf("%d: %s", index+1, text))
-		if len(entries) == webFetchV3Outline {
-			break
+		head, used := t.head(results[index].Content, share)
+		results[index].Content = head
+		results[index].Truncated = true
+		budget -= used
+		cut = true
+	}
+	return cut
+}
+
+// head keeps the most whole leading lines whose text fits limit tokens,
+// measured on the joined prefix (per-line counts do not add up exactly); a
+// first line longer than the limit is cut by runes instead.
+func (t *webFetchV3Tool) head(content string, limit int) (string, int) {
+	lines := strings.SplitAfter(content, "\n")
+	prefix := func(n int) string { return strings.TrimRight(strings.Join(lines[:n], ""), "\n") }
+	low, high := 0, len(lines)
+	for low < high {
+		mid := (low + high + 1) / 2
+		if t.countTokens(prefix(mid)) <= limit {
+			low = mid
+		} else {
+			high = mid - 1
 		}
 	}
-	if len(entries) < 3 {
-		return nil
+	if low > 0 {
+		text := prefix(low)
+		return text, t.countTokens(text)
 	}
-	return entries
+	runes := []rune(lines[0])
+	low, high = 0, len(runes)
+	for low < high {
+		mid := (low + high + 1) / 2
+		if t.countTokens(string(runes[:mid])) <= limit {
+			low = mid
+		} else {
+			high = mid - 1
+		}
+	}
+	text := string(runes[:low])
+	return text, t.countTokens(text)
 }

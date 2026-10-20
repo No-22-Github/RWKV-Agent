@@ -1,11 +1,7 @@
 package product
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
@@ -22,9 +18,8 @@ import (
 //	bash                                          (Bash)
 //	spawn_agents                                  (Subagents)
 //
-// web_fetch archives long pages under .web/: inside the staged view when there
-// is one (bash sees them, the file-changes panel does not), otherwise in a
-// per-assembly host directory the read tools map ".web/..." onto.
+// web_fetch cuts long pages to a shared budget; nothing is written for it
+// (the .web/ archive was dropped on 2026-10-20).
 func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 	var filesystem agent.WorkspaceFS
 	switch {
@@ -33,19 +28,7 @@ func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 	case b.View != nil:
 		filesystem = b.View
 	}
-	var store assistanttools.PageStore
 	options := agent.WorkspaceV3Options{}
-	if b.View != nil && b.Workspace != "" {
-		b.View.HideFromReview(agent.WebScratchDir)
-		store = assistanttools.StagedPageStore{View: b.View}
-	} else {
-		dir, err := scratchDir()
-		if err != nil {
-			return nil, err
-		}
-		options.ScratchDir = dir
-		store = assistanttools.DirPageStore{Dir: dir}
-	}
 	read, edits, err := assistanttools.FileToolsV3(b.Workspace, filesystem, options)
 	if err != nil {
 		return nil, fmt.Errorf("initialize file tools: %w", err)
@@ -79,7 +62,7 @@ func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 		}
 		tools = append(tools, assistanttools.WebToolsV3(assistanttools.WebOptions{
 			Search: search, Fetch: fetch, TokenCount: b.Web.TokenCount,
-		}, assistanttools.NewWebArchive(store))...)
+		})...)
 	}
 	if set.Weather {
 		weather := b.Weather
@@ -116,14 +99,4 @@ func toolsV3(set ToolSet, b Backends) ([]agent.Tool, error) {
 		tools = b.View.WrapTools(tools)
 	}
 	return tools, nil
-}
-
-// scratchDir names a fresh host directory for the web archive. It is created
-// only when the first long page is saved.
-func scratchDir() (string, error) {
-	var id [8]byte
-	if _, err := rand.Read(id[:]); err != nil {
-		return "", err
-	}
-	return filepath.Join(os.TempDir(), "rwkv-agent-web-"+hex.EncodeToString(id[:])), nil
 }

@@ -409,3 +409,29 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 - work-v2 的两条金样测试都会在改坏时失败：故意往 v2 的 read_file 描述里加一个空格，目录哈希测试失败；故意改动 note 文字，v3 测试失败。
 - 用 work-v3 重渲染 b21p（75 题）：201 行全部生成，每行训练片段的文本和 v2.1 原包逐字相同，作废的 6 题也和原来一样。工具返回值已经是带行号的新格式，系统提示词里的 bash 那句也换成了新句子。
 - 真实网页冒烟（`RWKV_LIVE_WEB=1`）：GitHub README 约 8 万字，会存档；arXiv 摘要页正常；gov.cn 读不到，交给 Tavily / DeepSeek 回退；携程只读到页脚（约 1400 字），**没有**被识别成反爬页。这是已知缺口。
+
+## 9. 修订：长网页改为截断，不再存档（2026-10-20）
+
+用户拍板：`.web/` 存档再读对 7B 模型要求太高（多一步，还要照抄路径、按目录跳读），先不做。§2.6–§2.7 的存档行为作废，`web_fetch` 改成下面这样，**以本节为准**：
+
+| 项 | 现在的行为 |
+|---|---|
+| 去链接 | 计数之前先删掉 Markdown 图片，内联链接只保留文字（`[文字](网址)` → `文字`）。页面本身的网址仍在结果的 `url` 里 |
+| 预算 | 一次调用里所有页面**共用 6000 token**。页面从短到长分配，每页最多拿剩余预算的平均份额：短页不会为长页让位，两个长页对半分 |
+| 超出 | 保留开头的整行，标 `truncated: true`，note 为「有的页面较长，只给出了前面一部分（truncated 为 true），后面已省略；重复抓取同一网址也拿不到更多内容。」 |
+| 描述 | `Fetch up to four public web pages as readable Markdown. A long page comes back cut to its opening part.` |
+| 计数 | App 远端模式也用随包的 RWKV 词表计数（`api/session.go` `webTokenizerPath`）。之前远端只能粗估，代码多的页面会少算约 35% |
+| 不变 | 本地 go-readability 排第一、读不到再回退 Tavily / DeepSeek（§2.6 抓取链）照旧 |
+
+`.web/` 相关的工作区约定（`list_files` / `search_text` 默认跳过 `.web/`、写入 `.web/` 报只读）暂时留在代码里，现在没有东西会写进去。`saved_as` / `total_lines` / `outline` 字段、`WebArchive` 和 `PageStore` 已删除。
+
+**依据**是 10-20 的长网页容量探针（`local/runs/probe-longpage-20261020/`，不入库）：
+- 方法：4 个真实网页截到 2K–20K token，按 App 第二步的提示词发给 MiSS r16-lr2e-5-e2。
+- 总结：到约 12K 都不崩，16K 以上英文代码页开始没有终答。
+- 事实题：3K 以内全对，3–6K 约 50%，6K 以上掉到 2–4 成。
+- 真实网页去掉链接网址后，中文维基 37K → 18.7K token。
+
+**影响：**
+- b22f（8–16K 长任务，80 题）是按存档设计的，已移到 `bench/distill/v2.2/cases-shelved/`，以后再说。
+- b22c 有 8 题的页面约 4–5K token，现在会整页返回，判据不变。
+- 工具描述变了，所以 work-v3 下渲染的训练行（v2.1 重放的 `kept/`）要重新渲染一次才和 App 一致。不需要重跑老师。

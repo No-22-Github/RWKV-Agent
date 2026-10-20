@@ -2,6 +2,8 @@
 
 > 2026-10-19。v2.1 MiSS（lr2e-5）在新考卷上 296.5/568，对 v2.0 显著进步（p=0.001），但网页题 −7.5、不该调工具的题 −4.5，见 [exam-v21 报告](../../../docs/evaluations/exam-v21-20261017/REPORT.md) §5、§8。v2.2 **不重做 v2.1**，在 v2.1 正式包 `final-20261018`（1545 条）上做定向修补。出题规格见 [authoring-v2.2.md](authoring-v2.2.md)。
 
+> **10-20 修订**：web_fetch 改为 6K 截断、不再存档（[work-v3-tools.md](../../../docs/design/work-v3-tools.md) §9）。b22f（8–16K 长任务，80 题）依赖 `.web/` 存档，已移到 `cases-shelved/`，本轮不跑老师。本轮实际跑 b22a–e 共 320 题。
+>
 > **10-20 状态**：b22a–f 共 400 题已出完并验收（gate、逐字节重建、去污染全部 0 flagged），提交在 9b679399、f5a5f0b3、0106226f、4ba35381、2520637a、644c751b；下一步由用户跑老师（`bench/distill/tools/v22/run_teacher.sh`），再连同 v2.1 重放行一起出包。
 >
 > **10-19 补充**：用户决定先做工具重构 work-v3（读文件带行号、按屏读，长网页存进 `.web/`），见 [work-v3-tools.md](../../../docs/design/work-v3-tools.md)。v2.2 新题按 work-v3 出、按 work-v3 跑老师；b22e（大文件）和网页类题要以新工具的行为为准，出题前按 work-v3 改写本计划。

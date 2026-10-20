@@ -1,5 +1,7 @@
 # b22f 出题脚本（v2.2：8–16K token 长任务，work-v3，题号 34501–34580）
 
+> 10-20 起这批题已存档在 `bench/distill/v2.2/cases-shelved/`（web_fetch 改为截断，见 work-v3-tools.md §9）。`build.py` 仍写到 `cases/`，重建后要再移过去。
+
 | 文件 | 内容 |
 | --- | --- |
 | `common.py` | 批次设置、`mk()` 写题（verify/NOTES）、`est()` token 估算（按 `rwkv-lab tokcount` 校准：汉字约 1.15 token/字，其余约 4.9 字符/token） |

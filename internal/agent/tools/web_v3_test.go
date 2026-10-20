@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -38,9 +36,9 @@ func longPage() string {
 	return out.String()
 }
 
-func fetchV3(t *testing.T, provider WebFetchProvider, archive *WebArchive, urls ...string) map[string]any {
+func fetchV3(t *testing.T, provider WebFetchProvider, urls ...string) map[string]any {
 	t.Helper()
-	tools := WebToolsV3(WebOptions{Fetch: provider}, archive)
+	tools := WebToolsV3(WebOptions{Fetch: provider})
 	raw, _ := json.Marshal(map[string]any{"urls": urls})
 	value, err := tools[1].Execute(context.Background(), raw)
 	if err != nil {
@@ -54,85 +52,72 @@ func fetchV3(t *testing.T, provider WebFetchProvider, archive *WebArchive, urls 
 	return out
 }
 
-func TestWebFetchV3ArchivesLongPageWithOutline(t *testing.T) {
-	scratch := t.TempDir()
-	provider := fixedFetch{"https://www.example.com/guide": longPage(), "https://short.example.org/a": "# Short\n\nOnly a few words.\n"}
-	got := fetchV3(t, provider, NewWebArchive(DirPageStore{Dir: scratch}), "https://www.example.com/guide", "https://short.example.org/a")
+func TestWebFetchV3CutsLongPageAtWholeLines(t *testing.T) {
+	provider := fixedFetch{"https://www.example.com/guide": longPage() + longPage(), "https://short.example.org/a": "# Short\n\nOnly a few words.\n"}
+	got := fetchV3(t, provider, "https://www.example.com/guide", "https://short.example.org/a")
 	pages := got["pages"].([]any)
 	long, short := pages[0].(map[string]any), pages[1].(map[string]any)
-	if long["saved_as"] != ".web/1-example.com.md" || long["total_lines"].(float64) != 612 {
-		t.Fatalf("long page = %v %v", long["saved_as"], long["total_lines"])
+	if long["truncated"] != true {
+		t.Fatalf("long page not flagged: %v", long["truncated"])
 	}
-	if _, ok := short["saved_as"]; ok || short["content"] != "# Short\n\nOnly a few words." {
+	content := long["content"].(string)
+	if !strings.HasPrefix(content, "## Section 1") || !strings.HasSuffix(content, "the topic.") {
+		t.Fatalf("long page not cut at a whole line: ...%q", content[len(content)-40:])
+	}
+	used := agent.EstimateTokens(content) + agent.EstimateTokens(short["content"].(string))
+	if used > webFetchV3BudgetTokens || used < webFetchV3BudgetTokens-100 {
+		t.Fatalf("pages use %d tokens, want just under %d", used, webFetchV3BudgetTokens)
+	}
+	if _, ok := short["truncated"]; ok || short["content"] != "# Short\n\nOnly a few words." {
 		t.Fatalf("short page = %v", short)
 	}
-	if !strings.HasPrefix(got["note"].(string), "有的页面较长") {
+	if got["note"] != truncatedWebFetchNote {
 		t.Fatalf("note = %v", got["note"])
-	}
-	// Every outline line number must point at that heading in the archived
-	// file as read_file numbers it (work-v3 §4.3 item 5).
-	read, _, err := FileToolsV3("", nil, agent.WorkspaceV3Options{ScratchDir: scratch})
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, raw := range long["outline"].([]any) {
-		entry := raw.(string)
-		number := entry[:strings.Index(entry, ":")]
-		args := fmt.Sprintf(`{"path":".web/1-example.com.md","start_line":%s,"end_line":%s}`, number, number)
-		value, err := read.Execute(context.Background(), json.RawMessage(args))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if line := value.(readFileV3Result).Content; strings.TrimSuffix(line, "\n") != entry {
-			t.Fatalf("outline %q points at %q", entry, line)
-		}
 	}
 }
 
-func TestWebFetchV3ReplayIsDeterministic(t *testing.T) {
-	run := func() string {
-		scratch := t.TempDir()
-		got := fetchV3(t, fixedFetch{"https://example.com/x": longPage()}, NewWebArchive(DirPageStore{Dir: scratch}), "https://example.com/x")
-		data, _ := json.Marshal(got)
-		saved, err := os.ReadFile(filepath.Join(scratch, ".web", "1-example.com.md"))
-		if err != nil {
-			t.Fatal(err)
+func TestWebFetchV3SplitsBudgetBetweenLongPages(t *testing.T) {
+	provider := fixedFetch{"https://a.example.com/": longPage() + longPage(), "https://b.example.com/": longPage()}
+	got := fetchV3(t, provider, "https://a.example.com/", "https://b.example.com/")
+	total := 0
+	for _, raw := range got["pages"].([]any) {
+		page := raw.(map[string]any)
+		tokens := agent.EstimateTokens(page["content"].(string))
+		total += tokens
+		if page["truncated"] != true || tokens < webFetchV3BudgetTokens/2-100 || tokens > webFetchV3BudgetTokens/2+100 {
+			t.Fatalf("%v: %d tokens, truncated %v", page["url"], tokens, page["truncated"])
 		}
-		return string(data) + string(saved)
 	}
-	if run() != run() {
-		t.Fatal("two replays differ")
+	if total > webFetchV3BudgetTokens {
+		t.Fatalf("pages use %d tokens", total)
+	}
+}
+
+func TestWebFetchV3ShortPageWhole(t *testing.T) {
+	got := fetchV3(t, fixedFetch{"https://example.com/x": "# T\n\nBody line.\n"}, "https://example.com/x")
+	page := got["pages"].([]any)[0].(map[string]any)
+	if page["content"] != "# T\n\nBody line." || page["truncated"] != nil || got["note"] != nil {
+		t.Fatalf("got %v", got)
+	}
+}
+
+func TestStripLinkTargets(t *testing.T) {
+	for in, want := range map[string]string{
+		`See [Go](https://go.dev/ "Go home") and [x](https://en.wikipedia.org/wiki/Transformer_(deep_learning)).`: "See Go and x.",
+		`Cited.[\[28\]](https://zh.wikipedia.org#cite_note-28)`:                                                   `Cited.\[28\]`,
+		"![logo](https://cdn.example/a.png)\nText ![](x.png) end":                                                 "\nText  end",
+		`[![badge](https://img.example/b.svg)](https://ci.example)`:                                               "",
+		"plain [brackets] and (parens) stay":                                                                      "plain [brackets] and (parens) stay",
+	} {
+		if got := stripLinkTargets(in); got != want {
+			t.Errorf("stripLinkTargets(%q) = %q, want %q", in, got, want)
+		}
 	}
 }
 
 func TestWebFetchV3EmptyPageKeepsProbeNote(t *testing.T) {
-	got := fetchV3(t, fixedFetch{}, NewWebArchive(DirPageStore{Dir: t.TempDir()}), "https://missing.example.com/")
+	got := fetchV3(t, fixedFetch{}, "https://missing.example.com/")
 	if got["note"] != emptyWebFetchNote {
 		t.Fatalf("note = %v", got["note"])
-	}
-}
-
-func TestStagedArchiveHiddenFromReview(t *testing.T) {
-	bash, root := newTestBashTool(t)
-	view := bash.overlay
-	view.HideFromReview(agent.WebScratchDir)
-	archive := NewWebArchive(StagedPageStore{View: view})
-	fetchV3(t, fixedFetch{"https://example.com/x": longPage()}, archive, "https://example.com/x")
-	if out := runBash(t, bash, "wc -l < .web/1-example.com.md"); strings.TrimSpace(out.Stdout) != "612" {
-		t.Fatalf("bash cannot read the archive: %+v", out)
-	}
-	runBash(t, bash, "echo hi > note.txt")
-	changes, err := view.Changes()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(changes) != 1 || changes[0].Path != "note.txt" {
-		t.Fatalf("changes = %+v", changes)
-	}
-	if _, err := view.Resolve(changes, true); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.Stat(filepath.Join(root, ".web")); !os.IsNotExist(err) {
-		t.Fatalf(".web reached the disk: %v", err)
 	}
 }
