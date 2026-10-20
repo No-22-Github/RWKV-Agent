@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -88,6 +89,24 @@ func TestReadFileV3FirstScreenAndNote(t *testing.T) {
 	}
 	if !strings.HasPrefix(got["content"].(string), "1: line 1 ") || strings.Count(got["content"].(string), "\n") != 200 {
 		t.Fatalf("content not 200 numbered lines: %.80q", got["content"])
+	}
+}
+
+func TestReadFileV3NumericStringLines(t *testing.T) {
+	root := writeWorkspace(t, map[string]string{"big.log": numberedFile(500, 20)})
+	tool := v3Tools(t, root)["read_file"]
+	got, err := call(t, tool, `{"path":"big.log","start_line":"10","end_line":" 12 "}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["start_line"].(float64) != 10 || got["end_line"].(float64) != 12 {
+		t.Fatalf("window = %v..%v", got["start_line"], got["end_line"])
+	}
+	if got, err = call(t, tool, `{"path":"big.log","start_line":"1","end_line":""}`); err != nil || got["end_line"].(float64) != 200 {
+		t.Fatalf("empty end_line: %v %v", got, err)
+	}
+	if _, err := call(t, tool, `{"path":"big.log","start_line":"first","end_line":null}`); !errors.Is(err, agent.ErrInvalidToolArguments) {
+		t.Fatalf("non-numeric start_line err = %v", err)
 	}
 }
 

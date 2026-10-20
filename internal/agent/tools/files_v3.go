@@ -139,15 +139,15 @@ func (t *readFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 // optionalRange decodes read_file's nullable range; 0 end means "one screen".
 func optionalRange(args readLinesArgs) (int, int, error) {
 	start, end := 1, 0
-	if len(args.StartLine) > 0 && string(args.StartLine) != "null" {
-		if err := json.Unmarshal(args.StartLine, &start); err != nil {
-			return 0, 0, fmt.Errorf("%w: start_line: %v", agent.ErrInvalidToolArguments, err)
-		}
+	if value, ok, err := optionalLine(args.StartLine, "start_line"); err != nil {
+		return 0, 0, err
+	} else if ok {
+		start = value
 	}
-	if len(args.EndLine) > 0 && string(args.EndLine) != "null" {
-		if err := json.Unmarshal(args.EndLine, &end); err != nil {
-			return 0, 0, fmt.Errorf("%w: end_line: %v", agent.ErrInvalidToolArguments, err)
-		}
+	if value, ok, err := optionalLine(args.EndLine, "end_line"); err != nil {
+		return 0, 0, err
+	} else if ok {
+		end = value
 		if end < start {
 			return 0, 0, fmt.Errorf("%w: need 1 <= start_line <= end_line", agent.ErrInvalidToolArguments)
 		}
@@ -156,6 +156,33 @@ func optionalRange(args readLinesArgs) (int, int, error) {
 		return 0, 0, fmt.Errorf("%w: need 1 <= start_line <= end_line", agent.ErrInvalidToolArguments)
 	}
 	return start, end, nil
+}
+
+// optionalLine decodes one nullable line number. The fields are RawMessage
+// (to tell null from absent), so DecodeToolArguments' numeric-string leniency
+// never reaches them; apply it here. Measured on the 10-20 v2.1 re-teacher
+// run: Qwen3.7-Flash sent "start_line": "1" on 103 of 190 ranged reads, then
+// repeated the identical call and died on the duplicate guard. An empty
+// string counts as null.
+func optionalLine(raw json.RawMessage, name string) (int, bool, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return 0, false, nil
+	}
+	var value int
+	if err := json.Unmarshal(raw, &value); err == nil {
+		return value, true, nil
+	}
+	var text string
+	if err := json.Unmarshal(raw, &text); err == nil {
+		text = strings.TrimSpace(text)
+		if text == "" {
+			return 0, false, nil
+		}
+		if value, err := strconv.Atoi(text); err == nil {
+			return value, true, nil
+		}
+	}
+	return 0, false, fmt.Errorf("%w: %s must be an integer, got %s", agent.ErrInvalidToolArguments, name, raw)
 }
 
 func capLine(line string) string {

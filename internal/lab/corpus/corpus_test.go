@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -177,6 +178,27 @@ func TestNormalizeDropsDefaultsAndEmptyOptionalsOnly(t *testing.T) {
 	want := map[string]any{"path": "a", "end_line": 0}
 	if !reflect.DeepEqual(got.AsMap(), want) {
 		t.Errorf("normalize(read_lines) = %v, want %v", got.AsMap(), want)
+	}
+}
+
+func TestNormalizeWritesNumericStringsAsIntegers(t *testing.T) {
+	got := NormalizeArguments("read_file", om("path", "a", "start_line", " 10", "end_line", ""))
+	want := map[string]any{"path": "a", "start_line": json.Number("10")}
+	if !reflect.DeepEqual(got.AsMap(), want) {
+		t.Errorf("normalize(read_file) = %v, want %v", got.AsMap(), want)
+	}
+	text, err := ToolCall("read_file", got)
+	if err != nil || !strings.Contains(text, `"start_line":10`) && !strings.Contains(text, `"start_line": 10`) {
+		t.Errorf("ToolCall = %q, %v", text, err)
+	}
+	// A default spelled as a string is still the default; a non-number stays.
+	got = NormalizeArguments("web_search", om("query", "q", "max_results", "5"))
+	if !reflect.DeepEqual(got.AsMap(), map[string]any{"query": "q"}) {
+		t.Errorf("normalize(web_search) = %v", got.AsMap())
+	}
+	got = NormalizeArguments("read_file", om("path", "a", "start_line", "first"))
+	if !reflect.DeepEqual(got.AsMap(), map[string]any{"path": "a", "start_line": "first"}) {
+		t.Errorf("normalize(non-numeric) = %v", got.AsMap())
 	}
 }
 

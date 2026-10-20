@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
@@ -41,6 +42,20 @@ var emptyMeansAbsent = map[string]map[string]bool{
 	"calculator": {"precision": true},
 	"data_query": {"filter": true, "select": true, "group_by": true,
 		"operation": true, "field": true, "expression": true},
+}
+
+// integerArguments are the integer-typed arguments the tools accept spelled as
+// a numeric string ("1"). The rendered call writes them as integers so the
+// student never learns the string spelling the teacher (Qwen3.7-Flash) sends.
+var integerArguments = map[string]map[string]bool{
+	"read_lines":    {"start_line": true, "end_line": true},
+	"read_file":     {"start_line": true, "end_line": true},
+	"replace_lines": {"start_line": true, "end_line": true},
+	"list_files":    {"max_depth": true, "max_results": true},
+	"search_text":   {"max_results": true},
+	"web_search":    {"max_results": true},
+	"calculator":    {"precision": true},
+	"get_weather":   {"days": true},
 }
 
 // Action is one generation's contribution to a path: a tool call or a final
@@ -107,12 +122,22 @@ func (u Unclean) Error() string { return string(u) }
 func NormalizeArguments(name string, arguments *lab.OrderedMap) *lab.OrderedMap {
 	toolDefaults := defaults[name]
 	optional := emptyMeansAbsent[name]
+	integers := integerArguments[name]
 	kept := lab.NewOrderedMap()
 	if arguments == nil {
 		return kept
 	}
 	for _, key := range arguments.Keys {
 		value := arguments.Values[key]
+		if text, ok := value.(string); ok && integers[key] {
+			text = strings.TrimSpace(text)
+			if text == "" {
+				continue
+			}
+			if _, err := strconv.ParseInt(text, 10, 64); err == nil {
+				value = json.Number(text)
+			}
+		}
 		if value == nil {
 			continue
 		}
