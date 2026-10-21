@@ -543,6 +543,13 @@ func TestAgentAcceptsChatCompletionsContinuation(t *testing.T) {
 		t.Fatal("local agent accepted a chat template thinking mode")
 	}
 	if _, err := parseRunOptions("agent", []string{
+		"--model", "local-model",
+		"--prompt", "task",
+		"--chat-include-top-k",
+	}); err == nil {
+		t.Fatal("local agent accepted --chat-include-top-k")
+	}
+	if _, err := parseRunOptions("agent", []string{
 		"--model", "other-model",
 		"--prompt", "task",
 		"--completion", "chat-completions",

@@ -82,6 +82,8 @@ type Config struct {
 	// ChatTemplateEnableThinking is sent as chat_template_kwargs.enable_thinking
 	// when non-nil.
 	ChatTemplateEnableThinking *bool
+	// ChatIncludeTopK sends the sampling top_k upstream (vLLM/SGLang).
+	ChatIncludeTopK bool
 	// ChatReasoningEffort is sent as reasoning_effort when non-empty.
 	ChatReasoningEffort string
 	// ChatSystemSuffix is appended to every Chat Completions system message
@@ -124,6 +126,7 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			Thinking: config.ChatThinking, PromptMode: config.ChatPromptMode, TokenLimit: config.ChatTokenLimit,
 			SystemSuffix: config.ChatSystemSuffix, ReasoningEffort: config.ChatReasoningEffort,
 			ChatTemplateEnableThinking: config.ChatTemplateEnableThinking,
+			IncludeTopK:                config.ChatIncludeTopK,
 		})
 	case LightningPython, LightningCUDA:
 		stops := config.StopTokens

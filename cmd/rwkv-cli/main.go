@@ -78,6 +78,7 @@ type runOptions struct {
 	apiKeyEnv                string
 	chatThinking             string
 	chatTemplateThinking     string
+	chatIncludeTopK          bool
 	chatReasoningEffort      string
 	chatPromptMode           string
 	chatPromptExplicit       bool
@@ -507,6 +508,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			string(chatcompletions.ThinkingAuto),
 			"chat_template_kwargs.enable_thinking (vLLM/SGLang Qwen templates): auto sends nothing, disabled, or enabled",
 		)
+		fs.BoolVar(
+			&options.chatIncludeTopK,
+			"chat-include-top-k",
+			false,
+			"send --top-k upstream as the provider-specific top_k (vLLM/SGLang); off leaves the server default",
+		)
 		fs.StringVar(
 			&options.chatReasoningEffort,
 			"chat-reasoning-effort",
@@ -918,6 +925,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.completion != "chat-completions" && chatTemplateThinking != chatcompletions.ThinkingAuto {
 			return options, errors.New("--chat-template-thinking requires --completion chat-completions")
 		}
+		if options.completion != "chat-completions" && options.chatIncludeTopK {
+			return options, errors.New("--chat-include-top-k requires --completion chat-completions")
+		}
 		chatPromptMode, err := chatcompletions.ParsePromptMode(options.chatPromptMode)
 		if err != nil {
 			return options, err
@@ -1321,6 +1331,7 @@ func newAgentGeneratorSource(
 			Credential: credential, Headers: headers,
 			ChatThinking:               chatcompletions.ThinkingMode(options.chatThinking),
 			ChatTemplateEnableThinking: chatTemplateEnableThinking(options.chatTemplateThinking),
+			ChatIncludeTopK:            options.chatIncludeTopK,
 			ChatReasoningEffort:        options.chatReasoningEffort,
 			ChatPromptMode:             chatcompletions.PromptMode(options.chatPromptMode),
 			ChatTokenLimit:             chatcompletions.TokenLimitField(options.chatTokenLimit),
@@ -1939,6 +1950,9 @@ func runAgentEval(args []string) error {
 	if options.completion == "chat-completions" {
 		model.PromptMode = options.chatPromptMode
 		model.UnsupportedSampling = []string{"top_k", "penalty_decay"}
+		if options.chatIncludeTopK {
+			model.UnsupportedSampling = []string{"penalty_decay"}
+		}
 		model.UpstreamThinking = options.chatThinking
 		model.ChatTemplateThinking = options.chatTemplateThinking
 		model.ReasoningEffort = options.chatReasoningEffort
@@ -2367,11 +2381,15 @@ func reportCompletionCompatibility(options runOptions) {
 	if options.completion != "chat-completions" {
 		return
 	}
+	unsent := "top-k and penalty-decay are not sent upstream"
+	if options.chatIncludeTopK {
+		unsent = fmt.Sprintf("top-k=%d is sent upstream; penalty-decay is not", options.topK)
+	}
 	fmt.Fprintln(
 		os.Stderr,
 		"Chat Completions compatibility: prompt mode="+options.chatPromptMode+"; "+
 			"tool transport="+chatToolTransport(options.chatPromptMode)+"; "+
-			"top-k and penalty-decay are not sent upstream; streaming is disabled; "+
+			unsent+"; streaming is disabled; "+
 			"upstream thinking="+options.chatThinking+"; chat template thinking="+options.chatTemplateThinking+"; token limit="+options.chatTokenLimit,
 	)
 }
