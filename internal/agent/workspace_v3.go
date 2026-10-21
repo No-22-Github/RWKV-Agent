@@ -41,6 +41,7 @@ func newWorkspaceV3(root string, view WorkspaceFS) (*workspace, error) {
 	value.filesystem = view
 	value.lineCounts = true
 	value.keepBuildDirs = true
+	value.relaxed = true
 	return value, nil
 }
 

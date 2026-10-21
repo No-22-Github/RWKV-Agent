@@ -3,8 +3,10 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
@@ -53,7 +55,22 @@ func (t *webSearchV3Tool) Spec() agent.ToolSpec {
 	return spec
 }
 
+// Execute clamps max_results into 1..10 instead of rejecting the call: it is
+// only a cap, and a model asking for 20 wants "as many as there are".
 func (t *webSearchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) == nil {
+		var value any
+		if json.Unmarshal(fields["max_results"], &value) == nil {
+			if number, ok := dataNumber(value); ok && (number < 0 || number > 10) {
+				// 0 already means the default (5); a negative count does too.
+				fields["max_results"] = json.RawMessage(strconv.Itoa(int(min(max(number, 0), 10))))
+				if clamped, err := json.Marshal(fields); err == nil {
+					raw = clamped
+				}
+			}
+		}
+	}
 	return t.inner.Execute(ctx, raw)
 }
 
@@ -76,34 +93,35 @@ func (t *webFetchV3Tool) countTokens(text string) int {
 }
 
 func (t *webFetchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
-	var args struct {
-		URLs       []string        `json:"urls"`
-		MaxResults json.RawMessage `json:"max_results"`
-	}
-	if err := agent.DecodeToolArguments(raw, &args); err != nil {
+	urls, err := decodeFetchURLs(raw)
+	if err != nil {
 		return nil, err
 	}
-	if len(args.URLs) < 1 || len(args.URLs) > 4 {
-		return nil, invalidArguments("urls must contain between 1 and 4 entries")
+	var dropped []string
+	if len(urls) > webFetchV3MaxPages {
+		urls, dropped = urls[:webFetchV3MaxPages], urls[webFetchV3MaxPages:]
 	}
-	for index, value := range args.URLs {
-		normalized, err := validatePublicURL(value)
+	for index, value := range urls {
+		normalized, err := validatePublicURL(withScheme(value))
 		if err != nil {
 			return nil, invalidArguments("urls[%d]: %v", index, err)
 		}
-		args.URLs[index] = normalized
+		urls[index] = normalized
 	}
 	if t.provider == nil {
 		return nil, agent.ErrProviderUnavailable
 	}
-	results, err := t.provider.Fetch(ctx, WebFetchRequest{URLs: args.URLs})
+	results, err := t.provider.Fetch(ctx, WebFetchRequest{URLs: urls})
 	if err != nil {
 		return nil, err
 	}
-	results = fillMissingPages(args.URLs, results)
+	results = fillMissingPages(urls, results)
 	truncated := t.fit(results)
 	value := map[string]any{"pages": results}
 	var notes []string
+	if len(dropped) > 0 {
+		notes = append(notes, fmt.Sprintf(webFetchV3DroppedNote, webFetchV3MaxPages, strings.Join(dropped, " ")))
+	}
 	if truncated {
 		notes = append(notes, truncatedWebFetchNote)
 	}
@@ -116,6 +134,62 @@ func (t *webFetchV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		value["note"] = strings.Join(notes, "；")
 	}
 	return value, nil
+}
+
+const (
+	webFetchV3MaxPages    = 4
+	webFetchV3DroppedNote = "一次最多抓 %d 个网址，这几个没有抓：%s。需要的话再调用一次。"
+)
+
+// decodeFetchURLs reads web_fetch's urls the ways models actually send them:
+// the documented array, a single string in urls, or a singular url (string or
+// array). Measured on the 10-21 probe, each of those was a hard argument error
+// before. max_results stays accepted and ignored, as in work-v2.
+func decodeFetchURLs(raw json.RawMessage) ([]string, error) {
+	var args struct {
+		URLs       json.RawMessage `json:"urls"`
+		URL        json.RawMessage `json:"url"`
+		MaxResults json.RawMessage `json:"max_results"`
+	}
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	var urls []string
+	for _, field := range []json.RawMessage{args.URLs, args.URL} {
+		if len(field) == 0 || string(field) == "null" {
+			continue
+		}
+		var list []string
+		if err := json.Unmarshal(field, &list); err != nil {
+			var single string
+			if err := json.Unmarshal(field, &single); err != nil {
+				return nil, invalidArguments(`urls must be a list of web addresses, such as {"urls":["https://example.com/page"]}`)
+			}
+			list = []string{single}
+		}
+		for _, value := range list {
+			if value = strings.TrimSpace(value); value != "" {
+				urls = append(urls, value)
+			}
+		}
+	}
+	if len(urls) == 0 {
+		return nil, invalidArguments(`urls must contain at least one web address, such as {"urls":["https://example.com/page"]}`)
+	}
+	return urls, nil
+}
+
+// withScheme adds https:// to a bare host such as "example.com/page"; a value
+// that already names a scheme is left for validatePublicURL to judge.
+func withScheme(value string) string {
+	if strings.Contains(value, "://") {
+		return value
+	}
+	host, _, _ := strings.Cut(strings.TrimPrefix(value, "//"), "/")
+	if !strings.Contains(host, ".") || strings.ContainsAny(host, " @") {
+		return value
+	}
+	return "https://" + strings.TrimPrefix(value, "//")
 }
 
 // fit strips link targets and cuts the pages to the shared budget. Pages are

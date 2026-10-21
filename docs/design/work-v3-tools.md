@@ -448,3 +448,27 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 | A4 | `read_file` `replace_lines` | CRLF 文件的 `\r` 漏进内容（`"1: one\r\n"`）；replace_lines 写回时全部改成 LF | 读取时去掉行尾 `\r`；写回时沿用原文件的换行风格（CRLF 占多数就按 CRLF 写） |
 
 影响面（10-21 扫描 `bench/**/case.json`）：exam、workbank、holdout 一题都不涉及。build/dist 下有文件的题：v2.0 2 题、v2.1 7 题、v2.2 5 题、bashprobe 4 题，都是以 build 目录本身为对象的题（删构建产物、提示注入要求删 build）。工作区里有 CRLF 文件的题：v1.4 2 题、v1.41 1 题、v2.0 2 题、v2.1 1 题。已经出好的训练包不变；以后用 work-v3 重新渲染时，这些题里 list_files、search_text、read_file 的返回会和旧包不同。
+
+## 11. 修订：参数容错与返回提示（2026-10-21）
+
+接着 §10，把 10-21 审阅里“不用改描述就能修”的问题也修了。同样只改 work-v3 的行为，描述、参数和目录哈希都没变：哈希仍是 `70cca57d…`，由 `TestWorkV3AppCatalogHashPinned` 固定。work-v2 原样不动，每一条都有测试检查 v2 的旧行为。
+
+| # | 工具 | 现在的行为 |
+|---|---|---|
+| B1 | `web_fetch` | 接受单数 `url`（字符串或数组）、把 `urls` 写成字符串、不带协议的 `example.org/a`（补 `https://`）；超过 4 个网址时只抓前 4 个，note 里列出没抓的那些 |
+| B2 | `list_files` `search_text` `web_search` | `max_results` `max_depth` 超过上限时按上限处理，小于 1 时按默认值处理，不再报错 |
+| B3 | `read_file` | 接受 `file_path`（等同 path）、`offset`（起始行）和 `limit`（行数）；同时给了 start_line/end_line 时以它们为准 |
+| B3 | `data_query` | 接受 `limit`（最多列几行，上限 100） |
+| B4 | `calculator` | 解析前先规整：× ÷ 和全角括号、逗号、加减号；`math.` 前缀；末尾的 `=`；千分位（只在没有函数调用时去掉，`pow(2,100)` 保持原样）；数字后面的 `%` 当百分号（`200*15%` 就是 30，`10%3` 仍然是取余）。返回的 `expression` 是规整后的式子。`math.sqrt` 这类写法不再报旧文案 “only abs, min, max, and round” |
+| B5 | `data_query` | 带千分位或货币符号的单元格（`"1,200"`、`"$12.50"`）读作数字，sum、比较和 filter 都按数字处理；匹配的行没有全部列出时附 note：`共匹配 N 行，只列出了前 M 行…` |
+| C1 | `datetime` | now 加 `weekday`；compare 加 `days_between`（日期之间按日历天数算）、`left_weekday`、`right_weekday`；add 支持 `3d` `2w` `1d12h` `3天` `1 month` `-1y`，结果加 `weekday`；op 也接受 today、diff、between 等写法；now 不再因为带了 args 报错 |
+| C2 | `search_text` | 没有匹配时附中文 note；query 看起来像正则（含 `|` `*` 等）时，note 说明只做字面匹配 |
+| C3 | 文件工具、`data_query` | 路径不存在时报 `找不到 X：工作区里没有这个文件或目录。先用 list_files 或 search_text 确认路径。`；read_file 读到目录、list_files 列的是文件，也都改成中文并说明该用哪个工具。非 UTF-8 和二进制文件的报错按 §2.1 保持不变 |
+
+**对跑分的影响**（10-21 用 `exam-20261017`、`exam-20261020`、`exam-20261021` 的轨迹估算）：
+
+- 这几轮考卷记录的目录都是 **work-v2**（哈希 `be0c3178…`），这次没有改动 v2，历史分数不受影响。work-v3 还没有考卷基准（§5 的 M6）。
+- 原本报错、现在会成功的调用很少。v2.1 lr2e-5 每遍涉及 2–4 题（其中 1–3 题当时失分），比两遍之间的波动（299 对 294）还小。G1L 基模涉及 18 题（其中 13 题失分），主要是 web_fetch 网址写法 12 次、datetime 写法 7 次。
+- 结果照样成功或失败、只是文字变了的调用多一些：找不到路径的中文报错 33–133 题、搜索空结果的 note 14–67 题、datetime 多出的字段 12–20 题。这些会改变模型看到的内容，影响方向要实际跑过才知道。
+- 注意：修复前后 work-v3 的目录哈希相同，ledger 区分不出这两种行为。目前 work-v3 只有蒸馏老师的轨迹，没有考卷跑分，所以暂时不构成问题；以后的 work-v3 基准都应该在这次提交之后跑。
+- 训练数据：已出的包里，work-v3 的工具返回是修复前的行为。重新渲染后，这些路径的 `<tool_response>` 会变（每一次 datetime 调用都会多出字段），`loss_spans` 覆盖的文本不变。

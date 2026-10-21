@@ -384,6 +384,9 @@ func evaluateWith(expression ast.Expr, variables map[string]float64, extended bo
 	case *ast.CallExpr:
 		function, ok := value.Fun.(*ast.Ident)
 		if !ok {
+			if extended {
+				return 0, fmt.Errorf("call functions by their bare name, such as sqrt(2)")
+			}
 			return 0, fmt.Errorf("only abs, min, max, and round functions are allowed")
 		}
 		arguments := make([]float64, len(value.Args))
@@ -444,6 +447,9 @@ type dataQueryTool struct {
 	// match decides whether a row passes filter; nil is work-v2's exact
 	// equality (dataRowMatches). work-v3 sets dataRowMatchesV3.
 	match func(row, filter map[string]any) bool
+	// normalize rewrites rows after reading; nil leaves them as parsed
+	// (work-v2). work-v3 sets normalizeRowsV3.
+	normalize func(rows []map[string]any)
 }
 
 type dataQueryAggregate struct {
@@ -510,6 +516,9 @@ func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	rows, err := readStructuredRowsWithFS(ctx, t.workspace.FS(), target)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
+	}
+	if t.normalize != nil {
+		t.normalize(rows)
 	}
 	matched := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {

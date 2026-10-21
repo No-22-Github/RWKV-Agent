@@ -34,6 +34,7 @@ const (
 	readFileV3MoreNote   = "只显示了第 %d–%d 行，文件共 %d 行。往后读用 start_line=%d；要查找或统计，用 search_text，或用 bash 的 grep、wc、awk 处理整个文件。"
 	readFileV3PastNote   = "文件只有 %d 行，没有第 %d 行。"
 	readFileV3TooBig     = "文件超过 8MB，用 bash 的 head、grep、wc 处理。"
+	readFileV3IsDir      = "这个路径是目录，不是文件；看目录里有什么用 list_files。"
 	numberedContentError = `content 里每一行都带着 "N: " 行号前缀，这是 read_file 显示用的，不属于文件内容。去掉前缀后再写。`
 )
 
@@ -76,14 +77,17 @@ type readFileV3Result struct {
 }
 
 func (t *readFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
-	var args readLinesArgs
+	var args readFileV3Args
 	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if args.Path == "" {
+		args.Path = args.FilePath
+	}
+	if args.Path == "" {
 		return nil, fmt.Errorf("%w: path is required", agent.ErrInvalidToolArguments)
 	}
-	start, end, err := optionalRange(args)
+	start, end, err := args.lineRange()
 	if err != nil {
 		return nil, err
 	}
@@ -136,15 +140,58 @@ func (t *readFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	return result, nil
 }
 
+// readFileV3Args is read_file's documented shape plus the paging spellings
+// other agents taught the teachers: file_path for path, offset (first line)
+// and limit (line count) for the range. Each was an "unknown field" error.
+type readFileV3Args struct {
+	Path      string          `json:"path"`
+	FilePath  string          `json:"file_path"`
+	StartLine json.RawMessage `json:"start_line"`
+	EndLine   json.RawMessage `json:"end_line"`
+	Offset    json.RawMessage `json:"offset"`
+	Limit     json.RawMessage `json:"limit"`
+}
+
+// lineRange resolves the range; start_line/end_line win over offset/limit.
+func (args readFileV3Args) lineRange() (int, int, error) {
+	startRaw, endRaw := args.StartLine, args.EndLine
+	if isNullLine(startRaw) && !isNullLine(args.Offset) {
+		offset, _, err := optionalLine(args.Offset, "offset")
+		if err != nil {
+			return 0, 0, err
+		}
+		startRaw = json.RawMessage(strconv.Itoa(max(offset, 1)))
+	}
+	if isNullLine(endRaw) && !isNullLine(args.Limit) {
+		limit, _, err := optionalLine(args.Limit, "limit")
+		if err != nil {
+			return 0, 0, err
+		}
+		if limit >= 1 {
+			start, _, err := optionalLine(startRaw, "start_line")
+			if err != nil {
+				return 0, 0, err
+			}
+			endRaw = json.RawMessage(strconv.Itoa(max(start, 1) + limit - 1))
+		}
+	}
+	return optionalRange(startRaw, endRaw)
+}
+
+func isNullLine(raw json.RawMessage) bool {
+	_, ok, err := optionalLine(raw, "")
+	return !ok && err == nil
+}
+
 // optionalRange decodes read_file's nullable range; 0 end means "one screen".
-func optionalRange(args readLinesArgs) (int, int, error) {
+func optionalRange(startRaw, endRaw json.RawMessage) (int, int, error) {
 	start, end := 1, 0
-	if value, ok, err := optionalLine(args.StartLine, "start_line"); err != nil {
+	if value, ok, err := optionalLine(startRaw, "start_line"); err != nil {
 		return 0, 0, err
 	} else if ok {
 		start = value
 	}
-	if value, ok, err := optionalLine(args.EndLine, "end_line"); err != nil {
+	if value, ok, err := optionalLine(endRaw, "end_line"); err != nil {
 		return 0, 0, err
 	} else if ok {
 		end = value
@@ -229,6 +276,9 @@ func readTextFileV3(view agent.WorkspaceFS, target string) ([]byte, error) {
 	info, err := view.Stat(target)
 	if err != nil {
 		return nil, err
+	}
+	if info.IsDir() {
+		return nil, errors.New(readFileV3IsDir)
 	}
 	if !info.Mode().IsRegular() {
 		return nil, fmt.Errorf("path is not a regular file")

@@ -36,6 +36,11 @@ type workspace struct {
 	// exports the task is about, and skipping them left no trace in the
 	// result. .git and node_modules stay skipped.
 	keepBuildDirs bool
+	// relaxed (work-v3 only) clamps out-of-range max_depth/max_results to
+	// the nearest bound instead of rejecting the call, answers an empty
+	// search with a note, and words a missing path in Chinese with the next
+	// step. The 10-21 probe found each of these a dead end for the model.
+	relaxed bool
 }
 
 // WorkspaceResolver exposes the existing workspace containment policy to
@@ -61,12 +66,13 @@ func (r *WorkspaceResolver) Resolve(path string) (string, error) {
 
 // RelativizeError rewrites a raw filesystem error so the model-visible text
 // names the workspace-relative path instead of the host absolute one. See
-// workspace.relativizeError.
+// workspace.relativizeError. A work-v3 resolver also words a missing path in
+// Chinese with the next step (workspace.missingPathError).
 func (r *WorkspaceResolver) RelativizeError(err error) error {
 	if r == nil || r.workspace == nil {
 		return err
 	}
-	return r.workspace.relativizeError(err)
+	return r.workspace.missingPathError(err)
 }
 
 func WorkspaceTools(root string) ([]Tool, error) {
@@ -379,6 +385,10 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if args.MaxResults == 0 {
 		args.MaxResults = 200
 	}
+	if t.workspace.relaxed {
+		args.MaxDepth = clampLimit(args.MaxDepth, 3, 8)
+		args.MaxResults = clampLimit(args.MaxResults, 200, 500)
+	}
 	if args.MaxDepth < 1 || args.MaxDepth > 8 {
 		return nil, fmt.Errorf("%w: max_depth must be between 1 and 8", ErrInvalidToolArguments)
 	}
@@ -391,9 +401,12 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	info, err := t.workspace.fs().Stat(target)
 	if err != nil {
-		return nil, t.workspace.relativizeError(err)
+		return nil, t.workspace.missingPathError(err)
 	}
 	if !info.IsDir() {
+		if t.workspace.relaxed {
+			return nil, fmt.Errorf("%s 是文件，不是目录；读文件内容用 read_file", t.workspace.relative(target))
+		}
 		return nil, fmt.Errorf("path is not a directory")
 	}
 	baseDepth := pathDepth(t.workspace.relative(target))
@@ -561,6 +574,7 @@ type searchMatch struct {
 type searchTextResult struct {
 	Matches   []searchMatch `json:"matches"`
 	Truncated bool          `json:"truncated"`
+	Note      string        `json:"note,omitempty"`
 }
 
 func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -574,6 +588,9 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if args.MaxResults == 0 {
 		args.MaxResults = 50
 	}
+	if t.workspace.relaxed {
+		args.MaxResults = clampLimit(args.MaxResults, 50, 200)
+	}
 	if args.MaxResults < 1 || args.MaxResults > 200 {
 		return nil, fmt.Errorf("%w: max_results must be between 1 and 200", ErrInvalidToolArguments)
 	}
@@ -583,7 +600,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	}
 	info, err := t.workspace.fs().Stat(target)
 	if err != nil {
-		return nil, t.workspace.relativizeError(err)
+		return nil, t.workspace.missingPathError(err)
 	}
 	result := searchTextResult{Matches: make([]searchMatch, 0, args.MaxResults)}
 	visit := func(path string, entry fs.DirEntry) error {
@@ -633,8 +650,53 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			return visit(path, entry)
 		})
 	}
+	if err == nil && t.workspace.relaxed && len(result.Matches) == 0 {
+		result.Note = emptySearchNote(args.Query)
+	}
 	return result, t.workspace.relativizeError(err)
 }
+
+// clampLimit is work-v3's reading of a count argument: past the upper bound
+// it means the bound, below 1 it means the default.
+func clampLimit(value, fallback, upper int) int {
+	if value < 1 {
+		return fallback
+	}
+	return min(value, upper)
+}
+
+const (
+	emptySearchTextNote  = "没有找到包含这段文字的行。同样的文字再搜也不会有结果；可以换一个更短的关键词，或先用 list_files 看看有哪些文件。"
+	emptySearchRegexNote = "没有找到包含这段文字的行。search_text 按原文逐字匹配，不支持正则、通配符和 |；要找几个词就分开各搜一次，或用 bash 的 grep -E。"
+)
+
+// emptySearchNote explains an empty search_text result; a query written as a
+// regular expression gets told the search is literal (the model wrote
+// "alpha|beta" and read the empty result as "absent").
+func emptySearchNote(query string) string {
+	if strings.ContainsAny(query, "|*?[]^$\\") || strings.Contains(query, ".+") {
+		return emptySearchRegexNote
+	}
+	return emptySearchTextNote
+}
+
+// missingPathError is relativizeError plus, in work-v3, a Chinese message
+// with the next step for a path that does not exist (work-v2 said
+// "stat nope.txt: no such file or directory").
+func (w *workspace) missingPathError(err error) error {
+	var pathError *fs.PathError
+	if w.relaxed && errors.Is(err, fs.ErrNotExist) && errors.As(err, &pathError) {
+		return fmt.Errorf("找不到 %s：工作区里没有这个文件或目录。先用 list_files 或 search_text 确认路径。%w", w.relative(pathError.Path), errMissingPathMarker{err})
+	}
+	return w.relativizeError(err)
+}
+
+// errMissingPathMarker keeps errors.Is(err, fs.ErrNotExist) true under the
+// Chinese message without printing the original English text.
+type errMissingPathMarker struct{ err error }
+
+func (e errMissingPathMarker) Error() string { return "" }
+func (e errMissingPathMarker) Unwrap() error { return e.err }
 
 func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatch, bool, error) {
 	return searchFileWithFS(DiskWorkspaceFS{}, path, query, caseSensitive, limit)
