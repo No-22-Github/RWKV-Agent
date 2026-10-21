@@ -63,10 +63,15 @@ type bfclEvalOptions struct {
 // the optional chat_template_kwargs.enable_thinking value. Auto leaves the
 // server default untouched by returning nil.
 func (options bfclEvalOptions) chatTemplateEnableThinking() *bool {
-	if options.chatTemplateThinking == string(chatcompletions.ThinkingAuto) {
+	return chatTemplateEnableThinking(options.chatTemplateThinking)
+}
+
+// chatTemplateEnableThinking is shared by bfcl and agent-eval.
+func chatTemplateEnableThinking(mode string) *bool {
+	if mode == string(chatcompletions.ThinkingAuto) {
 		return nil
 	}
-	enableThinking := options.chatTemplateThinking == string(chatcompletions.ThinkingEnabled)
+	enableThinking := mode == string(chatcompletions.ThinkingEnabled)
 	return &enableThinking
 }
 

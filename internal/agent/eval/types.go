@@ -223,6 +223,7 @@ type ModelMetadata struct {
 	PromptMode           string   `json:"prompt_mode,omitempty"`
 	UnsupportedSampling  []string `json:"unsupported_sampling,omitempty"`
 	UpstreamThinking     string   `json:"upstream_thinking,omitempty"`
+	ChatTemplateThinking string   `json:"chat_template_thinking,omitempty"`
 	ReasoningEffort      string   `json:"reasoning_effort,omitempty"`
 	TokenLimitField      string   `json:"token_limit_field,omitempty"`
 	// SystemSuffixSHA256 identifies the teacher-only instruction appended to

@@ -522,6 +522,26 @@ func TestAgentAcceptsChatCompletionsContinuation(t *testing.T) {
 	}); err == nil {
 		t.Fatal("local agent accepted a Chat Completions thinking mode")
 	}
+	options, err = parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--chat-template-thinking", "enabled",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if enabled := chatTemplateEnableThinking(options.chatTemplateThinking); enabled == nil || !*enabled {
+		t.Fatalf("chat template thinking = %q", options.chatTemplateThinking)
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "local-model",
+		"--prompt", "task",
+		"--chat-template-thinking", "enabled",
+	}); err == nil {
+		t.Fatal("local agent accepted a chat template thinking mode")
+	}
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "other-model",
 		"--prompt", "task",

@@ -79,6 +79,9 @@ type Config struct {
 	ChatThinking   chatcompletions.ThinkingMode
 	ChatPromptMode chatcompletions.PromptMode
 	ChatTokenLimit chatcompletions.TokenLimitField
+	// ChatTemplateEnableThinking is sent as chat_template_kwargs.enable_thinking
+	// when non-nil.
+	ChatTemplateEnableThinking *bool
 	// ChatReasoningEffort is sent as reasoning_effort when non-empty.
 	ChatReasoningEffort string
 	// ChatSystemSuffix is appended to every Chat Completions system message
@@ -120,6 +123,7 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			Headers: config.Headers, HTTPClient: config.HTTPClient,
 			Thinking: config.ChatThinking, PromptMode: config.ChatPromptMode, TokenLimit: config.ChatTokenLimit,
 			SystemSuffix: config.ChatSystemSuffix, ReasoningEffort: config.ChatReasoningEffort,
+			ChatTemplateEnableThinking: config.ChatTemplateEnableThinking,
 		})
 	case LightningPython, LightningCUDA:
 		stops := config.StopTokens

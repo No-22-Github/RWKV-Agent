@@ -77,6 +77,7 @@ type runOptions struct {
 	apiURL                   string
 	apiKeyEnv                string
 	chatThinking             string
+	chatTemplateThinking     string
 	chatReasoningEffort      string
 	chatPromptMode           string
 	chatPromptExplicit       bool
@@ -501,6 +502,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"upstream Chat Completions thinking extension: auto, disabled, enabled, or split (MiniMax reasoning_split)",
 		)
 		fs.StringVar(
+			&options.chatTemplateThinking,
+			"chat-template-thinking",
+			string(chatcompletions.ThinkingAuto),
+			"chat_template_kwargs.enable_thinking (vLLM/SGLang Qwen templates): auto sends nothing, disabled, or enabled",
+		)
+		fs.StringVar(
 			&options.chatReasoningEffort,
 			"chat-reasoning-effort",
 			"",
@@ -903,6 +910,14 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.completion != "chat-completions" && chatThinking != chatcompletions.ThinkingAuto {
 			return options, errors.New("--chat-thinking requires --completion chat-completions")
 		}
+		chatTemplateThinking, err := chatcompletions.ParseThinkingMode(options.chatTemplateThinking)
+		if err != nil {
+			return options, err
+		}
+		options.chatTemplateThinking = string(chatTemplateThinking)
+		if options.completion != "chat-completions" && chatTemplateThinking != chatcompletions.ThinkingAuto {
+			return options, errors.New("--chat-template-thinking requires --completion chat-completions")
+		}
 		chatPromptMode, err := chatcompletions.ParsePromptMode(options.chatPromptMode)
 		if err != nil {
 			return options, err
@@ -1304,12 +1319,13 @@ func newAgentGeneratorSource(
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
 			Credential: credential, Headers: headers,
-			ChatThinking:        chatcompletions.ThinkingMode(options.chatThinking),
-			ChatReasoningEffort: options.chatReasoningEffort,
-			ChatPromptMode:      chatcompletions.PromptMode(options.chatPromptMode),
-			ChatTokenLimit:      chatcompletions.TokenLimitField(options.chatTokenLimit),
-			ChatSystemSuffix:    options.chatSystemSuffix,
-			StopTokens:          options.apiStopTokens, StateID: options.stateID,
+			ChatThinking:               chatcompletions.ThinkingMode(options.chatThinking),
+			ChatTemplateEnableThinking: chatTemplateEnableThinking(options.chatTemplateThinking),
+			ChatReasoningEffort:        options.chatReasoningEffort,
+			ChatPromptMode:             chatcompletions.PromptMode(options.chatPromptMode),
+			ChatTokenLimit:             chatcompletions.TokenLimitField(options.chatTokenLimit),
+			ChatSystemSuffix:           options.chatSystemSuffix,
+			StopTokens:                 options.apiStopTokens, StateID: options.stateID,
 			AdapterID: options.adapterID,
 			Stream:    &options.apiStream, BatchWait: batchWait, BatchMax: batchMax, BatchInflight: batchInflight,
 			LoopGuard: options.loopGuard,
@@ -1924,6 +1940,7 @@ func runAgentEval(args []string) error {
 		model.PromptMode = options.chatPromptMode
 		model.UnsupportedSampling = []string{"top_k", "penalty_decay"}
 		model.UpstreamThinking = options.chatThinking
+		model.ChatTemplateThinking = options.chatTemplateThinking
 		model.ReasoningEffort = options.chatReasoningEffort
 		model.TokenLimitField = options.chatTokenLimit
 		if options.chatSystemSuffix != "" {
@@ -2355,7 +2372,7 @@ func reportCompletionCompatibility(options runOptions) {
 		"Chat Completions compatibility: prompt mode="+options.chatPromptMode+"; "+
 			"tool transport="+chatToolTransport(options.chatPromptMode)+"; "+
 			"top-k and penalty-decay are not sent upstream; streaming is disabled; "+
-			"upstream thinking="+options.chatThinking+"; token limit="+options.chatTokenLimit,
+			"upstream thinking="+options.chatThinking+"; chat template thinking="+options.chatTemplateThinking+"; token limit="+options.chatTokenLimit,
 	)
 }
 
