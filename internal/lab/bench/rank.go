@@ -259,11 +259,19 @@ func loadRankRuns(out, prefix string) map[rankKey][]*rankRep {
 	}
 	sort.Strings(names)
 
+	// New runs are rwkv-*; runs written before 2026-10-21 are g1k-*. A bench
+	// directory usually holds both, so the default (no --prefix) reads both
+	// rather than silently ranking half of it.
+	accept := map[string]bool{prefix: true}
+	if prefix == "" {
+		accept = map[string]bool{"rwkv": true, "g1k": true}
+	}
+
 	loaded := map[rankKey][]*rankRep{}
 	for _, name := range names {
 		path := filepath.Join(out, name)
 		match := runNameRe.FindStringSubmatch(name)
-		if match == nil || match[1] != prefix {
+		if match == nil || !accept[match[1]] {
 			continue
 		}
 		info, err := os.Stat(path)

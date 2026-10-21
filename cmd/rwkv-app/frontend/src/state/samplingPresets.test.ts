@@ -6,9 +6,9 @@ import {
 /* 镜像 Go 侧 internal/samplingpreset/presets_test.go：数值钉死，漂移在这里失败。 */
 const PINNED = {
   greedy: { temperature: 1, topK: 1, topP: 1, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 },
-  'g1k-agent': { temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 },
-  'g1k-agent-fast': { temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0.5, frequencyPenalty: 0.1, penaltyDecay: 0.996 },
-  'g1k-stable': { temperature: 1, topK: 20, topP: 0.3, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 },
+  'agent-default': { temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 },
+  'agent-fast': { temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0.5, frequencyPenalty: 0.1, penaltyDecay: 0.996 },
+  'agent-stable': { temperature: 1, topK: 20, topP: 0.3, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 },
   backend: { temperature: 1, topK: 20, topP: 0.3, presencePenalty: 2, frequencyPenalty: 0.2, penaltyDecay: 0.996 },
 } as const
 
@@ -29,9 +29,16 @@ describe('sampling presets', () => {
   })
 
   it('recognises a preset and rejects one that was overridden', () => {
-    expect(matchSamplingPreset({ temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 })).toBe('g1k-agent')
+    expect(matchSamplingPreset({ temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 })).toBe('agent-default')
     expect(matchSamplingPreset({ temperature: 0.5, topK: NO_TRUNCATION, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1 })).toBe('')
     expect(matchSamplingPreset(DEFAULT_SAMPLING)).toBe('greedy')
+  })
+
+  it('still resolves the retired g1k preset ids without listing them', () => {
+    expect(presetById('g1k-agent')?.id).toBe('agent-default')
+    expect(presetById('g1k-agent-fast')?.id).toBe('agent-fast')
+    expect(presetById('g1k-stable')?.id).toBe('agent-stable')
+    expect(SAMPLING_PRESETS.map((preset) => preset.id)).not.toContain('g1k-agent')
   })
 
   it('treats unset sampling as the backend default', () => {

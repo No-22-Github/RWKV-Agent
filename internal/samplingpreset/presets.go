@@ -1,6 +1,6 @@
 // Package samplingpreset names the sampling configurations measured for RWKV
-// Agent work, so a run can say "g1k-agent" instead of six numbers that are easy
-// to get wrong (a top_k of 1 silently disables temperature, for example).
+// Agent work, so a run can say "agent-default" instead of six numbers that are
+// easy to get wrong (a top_k of 1 silently disables temperature, for example).
 //
 // There is no single best preset: each one is the measured winner for a kind
 // of task. The numbers come from the 2026-09-23 g1k sampling sweep
@@ -31,34 +31,66 @@ type Preset struct {
 // "no top-k cutoff" is spelled as the RWKV World vocabulary size.
 const NoTruncation = 65536
 
+// The measured presets. The names say what the preset is for and carry no
+// model generation: the sampling values outlive any one model.
+const (
+	AgentDefault = "agent-default"
+	AgentFast    = "agent-fast"
+	AgentStable  = "agent-stable"
+	Greedy       = "greedy"
+	Backend      = "backend"
+)
+
 var presets = map[string]Preset{
-	"greedy": {
-		Name: "greedy", Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
+	Greedy: {
+		Name: Greedy, Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		Use: "regression and debugging; closest to reproducible (batching still moves about ±1 case)",
 	},
-	"g1k-agent": {
-		Name: "g1k-agent", Temperature: 0.3, TopK: NoTruncation, TopP: 0.5, PenaltyDecay: 1,
+	AgentDefault: {
+		Name: AgentDefault, Temperature: 0.3, TopK: NoTruncation, TopP: 0.5, PenaltyDecay: 1,
 		Use: "default for tool-calling decisions; best bfcl-product (mean 48/60)",
 	},
-	"g1k-agent-fast": {
-		Name: "g1k-agent-fast", Temperature: 0.3, TopK: NoTruncation, TopP: 0.5,
+	AgentFast: {
+		Name: AgentFast, Temperature: 0.3, TopK: NoTruncation, TopP: 0.5,
 		PresencePenalty: 0.5, FrequencyPenalty: 0.1, PenaltyDecay: 0.996,
-		Use: "long multi-step agent tasks; same score band as g1k-agent, ~27% faster (a light penalty curbs loops; presence 1.0 already costs score)",
+		Use: "long multi-step agent tasks; same score band as agent-default, ~27% faster (a light penalty curbs loops; presence 1.0 already costs score)",
 	},
-	"g1k-stable": {
-		Name: "g1k-stable", Temperature: 1, TopK: 20, TopP: 0.3, PenaltyDecay: 1,
+	AgentStable: {
+		Name: AgentStable, Temperature: 1, TopK: 20, TopP: 0.3, PenaltyDecay: 1,
 		Use: "A/B comparisons with few replicas; smallest run-to-run spread",
 	},
-	"backend": {
-		Name: "backend", Temperature: 1, TopK: 20, TopP: 0.3,
+	Backend: {
+		Name: Backend, Temperature: 1, TopK: 20, TopP: 0.3,
 		PresencePenalty: 2, FrequencyPenalty: 0.2, PenaltyDecay: 0.996,
 		Use: "rwkv_lightning's own defaults; chat and the fastest runs (heavy penalty halves output length)",
 	},
 }
 
-// Lookup returns the named preset.
+// presetAliases maps retired preset names to their current name. A run.json,
+// App config or command written before 2026-10-21 says g1k-agent; it resolves
+// to the same values under the new name. Aliases are never listed: Match walks
+// Names() in sorted order, so a second entry with the same values would make
+// the recorded name depend on alphabetical order.
+var presetAliases = map[string]string{
+	"g1k-agent":      AgentDefault,
+	"g1k-agent-fast": AgentFast,
+	"g1k-stable":     AgentStable,
+}
+
+// CanonicalName returns the current name for a preset name or alias; any other
+// value comes back unchanged.
+func CanonicalName(name string) string {
+	key := strings.TrimSpace(name)
+	if canonical, ok := presetAliases[key]; ok {
+		return canonical
+	}
+	return key
+}
+
+// Lookup returns the named preset, under either its current name or a retired
+// one.
 func Lookup(name string) (Preset, bool) {
-	preset, ok := presets[strings.TrimSpace(name)]
+	preset, ok := presets[CanonicalName(name)]
 	return preset, ok
 }
 

@@ -43,7 +43,7 @@ func runSweepCmd(argv []string) int {
 		Suites:         []string{"workbank", "bfcl-product"},
 		K:              "0",
 		APIURL:         "https://api-7b.rwkvos.com/v1",
-		Prefix:         "g1k",
+		Prefix:         "rwkv",
 		MaxConcurrency: 64,
 		BatchInflight:  runs.BenchRemoteBatchInflight,
 		MaxAttempts:    2,
@@ -58,7 +58,7 @@ func runSweepCmd(argv []string) int {
 	fs.StringVar(&args.K, "k", "0", "replica indices: 0 | 0-2 | 1,2")
 	fs.StringVar(&args.Model, "model", "", "model id (default: the endpoint's only model)")
 	fs.StringVar(&args.APIURL, "api-url", "https://api-7b.rwkvos.com/v1", "endpoint base URL")
-	fs.StringVar(&args.Prefix, "prefix", "g1k", "run directory prefix")
+	fs.StringVar(&args.Prefix, "prefix", "rwkv", "run directory prefix (new runs are rwkv-*)")
 	fs.StringVar(&args.StateID, "state-id", "",
 		"rwkv_lightning state id attached to every run of this invocation")
 	fs.StringVar(&args.AdapterID, "adapter-id", "",
@@ -92,10 +92,10 @@ func runSweepCmd(argv []string) int {
 }
 
 func runRankCmd(argv []string) int {
-	args := RankArgs{Prefix: "g1k", Baseline: "greedy", Floor: 5}
+	args := RankArgs{Prefix: "", Baseline: "greedy", Floor: 5}
 	fs := lab.NewFlagSet("bench rank",
 		"Rank sampling arms from sweep runs using the pre-registered rules.")
-	fs.StringVar(&args.Prefix, "prefix", "g1k", "run directory prefix")
+	fs.StringVar(&args.Prefix, "prefix", "", "run directory prefix (default: read both rwkv-* and the old g1k-*)")
 	fs.StringVar(&args.Baseline, "baseline", "greedy", "arm to pair against")
 	fs.IntVar(&args.Floor, "floor", 5, "workbank resolution floor")
 	fs.StringVar(&args.Save, "save", "", "also write the markdown here")
@@ -104,7 +104,7 @@ func runRankCmd(argv []string) int {
 	}
 	rest := fs.Args()
 	if len(rest) != 1 {
-		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab bench rank OUT_DIR [--prefix g1k]")
+		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab bench rank OUT_DIR [--prefix rwkv]")
 		return 2
 	}
 	args.Out = rest[0]

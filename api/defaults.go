@@ -23,7 +23,7 @@ const (
 )
 
 // NewConfigSampling is the sampling preset a new App connection starts on.
-const NewConfigSampling = "g1k-agent"
+const NewConfigSampling = samplingpreset.AgentDefault
 
 // NewConfigWeatherBackend is the keyless weather backend a new connection uses.
 const NewConfigWeatherBackend = assistanttools.WeatherBackendOpenMeteo

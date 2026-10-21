@@ -118,7 +118,7 @@ lint 按此规则校验 `level`。跑分后按实测通过率在 `calibrate.py` 
 | `ref_calls` | 整数 | 参考解调用次数，写在 NOTES 里的步骤要能对上 |
 | `fixture_bytes` | 整数 | lint 自动回填并校验 |
 | `status` | draft reviewed frozen | Agent 只能写 draft |
-| `version` | 整数 | 冻结后改题 +1 |
+| `version` | 整数 | 冻结后改题 +1（这是**题目修订次数**，不是考卷版本；考卷版本是 `bench/exam/versions.json` 里的 `v<主>.<次>`，按增删题/改题面区分） |
 | `author` / `reviewer` | `llm:<id>` / `human:<name>` | — |
 
 轴的定义：OBS 观测与精确 · DEC 调不调、反问、做不到 · CHN 链式与多源 · ERR 报错与偏差恢复 · CON 约束与安全 · VER 核实再下结论 · LNG 长输入与截断 · STP 收手与判重。

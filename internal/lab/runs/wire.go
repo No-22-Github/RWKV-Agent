@@ -18,8 +18,10 @@ import (
 // turns, pass uses cases, and the optional answer-text match is diagnostic
 // only.
 
-// WireVersion is the report's schema tag.
-const WireVersion = "wire-audit-v2"
+// WireAuditVersion is the wire audit report's schema tag. It is the
+// report format's version, not the wire format's; the json key stays
+// "version" because archived reports are read by it.
+const WireAuditVersion = "wire-audit-v2"
 
 // SplitThink separates a generation's reasoning from its body. kind is one of
 // none, self, prefilled, unclosed or empty.
@@ -480,7 +482,7 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 		thinkMedian = median(thoughtLengths)
 	}
 	report := map[string]any{
-		"version":                    WireVersion,
+		"version":                    WireAuditVersion,
 		"run":                        runDir,
 		"valid_for_model_comparison": m.get("infra_error_turns") == 0,
 		"metrics":                    m.asMap(),

@@ -35,20 +35,20 @@ export type SamplingPreset = SamplingValues & {
 /* 顺序照搬扫参报告的结论表：从最常用的推荐档到基线档。 */
 export const SAMPLING_PRESETS: readonly SamplingPreset[] = [
   {
-    id: 'g1k-agent', label: 'Agent 推荐',
-    use: '默认推荐，工具调用决策；bfcl-product 最高（均 48/60）。CLI 名 g1k-agent',
+    id: 'agent-default', label: 'Agent 推荐',
+    use: '默认推荐，工具调用决策；bfcl-product 最高（均 48/60）。CLI 名 agent-default（原名 g1k-agent）',
     temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5,
     presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
   },
   {
-    id: 'g1k-agent-fast', label: 'Agent 长任务',
-    use: '长的多步任务；分数同一档、快约 27%，但缺参数时的追问变差。CLI 名 g1k-agent-fast',
+    id: 'agent-fast', label: 'Agent 长任务',
+    use: '长的多步任务；分数同一档、快约 27%，但缺参数时的追问变差。CLI 名 agent-fast（原名 g1k-agent-fast）',
     temperature: 0.3, topK: NO_TRUNCATION, topP: 0.5,
     presencePenalty: 0.5, frequencyPenalty: 0.1, penaltyDecay: 0.996,
   },
   {
-    id: 'g1k-stable', label: '稳定对比',
-    use: '少副本 A/B 对比；跑与跑之间波动最小。CLI 名 g1k-stable',
+    id: 'agent-stable', label: '稳定对比',
+    use: '少副本 A/B 对比；跑与跑之间波动最小。CLI 名 agent-stable（原名 g1k-stable）',
     temperature: 1, topK: 20, topP: 0.3,
     presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
   },
@@ -75,10 +75,18 @@ export const DEFAULT_SAMPLING: SamplingValues = {
  * 新建连接的采样预设（api.NewConfigSampling）。与 DEFAULT_SAMPLING 不同：后者解释
  * 「已保存但没写采样」的旧档案（greedy），这个只用于新档案的初始值，旧档案不受影响。
  */
-export const NEW_CONFIG_SAMPLING_ID = 'g1k-agent'
+export const NEW_CONFIG_SAMPLING_ID = 'agent-default'
+
+/* 2026-10-21 改名前的预设 id；镜像 Go 侧 samplingpreset.presetAliases。 */
+const RETIRED_SAMPLING_IDS: Record<string, string> = {
+  'g1k-agent': 'agent-default',
+  'g1k-agent-fast': 'agent-fast',
+  'g1k-stable': 'agent-stable',
+}
 
 export function presetById(id: string): SamplingPreset | undefined {
-  return SAMPLING_PRESETS.find((preset) => preset.id === id)
+  const canonical = RETIRED_SAMPLING_IDS[id] ?? id
+  return SAMPLING_PRESETS.find((preset) => preset.id === canonical)
 }
 
 /*
@@ -102,7 +110,7 @@ export function samplingOf(config: Config): SamplingValues {
 
 /*
  * 反查当前数值对应的预设名，等同 Go 侧 samplingpreset.Match：被改过任何一个值的
- * 预设不再冒充原名，返回空串表示这是自定义参数。这样界面说"当前是 g1k-agent"
+ * 预设不再冒充原名，返回空串表示这是自定义参数。这样界面说"当前是 agent-default"
  * 时就真的是那份测量过的配置，而不是"曾经从它出发"。
  */
 export function matchSamplingPreset(values: Partial<SamplingValues>): string {

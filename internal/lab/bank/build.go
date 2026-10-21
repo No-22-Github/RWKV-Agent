@@ -88,7 +88,7 @@ func runBuild(args []string) int {
 
 	sum := sha256.Sum256(data)
 	fmt.Printf("cases: %d (skipped %d by status=%s, %d unreadable)\n", len(merged), skipped, *status, broken)
-	fmt.Printf("bank_version = sha256:%s\n", hex.EncodeToString(sum[:]))
+	fmt.Printf("bank_hash = sha256:%s（旧称 bank_version）\n", hex.EncodeToString(sum[:]))
 	fmt.Printf("out: %s (%d bytes)\n", *out, len(data))
 	return 0
 }

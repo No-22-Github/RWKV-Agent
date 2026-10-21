@@ -10,6 +10,7 @@ import (
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
+	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
 
@@ -1174,7 +1175,7 @@ func TestAgentEvalRecordsEffectiveLoopInWireSpec(t *testing.T) {
 func TestSamplingPresetFillsUnsetFlagsAndYieldsToExplicitOnes(t *testing.T) {
 	options, err := parseRunOptions("agent-eval", []string{
 		"--model", "m", "--suite", agenteval.SuiteBoundary,
-		"--sampling", "g1k-agent-fast", "--temperature", "0.5",
+		"--sampling", samplingpreset.AgentFast, "--temperature", "0.5",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -1186,9 +1187,20 @@ func TestSamplingPresetFillsUnsetFlagsAndYieldsToExplicitOnes(t *testing.T) {
 		options.frequencyPenalty != 0.1 || options.penaltyDecay != 0.996 {
 		t.Fatalf("preset values not applied: %+v", options)
 	}
+	// The retired spelling selects the same preset.
+	retired, err := parseRunOptions("agent-eval", []string{
+		"--model", "m", "--suite", agenteval.SuiteBoundary, "--sampling", "g1k-agent-fast",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if retired.topK != options.topK || retired.penaltyDecay != options.penaltyDecay ||
+		retired.presencePenalty != options.presencePenalty {
+		t.Fatalf("retired name applied different values: %+v", retired)
+	}
 	if _, err := parseRunOptions("agent-eval", []string{
 		"--model", "m", "--suite", agenteval.SuiteBoundary, "--sampling", "nope",
-	}); err == nil || !strings.Contains(err.Error(), "g1k-agent") {
+	}); err == nil || !strings.Contains(err.Error(), samplingpreset.AgentDefault) {
 		t.Fatalf("unknown preset error = %v, want the known list", err)
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/lab"
+	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 )
 
 // Client-side coalescing for RWKV bench runs: what bench sweep passes to
@@ -91,6 +92,12 @@ var Arms = func() map[string]Arm {
 
 	// Named presets (internal/samplingpreset, `rwkv-cli --sampling <name>`).
 	// Keep in step with the Go table; TestPresetValuesArePinned guards that side.
+	out[samplingpreset.AgentDefault] = out["t03-p05"]
+	out[samplingpreset.AgentFast] = out["t03-p05-pr05"]
+	out[samplingpreset.AgentStable] = out["backend-nopen"]
+	// The retired spellings stay selectable: a sweep command written before
+	// 2026-10-21 says g1k-agent. The preset gate canonicalises both sides, so
+	// either spelling matches either a new or an old run.json.
 	out["g1k-agent"] = out["t03-p05"]
 	out["g1k-agent-fast"] = out["t03-p05-pr05"]
 	out["g1k-stable"] = out["backend-nopen"]
@@ -209,9 +216,11 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 	if _, isPreset := presetArms[args.Arm]; isPreset {
 		if _, hasPreset := sampling["preset"]; hasPreset {
 			// Binaries from 2026-09-23 on record the preset matched from the
-			// values that ran.
-			gate(fmt.Sprintf("sampling.preset == %s", args.Arm),
-				lab.StringOf(sampling, "preset") == args.Arm,
+			// values that ran. Old runs record the retired name, so compare
+			// the current name of both sides.
+			recorded := samplingpreset.CanonicalName(lab.StringOf(sampling, "preset"))
+			want := samplingpreset.CanonicalName(args.Arm)
+			gate(fmt.Sprintf("sampling.preset == %s", args.Arm), recorded == want,
 				fmt.Sprintf("got %s", pyRepr(sampling["preset"])))
 		}
 	}
@@ -285,10 +294,12 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 }
 
 // presetArms are the arms that are also named presets, and so are expected to
-// be echoed in sampling.preset.
+// be echoed in sampling.preset. The retired spellings are included: an old
+// sweep command still selects them, and its run may record either name.
 var presetArms = map[string]bool{
-	"greedy": true, "g1k-agent": true, "g1k-agent-fast": true,
-	"g1k-stable": true, "backend": true,
+	"greedy": true, "backend": true,
+	samplingpreset.AgentDefault: true, samplingpreset.AgentFast: true, samplingpreset.AgentStable: true,
+	"g1k-agent": true, "g1k-agent-fast": true, "g1k-stable": true,
 }
 
 func closeEnough(got, want any) bool {

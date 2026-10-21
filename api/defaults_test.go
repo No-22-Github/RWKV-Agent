@@ -19,7 +19,7 @@ func newConnection() Config {
 
 // TestNewConfigDefaultsRunOnTheMeasuredWire locks the goal of the shared
 // assembly: a new App connection resolves to the agent-wire-v1.0 preset (the
-// corpus and evaluation wire, called g1k before 2026-10-21), the g1k-agent
+// corpus and evaluation wire, called g1k before 2026-10-21), the agent-default
 // sampling preset and the product loop-policy limits 2/3/3, and the combination
 // is accepted by normalizeConfig.
 func TestNewConfigDefaultsRunOnTheMeasuredWire(t *testing.T) {
@@ -41,8 +41,8 @@ func TestNewConfigDefaultsRunOnTheMeasuredWire(t *testing.T) {
 			options.DuplicateReplayLimit, options.DuplicateRescueThreshold, options.SameToolRescueLimit)
 	}
 	if got := samplingpreset.Match(config.Temperature, config.TopK, config.TopP,
-		config.PresencePenalty, config.FrequencyPenalty, config.PenaltyDecay); got != "g1k-agent" {
-		t.Fatalf("sampling preset = %q, want g1k-agent", got)
+		config.PresencePenalty, config.FrequencyPenalty, config.PenaltyDecay); got != samplingpreset.AgentDefault {
+		t.Fatalf("sampling preset = %q, want %s", got, samplingpreset.AgentDefault)
 	}
 	if !config.EnableWeb || !config.EnableBash || config.WeatherBackend != "open-meteo" || config.EnableSubagents {
 		t.Fatalf("tool switches = %+v", config)

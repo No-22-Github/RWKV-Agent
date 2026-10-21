@@ -477,7 +477,7 @@ describe('App', () => {
     openParametersSection()
     // 档案没存过采样，后端会归一成 greedy，选择器应当认出它而不是报自定义。
     expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'greedy')
-    chooseOption('采样预设', 'g1k-agent')
+    chooseOption('采样预设', 'agent-default')
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
@@ -494,7 +494,7 @@ describe('App', () => {
     openParametersSection()
     // 预设模式下六个数字是只读的展示，不占编辑位。
     expect(screen.queryByLabelText('温度')).not.toBeInTheDocument()
-    chooseOption('采样预设', 'g1k-agent')
+    chooseOption('采样预设', 'agent-default')
     chooseOption('采样预设', 'custom')
     // 切到自定义不改数值，从预设那组值出发继续调。
     expect(screen.getByLabelText('温度')).toHaveValue(0.3)
