@@ -439,7 +439,12 @@ func evaluateWith(expression ast.Expr, variables map[string]float64, extended bo
 	}
 }
 
-type dataQueryTool struct{ workspace *agent.WorkspaceResolver }
+type dataQueryTool struct {
+	workspace *agent.WorkspaceResolver
+	// match decides whether a row passes filter; nil is work-v2's exact
+	// equality (dataRowMatches). work-v3 sets dataRowMatchesV3.
+	match func(row, filter map[string]any) bool
+}
 
 type dataQueryAggregate struct {
 	Op         string `json:"op"`
@@ -508,7 +513,11 @@ func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	matched := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
-		if dataRowMatches(row, args.Filter) {
+		match := t.match
+		if match == nil {
+			match = dataRowMatches
+		}
+		if match(row, args.Filter) {
 			matched = append(matched, row)
 		}
 	}

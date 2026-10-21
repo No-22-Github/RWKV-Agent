@@ -31,6 +31,11 @@ type workspace struct {
 	// lineCounts (work-v3 only; false keeps work-v2 byte-identical) adds a
 	// line count to list_files entries.
 	lineCounts bool
+	// keepBuildDirs (work-v3 only) walks build/ and dist/ like any other
+	// directory: in a user's workspace they often hold the reports and
+	// exports the task is about, and skipping them left no trace in the
+	// result. .git and node_modules stay skipped.
+	keepBuildDirs bool
 }
 
 // WorkspaceResolver exposes the existing workspace containment policy to
@@ -405,7 +410,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 			return nil
 		}
 		relative := t.workspace.relative(path)
-		if entry.IsDir() && (shouldSkipDirectory(entry.Name())) {
+		if entry.IsDir() && t.workspace.skipDirectory(entry.Name()) {
 			return filepath.SkipDir
 		}
 		if pathDepth(relative)-baseDepth > args.MaxDepth {
@@ -586,7 +591,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			return err
 		}
 		if entry.IsDir() {
-			if path != target && (shouldSkipDirectory(entry.Name())) {
+			if path != target && t.workspace.skipDirectory(entry.Name()) {
 				return filepath.SkipDir
 			}
 			return nil
@@ -786,6 +791,13 @@ func coerceScalarArgumentStrings(raw json.RawMessage, target any) (json.RawMessa
 		return raw, false
 	}
 	return encoded, true
+}
+
+func (w *workspace) skipDirectory(name string) bool {
+	if w.keepBuildDirs && (name == "build" || name == "dist") {
+		return false
+	}
+	return shouldSkipDirectory(name)
 }
 
 func shouldSkipDirectory(name string) bool {

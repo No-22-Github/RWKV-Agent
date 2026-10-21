@@ -91,7 +91,7 @@ func (t *readFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if err != nil {
 		return nil, err
 	}
-	lines, err := readTextLinesV3(t.workspace.FS(), target)
+	lines, _, err := readTextLinesV3(t.workspace.FS(), target)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -195,8 +195,37 @@ func capLine(line string) string {
 
 // readTextLinesV3 reads a whole text file (up to agent.MaxTextFileBytes) into
 // lines. Unlike work-v2's readFileLinesWithFS it never silently stops at a
-// byte cap: a larger file is an error.
-func readTextLinesV3(view agent.WorkspaceFS, target string) ([]string, error) {
+// byte cap: a larger file is an error. Lines carry no "\r": a CRLF file
+// would otherwise show "1: one\r" to the model, and newline reports the
+// file's own line ending so a rewrite keeps it.
+func readTextLinesV3(view agent.WorkspaceFS, target string) (lines []string, newline string, err error) {
+	data, err := readTextFileV3(view, target)
+	if err != nil {
+		return nil, "", err
+	}
+	newline = lineEnding(data)
+	text := strings.TrimSuffix(string(data), "\n")
+	if text == "" {
+		return []string{}, newline, nil
+	}
+	lines = strings.Split(text, "\n")
+	for index, line := range lines {
+		lines[index] = strings.TrimSuffix(line, "\r")
+	}
+	return lines, newline, nil
+}
+
+// lineEnding is "\r\n" when most of the file's line breaks are CRLF.
+func lineEnding(data []byte) string {
+	if crlf := bytes.Count(data, []byte("\r\n")); crlf > 0 && crlf*2 >= bytes.Count(data, []byte("\n")) {
+		return "\r\n"
+	}
+	return "\n"
+}
+
+// readTextFileV3 is the size, binary and UTF-8 checked whole-file read behind
+// readTextLinesV3.
+func readTextFileV3(view agent.WorkspaceFS, target string) ([]byte, error) {
 	info, err := view.Stat(target)
 	if err != nil {
 		return nil, err
@@ -225,11 +254,7 @@ func readTextLinesV3(view agent.WorkspaceFS, target string) ([]string, error) {
 	if !utf8.Valid(data) {
 		return nil, fmt.Errorf("file is not valid UTF-8 text")
 	}
-	text := strings.TrimSuffix(string(data), "\n")
-	if text == "" {
-		return []string{}, nil
-	}
-	return strings.Split(text, "\n"), nil
+	return data, nil
 }
 
 var numberedLine = regexp.MustCompile(`^(\d+): `)
@@ -291,7 +316,48 @@ func (t *appendFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (an
 	if err := guardWrite(args.Path, args.Content); err != nil {
 		return nil, err
 	}
-	return t.inner.Execute(ctx, raw)
+	if args.Path == "" || args.Content == "" {
+		return t.inner.Execute(ctx, raw)
+	}
+	content, err := t.lineContent(args.Path, args.Content)
+	if err != nil {
+		return nil, err
+	}
+	if content == args.Content {
+		return t.inner.Execute(ctx, raw)
+	}
+	rewritten, err := json.Marshal(appendFileArgs{Path: args.Path, Content: content})
+	if err != nil {
+		return nil, err
+	}
+	return t.inner.Execute(ctx, rewritten)
+}
+
+// lineContent makes the appended text whole lines in the file's own line
+// ending: a break first when the file does not end with one (work-v2 glued
+// "beta" + "gamma" into "betagamma"), and one at the end of the content. A
+// file that cannot be read as text is appended to unchanged.
+func (t *appendFileV3Tool) lineContent(path, content string) (string, error) {
+	target, err := t.inner.workspace.Resolve(path)
+	if err != nil {
+		return "", err
+	}
+	newline, prefix := "\n", ""
+	if info, statErr := t.inner.workspace.FS().Stat(target); statErr == nil && info.Mode().IsRegular() && info.Size() > 0 {
+		data, readErr := readTextFileV3(t.inner.workspace.FS(), target)
+		if readErr != nil {
+			return content, nil
+		}
+		newline = lineEnding(data)
+		if !bytes.HasSuffix(data, []byte("\n")) {
+			prefix = newline
+		}
+	}
+	content = strings.ReplaceAll(content, "\r\n", "\n")
+	if !strings.HasSuffix(content, "\n") {
+		content += "\n"
+	}
+	return prefix + strings.ReplaceAll(content, "\n", newline), nil
 }
 
 type replaceLinesV3Tool struct{ workspace *agent.WorkspaceResolver }
@@ -320,7 +386,7 @@ func (t *replaceLinesV3Tool) Execute(ctx context.Context, raw json.RawMessage) (
 	if err != nil {
 		return nil, err
 	}
-	lines, err := readTextLinesV3(t.workspace.FS(), target)
+	lines, newline, err := readTextLinesV3(t.workspace.FS(), target)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -338,7 +404,7 @@ func (t *replaceLinesV3Tool) Execute(ctx context.Context, raw json.RawMessage) (
 	}
 	replacement := []string{}
 	if args.Content != "" {
-		replacement = strings.Split(strings.TrimSuffix(args.Content, "\n"), "\n")
+		replacement = strings.Split(strings.TrimSuffix(strings.ReplaceAll(args.Content, "\r\n", "\n"), "\n"), "\n")
 	}
 	updated := append(append([]string{}, lines[:args.StartLine-1]...), replacement...)
 	if end >= args.StartLine {
@@ -346,7 +412,7 @@ func (t *replaceLinesV3Tool) Execute(ctx context.Context, raw json.RawMessage) (
 	} else {
 		updated = append(updated, lines[args.StartLine-1:]...)
 	}
-	if err := t.workspace.FS().WriteFile(target, []byte(strings.Join(updated, "\n")+"\n"), 0o644); err != nil {
+	if err := t.workspace.FS().WriteFile(target, []byte(strings.Join(updated, newline)+newline), 0o644); err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
 	result := map[string]any{

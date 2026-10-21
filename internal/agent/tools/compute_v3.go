@@ -9,6 +9,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
@@ -156,6 +157,93 @@ func (t *dataQueryV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any
 	return dataQueryV3Result{dataQueryResult: result, Ignored: ignored}, nil
 }
 
+// filterComparisons are the operator prefixes a work-v3 filter value may
+// carry, longest first so ">=" is not read as ">".
+var filterComparisons = []string{">=", "<=", "!=", "<>", "==", ">", "<", "="}
+
+// dataRowMatchesV3 extends work-v2's exact-match filter with what models
+// write anyway: a value such as ">3" or ">=2026-10-01" is a comparison, and a
+// list is "any of". work-v2 read ">3" as the literal text and answered
+// matched_rows 0 without an error, which the model took as "no such rows".
+func dataRowMatchesV3(row map[string]any, filter map[string]any) bool {
+	for field, expected := range filter {
+		actual, ok := dataFieldValue(row, field)
+		if !ok || !filterValueMatches(actual, expected) {
+			return false
+		}
+	}
+	return true
+}
+
+func filterValueMatches(actual, expected any) bool {
+	switch value := expected.(type) {
+	case []any:
+		for _, item := range value {
+			if filterValueMatches(actual, item) {
+				return true
+			}
+		}
+		return false
+	case string:
+		text := strings.TrimSpace(value)
+		for _, op := range filterComparisons {
+			operand, found := strings.CutPrefix(text, op)
+			operand = strings.TrimSpace(operand)
+			if !found || operand == "" {
+				continue
+			}
+			return compareFilterValue(actual, op, operand)
+		}
+	}
+	return dataValuesEqual(actual, expected)
+}
+
+// compareFilterValue orders numbers as numbers, dates and times as times,
+// and anything else as text.
+func compareFilterValue(actual any, op, operand string) bool {
+	switch op {
+	case "==", "=":
+		return dataValuesEqual(actual, operand)
+	case "!=", "<>":
+		return !dataValuesEqual(actual, operand)
+	}
+	order := 0
+	left, leftOK := dataNumber(actual)
+	right, rightOK := dataNumber(operand)
+	if leftOK && rightOK {
+		order = compareFloat(left, right)
+	} else {
+		text := strings.TrimSpace(fmt.Sprint(actual))
+		leftTime, leftTimeOK := parseRowTime(text, time.UTC)
+		rightTime, rightTimeOK := parseRowTime(operand, time.UTC)
+		if leftTimeOK && rightTimeOK {
+			order = leftTime.Compare(rightTime)
+		} else {
+			order = strings.Compare(text, operand)
+		}
+	}
+	switch op {
+	case ">":
+		return order > 0
+	case ">=":
+		return order >= 0
+	case "<":
+		return order < 0
+	default: // "<="
+		return order <= 0
+	}
+}
+
+func compareFloat(left, right float64) int {
+	switch {
+	case left < right:
+		return -1
+	case left > right:
+		return 1
+	}
+	return 0
+}
+
 // LocalToolsV3 is work-v3's always-present compute group: calculator,
 // data_query and datetime, in work-v2's order.
 func LocalToolsV3(options Options) ([]agent.Tool, error) {
@@ -168,7 +256,7 @@ func LocalToolsV3(options Options) ([]agent.Tool, error) {
 	}
 	return []agent.Tool{
 		calculatorV3Tool{},
-		&dataQueryV3Tool{inner: &dataQueryTool{workspace: resolver}},
+		&dataQueryV3Tool{inner: &dataQueryTool{workspace: resolver, match: dataRowMatchesV3}},
 		&datetimeTool{clock: options.Clock},
 	}, nil
 }

@@ -435,3 +435,16 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 - b22f（8–16K 长任务，80 题）是按存档设计的，已移到 `bench/distill/v2.2/cases-shelved/`，以后再说。
 - b22c 有 8 题的页面约 4–5K token，现在会整页返回，判据不变。
 - 工具描述变了，所以 work-v3 下渲染的训练行（v2.1 重放的 `kept/`）要重新渲染一次才和 App 一致。不需要重跑老师。
+
+## 10. 修订：四处“结果悄悄出错”（2026-10-21）
+
+10-21 工具审阅时，用临时探针实测出四处“不报错、但结果是错的”。只改了 work-v3 的行为，描述、参数和目录哈希都没变；work-v2 保持原样（每条都有测试锁住）。
+
+| # | 工具 | 以前 | 现在 |
+|---|---|---|---|
+| A1 | `data_query` | filter 只判断“完全相等”，`{"qty":">3"}` 返回 `matched_rows: 0`，不报错 | 值以 `>` `>=` `<` `<=` `!=` `<>` `=` `==` 开头时按比较处理：两边都是数字按数值比，都是日期按时间比，否则按文字比；值是数组时表示“等于其中任意一个” |
+| A2 | `append_file` | 原样追加字节：原文件末尾没换行时 `beta` + `gamma` 变成 `betagamma` | 原文件末尾没换行就先补一个；content 末尾也补一个；用原文件的换行风格（CRLF 文件追加 CRLF） |
+| A3 | `list_files` `search_text` | 名叫 `build`、`dist` 的目录整个跳过，结果里没有任何提示 | 只跳过 `.git` 和 `node_modules` |
+| A4 | `read_file` `replace_lines` | CRLF 文件的 `\r` 漏进内容（`"1: one\r\n"`）；replace_lines 写回时全部改成 LF | 读取时去掉行尾 `\r`；写回时沿用原文件的换行风格（CRLF 占多数就按 CRLF 写） |
+
+影响面（10-21 扫描 `bench/**/case.json`）：exam、workbank、holdout 一题都不涉及。build/dist 下有文件的题：v2.0 2 题、v2.1 7 题、v2.2 5 题、bashprobe 4 题，都是以 build 目录本身为对象的题（删构建产物、提示注入要求删 build）。工作区里有 CRLF 文件的题：v1.4 2 题、v1.41 1 题、v2.0 2 题、v2.1 1 题。已经出好的训练包不变；以后用 work-v3 重新渲染时，这些题里 list_files、search_text、read_file 的返回会和旧包不同。
