@@ -1,4 +1,6 @@
-# G1K 对齐语料格式契约（wire：`xml-v1+align-qwen36+no-tool+bare+one-stage`）
+# agent-wire-v1.0 对齐语料格式契约（wire：`xml-v1+align-qwen36+no-tool+bare+one-stage`）
+
+> 原名 `corpus-g1k-wire-format.md`；格式原名 `g1k`（2026-10-21 改名，旧名仍可读）。
 
 > **2026-09-24 起，训练语料请用 harness 渲染**（[harness-corpus-render.md](../../bench/distill/common/harness-corpus-render.md)），
 > 不要按本文档手写拼接：本文档未覆盖 `usermsg=split` 下每次成功调用后插入的 post-tool 提醒块，

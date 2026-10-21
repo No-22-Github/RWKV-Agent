@@ -11,7 +11,7 @@
 
 ```bash
 python3 bench/weatherprobe/gen.py
-./local/bin/rwkv-cli agent-eval ... --profile g1k --strict-spec \
+./local/bin/rwkv-cli agent-eval ... --profile agent-wire-v1.0 --strict-spec \
   --cases bench/weatherprobe/cases --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m --remote-batch-wait 0s
 ```

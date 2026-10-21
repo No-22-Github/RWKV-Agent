@@ -12,15 +12,15 @@
 
 | 被测对象 | 传输 | 格式 | 必带参数 |
 |---|---|---|---|
-| RWKV（rwkv_lightning 系后端） | 续写 | **`g1k`** | `--profile g1k --strict-spec` |
+| RWKV（rwkv_lightning 系后端） | 续写 | **`agent-wire-v1.0`** | `--profile agent-wire-v1.0 --strict-spec` |
 | API 模型（Qwen、DeepSeek…） | 原生 Chat Completions | 推理端自己的对话模板与 `tools`/`tool_calls` | `--completion chat-completions`（不传 `--profile`） |
 
-- `g1k` 是 `xml-v1+align-qwen36+no-tool+bare+one-stage` 的注册短名，两种写法 canonical 与 hash 完全相同
-  （`TestG1KPresetIsTheLockedLonghand` 守护）。它是 2026-09-15 消融选定的格式，也是 700 条训练语料主轨道的渲染格式。
-  逐字节契约见 [`docs/design/corpus-g1k-wire-format.md`](../design/corpus-g1k-wire-format.md)。
+- `agent-wire-v1.0`（原名 `g1k`，旧名仍可读）是 `xml-v1+align-qwen36+no-tool+bare+one-stage` 的注册短名，两种写法 canonical 与 hash 完全相同
+  （`TestAgentWirePresetIsTheLockedLonghand` 守护）。它是 2026-09-15 消融选定的格式，也是 700 条训练语料主轨道的渲染格式。
+  逐字节契约见 [`docs/design/agent-wire-v1-format.md`](../design/agent-wire-v1-format.md)。
 - **不传 `--profile` 不会报错，而是静默落到 legacy 默认格式**（md-fence / 两阶段 / 带示例块）。
   2026-09-22 的 g1k 148 题就这样跑出 0/148、作废 30。`--strict-spec` 只拒绝未注册组合，挡不住"忘传"——
-  所以跑后必须核对 `run.json` 的 `harness.wire_preset == "g1k"`（§6）。
+  所以跑后必须核对 `run.json` 的 `harness.wire_preset == "agent-wire-v1.0"`（§6；2026-10-21 之前的 run.json 记的是 `g1k`，闸门两种都认）。
 - API 模型的对话模板由推理端负责，不是我们的事。注意：chat 路径下 `run.json` 的 `wire_canonical` 仍会写一串
   md-fence/legacy，**那是记录缺陷，实际未生效**；判断走的是哪条路径看 `model.completion`。
 - 两个例外，保留各自的协议：
@@ -61,9 +61,9 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 | 预设 | T | top_k | top_p | presence / frequency / decay | 用途（2026-09-23 g1k 扫参实测） |
 |---|---|---|---|---|---|
 | `greedy` | 1 | 1 | 1 | 0 / 0 / 1 | 回归与调试；最接近可复现（批处理仍有约 ±1 题抖动） |
-| `g1k-agent` | 0.3 | 65536 | 0.5 | 0 / 0 / 1 | **默认**，工具调用决策；bfcl-product 最高（均 48/60） |
-| `g1k-agent-fast` | 0.3 | 65536 | 0.5 | 0.5 / 0.1 / 0.996 | 长的多步 Agent 任务；与 g1k-agent 同分数带、快约 27%；presence 1.0 已掉分 |
-| `g1k-stable` | 1 | 20 | 0.3 | 0 / 0 / 1 | 少副本的 A/B 对比；副本间波动最小 |
+| `agent-default`（原名 `g1k-agent`） | 0.3 | 65536 | 0.5 | 0 / 0 / 1 | **默认**，工具调用决策；bfcl-product 最高（均 48/60） |
+| `agent-fast`（原名 `g1k-agent-fast`） | 0.3 | 65536 | 0.5 | 0.5 / 0.1 / 0.996 | 长的多步 Agent 任务；与 agent-default 同分数带、快约 27%；presence 1.0 已掉分 |
+| `agent-stable`（原名 `g1k-stable`） | 1 | 20 | 0.3 | 0 / 0 / 1 | 少副本的 A/B 对比；副本间波动最小 |
 | `backend` | 1 | 20 | 0.3 | 2 / 0.2 / 0.996 | rwkv_lightning 作者默认；聊天与最快跑分（回复长度约减 60%） |
 
 `top_k 65536` 是词表大小，表示不截断（CLI 不收 0）。**高温不截断不要用**：T 1.0 / top_p 1.0 时 bfcl-product 22/60。
@@ -74,28 +74,28 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 ## 5. 题库、预算与重复
 
-**题库**：2026-10-15 起，主考卷是 **exam-full / exam-quick**（题数以 `bench/exam/SUITES.md` 为准，2026-10-15 为 378 / 76），按 App 默认配置考（`--harness app`，清单自带）。
+**题库**：2026-10-15 起，主考卷是 **agent-exam-v1.0 / agent-exam-quick-v1.0**（旧名 exam-full / exam-quick；题数以 `bench/exam/SUITES.md` 为准，2026-10-15 为 378 / 76），按 App 默认配置考（`--harness app`，清单自带）。
 构成、名词和覆盖缺口见 `bench/exam/SUITES.md`，来由见 `docs/evaluations/bench-composition-20261015/REPORT.md` §8～§10。
 
 | 套件 | 调用 | 备注 |
 |---|---|---|
-| **exam-full** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=agent-tool-v2.0、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
-| **exam-quick** | `--cases bench/exam/quick.json` | 快速比较，不当作绝对水平；与完整版的排名一致性见 bench-composition 报告 §10.2 |
+| **agent-exam-v1.0**（旧名 exam-full） | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=agent-tool-v2.0、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
+| **agent-exam-quick-v1.0**（旧名 exam-quick） | `--cases bench/exam/quick.json` | 快速比较，不当作绝对水平；与完整版的排名一致性见 bench-composition 报告 §10.2 |
 | 裸能力诊断 | 同上加 `--harness raw` | 兜底关闭，看模型自己会不会收尾；作为训练信号另报，不当主分 |
 | 历史口径 workbank 148 | `--cases bench/workbank/cases --tool-catalog agent-tool-v1.0 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
 | bfcl-product 60 | `--suite bfcl-product` | 工具时机 |
-| boundary 18 / assistant 6 / smoke 10 | `--suite …` | 在 `g1k` 下 boundary 历史为 0/18，是真实读数，不为它换格式 |
+| boundary 18 / assistant 6 / smoke 10 | `--suite …` | 在 `agent-wire-v1.0`（当时写作 g1k）下 boundary 历史为 0/18，是真实读数，不为它换格式 |
 | primitive-orig30 / feedback30 | `--suite …`（不传 `--profile`） | 自带协议 |
 | BFCL v4 抽样 491 | `scripts/bfcl.sh`（`configs/bfcl-sample-v2.json`） | 抽样对 live_multiple 高估约 12pp，只作同口径纵向比较 |
 
-记录 `bank_version`（workbank cases 的 sha256）；题库改过的跑分不与旧分直接比。
+记录 `bank_hash`（workbank cases 的 sha256，旧称 `bank_version`）；题库改过的跑分不与旧分直接比。
 exam 跑分记录 `harness.exam_hash`：哈希不同的两次跑分不直接比。2026-10-15 的自然问法改写同时改了 workbank 题面，workbank 的新分数也不能与之前的分数直接比。
 API 模型按 App 新建 chat 连接的口径跑：`--chat-thinking disabled`，不传 `--profile`（chat-completions 后端不套文本续写的 wire 预设）。
 
 **预算（所有模型统一）**：`--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`。
 `--max-tokens` 只管最终回答；决策步若落到协议默认 512，g1k 自发的 `<think>`（2026-09-23：142/148 题首步）会被截断一半成协议无效。
 自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
-2026-10-15 起这两项是 agent-eval 的默认值：`--profile g1k*` 未给 `--decision-max-tokens` 时取 2048（`g1k-think` 取 4096，与语料渲染一致），
+2026-10-15 起这两项是 agent-eval 的默认值：`--profile agent-wire-v1.0*` 未给 `--decision-max-tokens` 时取 2048（`agent-wire-think-v1.0` 取 4096，与语料渲染一致），
 `--case-timeout` 默认 30m（原 2 分钟，2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断）。显式传值仍然有效。
 超时值记在 `run.json` 的 `harness.case_timeout_seconds`（2026-09-23 起），闸门检查。
 
@@ -128,7 +128,7 @@ API 模型按 App 新建 chat 连接的口径跑：`--chat-thinking disabled`，
 
 ## 6. 有效性闸门（每个 run 跑完立刻查，任一不过即作废重跑）
 
-1. `run.json` → `harness.wire_preset == "g1k"`（RWKV）；`model.completion` 与预期一致。
+1. `run.json` → `harness.wire_preset == "agent-wire-v1.0"`（RWKV；旧 run.json 记 `g1k`，两种都通过）；`model.completion` 与预期一致。
 2. `sampling` 与档表逐项一致（特别是 `top_k`）。
 3. `harness.max_steps == 16`，token 预算一致。
 4. `len(case_ids)` 等于预期题数；跑前跑后 `/v1/models` 一致。
@@ -156,8 +156,8 @@ API 模型按 App 新建 chat 连接的口径跑：`--chat-thinking disabled`，
 
 ## 7. 统计与比较
 
-- 主指标：exam-full 的 `task_success`，分母 = 全部题数（作废计失败）。同时按 `bench/exam/full.json` 里每题的 `task`（任务类型）、`difficulties`（难点）、`language` 出分能力面板；不要只报总分（总分曾被 web、notool 两类题左右，见 bench-composition 报告 §4.3）。
-- 两个配置比较：只用**同一天、同一端点、同一 bank_version** 的成对 run；逐题配对，报翻转数（+a/−b）与符号检验 p 值。
+- 主指标：agent-exam-v1.0（旧名 exam-full）的 `task_success`，分母 = 全部题数（作废计失败）。同时按 `bench/exam/full.json` 里每题的 `task`（任务类型）、`difficulties`（难点）、`language` 出分能力面板；不要只报总分（总分曾被 web、notool 两类题左右，见 bench-composition 报告 §4.3）。
+- 两个配置比较：只用**同一天、同一端点、同一 bank_hash**（旧称 `bank_version`）的成对 run；逐题配对，报翻转数（+a/−b）与符号检验 p 值。
   `bench/workbank/tools/compare.py` 做配对，`replicate_summary.py` 汇总 k 次，`capability_gate.py` 做失败分层
   （protocol / closeout / toolchoice / format / capability）——只有落到 capability 层的失败才算"模型不会"。
 - 差距小于同配置 k 次极差的，结论写"无法区分"，不写"更好"。

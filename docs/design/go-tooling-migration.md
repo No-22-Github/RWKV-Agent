@@ -123,6 +123,8 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 
 以上命令已于 2026-09-24 在当前仓库逐条跑通（lint 0 违规、hitcheck 28 题 0 失败、dedup 无命中）。如果某条命令在起点 commit 上本身就报错（例如某个 run 目录缺文件），换一个同类输入，并在 §7 记一笔。
 
+> 上表的 `$R/g1k-workbank-…` 是 2026-09-23 那批跑分的目录名（当时的跑分目录前缀是 `g1k`）。2026-10-21 起新建的跑分目录用 `rwkv-` 前缀；Go 版 `bench rank` 不传 `--prefix` 时同时读 `rwkv-*` 与 `g1k-*`，所以新旧目录混在一起也能排。旧 Python 命令按原样对旧目录执行，不改。
+
 ### 2.4 保留不动（B / C / verify.py）
 
 | 文件 | 为什么不迁 |
@@ -173,7 +175,7 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 | `.claude/skills/rwkv-bench/SKILL.md` | sweep / rank / check_run / compare / ledger / replicate 的命令全部换成 `bin/rwkv-lab …`；第 1 步构建命令加上 `go build -o bin/rwkv-lab ./cmd/rwkv-lab` |
 | `INDEX.md` | 工具表里的路径（第 79–82 行附近） |
 | `docs/workbank/HANDOFF.md`、`drafting-brief.md`、`authoring-guide.md`、`expansion-152-handoff.md`、`bench/workbank/cases-shelved/README.md` | `uv run tools/xxx.py` / `python3 tools/xxx.py` → 对应 `rwkv-lab bank …` / `run …` |
-| `docs/design/corpus-g1k-wire-format.md` | 引用 `ablation-run-report.py` 处注明已删除，指向 `docs/archive/removed-tools.md` |
+| `docs/design/agent-wire-v1-format.md` | 引用 `ablation-run-report.py` 处注明已删除，指向 `docs/archive/removed-tools.md` |
 | `bench/workbank/cases/{notool/nt-0007,hybrid/hyb-0007}/NOTES.md` | 如果提到工具路径就改；**不许改题目内容本身** |
 
 完成后执行 `git grep -nE "tools/[a-z_]+\.py|scripts/corpus|trace2script|harness_corpus|tracecorpus|workreplay|wirecheck"`，

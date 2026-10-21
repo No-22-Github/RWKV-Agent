@@ -6,14 +6,14 @@
 >
 > 写于 2026-09-25，基于 main `868f332` 加上同日修复的 `lint --fix` bug（见 §4.0）。
 > 管线各环节已在本机冒烟：`corpus paths` → `corpus render` 在 workbank 上 26/26 通过；
-> 用 §2.5 的样例题在非 workbank 目录上 render，正确路径出行、错误路径（答 decoy）被拒，`wire_hash` 与 g1k 跑分一致。
+> 用 §2.5 的样例题在非 workbank 目录上 render，正确路径出行、错误路径（答 decoy）被拒，`wire_hash` 与 agent-wire-v1.0（原名 g1k）跑分一致。
 > 同日真实老师冒烟：`bench/distill/v1/cases/notool/nt-5001..5005`（5 道闲聊直答题）在 Qwen3.8-27B 上跑 k=2 → 4 条路径 → 4 行，0 拒绝，
 > `wire_hash` 一致；暴露两个问题，都已写进本文：闲聊题与 lint 规则冲突（§4.3）、API 调用需要 build tag（§3 S0）。
 
 ## 0. 目标
 
 批量产出**只用于训练**的 Agent 轨迹数据：自己出题（`bench/distill`）→ 让强模型（DeepSeek-flash）当老师在真实 harness 里做题 →
-从老师的**通过**轨迹里只取动作（工具调用 + 终答）→ 在 student 的 wire（g1k）下**重放**并切成训练行。
+从老师的**通过**轨迹里只取动作（工具调用 + 终答）→ 在 student 的 wire（agent-wire-v1.0，原名 g1k）下**重放**并切成训练行。
 
 最关键的取舍：**训练行的字节不由我们拼，由 eval harness 重放产生。** 所以训练时模型看到的 prompt 与跑分时逐字节相同
 （System 块、工具回执、post-tool 提醒、失败提示全部来自同一份 Go 代码）。代价是：题必须写成 harness 能加载、能判分的 bank 格式，
@@ -26,7 +26,7 @@
 ```
 S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师跑 k=3 ──► S5 抽路径 + pass@k 质检 ──► S6 重放切行 ──► S7 批次验收 ──► S8 打包数据集
 (子Agent)  lint/verify/     decontam      agent-eval        corpus paths               corpus render      抽检+报告        corpus pack
-           dedup/hitcheck   (vs 测试集)    (chat-completions)                          (g1k, 无需模型)                     (§4.2 新增)
+           dedup/hitcheck   (vs 测试集)    (chat-completions)                          (agent-wire-v1.0, 无需模型)                     (§4.2 新增)
 ```
 
 一批（batch）走完整条线再开下一批。第一批 200 题，编号 `b01`。
@@ -259,7 +259,7 @@ shasum -a 256 local/bin/rwkv-cli                        # 记入 batches.jsonl
 
 - **`-tags chatcompletions` 必须带**：不带的二进制调老师时报 `Chat Completions support is not included in this build`。这个 tag 只加客户端，不改 wire，render 用同一个二进制没有问题（冒烟时 `wire_hash` 与不带 tag 的版本相同）。
 - 老师的 API key 放环境变量，**不得写进任何文件**。agent-eval 默认读 `OPENAI_API_KEY`，可用 `--api-key-env <变量名>` 改。
-- **本批从 S4 到 S8 不得重编 `local/bin/rwkv-cli`**。harness 一变，`wire_hash` 就变，同一批的 rows 会混进两种 wire。当前 g1k workbank 的 `wire_hash` 为
+- **本批从 S4 到 S8 不得重编 `local/bin/rwkv-cli`**。harness 一变，`wire_hash` 就变，同一批的 rows 会混进两种 wire。当前 agent-wire-v1.0 workbank 的 `wire_hash` 为
   `707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb`（harness `rwkv-agent-eval-v21`，scorer v3）。harness 升级后这个值会变，这是预期行为，见 §3 S8。
 
 ### S1 起草
@@ -350,7 +350,7 @@ local/bin/rwkv-lab corpus paths \
 local/bin/rwkv-lab corpus render --cases bench/distill --script local/runs/distill/$B/script.jsonl --out local/runs/distill/$B/corpus
 ```
 
-- 不传任何额外 flag，也不用 `--` 追加 agent-eval 参数。默认值就是 workbank 的 g1k 臂，改了 wire 就和跑分对不上。
+- 不传任何额外 flag，也不用 `--` 追加 agent-eval 参数。默认值就是 workbank 的 agent-wire-v1.0（原名 g1k）臂，改了 wire 就和跑分对不上。
 - **不得传 `--keep-failing`**（会把判分不过的轨迹放进训练集），**不得传 `--allow-test-bank`**。
 - 验收：`local/runs/distill/$B/corpus/run/run.json` 的 `harness.wire_hash` 等于 S0 记下的值。
 - `rejects.jsonl` 里每条都要有归属：`teacher trajectory fails the case expectations` 出现在 1/3 题上是正常的（S5 按老师的 run 判通过，
@@ -383,6 +383,7 @@ local/bin/rwkv-lab corpus pack \
 - 所有 rows 必须是同一个 `wire_hash`，否则 `pack` 拒绝。harness 升级后，用当前 `local/bin/rwkv-cli` 对旧批次的 `script.jsonl` **重新 render** 即可。
   render 不调模型，几百条不到一秒。所以 `script.jsonl` 才是真正的资产，rows 随时可以重新生成。
 - 产物：`train.jsonl`（每行只有 `{"text": …}`，当前 state 训练器只读 text）、`rows.jsonl`（完整字段，留给以后支持 `loss_spans` 的训练器）、`manifest.json`。
+- **v2.3 起产物路径按新命名规则**（见 [`bench/distill/README.md`](../README.md)「命名规则」）：本地产物目录写 `local/runs/distill/v2.3/`（与 `bench/distill/v2.3/` 同名，保留点号），训练包写 `v2.3-pack-YYYYMMDD`（同一天第二个包加 `-2`，变体加 `-ctx16k` 之类的后缀）。上面示例里的 `b01/b02`、`dataset-YYYYMMDD` 是 v1.x 的旧写法，已有目录不改名。
 
 ## 4. 前置工具改造（M0，**阻塞项**）
 

@@ -7,7 +7,7 @@
 
 ## 关联关键文档
 
-- **数据侧格式契约**：[`docs/design/corpus-g1k-wire-format.md`](../../design/corpus-g1k-wire-format.md)
+- **数据侧格式契约**：[`docs/design/agent-wire-v1-format.md`](../../design/agent-wire-v1-format.md)
 - **工具调用与对话格式门户**：[`docs/design/tool-and-wire-formats.md`](../../design/tool-and-wire-formats.md)
 - **Wire 运行时配置指南**：[`docs/guides/wire-configuration.md`](../../guides/wire-configuration.md)
 

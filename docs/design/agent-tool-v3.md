@@ -225,7 +225,7 @@ description、参数都不变，只放宽校验（考卷两遍里这三类报错
 
 ### 2.12 旧数据迁移规则
 
-训练行只能由 harness 重放老师的动作脚本生成（`docs/design/corpus-g1k-wire-format.md`、`bench/distill/common/harness-corpus-render.md`）。换成 agent-tool-v3 后，老师的**动作**照旧重放，工具**返回值**按新规则重新生成。动作按下表改写：
+训练行只能由 harness 重放老师的动作脚本生成（`docs/design/agent-wire-v1-format.md`、`bench/distill/common/harness-corpus-render.md`）。换成 agent-tool-v3 后，老师的**动作**照旧重放，工具**返回值**按新规则重新生成。动作按下表改写：
 
 | 老师原动作（agent-tool-v2.0） | 重放时改成（agent-tool-v3） | 轨迹怎么处理 |
 |---|---|---|

@@ -22,8 +22,9 @@ CLI/API/评测都用同一条路径选择它：
 语义一致。App 与评测共用 `internal/agent/product` 的 `HarnessOptions`/`Tools`（见
 `docs/guides/app.md` 的 “Shared assembly with the evaluation”）。
 
-**App 默认 profile 是 `g1k`**：新建连接写入 `profile: "g1k"`（训练语料与评测用的同一个点），
-采样默认 `g1k-agent`，兜底限制 2/3/3。已保存的旧连接没有 profile 时仍按旧的按协议默认
+**App 默认 profile 是 `agent-wire-v1.0`**（原名 `g1k`，旧名仍可读）：新建连接写入
+`profile: "agent-wire-v1.0"`（训练语料与评测用的同一个点），采样默认 `agent-default`，
+兜底限制 2/3/3。已保存的旧连接没有 profile 时仍按旧的按协议默认
 （`xml-v1`）运行，不会被改写。设置里的「思考模式」在有 profile 时写成 `thinking=fast|full`
 的 wire 覆盖；把协议切到 Markdown 会清掉 profile。
 
@@ -91,7 +92,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 文字与目录内容均不变。仅支持 `format=xml` + `transcript=product` + `transport=text`；
 解析器同时接受新旧两种结果包络（模型回显结果信封记 `envelope_recovered` 修复）。
 
-> 格式体系总览见 [`docs/design/tool-and-wire-formats.md`](../design/tool-and-wire-formats.md)，G1K wire 格式消融完整实验报告见 [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](../evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)，下游对齐语料契约见 [`docs/design/corpus-g1k-wire-format.md`](../design/corpus-g1k-wire-format.md)。
+> 格式体系总览见 [`docs/design/tool-and-wire-formats.md`](../design/tool-and-wire-formats.md)，G1K（现 `agent-wire-v1.0`）wire 格式消融完整实验报告见 [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](../evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)，下游对齐语料契约见 [`docs/design/agent-wire-v1-format.md`](../design/agent-wire-v1-format.md)。
 
 跨轴约束（违反会在构造期报错，不会静默改字节）：
 

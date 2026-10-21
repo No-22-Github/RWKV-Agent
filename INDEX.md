@@ -17,10 +17,10 @@
 | 桌面 App 与公开 API | [`docs/guides/app.md`](docs/guides/app.md) | Wails App、headless server、存储和开发说明 |
 | **蒸馏语料流程（现行）** | [`bench/distill/common/distill-workflow.md`](bench/distill/common/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；各版本计划与报告见 [`docs/distill/`](bench/distill/README.md) |
 | **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |
-| 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | g1k 格式、统一预算、采样预设、`run check` 闸门 |
+| 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | agent-wire-v1.0（原名 g1k）格式、统一预算、采样预设、`run check` 闸门 |
 | **数据在哪** | [`bench/README.md`](bench/README.md) | 入库数据清单（题库、老师脚本、账本、冻结证据）、仓库外本地目录与迁移 HF 的边界 |
-| **工具调用与对话格式总览** | [`docs/design/tool-and-wire-formats.md`](docs/design/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、G1K 推荐格式、矩阵对比与演进 |
-| **G1K 对齐语料格式契约** | [`docs/design/corpus-g1k-wire-format.md`](docs/design/corpus-g1k-wire-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
+| **工具调用与对话格式总览** | [`docs/design/tool-and-wire-formats.md`](docs/design/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、agent-wire-v1.0（原名 G1K）推荐格式、矩阵对比与演进 |
+| **agent-wire-v1.0 对齐语料格式契约** | [`docs/design/agent-wire-v1-format.md`](docs/design/agent-wire-v1-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
 | **Wire 运行时配置指南** | [`docs/guides/wire-configuration.md`](docs/guides/wire-configuration.md) | Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
 | **G1K Wire 消融旗舰总结** | [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | R0–R4 全轮实测、定音分数卡（40→49 题，请求字节 −56%）、语料靶子 |
 | **Harness 偏好重建三部曲** | [`docs/evaluations/preference-rebuild-20260831/`](docs/evaluations/preference-rebuild-20260831/) | 配套根目录 [`docs/design/preferences.md`](docs/design/preferences.md)，记录 P1–P5 探针、量尺重建与真词表收敛 |
@@ -45,7 +45,7 @@
 | 文档 | 状态与用途 |
 | --- | --- |
 | [`docs/design/tool-and-wire-formats.md`](docs/design/tool-and-wire-formats.md) | **★ 工具格式与对话协议门户 ★**：分层机制、推荐格式、全景矩阵与演进历程 |
-| [`docs/design/corpus-g1k-wire-format.md`](docs/design/corpus-g1k-wire-format.md) | G1K 对齐语料格式契约：数据清洗/生产逐字节规范 |
+| [`docs/design/agent-wire-v1-format.md`](docs/design/agent-wire-v1-format.md) | agent-wire-v1.0（原名 G1K）对齐语料格式契约：数据清洗/生产逐字节规范 |
 | [`docs/guides/wire-configuration.md`](docs/guides/wire-configuration.md) | Agent Wire Spec 参数全表、Profile 预设与 CLI/API 配置指南 |
 | [`docs/design/continuation-and-agent-protocol.md`](docs/design/continuation-and-agent-protocol.md) | 当前续写接口与 Agent 协议分层实现 |
 | [`docs/design/inference-core-design.md`](docs/design/inference-core-design.md) | 当前推理核心设计：backend、State、调度、并发与契约 |

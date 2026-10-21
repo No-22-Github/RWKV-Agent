@@ -42,12 +42,12 @@ state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api
 ## 3. 命令模板
 
 **主考卷（2026-10-15 起）**：`--cases bench/exam/full.json`（或 `quick.json`）。清单自带 `--harness app`，按 App 默认配置跑，预算参数不用给；
-`bench sweep --suites exam-full,exam-quick` 已注册，闸门自动按 App 预算和清单题数核对。API 模型加 `--chat-thinking disabled`、不传 `--profile`。
+`bench sweep --suites agent-exam-v1.0,agent-exam-quick-v1.0` 已注册（旧名 exam-full / exam-quick 仍可用），闸门自动按 App 预算和清单题数核对。API 模型加 `--chat-thinking disabled`、不传 `--profile`。
 跑前 `local/bin/rwkv-lab exam lint` 必须 0 违规；需要 `RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar`（暂存文件靠它）。
 
 ```bash
 ./local/bin/rwkv-cli agent-eval --completion rwkv-lightning-cuda --model <模型id> --api-url http://100.64.0.4:8018/v1 \
-  --profile g1k --strict-spec --cases bench/exam/quick.json --case-parallelism 48 --sampling g1k-agent \
+  --profile agent-wire-v1.0 --strict-spec --cases bench/exam/quick.json --case-parallelism 48 --sampling agent-default \
   --state-id <state> --output local/runs/<日期>/<名字>-examquick-k0
 ```
 
@@ -58,7 +58,7 @@ state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api
   --completion rwkv-lightning-cuda --model <模型id> \
   --api-url https://api-7b.rwkvos.com/v1 \
   --api-header-env 'CF-Access-Client-Id=RWKV_CF_ID' --api-header-env 'CF-Access-Client-Secret=RWKV_CF_SECRET' \
-  --profile g1k --strict-spec \
+  --profile agent-wire-v1.0 --strict-spec \
   --cases bench/workbank/cases --tool-catalog agent-tool-v1.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --case-parallelism 48 \
   <采样档参数> \
@@ -73,7 +73,7 @@ cuda 后端：`--api-url` 只写到 `/v1`，**不传** `--api-stop-tokens`（客
 
 API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-tokens`；对话模板由推理端负责。
 
-**决策预算与单题超时已是默认值**（2026-10-15 起）：`--profile g1k` 不给 `--decision-max-tokens` 时取 2048（`g1k-think` 取 4096），
+**决策预算与单题超时已是默认值**（2026-10-15 起）：`--profile agent-wire-v1.0` 不给 `--decision-max-tokens` 时取 2048（`agent-wire-think-v1.0` 取 4096），
 `--case-timeout` 默认 30m。模板里照写也无妨；旧二进制（2026-10-15 之前）必须显式给，否则落到 512 / 2 分钟。
 **合批用默认值，不要再给 `--remote-batch-wait 0s`**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 64 --remote-batch-inflight 4`。
 rwkv_lightning **没有跨请求连续批处理**，同卡上多个请求轮流解码，每卡吞吐只看单个请求有几行（bsz=1 约 100 tok/s，bsz=64 约 3,000+）。
@@ -90,9 +90,9 @@ rwkv_lightning **没有跨请求连续批处理**，同卡上多个请求轮流�
 | 预设 | 用途 |
 |---|---|
 | `greedy` | 回归、调试 |
-| `g1k-agent` | 默认；工具调用决策 |
-| `g1k-agent-fast` | 长的多步任务，快约 27% |
-| `g1k-stable` | 少副本 A/B，波动最小 |
+| `agent-default`（原名 `g1k-agent`） | 默认；工具调用决策 |
+| `agent-fast`（原名 `g1k-agent-fast`） | 长的多步任务，快约 27% |
+| `agent-stable`（原名 `g1k-stable`） | 少副本 A/B，波动最小 |
 | `backend` | 后端默认，最快 |
 
 数值见规程 §4；`rwkv-lab run check --arm <预设名>` 会核对 `run.json` 的 `sampling.preset`。扫参网格档（`t03-p05` 等）仍在 `internal/lab/runs/check.go` 的 `Arms` 表里。
@@ -133,7 +133,7 @@ local/bin/rwkv-lab bench rank local/runs/bench-YYYYMMDD --save <rank.md>
 local/bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题数>
 ```
 
-任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == g1k`、采样逐项、
+任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == agent-wire-v1.0`（旧 run.json 记的是 `g1k`，两种都通过）、采样逐项、
 步数、终答与决策 token 预算、单题超时、请求合并窗口（RWKV 须为 20ms + 单批上限 64 + 在途 4；旧 run 记为 0 也判 PASS，
 但会提示"不可与合批 run 直接配对"）、题数，并给出 strict 分（作废计失败）。sweep 改过 `--remote-batch-inflight` 时，check 也要传同一个值。
 
@@ -157,12 +157,12 @@ local/bin/rwkv-lab run cost <run 目录…> --top 20 [--json]
   旧产物没有 token 数时自动用本地词表从 trace 回算（`--no-recount` 关闭）。
   `limits` 列的 max_tokens = 复读到上限（端点此时也报 stop，按生成数判定）；`wait s` 高说明是端点排队，不是题慢。
 
-- 比较只用同一天、同端点、同 bank_version 的成对 run；报翻转 +a/−b 与符号检验 p。
+- 比较只用同一天、同端点、同 bank_hash（旧称 `bank_version`）的成对 run；报翻转 +a/−b 与符号检验 p。
 - 差距小于同配置 k 次极差 → 写"无法区分"。
 - 失分先过 `local/bin/rwkv-lab run gate` 分层：只有 capability 层才算"模型不会"，其余是协议、收尾、选工具或格式问题。
 
 ## 6. 报告
 
 写 `docs/evaluations/<topic>-YYYYMMDD/REPORT.md`，必须包含：HEAD 与二进制构建时间、端点前后快照、
-档表、bank_version、每个 run 的闸门结果、作废与重跑明细、strict 分（均值/极差/pass@k/pass^k）、
+档表、bank_hash（旧称 `bank_version`）、每个 run 的闸门结果、作废与重跑明细、strict 分（均值/极差/pass@k/pass^k）、
 按 scenario/level 拆分、配对比较。`local/runs/` 不入库；凭据不出现在任何入库文件里。

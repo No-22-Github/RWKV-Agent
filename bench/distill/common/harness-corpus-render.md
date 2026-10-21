@@ -5,8 +5,8 @@
 逐字节相同：System 块、工具回执、每步 post-tool 提醒、失败/RECOVERY 提示、重复拒绝、
 强制收尾块，全部来自同一份 Go 代码。
 
-背景：`tooling/workv1_wire.py` 按 [corpus-g1k-wire-format.md](../../../docs/design/corpus-g1k-wire-format.md)
-手写拼接，漏掉了 harness 在两次动作之间插入的 User 块（g1k 预设 `usermsg=split` 每次成功
+背景：`tooling/workv1_wire.py` 按 [agent-wire-v1-format.md](../../../docs/design/agent-wire-v1-format.md)
+手写拼接，漏掉了 harness 在两次动作之间插入的 User 块（agent-wire-v1.0 预设，原名 g1k，`usermsg=split` 每次成功
 调用后都插 "Use the Tool results above…"），state 只在第 1 步见过训练分布
 （见 [state-lr-sweep 复核](../../../docs/evaluations/state-lr-sweep-20260923/REPORT.md) §8）。
 
@@ -39,7 +39,7 @@ local/bin/rwkv-lab corpus render \
 ```
 
 默认 flags 与 `.claude/skills/rwkv-bench/sweep.py` 的 workbank 臂一致（`--tool-catalog agent-tool-v1.0
---file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --profile g1k
+--file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --profile agent-wire-v1.0
 --strict-spec`）。case 写成 bank 目录（`cases/<id>/case.json`），所以走与 workbank 相同的
 suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的 `wire_hash` 应与对应
 跑分 run 相同，这是对齐的验收点。换 wire 在 `--` 后追加 agent-eval flags。
@@ -96,7 +96,7 @@ local/bin/rwkv-lab corpus render --cases bench/distill \
   `--max-per-case`（默认 2）。参数等于实现默认值的去掉（teacher 习惯把 schema 字段填满，
   如 `"path":"","max_results":50`）。脚本 case id 为 `<题目id>--p<n>`。
 - 输出的 pass@k 分布即出题质检：0/k 的题先查 expect 与题面，再决定是否蒸馏。
-- 冒烟（2026-09-24，workbank 上 DeepSeek 3 次，**测试集，仅验证管线**）：189 条路径在 g1k 下
+- 冒烟（2026-09-24，workbank 上 DeepSeek 3 次，**测试集，仅验证管线**）：189 条路径在 g1k（现 agent-wire-v1.0）下
   重放 189/189 通过。最初 2 条被拒（`nt-0010`、`nt-0012`，"第 9 次生成非只追加"）：它们是两轮题，
   第 2 轮开始时 harness 提交的历史不含第 1 轮的 post-tool 提醒，跑分时模型看到的也是这样。
   现在 `corpus rows` **按轮切行**：每轮一行，文本止于本轮最后一次输出，只有本轮输出有 loss span，

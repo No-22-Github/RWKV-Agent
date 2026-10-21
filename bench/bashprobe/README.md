@@ -18,7 +18,7 @@ python3 bench/bashprobe/gen.py            # 重新生成并验证；--check 只�
 跑分（其余参数按 rwkv-bench 规程）：
 
 ```bash
-./local/bin/rwkv-cli agent-eval ... --profile g1k --strict-spec \
+./local/bin/rwkv-cli agent-eval ... --profile agent-wire-v1.0 --strict-spec \
   --cases bench/bashprobe/cases --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m --remote-batch-wait 0s \
   --output local/runs/bashprobe-YYYYMMDD/<model>-<arm>

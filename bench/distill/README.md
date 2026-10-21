@@ -8,7 +8,7 @@ bench/distill/
   common/          跨版本：流程规格、批次登记、排除表、标签映射
   tools/           所有脚本（各版本共用，不按版本复制）
   v1/  v1.3/  v1.4/  v1.41/  v1.42/   1.x = state 调优数据
-  v2.0/                              2.x = MiSS 微调（改整个基模）数据
+  v2.0/  v2.1/  v2.2/                2.x = MiSS 微调（改整个基模）数据，v2.3 起按新命名规则开
     distill-allocation-v*.md   这个版本的计划（以及执行提示、规格）
     reports/                   批次报告
     cases/<场景>/<题号>/        题目（case.json + verify.py + NOTES.md）
@@ -25,7 +25,31 @@ bench/distill/
 | [v1.41](v1.41/) | **待继续制作**：先修b12样板，承接v1.4缺口 | [计划](v1.41/distill-allocation-v1.41.md)（v1.4 的增量）、**[放量提示（DeepSeek 老师，保留思考）](v1.41/scale-prompt-deepseek.md)** | [现行联合配额](v1.41/reports/v141-allocation-20261011.json)、[10-10历史进度](v1.41/reports/v141-status-20261010.md) | 9xxx（b12） | — |
 | [v1.42](v1.42/) | **已出题，待老师跑题**：b14 300 题（bash 200、天气 100），补「调用之后做对」 | [计划](v1.42/distill-allocation-v1.42.md)（v1.41 §4–§5 的增量） | [b14 出题报告](v1.42/reports/b14-authoring.md)、[构成统计](v1.42/reports/b14-stats.json)、[8 字符去重](v1.42/reports/b14-dedup.json) | 10001–10300（b14） | — |
 | [v2.0](v2.0/) | **试点，待跑老师**：MiSS 带思考数据；老师无 suffix、每步思考；题目声明 `tool_policy`，目录随机抽、随机排序；按步切行 | [计划](v2.0/distill-allocation-v2.0.md)、[出题规格](v2.0/authoring-v2.0.md) | [b20a](v2.0/reports/b20a-authoring.md)–[b20d](v2.0/reports/b20d-authoring.md)、[b20s 选题](v2.0/reports/b20s-selection.json) | b20s `<前缀>-2xxxx`（1.x 选题）、20001–20140（b20a–c）、nt-21001–21200（b20d） | — |
-| [v2.2](v2.2/) | **已出包 final-20261020b（16K）**：train 6545 / validation 219 行，2240 条；agent-tool-v3 目录；b22a–e 320 题（b22f 长任务 80 题已存档到 cases-shelved/）；b22c 注入题换 Qwen3.8-27B；v2.1 重放保留 5711 行 + 重跑 139 题；被拒作答 19 条补回 9 条 | [计划](v2.2/distill-allocation-v2.2.md)、[出题任务书](v2.2/authoring-v2.2.md) | **[出包](v2.2/reports/v2.2-pack-20261020.md)**、[b22c 换老师](v2.2/reports/b22c-teacher.md)、[b22a](v2.2/reports/b22a-authoring.md)–[b22f](v2.2/reports/b22f-authoring.md)、[行修补](v2.2/reports/v2.2-row-fixes.md)、[v2.1 重放](v2.1/reports/v2.1-work-v3-rerender.md) | 34001–34580（b22a–f） | [b22c 附加指令（未采用）](v2.2/teacher/b22c-suffix.txt) |
+| [v2.1](v2.1/) | **已出包 final-20261018（1545 条，8k/16k 两份）**：老师 Qwen3.7-Flash；三波补题 b21a–b21p；App harness、g1k-think 按步切行 | [计划](v2.1/distill-allocation-v2.1.md)、[第三波任务书](v2.1/authoring-v2.1-wave3.md) | **[出包](v2.1/reports/v2.1-pack-20261017.md)**（§6 是 10-18 正式包）、[b21a](v2.1/reports/b21a-authoring.md)–[b21p](v2.1/reports/b21p-authoring.md)、[v2.1 重放](v2.1/reports/v2.1-work-v3-rerender.md) | 31001–31430、32001–32200（b21a–h）、33001–33770（b21i–p） | — |
+| [v2.2](v2.2/) | **已出包 final-20261021（16K，用这个；final-20261020b 已被它取代）**：train 5953 / validation 217 行，2092 条、1669 题（从 20b 剔除 100 道坏轨迹）；agent-tool-v3.1 目录；b22a–e 320 题（b22f 长任务 80 题已存档到 cases-shelved/）；b22c 注入题换 Qwen3.8-27B；v2.1 重放保留 5711 行 + 重跑 139 题 | [计划](v2.2/distill-allocation-v2.2.md)、[出题任务书](v2.2/authoring-v2.2.md) | **[出包](v2.2/reports/v2.2-pack-20261020.md)**、[b22c 换老师](v2.2/reports/b22c-teacher.md)、[b22a](v2.2/reports/b22a-authoring.md)–[b22f](v2.2/reports/b22f-authoring.md)、[行修补](v2.2/reports/v2.2-row-fixes.md)、[v2.1 重放](v2.1/reports/v2.1-work-v3-rerender.md) | 34001–34580（b22a–f） | [b22c 附加指令（未采用）](v2.2/teacher/b22c-suffix.txt) |
+
+## 命名规则（v2.3 起）
+
+2026-10-21 起新建的目录、包、脚本按下面写；**已有的一个都不改名**（HF 存档仓库、训练机脚本、历史报告和用户的记忆都引用着旧路径）。
+
+| 层级 | 旧样子（一律保留） | 新规则（v2.3 起） |
+|---|---|---|
+| 版本目录 | `bench/distill/v2.2/` | `bench/distill/v2.3/`（本来就带点，不变） |
+| 本地产物目录 | `local/runs/distill/v22/` | `local/runs/distill/v2.3/`，**和 bench 目录同名，保留点号** |
+| 训练包 | `final-20261021`、`final-20261020b` | `v2.3-pack-20261101`；同一天第二个包写 `v2.3-pack-20261101-2`；变体加后缀，如 `-ctx16k` |
+| 训练脚本 | `train-2-2.sh` | `train-v2.3.sh` |
+| 批次号 | `b22a`–`b22f` | 规则不变：`b<主><次><子批字母>`，v2.3 就是 `b23a`… |
+| 版本号本身 | `v1.41`、`v1.42`（实为 v1.4 的增量） | 不再出现三段写法：增量版本直接用下一个次版本号 |
+
+**训练产物与权重**（只对以后新建的文件生效，已有权重保持原名）：
+
+| 产物 | 规则 | 例子 |
+|---|---|---|
+| MiSS / State 权重 | `<基模代号>-<方法>-v<数据版本>-<超参>[-s<步数>]` | `g1l-miss-v2.2-r16-lr2e-5-e2`、`g1k-state-v1.41-lr1e-2-s1224` |
+| 上游官方权重 | 保持上游原名 | `rwkv7-g1k-7.2b-20260930-ctx25600`、`rwkv-g1l-7b-temp-3797` |
+| 服务端注册的 state / adapter id | 由服务端生成，不管 | — |
+
+权重名里出现模型代号（g1k、g1l）是对的：权重本来就属于某一代基模。要从名字里去掉模型代号的，只是 **wire 格式**（`agent-wire-v1.0`）和 **采样预设**（`agent-default` 等）的名字。
 
 ## common/
 
