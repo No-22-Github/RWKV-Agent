@@ -64,6 +64,7 @@ type Paths struct {
 	Leaked   string
 	Exclude  string
 	QuickIDs string
+	Versions string
 }
 
 // DefaultPaths resolves the standard locations from the repository root.
@@ -76,6 +77,7 @@ func DefaultPaths() Paths {
 		Leaked:   filepath.Join(root, "bench", "workbank", "seeded-base700.txt"),
 		Exclude:  filepath.Join(examDir, "exclude.txt"),
 		QuickIDs: filepath.Join(examDir, "quick-ids.txt"),
+		Versions: filepath.Join(examDir, "versions.json"),
 	}
 }
 
@@ -161,11 +163,12 @@ func scanSource(paths Paths, source Source, leaked map[string]string) ([]loaded,
 // Exam is everything one build produces, kept in memory so build and lint
 // share it.
 type Exam struct {
-	Suites  map[string][]loaded
-	Full    eval.ExamManifest
-	Quick   *eval.ExamManifest
-	Exclude map[string]string
-	Missing []string // quick ids not present in the full exam
+	Suites   map[string][]loaded
+	Full     eval.ExamManifest
+	Quick    *eval.ExamManifest
+	Exclude  map[string]string
+	Missing  []string // quick ids not present in the full exam
+	Versions map[string][]ExamVersion
 }
 
 // Assemble scans the sources and derives every manifest.
@@ -178,7 +181,11 @@ func Assemble(paths Paths) (*Exam, error) {
 	if err != nil {
 		return nil, err
 	}
-	exam := &Exam{Suites: map[string][]loaded{}, Exclude: exclude}
+	versions, err := readExamVersions(paths.Versions)
+	if err != nil {
+		return nil, err
+	}
+	exam := &Exam{Suites: map[string][]loaded{}, Exclude: exclude, Versions: versions}
 	seen := map[string]string{}
 	var fullRows []eval.ExamCase
 	for _, source := range Sources {
@@ -206,8 +213,12 @@ func Assemble(paths Paths) (*Exam, error) {
 			return nil, fmt.Errorf("%s lists unknown case id %q", paths.Exclude, id)
 		}
 	}
-	exam.Full = newManifest("exam-full",
-		"完整考卷：按 App 默认配置（g1k、工具全开、暂存文件、复读兜底）考用户在 App 里会做的事",
+	fullVersion, err := versionFor(versions, ExamFamily, eval.ExamHash(fullRows), len(fullRows))
+	if err != nil {
+		return nil, err
+	}
+	exam.Full = newManifest(ExamFamily+"-"+fullVersion,
+		"完整考卷：按 App 默认配置（agent-wire-v1.0，原名 g1k；工具全开、暂存文件、复读兜底）考用户在 App 里会做的事",
 		examToolCatalog, examHarness, fullRows)
 
 	quickIDs, _, err := readIDList(paths.QuickIDs)
@@ -229,7 +240,11 @@ func Assemble(paths Paths) (*Exam, error) {
 			quickRows = append(quickRows, row)
 		}
 		sortRows(quickRows)
-		quick := newManifest("exam-quick",
+		quickVersion, err := versionFor(versions, ExamQuickFamily, eval.ExamHash(quickRows), len(quickRows))
+		if err != nil {
+			return nil, err
+		}
+		quick := newManifest(ExamQuickFamily+"-"+quickVersion,
 			"快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较",
 			examToolCatalog, examHarness, quickRows)
 		exam.Quick = &quick
@@ -403,11 +418,13 @@ func runBuild(args []string) int {
 		fmt.Printf("wrote %s\n", name)
 	}
 	quick := 0
+	quickName := "(none)"
 	if exam.Quick != nil {
 		quick = len(exam.Quick.Cases)
+		quickName = exam.Quick.Name
 	}
-	fmt.Printf("exam-full %d cases (hash %s), exam-quick %d cases; %d file(s) %s\n",
-		len(exam.Full.Cases), exam.Full.Hash[:12], quick, stale, map[bool]string{true: "stale", false: "updated"}[*check])
+	fmt.Printf("%s %d cases (hash %s), %s %d cases; %d file(s) %s\n",
+		exam.Full.Name, len(exam.Full.Cases), exam.Full.Hash[:12], quickName, quick, stale, map[bool]string{true: "stale", false: "updated"}[*check])
 	if *check && stale > 0 {
 		return 1
 	}

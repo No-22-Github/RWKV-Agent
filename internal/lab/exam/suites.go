@@ -29,7 +29,7 @@ func (exam *Exam) RenderSuites() string {
 
 	w("## 这是什么\n\n")
 	w("考卷考的是**用户在 RWKV Agent App 里真实会做的事**，并且按 **App 新建连接的默认配置**来考：\n")
-	w("g1k 对话格式；文件、编辑、计算、web、天气、bash 工具全开；改文件先进「暂存」（只在内存里，用户点确认才写盘，评测跑完自动当作已确认）；\n")
+	w("agent-wire-v1.0 对话格式（原名 g1k）；文件、编辑、计算、web、天气、bash 工具全开；改文件先进「暂存」（只在内存里，用户点确认才写盘，评测跑完自动当作已确认）；\n")
 	w("同一个工具连调 3 次会触发「复读兜底」（App 强制模型收尾作答）。评测和 App 用的是同一份组装代码（`internal/agent/product`），所以分数就是用户在 App 里能得到的效果。\n\n")
 
 	w("## 怎么跑\n\n")
@@ -37,23 +37,26 @@ func (exam *Exam) RenderSuites() string {
 	w("go build -o local/bin/rwkv-cli ./cmd/rwkv-cli\n")
 	w("RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar ./local/bin/rwkv-cli agent-eval \\\n")
 	w("  --completion rwkv-lightning-cuda --model <模型 id> --api-url <端点>/v1 \\\n")
-	w("  --profile g1k --strict-spec --sampling g1k-agent --state-id <state> \\\n")
+	w("  --profile agent-wire-v1.0 --strict-spec --sampling agent-default --state-id <state> \\\n")
 	w("  --cases bench/exam/quick.json --case-parallelism 48 --output local/runs/<日期>/<名字>\n")
 	w("```\n\n")
 	w("- `--cases <清单>`：清单自带工具清单（agent-tool-v2.0）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。\n")
-	w("- `--profile g1k --strict-spec`：用 g1k 对话格式，并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。\n")
+	w("- `--profile agent-wire-v1.0 --strict-spec`：用 agent-wire-v1.0 对话格式（原名 g1k），并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。\n")
 	w("- 暂存文件靠 just-bash sidecar（`scripts/build-justbash.sh` 构建）。完整检查单见 `.claude/skills/rwkv-bench/SKILL.md`。\n")
 	w("- 出能力面板：`go run ./cmd/rwkv-lab exam panel <跑分目录>…`。\n")
 	w("- 清单记录每题的内容哈希；**清单哈希相同的两次跑分才能直接比**。\n\n")
 
 	w("## 考卷\n\n")
 	w("| 考卷 | 题数 | 哈希 | 用途 | 清单 |\n|---|---|---|---|---|\n")
-	w("| exam-full | %d | `%s` | %s | `bench/exam/full.json` |\n", len(exam.Full.Cases), exam.Full.Hash[:12], exam.Full.Description)
+	w("| %s | %d | `%s` | %s | `bench/exam/full.json` |\n", exam.Full.Name, len(exam.Full.Cases), exam.Full.Hash[:12], exam.Full.Description)
 	if exam.Quick != nil {
-		w("| exam-quick | %d | `%s` | %s | `bench/exam/quick.json` |\n", len(exam.Quick.Cases), exam.Quick.Hash[:12], exam.Quick.Description)
+		w("| %s | %d | `%s` | %s | `bench/exam/quick.json` |\n", exam.Quick.Name, len(exam.Quick.Cases), exam.Quick.Hash[:12], exam.Quick.Description)
 	}
-	w("\nexam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层，优先选 RWKV 历史上时对时错的题，每类留一道送分题和一道难题，每个来源至少 12%%。")
+	w("\n%s 一定是 %s 的子集：按「任务类型 × 语言」分层，优先选 RWKV 历史上时对时错的题，每类留一道送分题和一道难题，每个来源至少 12%%。",
+		ExamQuickFamily, ExamFamily)
 	w("名单在 `bench/exam/quick-ids.txt`（`rwkv-lab exam select-quick` 生成，每题后面注明入选原因）。\n\n")
+
+	exam.renderVersionHistory(&b)
 
 	w("## 怎么解读分数\n\n")
 	w("- **看能力面板，不要只看总分。** 总分会被个别类别左右。\n")
@@ -84,9 +87,9 @@ func (exam *Exam) RenderSuites() string {
 	w("| bash / 天气探针 | 专测 bash 和 get_weather 的题；「第二部分」来自第 14 批出题 |\n")
 	w("| agent-tool-v1.0 / v2.0 / v3.1 | 工具清单版本（旧名 work-v1/v2/v3，仍可在命令和清单里使用）。主版本号变了说明模型看到的工具描述或参数变了，小版本号变了说明只改了工具行为。v2.0 比 v1.0 多 bash 和 get_weather；v3 是现在 App 用的清单。考卷清单记的是 v2.0，历史分数都在 v2.0 下跑出来 |\n\n")
 
-	exam.renderComposition(&b, "exam-full", exam.Full.Cases)
+	exam.renderComposition(&b, exam.Full)
 	if exam.Quick != nil {
-		exam.renderComposition(&b, "exam-quick", exam.Quick.Cases)
+		exam.renderComposition(&b, *exam.Quick)
 	}
 
 	w("## 来源题集\n\n")
@@ -180,15 +183,11 @@ func languageLabel(language string) string {
 	return "英文"
 }
 
-func (exam *Exam) renderComposition(b *strings.Builder, name string, rows []eval.ExamCase) {
+func (exam *Exam) renderComposition(b *strings.Builder, manifest eval.ExamManifest) {
 	w := func(format string, args ...any) { fmt.Fprintf(b, format, args...) }
 	var summary Summary
-	if name == "exam-quick" && exam.Quick != nil {
-		_ = json.Unmarshal(exam.Quick.Summary, &summary)
-	} else {
-		_ = json.Unmarshal(exam.Full.Summary, &summary)
-	}
-	w("## %s 的构成（%d 题）\n\n", name, len(rows))
+	_ = json.Unmarshal(manifest.Summary, &summary)
+	w("## %s 的构成（%d 题）\n\n", manifest.Name, len(manifest.Cases))
 	w("| 任务类型 | 中文 | 英文 | 合计 |\n|---|---|---|---|\n")
 	for _, task := range TaskOrder {
 		zh, en := summary.TaskByLanguage[task]["zh"], summary.TaskByLanguage[task]["en"]
@@ -215,4 +214,30 @@ func (exam *Exam) renderComposition(b *strings.Builder, name string, rows []eval
 		}
 	}
 	w("\n")
+}
+
+// renderVersionHistory writes the table behind versions.json, so the file's
+// question ("which case set is this run comparable to?") is answerable from
+// the generated page.
+func (exam *Exam) renderVersionHistory(b *strings.Builder) {
+	w := func(format string, args ...any) { fmt.Fprintf(b, format, args...) }
+	w("## 考卷版本历史\n\n")
+	w("主版本号：题目集合变了（增删题）。次版本号：题目集合不变，只修订题面或判据。两种情况 `hash` 都会变，比较跑分时仍以 `hash` 为准。\n")
+	w("版本表在 `bench/exam/versions.json`（人工维护）；当前题集的 hash 不在表里时，`rwkv-lab exam build` 会拒绝生成，由人判断该升主版本还是次版本。\n\n")
+	for _, family := range []string{ExamFamily, ExamQuickFamily} {
+		entries := exam.Versions[family]
+		if len(entries) == 0 {
+			continue
+		}
+		w("### %s\n\n", family)
+		w("| 版本 | 题数 | 哈希 | 起始日期 | 说明 |\n|---|---|---|---|---|\n")
+		for _, entry := range entries {
+			hash := entry.Hash
+			if len(hash) > 12 {
+				hash = hash[:12]
+			}
+			w("| %s | %d | `%s` | %s | %s |\n", entry.Version, entry.Cases, hash, entry.Since, entry.Note)
+		}
+		w("\n")
+	}
 }

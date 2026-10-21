@@ -41,15 +41,44 @@ var suites = map[string]suiteSpec{
 	"p13": {"p13", []string{"--cases", "bench/holdout/p13", "--tool-catalog", agenteval.AgentToolV1,
 		"--file-tools", "lines", "--include-draft"}, 60, 48, true},
 	// The exam (bench/exam): manifests pin their cases, tool catalog and the
-	// App harness (--harness app comes from the manifest).
-	"exam-full":            {"examfull", []string{"--cases", "bench/exam/full.json"}, 380, 48, true},
-	"exam-quick":           {"examquick", []string{"--cases", "bench/exam/quick.json"}, 80, 48, true},
-	"bfcl-product":         {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
-	"boundary":             {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
-	"assistant":            {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
-	"smoke":                {"smoke", []string{"--suite", "smoke"}, 10, 10, true},
-	"primitive-orig30":     {"porig30", []string{"--suite", "primitive-orig30"}, 30, 30, false},
-	"primitive-feedback30": {"pfb30", []string{"--suite", "primitive-feedback30"}, 30, 30, false},
+	// App harness (--harness app comes from the manifest). The keys are the
+	// manifests' versions; the retired exam-full/exam-quick spellings are
+	// aliases, and the shortName still decides the run directory name, so
+	// existing directories stay where rank and check expect them.
+	"agent-exam-v1.0":       {"examfull", []string{"--cases", "bench/exam/full.json"}, 380, 48, true},
+	"agent-exam-quick-v1.0": {"examquick", []string{"--cases", "bench/exam/quick.json"}, 80, 48, true},
+	"bfcl-product":          {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
+	"boundary":              {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
+	"assistant":             {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
+	"smoke":                 {"smoke", []string{"--suite", "smoke"}, 10, 10, true},
+	"primitive-orig30":      {"porig30", []string{"--suite", "primitive-orig30"}, 30, 30, false},
+	"primitive-feedback30":  {"pfb30", []string{"--suite", "primitive-feedback30"}, 30, 30, false},
+}
+
+// suiteAliases maps the retired exam suite names to the current key. A command
+// written before 2026-10-21 says exam-full; the run directory it produces is
+// the same one.
+var suiteAliases = map[string]string{
+	"exam-full":  "agent-exam-v1.0",
+	"exam-quick": "agent-exam-quick-v1.0",
+}
+
+// canonicalSuiteName returns the current key for a suite name or alias.
+func canonicalSuiteName(name string) string {
+	if canonical, ok := suiteAliases[name]; ok {
+		return canonical
+	}
+	return name
+}
+
+// SuiteNames lists the suites, sorted.
+func SuiteNames() []string {
+	names := make([]string, 0, len(suites))
+	for name := range suites {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 // parallelFor is the in-flight case cap passed to one suite's agent-eval. The
@@ -174,6 +203,11 @@ func RunSweep(args SweepArgs) int {
 			return 2
 		}
 	}
+	canonicalSuites := make([]string, len(args.Suites))
+	for index, suite := range args.Suites {
+		canonicalSuites[index] = canonicalSuiteName(strings.TrimSpace(suite))
+	}
+	args.Suites = canonicalSuites
 	for _, suite := range args.Suites {
 		if _, ok := suites[suite]; !ok {
 			fmt.Fprintf(os.Stderr, "unknown arm/suite: [%s]\n", suite)

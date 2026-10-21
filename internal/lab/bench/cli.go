@@ -53,7 +53,8 @@ func runSweepCmd(argv []string) int {
 		"Run a grid of sampling arms x suites x replicas against an RWKV endpoint.")
 	fs.StringVar(&args.Out, "out", "", "output directory for the run directories (required)")
 	fs.StringVar(&arms, "arms", "", "comma-separated arm names: "+strings.Join(runs.ArmNames(), ", "))
-	fs.StringVar(&suites, "suites", "workbank,bfcl-product", "comma-separated suite names")
+	fs.StringVar(&suites, "suites", "workbank,bfcl-product",
+		"comma-separated suite names: "+strings.Join(SuiteNames(), ", "))
 	fs.StringVar(&args.K, "k", "0", "replica indices: 0 | 0-2 | 1,2")
 	fs.StringVar(&args.Model, "model", "", "model id (default: the endpoint's only model)")
 	fs.StringVar(&args.APIURL, "api-url", "https://api-7b.rwkvos.com/v1", "endpoint base URL")

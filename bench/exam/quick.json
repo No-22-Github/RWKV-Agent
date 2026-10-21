@@ -1,6 +1,6 @@
 {
   "schema": "rwkv-exam/v1",
-  "name": "exam-quick",
+  "name": "agent-exam-quick-v1.0",
   "description": "快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较",
   "tool_catalog": "agent-tool-v2.0",
   "harness": "app",

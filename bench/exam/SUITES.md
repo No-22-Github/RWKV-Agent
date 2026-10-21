@@ -7,7 +7,7 @@
 ## 这是什么
 
 考卷考的是**用户在 RWKV Agent App 里真实会做的事**，并且按 **App 新建连接的默认配置**来考：
-g1k 对话格式；文件、编辑、计算、web、天气、bash 工具全开；改文件先进「暂存」（只在内存里，用户点确认才写盘，评测跑完自动当作已确认）；
+agent-wire-v1.0 对话格式（原名 g1k）；文件、编辑、计算、web、天气、bash 工具全开；改文件先进「暂存」（只在内存里，用户点确认才写盘，评测跑完自动当作已确认）；
 同一个工具连调 3 次会触发「复读兜底」（App 强制模型收尾作答）。评测和 App 用的是同一份组装代码（`internal/agent/product`），所以分数就是用户在 App 里能得到的效果。
 
 ## 怎么跑
@@ -16,12 +16,12 @@ g1k 对话格式；文件、编辑、计算、web、天气、bash 工具全开�
 go build -o local/bin/rwkv-cli ./cmd/rwkv-cli
 RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar ./local/bin/rwkv-cli agent-eval \
   --completion rwkv-lightning-cuda --model <模型 id> --api-url <端点>/v1 \
-  --profile g1k --strict-spec --sampling g1k-agent --state-id <state> \
+  --profile agent-wire-v1.0 --strict-spec --sampling agent-default --state-id <state> \
   --cases bench/exam/quick.json --case-parallelism 48 --output local/runs/<日期>/<名字>
 ```
 
 - `--cases <清单>`：清单自带工具清单（agent-tool-v2.0）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。
-- `--profile g1k --strict-spec`：用 g1k 对话格式，并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。
+- `--profile agent-wire-v1.0 --strict-spec`：用 agent-wire-v1.0 对话格式（原名 g1k），并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。
 - 暂存文件靠 just-bash sidecar（`scripts/build-justbash.sh` 构建）。完整检查单见 `.claude/skills/rwkv-bench/SKILL.md`。
 - 出能力面板：`go run ./cmd/rwkv-lab exam panel <跑分目录>…`。
 - 清单记录每题的内容哈希；**清单哈希相同的两次跑分才能直接比**。
@@ -30,10 +30,27 @@ RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar ./local/bin/rwkv-cli agent
 
 | 考卷 | 题数 | 哈希 | 用途 | 清单 |
 |---|---|---|---|---|
-| exam-full | 568 | `c5ae05fc103d` | 完整考卷：按 App 默认配置（g1k、工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
-| exam-quick | 76 | `4f8780546009` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
+| agent-exam-v1.0 | 568 | `c5ae05fc103d` | 完整考卷：按 App 默认配置（agent-wire-v1.0，原名 g1k；工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
+| agent-exam-quick-v1.0 | 76 | `4f8780546009` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
 
-exam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层，优先选 RWKV 历史上时对时错的题，每类留一道送分题和一道难题，每个来源至少 12%。名单在 `bench/exam/quick-ids.txt`（`rwkv-lab exam select-quick` 生成，每题后面注明入选原因）。
+agent-exam-quick 一定是 agent-exam 的子集：按「任务类型 × 语言」分层，优先选 RWKV 历史上时对时错的题，每类留一道送分题和一道难题，每个来源至少 12%。名单在 `bench/exam/quick-ids.txt`（`rwkv-lab exam select-quick` 生成，每题后面注明入选原因）。
+
+## 考卷版本历史
+
+主版本号：题目集合变了（增删题）。次版本号：题目集合不变，只修订题面或判据。两种情况 `hash` 都会变，比较跑分时仍以 `hash` 为准。
+版本表在 `bench/exam/versions.json`（人工维护）；当前题集的 hash 不在表里时，`rwkv-lab exam build` 会拒绝生成，由人判断该升主版本还是次版本。
+
+### agent-exam
+
+| 版本 | 题数 | 哈希 | 起始日期 | 说明 |
+|---|---|---|---|---|
+| v1.0 | 568 | `c5ae05fc103d` | 2026-10-16 | 568 题：改题面 + Sonnet 补题 190 道后的版本，10-17 起所有考卷跑分都用它 |
+
+### agent-exam-quick
+
+| 版本 | 题数 | 哈希 | 起始日期 | 说明 |
+|---|---|---|---|---|
+| v1.0 | 76 | `4f8780546009` | 2026-10-16 | agent-exam-v1.0 的分层子集 |
 
 ## 怎么解读分数
 
@@ -84,7 +101,7 @@ exam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层
 | bash / 天气探针 | 专测 bash 和 get_weather 的题；「第二部分」来自第 14 批出题 |
 | agent-tool-v1.0 / v2.0 / v3.1 | 工具清单版本（旧名 work-v1/v2/v3，仍可在命令和清单里使用）。主版本号变了说明模型看到的工具描述或参数变了，小版本号变了说明只改了工具行为。v2.0 比 v1.0 多 bash 和 get_weather；v3 是现在 App 用的清单。考卷清单记的是 v2.0，历史分数都在 v2.0 下跑出来 |
 
-## exam-full 的构成（568 题）
+## agent-exam-v1.0 的构成（568 题）
 
 | 任务类型 | 中文 | 英文 | 合计 |
 |---|---|---|---|
@@ -126,7 +143,7 @@ exam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层
 | 天气探针·第二部分 | 30 |
 | 考卷补题 | 190 |
 
-## exam-quick 的构成（76 题）
+## agent-exam-quick-v1.0 的构成（76 题）
 
 | 任务类型 | 中文 | 英文 | 合计 |
 |---|---|---|---|

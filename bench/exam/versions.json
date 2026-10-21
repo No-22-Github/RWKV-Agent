@@ -1,0 +1,8 @@
+{
+  "agent-exam": [
+    {"version": "v1.0", "hash": "c5ae05fc103d26fbb3489aab05bb61bd249a06100cd8e30f444a399c9ddec7c7", "cases": 568, "since": "2026-10-16", "note": "568 题：改题面 + Sonnet 补题 190 道后的版本，10-17 起所有考卷跑分都用它"}
+  ],
+  "agent-exam-quick": [
+    {"version": "v1.0", "hash": "4f878054600911849bce49fb31346b5973d46e69484090f2f053e81bfff0ef27", "cases": 76, "since": "2026-10-16", "note": "agent-exam-v1.0 的分层子集"}
+  ]
+}
