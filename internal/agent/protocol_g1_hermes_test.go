@@ -27,7 +27,7 @@ func hermesProtocol(t *testing.T, profile string) (G1Protocol, wire.Spec) {
 }
 
 func TestHermesTrajectoryShape(t *testing.T) {
-	protocol, _ := hermesProtocol(t, "g1k+hermes")
+	protocol, _ := hermesProtocol(t, wire.AgentWireV1+"+hermes")
 	specs := []ToolSpec{{
 		Name:        "read_file",
 		Description: "Read <a> file.",
@@ -74,18 +74,18 @@ func TestHermesTrajectoryShape(t *testing.T) {
 }
 
 func TestHermesThinkPrefillFrame(t *testing.T) {
-	_, spec := hermesProtocol(t, "g1k+hermes+hermes-think")
+	_, spec := hermesProtocol(t, wire.AgentWireV1+"+hermes+hermes-think")
 	frame := spec.DecisionFrame(wire.DecisionState{Inspect: true})
 	if frame.Text != "<think>\n</think>\n" || !frame.Inject {
 		t.Fatalf("frame = %#v", frame)
 	}
-	if _, _, err := wire.Resolve("g1k+hermes-think"); err == nil {
+	if _, _, err := wire.Resolve(wire.AgentWireV1 + "+hermes-think"); err == nil {
 		t.Fatalf("hermes-think without align=hermes must be rejected")
 	}
 }
 
 func TestHermesParsesPaddedCall(t *testing.T) {
-	protocol, _ := hermesProtocol(t, "g1k+hermes")
+	protocol, _ := hermesProtocol(t, wire.AgentWireV1+"+hermes")
 	action, err := protocol.Parse(" <think>\nreasoning\n</think>\n<tool_call>\n{\"name\": \"read_file\", \"arguments\": {\"path\": \"a.txt\"}}\n</tool_call>", "stop")
 	if err != nil || action.Type != ActionTypeTool || action.Name != "read_file" {
 		t.Fatalf("parse = %#v, %v", action, err)

@@ -68,7 +68,7 @@ func TestScaledParallelism(t *testing.T) {
 		if !ok {
 			t.Fatal("p13 suite not registered")
 		}
-		if spec.count != 60 || spec.parallelism != 48 || !spec.g1k {
+		if spec.count != 60 || spec.parallelism != 48 || !spec.agentWire {
 			t.Fatalf("unexpected p13 spec: %+v", spec)
 		}
 	})

@@ -5,12 +5,19 @@ import { AgentProtocol } from '../../bindings/github.com/no22/RWKV-Agent/api/mod
  * 三个字段仍原样存在连接档案里（后端、CLI 认的还是 profile/agentProtocol/thinking），
  * 这里只负责「选一档 = 写一组值」与「读一组值 = 认出是哪档」。
  *
- * 思考模式在 profile=g1k 时落成 wire 覆盖（见 providerManager.wireOverride）：
- * 深度思考 = thinking=full,nudge=think，即 g1k-think 预设。
+ * 思考模式在 profile=agent-wire-v1.0 时落成 wire 覆盖（见 providerManager.wireOverride）：
+ * 深度思考 = thinking=full,nudge=think，即 agent-wire-think-v1.0 预设。
  */
 export type FormatPresetId = 'standard' | 'think' | 'fast' | 'markdown' | 'legacy' | 'custom'
 
 export type FormatValues = { agentProtocol: AgentProtocol; profile: string; thinking: 'off' | 'fast' | 'full' }
+
+/* 本机保存的旧连接写的是 format 旧名 g1k（2026-10-21 改名）；两代写法指的是同一份 wire。 */
+export const RETIRED_AGENT_WIRE_PROFILE = 'g1k'
+
+export function isAgentWireV1(profile: string): boolean {
+  return profile === 'agent-wire-v1.0' || profile === RETIRED_AGENT_WIRE_PROFILE
+}
 
 export type FormatPreset = FormatValues & {
   id: FormatPresetId
@@ -24,13 +31,13 @@ export type FormatPreset = FormatValues & {
 export const FORMAT_PRESETS: readonly FormatPreset[] = [
   {
     id: 'standard', label: '标准（不思考）',
-    use: '直接决定调用工具或回答。State 与 v1.x 训练、正式跑分都用这个格式（g1k）',
-    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'g1k', thinking: 'off',
+    use: '直接决定调用工具或回答。State 与 v1.x 训练、正式跑分都用这个格式（agent-wire-v1.0，原名 g1k）',
+    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'agent-wire-v1.0', thinking: 'off',
   },
   {
     id: 'think', label: '深度思考',
-    use: '每一步先写一段思考再行动，运行中会显示思考过程。带思考训练的 MiSS 适配器（v2.x）按这个格式训练（g1k-think）',
-    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'g1k', thinking: 'full',
+    use: '每一步先写一段思考再行动，运行中会显示思考过程。带思考训练的 MiSS 适配器（v2.x）按这个格式训练（agent-wire-think-v1.0，原名 g1k-think）',
+    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'agent-wire-v1.0', thinking: 'full',
   },
   {
     id: 'markdown', label: 'Markdown 工具调用（实验）',
@@ -40,7 +47,7 @@ export const FORMAT_PRESETS: readonly FormatPreset[] = [
   {
     id: 'fast', label: '快速思考（实验）', hidden: true,
     use: '预填一个空的思考块直接进入动作。实测在基模上掉分、MiSS 上偶尔不守格式，建议改成标准或深度思考',
-    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'g1k', thinking: 'fast',
+    agentProtocol: AgentProtocol.AgentProtocolXML, profile: 'agent-wire-v1.0', thinking: 'fast',
   },
   {
     id: 'legacy', label: '旧版 XML（不推荐）', hidden: true,
@@ -57,6 +64,6 @@ export function formatPresetById(id: string): FormatPreset | undefined {
 export function matchFormatPreset(values: FormatValues): FormatPresetId {
   if (values.agentProtocol === AgentProtocol.AgentProtocolMarkdown) return 'markdown'
   if (!values.profile) return 'legacy'
-  if (values.profile !== 'g1k') return 'custom'
+  if (!isAgentWireV1(values.profile)) return 'custom'
   return values.thinking === 'full' ? 'think' : values.thinking === 'fast' ? 'fast' : 'standard'
 }

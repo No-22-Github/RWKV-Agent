@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
@@ -122,9 +123,10 @@ type CheckArgs struct {
 	MaxTokens          int
 	DecisionMaxTokens  int
 	CaseTimeoutSeconds int
-	// Profile is the --profile the run must have used. Empty means the g1k
-	// preset; anything else (format ablations such as g1k+think-fast) is
-	// matched against harness.wire_profile verbatim.
+	// Profile is the --profile the run must have used. Empty means the
+	// agent-wire-v1.0 preset; anything else (format ablations such as
+	// agent-wire-v1.0+think-fast) is matched against harness.wire_profile
+	// verbatim.
 	Profile string
 	// RemoteBatchWaitMS and RemoteBatchMax are the expected RWKV coalescing
 	// settings. A run recorded with no coalescing (0) also passes, with a
@@ -188,8 +190,11 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 	}
 
 	if args.RWKV && !args.Primitive {
-		if args.Profile == "" || args.Profile == "g1k" {
-			gate("wire_preset == g1k", lab.StringOf(harness, "wire_preset") == "g1k",
+		if args.Profile == "" || wire.CanonicalPresetName(args.Profile) == wire.AgentWireV1 {
+			// run.json from before 2026-10-21 says g1k; both spellings name
+			// the same wire, so a recorded alias passes the gate.
+			recorded := wire.CanonicalPresetName(lab.StringOf(harness, "wire_preset"))
+			gate("wire_preset is "+wire.AgentWireV1, recorded == wire.AgentWireV1,
 				fmt.Sprintf("wire_preset=%s", pyRepr(harness["wire_preset"])))
 		} else {
 			gate("wire_profile == "+args.Profile, lab.StringOf(harness, "wire_profile") == args.Profile,

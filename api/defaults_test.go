@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 )
 
@@ -17,9 +18,10 @@ func newConnection() Config {
 }
 
 // TestNewConfigDefaultsRunOnTheMeasuredWire locks the goal of the shared
-// assembly: a new App connection resolves to the g1k preset (the corpus and
-// evaluation wire), the g1k-agent sampling preset and the product loop-policy
-// limits 2/3/3, and the combination is accepted by normalizeConfig.
+// assembly: a new App connection resolves to the agent-wire-v1.0 preset (the
+// corpus and evaluation wire, called g1k before 2026-10-21), the g1k-agent
+// sampling preset and the product loop-policy limits 2/3/3, and the combination
+// is accepted by normalizeConfig.
 func TestNewConfigDefaultsRunOnTheMeasuredWire(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(newConnection())
@@ -31,8 +33,8 @@ func TestNewConfigDefaultsRunOnTheMeasuredWire(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if preset, ok := spec.MatchPreset(); !ok || preset != "g1k" {
-		t.Fatalf("wire preset = %q (%v), want g1k; canonical %s", preset, ok, spec.Canonical())
+	if preset, ok := spec.MatchPreset(); !ok || preset != wire.AgentWireV1 {
+		t.Fatalf("wire preset = %q (%v), want %s; canonical %s", preset, ok, wire.AgentWireV1, spec.Canonical())
 	}
 	if options.DuplicateReplayLimit != 2 || options.DuplicateRescueThreshold != 3 || options.SameToolRescueLimit != 3 {
 		t.Fatalf("loop limits = %d/%d/%d, want 2/3/3",
@@ -73,7 +75,8 @@ func TestLegacyConfigsAreNotRewritten(t *testing.T) {
 }
 
 // TestNewConfigThinkingFollowsTheProfile: the thinking selector maps onto a
-// wire override, so choosing a thinking mode on a g1k connection stays valid.
+// wire override, so choosing a thinking mode on an agent-wire connection stays
+// valid.
 func TestNewConfigThinkingFollowsTheProfile(t *testing.T) {
 	t.Parallel()
 	config := newConnection()
@@ -81,7 +84,7 @@ func TestNewConfigThinkingFollowsTheProfile(t *testing.T) {
 	config.Wire = "thinking=fast"
 	normalized, err := normalizeConfig(config)
 	if err != nil {
-		t.Fatalf("g1k + thinking override rejected: %v", err)
+		t.Fatalf("agent-wire + thinking override rejected: %v", err)
 	}
 	options := sessionRunnerOptions(normalized, Status{Model: "model"}, t.TempDir(), nil, false, true)
 	spec, err := agent.WireSpecOf(options)

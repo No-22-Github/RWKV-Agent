@@ -23,9 +23,37 @@ func Register(name string, spec Spec) {
 	presets[name] = spec
 }
 
-// Lookup returns the registered preset, if any.
+// Registered preset names of the product wires. The version is the format's,
+// not the model's: a preset name never carries a model generation, because the
+// model changes far more often than the format does.
+const (
+	AgentWireV1      = "agent-wire-v1.0"
+	AgentWireThinkV1 = "agent-wire-think-v1.0"
+)
+
+// presetAliases maps retired preset names to their current name. A run.json,
+// App config or command written before 2026-10-21 says g1k; it resolves to the
+// same spec under the new name. Aliases are never listed or reported, and they
+// are not registered as presets: Names() and MatchPreset() must see one entry
+// per spec, or the name a run records would depend on sort order.
+var presetAliases = map[string]string{
+	"g1k":       AgentWireV1,
+	"g1k-think": AgentWireThinkV1,
+}
+
+// CanonicalPresetName returns the current name for a preset name or alias;
+// any other value comes back unchanged.
+func CanonicalPresetName(name string) string {
+	if canonical, ok := presetAliases[name]; ok {
+		return canonical
+	}
+	return name
+}
+
+// Lookup returns the registered preset, if any, under either its current name
+// or a retired one.
 func Lookup(name string) (Spec, bool) {
-	spec, ok := presets[name]
+	spec, ok := presets[CanonicalPresetName(name)]
 	return spec, ok
 }
 
@@ -82,7 +110,7 @@ func Resolve(value string) (Spec, string, error) {
 		return Spec{}, "", fail("resolve.empty", "empty wire spec", "use a preset name, preset+modifiers, or a canonical string")
 	}
 	if spec, ok := Lookup(candidate); ok {
-		return spec, candidate, nil
+		return spec, CanonicalPresetName(candidate), nil
 	}
 	if strings.Contains(candidate, "=") {
 		spec, err := parseCanonical(candidate)
@@ -251,27 +279,29 @@ func init() {
 	native.Transport = TransportNative
 	Register("native-v1", native)
 
-	// g1k is the locked RWKV product wire: the one the 2026-09-15 ablation
-	// selected and the workspace-agent corpus is rendered in. It is the short
-	// name for xml-v1+align-qwen36+no-tool+bare+one-stage and carries the same
-	// canonical string and hash.
-	g1k := Default()
-	g1k.Abstain = AbstainNoTool
-	g1k.Control = ControlBare
-	g1k.Align = AlignQwen36
-	g1k.Stages = StagesOne
-	Register("g1k", g1k)
+	// agent-wire-v1.0 is the locked RWKV product wire: the one the 2026-09-15
+	// ablation selected and the workspace-agent corpus is rendered in. It is
+	// the short name for xml-v1+align-qwen36+no-tool+bare+one-stage and carries
+	// the same canonical string and hash. Its old name, g1k, named a model
+	// generation and stays only as an alias.
+	agentWire := Default()
+	agentWire.Abstain = AbstainNoTool
+	agentWire.Control = ControlBare
+	agentWire.Align = AlignQwen36
+	agentWire.Stages = StagesOne
+	Register(AgentWireV1, agentWire)
 
-	// g1k-think is the v2.0 (MiSS) wire: g1k with real thinking — the model
-	// completes the withheld "<think" prefix, closes it, then acts — and the
-	// post-tool reminder that does not forbid thinking. It is the
-	// 2026-10-10 think-full retest's T arm (g1k+think-full --wire nudge=think)
-	// under a short name, so v2.0 corpora render with --strict-spec.
-	g1kThink := g1k
-	g1kThink.Thinking = ThinkingFull
-	g1kThink.Prefill = PrefillNone
-	g1kThink.Experiments.Nudge = "think"
-	Register("g1k-think", g1kThink)
+	// agent-wire-think-v1.0 is the v2.0 (MiSS) wire: agent-wire-v1.0 with real
+	// thinking — the model completes the withheld "<think" prefix, closes it,
+	// then acts — and the post-tool reminder that does not forbid thinking. It
+	// is the 2026-10-10 think-full retest's T arm (g1k+think-full --wire
+	// nudge=think) under a short name, so v2.0 corpora render with
+	// --strict-spec.
+	agentWireThink := agentWire
+	agentWireThink.Thinking = ThinkingFull
+	agentWireThink.Prefill = PrefillNone
+	agentWireThink.Experiments.Nudge = "think"
+	Register(AgentWireThinkV1, agentWireThink)
 }
 
 // parseCanonical decodes the exact string produced by Spec.Canonical. It is

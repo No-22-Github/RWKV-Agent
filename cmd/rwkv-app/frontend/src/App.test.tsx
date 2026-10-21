@@ -350,7 +350,7 @@ describe('App', () => {
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].profile).toBeUndefined()
   })
 
-  it('submits the deep-thinking format as g1k-think through auto-apply', async () => {
+  it('submits the deep-thinking format as agent-wire-think-v1.0 through auto-apply', async () => {
     bootstrapWithRunningProvider()
     render(<App />)
     await waitRuntimeReady()
@@ -361,7 +361,7 @@ describe('App', () => {
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config.thinking).toBe('full')
-    expect(config.profile).toBe('g1k')
+    expect(config.profile).toBe('agent-wire-v1.0')
     expect(config.wire).toBe('thinking=full,nudge=think')
   })
 
@@ -699,7 +699,7 @@ describe('App', () => {
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('')
   })
-  it('starts a new connection on the g1k wire with web, weather and bash on', async () => {
+  it('starts a new connection on the agent-wire-v1.0 wire with web, weather and bash on', async () => {
     const created = savedRemoteProvider({ endpoint: 'https://new.example.test', model: 'new-model' }, { id: 'created', label: 'New one' })
     vi.mocked(Backend.SaveProvider).mockResolvedValue(created)
     render(<App />)
@@ -713,7 +713,7 @@ describe('App', () => {
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.SaveProvider).mock.calls[0][2]
     expect(config).toMatchObject({
-      profile: 'g1k', agentProtocol: 'xml', thinking: 'off',
+      profile: 'agent-wire-v1.0', agentProtocol: 'xml', thinking: 'off',
       enableWeb: true, enableBash: true, enableSubagents: false, weatherBackend: 'open-meteo',
       temperature: 0.3, topK: 65536, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
     })

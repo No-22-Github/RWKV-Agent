@@ -75,17 +75,18 @@ const DECISION_MAX_TOKENS_AUTO = 0
 
 /*
  * 新建连接的 Agent 默认值，对应后端 api.NewConfigDefaults（api/defaults.go）：评测与训练
- * 语料用的 g1k wire、g1k-agent 采样，联网/天气/bash 默认开（没有 key 时联网工具仍在
- * 清单里，调用时提示去设置里填写）。只用于新档案的初始值——已保存的档案按自己存的
- * 值水合，不会被改写；后端 normalizeConfig 也不会替旧档案补这些默认。
+ * 语料用的 agent-wire-v1.0（原名 g1k）wire、agent-default（原名 g1k-agent）采样，
+ * 联网/天气/bash 默认开（没有 key 时联网工具仍在清单里，调用时提示去设置里填写）。
+ * 只用于新档案的初始值——已保存的档案按自己存的值水合，不会被改写；后端
+ * normalizeConfig 也不会替旧档案补这些默认。
  */
 export const NEW_CONFIG_DEFAULTS = {
-  profile: 'g1k',
+  profile: 'agent-wire-v1.0',
   enableWeb: true,
   enableBash: true,
   weatherBackend: 'open-meteo',
   sampling: presetById(NEW_CONFIG_SAMPLING_ID) ?? DEFAULT_SAMPLING,
-  /* g1k 第一步几乎都会先思考：决策 512 会截断思考，规程定的是 2048 / 4096（docs/evaluations/benchmark-protocol.md）。 */
+  /* agent-wire-v1.0 第一步几乎都会先思考：决策 512 会截断思考，规程定的是 2048 / 4096（docs/evaluations/benchmark-protocol.md）。 */
   maxTokens: 4096,
   decisionMaxTokens: 2048,
 }
@@ -191,7 +192,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
    * 有 wire 预设时，思考模式由预设说了算，旧的 thinking 字段不再起作用；这里把选择器
    * 的取值写成 wire 覆盖（thinking=fast|full），选择器才不是摆设。关闭思考时沿用档案
    * 里原有的 wire（若原值正是上次写的思考覆盖则清掉）。完整思考另带 nudge=think（工具
-   * 结果后不禁止思考的提醒），使 g1k 落到 g1k-think 预设上：v2.0 MiSS 适配器按它训练，
+   * 结果后不禁止思考的提醒），使 agent-wire-v1.0 落到 agent-wire-think-v1.0 预设上：
+   * v2.0 MiSS 适配器按它训练，
    * think-full 复测与评测也用它。
    */
   function wireOverride(): string | undefined {
@@ -455,7 +457,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setAvailableModels([])
     applyConfig(config)
   }
-  /* 新建连接：Agent 的行为开关和 token 预算回到新档案默认值（预算跟 g1k 绑定），其余（key、步数）沿用当前表单。 */
+  /* 新建连接：Agent 的行为开关和 token 预算回到新档案默认值（预算跟 agent-wire-v1.0 绑定），其余（key、步数）沿用当前表单。 */
   function newConnectionAgentDefaults() {
     const sampling = NEW_CONFIG_DEFAULTS.sampling
     return {

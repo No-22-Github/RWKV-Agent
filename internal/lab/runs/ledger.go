@@ -9,11 +9,12 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent/product"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // recordedCatalog writes a run's tool catalog under its version name, so the
-// ledger reads the same for a run.json that says agent-tool-v2.0 and one that says
+// ledger reads the same for a run.json that says work-v2 and one that says
 // agent-tool-v2.0 (product.RecordedCatalog: an old agent-tool-v3 record is v3.0).
 func recordedCatalog(value any) any {
 	name, ok := value.(string)
@@ -21,6 +22,17 @@ func recordedCatalog(value any) any {
 		return value
 	}
 	return product.RecordedCatalog(name)
+}
+
+// recordedWire writes a run's wire profile under its current name, so a run
+// from before 2026-10-21 (wire_profile: g1k) and a current one
+// (agent-wire-v1.0) are the same row value in the ledger.
+func recordedWire(value any) any {
+	name, ok := value.(string)
+	if !ok || name == "" {
+		return value
+	}
+	return wire.CanonicalPresetName(name)
 }
 
 // Append-only scoring ledger for workbank runs.
@@ -348,7 +360,7 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 		"model_id":                   model["identifier"],
 		"model_fingerprint":          model["fingerprint"],
 		"state_sha256":               harness["state_sha256"],
-		"wire_profile":               harness["wire_profile"],
+		"wire_profile":               recordedWire(harness["wire_profile"]),
 		"wire_hash":                  harness["wire_hash"],
 		"harness_version":            harness["version"],
 		"scorer_version":             harness["scorer_version"],

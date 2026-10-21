@@ -27,7 +27,7 @@ function stripAssistantFraming(output: string): string {
 }
 
 /*
- * 完整思考（g1k-think）把开口 "<think" 扣在 prompt 末尾，模型输出形如
+ * 完整思考（agent-wire-think-v1.0，原名 g1k-think）把开口 "<think" 扣在 prompt 末尾，模型输出形如
  * ">思考内容</think>动作"：没有 "<think>" 开头，思考靠 "</think>" 收尾来认。
  */
 function splitWithheldThink(output: string): { thinking: string; rest: string } | null {

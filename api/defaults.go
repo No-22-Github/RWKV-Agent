@@ -3,15 +3,17 @@ package api
 import (
 	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 )
 
 // NewConfigProfile is the wire preset a new App connection starts on: the same
-// g1k wire the training corpus and the product evaluation use, so what the user
-// does in the App is what the model was tuned and measured on. normalizeConfig
-// deliberately does NOT default to it: saved connections without a profile keep
-// the legacy per-protocol behavior until the user changes them.
-const NewConfigProfile = "g1k"
+// agent-wire-v1.0 wire the training corpus and the product evaluation use, so
+// what the user does in the App is what the model was tuned and measured on
+// (it was called g1k before 2026-10-21). normalizeConfig deliberately does NOT
+// default to it: saved connections without a profile keep the legacy
+// per-protocol behavior until the user changes them.
+const NewConfigProfile = wire.AgentWireV1
 
 // NewConfigMaxTokens and NewConfigDecisionMaxTokens are a new connection's
 // answer and decision budgets.
@@ -38,7 +40,7 @@ func NewConfigDefaults() Config {
 		AgentProtocol: AgentProtocolXML,
 		Profile:       NewConfigProfile,
 		Thinking:      "off",
-		// g1k thinks before nearly every first step; a 512-token decision
+		// agent-wire-v1.0 thinks before nearly every first step; a 512-token decision
 		// budget cuts the thought off. These are the benchmark protocol's
 		// budgets (docs/evaluations/benchmark-protocol.md).
 		MaxTokens:         NewConfigMaxTokens,

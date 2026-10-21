@@ -26,13 +26,13 @@ import (
 )
 
 // Suites maps a suite name to how it is invoked. name -> (short name for run
-// directories, rwkv-cli suite args, case count, parallelism, uses g1k wire).
+// directories, rwkv-cli suite args, case count, parallelism, uses the agent wire).
 type suiteSpec struct {
 	shortName   string
 	args        []string
 	count       int
 	parallelism int
-	g1k         bool
+	agentWire   bool
 }
 
 var suites = map[string]suiteSpec{
@@ -137,19 +137,25 @@ type SweepArgs struct {
 	parallel map[string]int
 }
 
-// profile is the wire profile of the g1k-wire suites: the g1k preset unless a
-// format ablation passes --profile.
+// profile is the wire profile of the agent-wire suites: agent-wire-v1.0 unless
+// a format ablation passes --profile. A retired spelling (g1k) is accepted and
+// canonicalised by wire.Lookup downstream.
 func (args *SweepArgs) profile() string {
 	if args.Profile == "" {
-		return "g1k"
+		return wire.AgentWireV1
 	}
 	return args.Profile
 }
 
 // decisionBudget matches the corpus render budget (lab/corpus decisionBudget):
-// g1k-think withholds "<think" and real thinking needs room before the action.
+// agent-wire-think-v1.0 withholds "<think" and real thinking needs room before
+// the action.
 func (args *SweepArgs) decisionBudget() int {
-	if strings.HasPrefix(args.profile(), "g1k-think") {
+	base := args.profile()
+	if index := strings.Index(base, "+"); index >= 0 {
+		base = base[:index]
+	}
+	if wire.CanonicalPresetName(base) == wire.AgentWireThinkV1 {
 		return 4096
 	}
 	return 2048
@@ -335,7 +341,7 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		// 2026-09-23.
 		"--case-timeout", "30m",
 		// Without this the decision step falls back to the protocol default
-		// (512). g1k thinks spontaneously on 142/148 first steps.
+		// (512). agent-wire-v1.0 thinks spontaneously on 142/148 first steps.
 		"--decision-max-tokens", strconv.Itoa(args.decisionBudget()),
 		// rwkv_lightning batches only within one request's contents[], so
 		// unmerged calls run as bandwidth-bound bsz=1 loops; coalesce them.
@@ -356,10 +362,10 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 	if args.AdapterID != "" {
 		cmd = append(cmd, "--adapter-id", args.AdapterID)
 	}
-	if spec.g1k {
+	if spec.agentWire {
 		cmd = append(cmd, "--profile", args.profile())
 		// --strict-spec only admits registered presets; a modifier chain such
-		// as g1k+think-fast is still pinned by run check's wire_profile gate.
+		// as agent-wire-v1.0+think-fast is still pinned by run check's wire_profile gate.
 		if _, registered := wire.Lookup(args.profile()); registered {
 			cmd = append(cmd, "--strict-spec")
 		}
@@ -612,7 +618,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		RunDir:              output,
 		Arm:                 arm,
 		RWKV:                true,
-		Primitive:           !spec.g1k,
+		Primitive:           !spec.agentWire,
 		Cases:               budget.cases,
 		HasCases:            true,
 		MaxSteps:            budget.maxSteps,

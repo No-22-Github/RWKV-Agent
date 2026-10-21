@@ -12,7 +12,7 @@ import (
 type EvalConnection struct {
 	Model   string
 	StateID string
-	// Profile and Wire override the new-connection profile (g1k) the same way
+	// Profile and Wire override the new-connection profile (agent-wire-v1.0) the same way
 	// the App's protocol and thinking selectors do; empty keeps the default.
 	Profile string
 	Wire    string

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
@@ -61,8 +62,8 @@ func runSweepCmd(argv []string) int {
 		"rwkv_lightning state id attached to every run of this invocation")
 	fs.StringVar(&args.AdapterID, "adapter-id", "",
 		"MiSS adapter id (registered on the server) bound to every run of this invocation")
-	fs.StringVar(&args.Profile, "profile", "g1k",
-		"wire profile for the g1k-wire suites (format ablations: g1k+think-fast, ...)")
+	fs.StringVar(&args.Profile, "profile", wire.AgentWireV1,
+		"wire profile for the agent-wire suites (old name: g1k; format ablations: "+wire.AgentWireV1+"+think-fast, ...)")
 	fs.IntVar(&args.MaxConcurrency, "max-concurrency", 64,
 		"total in-flight cases across concurrently running suites")
 	fs.IntVar(&args.BatchInflight, "remote-batch-inflight", runs.BenchRemoteBatchInflight,

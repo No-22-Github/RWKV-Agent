@@ -726,7 +726,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				&options.evalHarness,
 				"harness",
 				"",
-				"build tools and harness options the way the App does: app (a new App connection: g1k, web/weather/bash, staged files accepted before scoring, rescue on) or raw (the same with the rescue off); an exam manifest under --cases defaults to its own harness",
+				"build tools and harness options the way the App does: app (a new App connection: agent-wire-v1.0, web/weather/bash, staged files accepted before scoring, rescue on) or raw (the same with the rescue off); an exam manifest under --cases defaults to its own harness",
 			)
 			fs.BoolVar(
 				&options.evalIncludeDraft,
@@ -788,7 +788,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if name == "agent-eval" {
 		options.evalSuite = agenteval.CanonicalBuiltinSuiteName(options.evalSuite)
 		if !samplingExplicit["decision-max-tokens"] {
-			options.decisionMaxTokens = g1kDecisionBudget(options.profile, options.decisionMaxTokens)
+			options.decisionMaxTokens = agentWireDecisionBudget(options.profile, options.decisionMaxTokens)
 		}
 		if options.evalSuite == agenteval.SuiteBFCLProduct {
 			if !options.progressiveToolsExplicit {
@@ -2844,15 +2844,21 @@ func evalRemoteBatchMax(options runOptions) int {
 	return options.remoteBatchMax
 }
 
-// g1kDecisionBudget is the decision budget a g1k-profile eval uses when
+// agentWireDecisionBudget is the decision budget an agent-wire eval uses when
 // --decision-max-tokens is not given; it matches the corpus render budget
-// (bench sweep decisionBudget). The protocol default (512) cut g1k's own
-// thinking into invalid actions, so every bench command had to pass it.
-func g1kDecisionBudget(profile string, fallback int) int {
-	switch {
-	case strings.HasPrefix(profile, "g1k-think"):
+// (bench sweep decisionBudget). The protocol default (512) cut the wire's own
+// thinking into invalid actions, so every bench command had to pass it. The
+// profile may be a retired spelling (g1k, g1k+think-fast) or carry modifiers,
+// so the base name is canonicalised first.
+func agentWireDecisionBudget(profile string, fallback int) int {
+	base := profile
+	if index := strings.Index(base, "+"); index >= 0 {
+		base = base[:index]
+	}
+	switch wire.CanonicalPresetName(strings.TrimSpace(base)) {
+	case wire.AgentWireThinkV1:
 		return 4096
-	case profile == "g1k" || strings.HasPrefix(profile, "g1k+"):
+	case wire.AgentWireV1:
 		return 2048
 	}
 	return fallback

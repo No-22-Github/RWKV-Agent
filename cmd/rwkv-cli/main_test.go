@@ -741,16 +741,20 @@ func TestAgentEvalAcceptsRemoteContinuation(t *testing.T) {
 	}
 }
 
-func TestAgentEvalDefaultsG1KDecisionBudget(t *testing.T) {
+func TestAgentEvalDefaultsAgentWireDecisionBudget(t *testing.T) {
 	t.Parallel()
 	for _, test := range []struct {
 		args []string
 		want int
 	}{
+		{[]string{"--profile", wire.AgentWireV1}, 2048},
+		{[]string{"--profile", wire.AgentWireV1 + "+think-fast"}, 2048},
+		{[]string{"--profile", wire.AgentWireThinkV1}, 4096},
+		{[]string{"--profile", wire.AgentWireV1, "--decision-max-tokens", "512"}, 512},
+		// Retired spellings resolve to the same budgets.
 		{[]string{"--profile", "g1k"}, 2048},
 		{[]string{"--profile", "g1k+think-fast"}, 2048},
 		{[]string{"--profile", "g1k-think"}, 4096},
-		{[]string{"--profile", "g1k", "--decision-max-tokens", "512"}, 512},
 		{[]string{"--profile", "xml-v1"}, 0},
 	} {
 		args := append([]string{"--model", "m", "--completion", "rwkv-lightning-cuda", "--api-url", "http://example.test/v1"}, test.args...)

@@ -457,38 +457,39 @@ func assertSpecError(t *testing.T, spec Spec, code string) {
 	}
 }
 
-// TestG1KPresetIsTheLockedLonghand pins the short name to the longhand the
-// 2026-09-15 ablation selected, so the two spellings stay one wire and a run
-// started from the longhand still reports itself as g1k.
-func TestG1KPresetIsTheLockedLonghand(t *testing.T) {
+// TestAgentWirePresetIsTheLockedLonghand pins the short name to the longhand
+// the 2026-09-15 ablation selected, so the two spellings stay one wire and a
+// run started from the longhand still reports itself as agent-wire-v1.0.
+func TestAgentWirePresetIsTheLockedLonghand(t *testing.T) {
 	t.Parallel()
-	preset, name, err := Resolve("g1k")
-	if err != nil || name != "g1k" {
-		t.Fatalf("Resolve(g1k) = %q, %v", name, err)
+	preset, name, err := Resolve(AgentWireV1)
+	if err != nil || name != AgentWireV1 {
+		t.Fatalf("Resolve(%s) = %q, %v", AgentWireV1, name, err)
 	}
 	longhand, _, err := Resolve("xml-v1+align-qwen36+no-tool+bare+one-stage")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !preset.Equal(longhand) {
-		t.Fatalf("g1k = %s\nlonghand = %s", preset.Canonical(), longhand.Canonical())
+		t.Fatalf("%s = %s\nlonghand = %s", AgentWireV1, preset.Canonical(), longhand.Canonical())
 	}
-	if match, ok := longhand.MatchPreset(); !ok || match != "g1k" {
-		t.Fatalf("longhand MatchPreset = %q, %v; want g1k", match, ok)
+	if match, ok := longhand.MatchPreset(); !ok || match != AgentWireV1 {
+		t.Fatalf("longhand MatchPreset = %q, %v; want %s", match, ok, AgentWireV1)
 	}
 }
 
 // TestMatchPresetIgnoresInertFirstCall: firstcall only reaches a native tool
-// completer, so a text-transport bank run with firstcall=auto is still g1k,
-// while the same deviation on the native transport stays ad-hoc.
+// completer, so a text-transport bank run with firstcall=auto is still
+// agent-wire-v1.0, while the same deviation on the native transport stays
+// ad-hoc.
 func TestMatchPresetIgnoresInertFirstCall(t *testing.T) {
 	t.Parallel()
-	text, _, err := Resolve("g1k+first-auto")
+	text, _, err := Resolve(AgentWireV1 + "+first-auto")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if match, ok := text.MatchPreset(); !ok || match != "g1k" {
-		t.Fatalf("text g1k+first-auto MatchPreset = %q, %v; want g1k", match, ok)
+	if match, ok := text.MatchPreset(); !ok || match != AgentWireV1 {
+		t.Fatalf("text %s+first-auto MatchPreset = %q, %v; want %s", AgentWireV1, match, ok, AgentWireV1)
 	}
 	native, _, err := Resolve("native-v1+first-auto")
 	if err != nil {

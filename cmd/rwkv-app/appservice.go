@@ -485,7 +485,7 @@ func rollbackLastTurn(value appstorage.Conversation) (appstorage.Conversation, s
 	if value.Messages[count-1].Role == "assistant" {
 		cut := -1
 		for index := len(transcript) - 1; index >= 0; index-- {
-			// Text wires aligned to Qwen (g1k) commit each tool result as a
+			// Text wires aligned to Qwen (agent-wire-v1.0) commit each tool result as a
 			// user turn named after its tool; only an unnamed user turn is
 			// the user's own prompt.
 			if transcript[index].Role == "user" && transcript[index].Name == "" {

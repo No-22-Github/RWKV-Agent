@@ -235,7 +235,7 @@ func sessionRunnerOptions(
 // textWireProfile returns value (a wire profile or override) for providers
 // that continue raw text, and "" for chat-completions providers: those apply
 // their own chat template and call tools natively, so the text-continuation
-// wire presets (g1k's no_tool exit, fake-think prefills) do not apply and the
+// wire presets (agent-wire-v1.0's no_tool exit, fake-think prefills) do not apply and the
 // runner would reject them.
 func textWireProfile(config Config, value string) string {
 	if config.Provider == ProviderChatCompletions {

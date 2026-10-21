@@ -147,7 +147,7 @@ func ScriptGeneratorFactory(entries map[string]ScriptEntry) GeneratorFactory {
 const withheldThinkOpening = "<think"
 
 // ExpectsThinking reports whether the prompt withholds an open think tag the
-// generation must complete: the full-thinking wire (g1k-think). The fast wire
+// generation must complete: the full-thinking wire (agent-wire-think-v1.0). The fast wire
 // ends with a closed "<think></think" and does not count.
 func ExpectsThinking(prompt string) bool {
 	return strings.HasSuffix(prompt, withheldThinkOpening)

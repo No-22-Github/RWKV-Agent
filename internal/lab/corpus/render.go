@@ -10,6 +10,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/agent/product"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
@@ -41,8 +42,9 @@ var benchFlags = []string{
 }
 
 // decisionBudget is the decision-stage output budget per wire profile: the
-// g1k bench arm uses 2048, the thinking wire 4096 (think-full retest T arm).
-var decisionBudget = map[string]string{"g1k": "2048", "g1k-think": "4096"}
+// agent-wire-v1.0 bench arm uses 2048, the thinking wire 4096 (think-full
+// retest T arm).
+var decisionBudget = map[string]string{wire.AgentWireV1: "2048", wire.AgentWireThinkV1: "4096"}
 
 // RenderArgs are the `corpus render` flags.
 type RenderArgs struct {
@@ -63,16 +65,17 @@ type RenderArgs struct {
 	// ToolCatalog is the fixed bank catalog the rows replay against: agent-tool-v1.0
 	// (default) or agent-tool-v2.0 (v1.41 b12: + bash, get_weather).
 	ToolCatalog string
-	// Profile is the registered wire the rows replay under: g1k (1.x state
-	// corpora, default) or g1k-think (2.x MiSS corpora: real thinking, one
-	// row per step; see eval.BuildCorpusSteps).
+	// Profile is the registered wire the rows replay under: agent-wire-v1.0
+	// (1.x state corpora, default) or agent-wire-think-v1.0 (2.x MiSS corpora:
+	// real thinking, one row per step; see eval.BuildCorpusSteps). The retired
+	// g1k spellings are accepted.
 	Profile string
 	Extra   []string
 }
 
 func benchFlagsFor(catalog, profile string) []string {
 	flags := []string{"--tool-catalog", catalog, "--profile", profile,
-		"--decision-max-tokens", decisionBudget[profile]}
+		"--decision-max-tokens", decisionBudget[wire.CanonicalPresetName(profile)]}
 	return append(flags, benchFlags...)
 }
 
@@ -91,10 +94,12 @@ func RunRender(args RenderArgs) int {
 		args.ToolCatalog = catalog
 	}
 	if args.Profile == "" {
-		args.Profile = "g1k"
+		args.Profile = wire.AgentWireV1
 	}
+	args.Profile = wire.CanonicalPresetName(args.Profile)
 	if _, ok := decisionBudget[args.Profile]; !ok {
-		fmt.Fprintf(stderr, "error: --profile %q is not a corpus wire (g1k, g1k-think)\n", args.Profile)
+		fmt.Fprintf(stderr, "error: --profile %q is not a corpus wire (%s, %s; old names g1k, g1k-think)\n",
+			args.Profile, wire.AgentWireV1, wire.AgentWireThinkV1)
 		return 2
 	}
 	if !eval.IsFixedToolCatalog(args.ToolCatalog) {
