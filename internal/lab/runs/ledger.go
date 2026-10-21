@@ -338,6 +338,8 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 	if runID == "" {
 		runID = lab.StringOf(summary, "run_id")
 	}
+	// Absent before 2026-10-21 binaries, and empty under go run / go test.
+	gitCommit := lab.StringOf(lab.MapOf(manifest, "environment"), "git_commit")
 	return map[string]any{
 		"run_id":                     lab.NilIfEmpty(runID),
 		"date":                       date,
@@ -350,6 +352,7 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 		"wire_hash":                  harness["wire_hash"],
 		"harness_version":            harness["version"],
 		"scorer_version":             harness["scorer_version"],
+		"git_commit":                 lab.NilIfEmpty(gitCommit),
 		"tool_catalog":               recordedCatalog(harness["tool_catalog"]),
 		"tool_catalog_hash":          harness["tool_catalog_hash"],
 		"sampling":                   sampling,

@@ -18,6 +18,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab/exam"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 	"github.com/no22/RWKV-Agent/internal/lab/state"
+	buildversion "github.com/no22/RWKV-Agent/internal/version"
 )
 
 const usage = `rwkv-lab — development tooling for the RWKV-Agent bench
@@ -33,6 +34,7 @@ usage: rwkv-lab <group> <command> [flags]
   tokcount  count tokens with the RWKV World vocabulary
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
+Also: rwkv-lab --version | version
 `
 
 func main() {
@@ -64,6 +66,9 @@ func run(args []string) int {
 			vocab, rest = rest[1], rest[2:]
 		}
 		return lab.RunTokcount(vocab, rest)
+	case "--version", "version":
+		buildversion.Print(os.Stdout, "rwkv-lab")
+		return 0
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

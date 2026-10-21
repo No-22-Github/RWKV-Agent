@@ -19,6 +19,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	"github.com/no22/RWKV-Agent/internal/buildinfo"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
@@ -315,6 +316,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			}
 		}
 	}
+	gitCommit, gitDirty := buildinfo.Revision()
 	return RunManifest{
 		SchemaVersion: RunSchemaVersion,
 		RunID:         runID,
@@ -385,6 +387,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 			GoVersion: runtime.Version(),
+			GitCommit: gitCommit,
+			GitDirty:  gitDirty,
 		},
 		CaseIDs:   caseIDs,
 		CaseWires: caseWires,

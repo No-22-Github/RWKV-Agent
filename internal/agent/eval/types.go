@@ -9,6 +9,10 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
+// The evaluation-behavior versions below are written into every run.json.
+// Each one is bumped only when the scores can move, and the reason goes in
+// VERSIONS.md next to this file; a rename that changes no behavior does not
+// bump them.
 const (
 	CaseSchemaVersion = 5
 	// caseSchemaVersionLegacy keeps v4 case files loadable unchanged; a v4
@@ -315,6 +319,13 @@ type EnvironmentMetadata struct {
 	OS        string `json:"os"`
 	Arch      string `json:"arch"`
 	GoVersion string `json:"go_version"`
+	// GitCommit is the vcs.revision stamped into the binary by `go build`
+	// (runtime/debug.ReadBuildInfo); empty under `go run` and `go test`,
+	// which do not stamp it.
+	GitCommit string `json:"git_commit,omitempty"`
+	// GitDirty is vcs.modified: the binary was built from a tree with
+	// uncommitted changes, so GitCommit alone does not reproduce it.
+	GitDirty bool `json:"git_dirty,omitempty"`
 }
 
 // CaseWireRecord is the effective harness configuration of one case. The

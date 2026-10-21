@@ -40,6 +40,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/tokenizer"
 	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
 	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
+	buildversion "github.com/no22/RWKV-Agent/internal/version"
 )
 
 type runOptions struct {
@@ -202,6 +203,8 @@ func main() {
 		err = runAdapter(os.Args[2:])
 	case "convert":
 		err = convertModel(os.Args[2:])
+	case "--version", "version":
+		buildversion.Print(os.Stdout, "rwkv-cli")
 	default:
 		usage()
 		os.Exit(2)
@@ -233,7 +236,8 @@ func usage() {
   rwkv-cli state delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --state-id <state_id>
   rwkv-cli adapter register --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --adapter-id <id> (--path <PTH on the inference host> | --file <local PTH>)
   rwkv-cli adapter list --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...]
-  rwkv-cli adapter delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --adapter-id <id> [--version <sha256>]`)
+  rwkv-cli adapter delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --adapter-id <id> [--version <sha256>]
+  rwkv-cli --version | version`)
 }
 
 // stateFlags are the connection flags shared by every state and adapter
