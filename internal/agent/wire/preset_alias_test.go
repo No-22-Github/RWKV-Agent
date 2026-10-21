@@ -81,3 +81,18 @@ func TestAliasesAreWhatMakesRetiredNamesWork(t *testing.T) {
 		t.Errorf("Resolve(%q) with the alias table cleared: %v", AgentWireV1, err)
 	}
 }
+
+func TestCanonicalProfile(t *testing.T) {
+	for profile, want := range map[string]string{
+		"g1k":                         AgentWireV1,
+		" g1k+think-fast ":            AgentWireV1 + "+think-fast",
+		"g1k-think":                   AgentWireThinkV1,
+		AgentWireV1 + "+anchor+fence": AgentWireV1 + "+anchor+fence",
+		"md-v1+anchor":                "md-v1+anchor",
+		"format=xml;transcript=g1k":   "format=xml;transcript=g1k",
+	} {
+		if got := CanonicalProfile(profile); got != want {
+			t.Errorf("CanonicalProfile(%q) = %q, want %q", profile, got, want)
+		}
+	}
+}

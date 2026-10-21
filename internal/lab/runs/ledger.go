@@ -25,14 +25,15 @@ func recordedCatalog(value any) any {
 }
 
 // recordedWire writes a run's wire profile under its current name, so a run
-// from before 2026-10-21 (wire_profile: g1k) and a current one
-// (agent-wire-v1.0) are the same row value in the ledger.
+// from before 2026-10-21 (wire_profile: g1k, or g1k+think-fast) and a current
+// one (agent-wire-v1.0, agent-wire-v1.0+think-fast) are the same row value in
+// the ledger.
 func recordedWire(value any) any {
 	name, ok := value.(string)
 	if !ok || name == "" {
 		return value
 	}
-	return wire.CanonicalPresetName(name)
+	return wire.CanonicalProfile(name)
 }
 
 // Append-only scoring ledger for workbank runs.

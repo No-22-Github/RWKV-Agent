@@ -204,7 +204,11 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 			gate("wire_preset is "+wire.AgentWireV1, recorded == wire.AgentWireV1,
 				fmt.Sprintf("wire_preset=%s", pyRepr(harness["wire_preset"])))
 		} else {
-			gate("wire_profile == "+args.Profile, lab.StringOf(harness, "wire_profile") == args.Profile,
+			// Compare current names: an old run says g1k-think or
+			// g1k+think-fast for what is now agent-wire-think-v1.0 or
+			// agent-wire-v1.0+think-fast.
+			gate("wire_profile == "+args.Profile,
+				wire.CanonicalProfile(lab.StringOf(harness, "wire_profile")) == wire.CanonicalProfile(args.Profile),
 				fmt.Sprintf("wire_profile=%s", pyRepr(harness["wire_profile"])))
 		}
 	}

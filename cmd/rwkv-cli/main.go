@@ -2851,11 +2851,8 @@ func evalRemoteBatchMax(options runOptions) int {
 // profile may be a retired spelling (g1k, g1k+think-fast) or carry modifiers,
 // so the base name is canonicalised first.
 func agentWireDecisionBudget(profile string, fallback int) int {
-	base := profile
-	if index := strings.Index(base, "+"); index >= 0 {
-		base = base[:index]
-	}
-	switch wire.CanonicalPresetName(strings.TrimSpace(base)) {
+	base, _, _ := strings.Cut(wire.CanonicalProfile(profile), "+")
+	switch base {
 	case wire.AgentWireThinkV1:
 		return 4096
 	case wire.AgentWireV1:

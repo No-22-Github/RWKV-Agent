@@ -50,6 +50,23 @@ func CanonicalPresetName(name string) string {
 	return name
 }
 
+// CanonicalProfile is CanonicalPresetName for a whole --profile value: the
+// preset before any "+modifier" chain is renamed and the modifiers are kept,
+// so g1k+think-fast and agent-wire-v1.0+think-fast compare equal. Canonical
+// strings (key=value) come back unchanged.
+func CanonicalProfile(profile string) string {
+	profile = strings.TrimSpace(profile)
+	if strings.Contains(profile, "=") {
+		return profile
+	}
+	base, modifiers, found := strings.Cut(profile, "+")
+	base = CanonicalPresetName(base)
+	if !found {
+		return base
+	}
+	return base + "+" + modifiers
+}
+
 // Lookup returns the registered preset, if any, under either its current name
 // or a retired one.
 func Lookup(name string) (Spec, bool) {

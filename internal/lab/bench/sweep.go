@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -42,26 +43,31 @@ var suites = map[string]suiteSpec{
 		"--file-tools", "lines", "--include-draft"}, 60, 48, true},
 	// The exam (bench/exam): manifests pin their cases, tool catalog and the
 	// App harness (--harness app comes from the manifest). The keys are the
-	// manifests' versions; the retired exam-full/exam-quick spellings are
-	// aliases, and the shortName still decides the run directory name, so
-	// existing directories stay where rank and check expect them.
-	"agent-exam-v1.0":       {"examfull", []string{"--cases", "bench/exam/full.json"}, 380, 48, true},
-	"agent-exam-quick-v1.0": {"examquick", []string{"--cases", "bench/exam/quick.json"}, 80, 48, true},
-	"bfcl-product":          {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
-	"boundary":              {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
-	"assistant":             {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
-	"smoke":                 {"smoke", []string{"--suite", "smoke"}, 10, 10, true},
-	"primitive-orig30":      {"porig30", []string{"--suite", "primitive-orig30"}, 30, 30, false},
-	"primitive-feedback30":  {"pfb30", []string{"--suite", "primitive-feedback30"}, 30, 30, false},
+	// exam families without a version: the version and the case count come
+	// from the manifest, so a new exam version needs no change here. The
+	// retired exam-full/exam-quick spellings are aliases, and the shortName
+	// still decides the run directory name, so existing directories stay
+	// where rank and check expect them. count is unused for exams.
+	"agent-exam":           {"examfull", []string{"--cases", "bench/exam/full.json"}, 0, 48, true},
+	"agent-exam-quick":     {"examquick", []string{"--cases", "bench/exam/quick.json"}, 0, 48, true},
+	"bfcl-product":         {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
+	"boundary":             {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
+	"assistant":            {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
+	"smoke":                {"smoke", []string{"--suite", "smoke"}, 10, 10, true},
+	"primitive-orig30":     {"porig30", []string{"--suite", "primitive-orig30"}, 30, 30, false},
+	"primitive-feedback30": {"pfb30", []string{"--suite", "primitive-feedback30"}, 30, 30, false},
 }
 
 // suiteAliases maps the retired exam suite names to the current key. A command
 // written before 2026-10-21 says exam-full; the run directory it produces is
 // the same one.
 var suiteAliases = map[string]string{
-	"exam-full":  "agent-exam-v1.0",
-	"exam-quick": "agent-exam-quick-v1.0",
+	"exam-full":  "agent-exam",
+	"exam-quick": "agent-exam-quick",
 }
+
+// versionedExam matches an exam named with its version (agent-exam-v1.0).
+var versionedExam = regexp.MustCompile(`^(agent-exam(?:-quick)?)-v\d+\.\d+$`)
 
 // canonicalSuiteName returns the current key for a suite name or alias.
 func canonicalSuiteName(name string) string {
@@ -69,6 +75,25 @@ func canonicalSuiteName(name string) string {
 		return canonical
 	}
 	return name
+}
+
+// resolveSuiteName is canonicalSuiteName plus the versioned exam spelling:
+// agent-exam-v1.0 selects the agent-exam suite only while the manifest is
+// that version, so an old command cannot silently run a newer exam.
+func resolveSuiteName(name string) (string, error) {
+	match := versionedExam.FindStringSubmatch(name)
+	if match == nil {
+		return canonicalSuiteName(name), nil
+	}
+	family := match[1]
+	manifest, err := agenteval.ReadExamManifest(examManifestPath(family))
+	if err != nil {
+		return "", err
+	}
+	if manifest.Name != name {
+		return "", fmt.Errorf("suite %s: the exam is now %s; pass %s (current version) or that name", name, manifest.Name, family)
+	}
+	return family, nil
 }
 
 // SuiteNames lists the suites, sorted.
@@ -180,11 +205,8 @@ func (args *SweepArgs) profile() string {
 // agent-wire-think-v1.0 withholds "<think" and real thinking needs room before
 // the action.
 func (args *SweepArgs) decisionBudget() int {
-	base := args.profile()
-	if index := strings.Index(base, "+"); index >= 0 {
-		base = base[:index]
-	}
-	if wire.CanonicalPresetName(base) == wire.AgentWireThinkV1 {
+	base, _, _ := strings.Cut(wire.CanonicalProfile(args.profile()), "+")
+	if base == wire.AgentWireThinkV1 {
 		return 4096
 	}
 	return 2048
@@ -205,7 +227,12 @@ func RunSweep(args SweepArgs) int {
 	}
 	canonicalSuites := make([]string, len(args.Suites))
 	for index, suite := range args.Suites {
-		canonicalSuites[index] = canonicalSuiteName(strings.TrimSpace(suite))
+		canonical, err := resolveSuiteName(strings.TrimSpace(suite))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			return 2
+		}
+		canonicalSuites[index] = canonical
 	}
 	args.Suites = canonicalSuites
 	for _, suite := range args.Suites {
@@ -826,8 +853,13 @@ type sweepBudget struct {
 
 // isExamSuite reports a manifest-backed exam suite: its case count comes from
 // the manifest and its budgets from the App (--harness app ignores the bench
-// budget flags), so the gate asks the same source the App uses.
-func isExamSuite(suite string) bool { return strings.HasPrefix(suite, "exam-") }
+// budget flags), so the gate asks the same source the App uses. It looks at
+// what the suite runs, not at its name: the 10-21 rename to agent-exam broke
+// the old "exam-" prefix test and sent exams to the bench budget.
+func isExamSuite(suite string) bool {
+	args := suites[suite].args
+	return len(args) == 2 && args[0] == "--cases" && agenteval.IsExamManifest(examManifestPath(suite))
+}
 
 func examManifestPath(suite string) string {
 	args := suites[suite].args
