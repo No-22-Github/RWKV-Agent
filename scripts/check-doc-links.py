@@ -11,6 +11,8 @@ import subprocess
 import sys
 
 LINK = re.compile(r"\]\(([^)\s]+)\)")
+# Inline code is not rendered as a link: `[text](url)` documents the syntax.
+CODE_SPAN = re.compile(r"`[^`]*`")
 SKIP_PREFIXES = ("third_party/", "bench/workbank/cases")
 SKIP_DIRS = ("/cases/", "/cases-shelved/")  # case NOTES under bench/distill/<version>/
 
@@ -29,7 +31,7 @@ def main() -> int:
                      and not (p.startswith("bench/distill/") and any(d in p for d in SKIP_DIRS))):
         with open(md, encoding="utf-8") as fh:
             for lineno, line in enumerate(fh, 1):
-                for target in LINK.findall(line):
+                for target in LINK.findall(CODE_SPAN.sub("", line)):
                     if re.match(r"^[a-z][a-z0-9+.-]*:|^#|^/", target):
                         continue
                     path = target.split("#", 1)[0]
