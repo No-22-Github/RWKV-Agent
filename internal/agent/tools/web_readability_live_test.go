@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-// Live smoke for the local reader (work-v3 M2). Network only on request:
+// Live smoke for the local reader (agent-tool-v3 M2). Network only on request:
 //
 //	RWKV_LIVE_WEB=1 go test ./internal/agent/tools -run TestReadabilityLive -v
 func TestReadabilityLive(t *testing.T) {

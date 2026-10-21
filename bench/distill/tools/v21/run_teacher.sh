@@ -41,7 +41,7 @@ for i in $(seq 0 $((k - 1))); do
   local/bin/rwkv-cli-chat-v21 agent-eval --completion chat-completions --api-url "$API_BASE" --model "${TEACHER_MODEL:-$MODEL_NAME}" \
     --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} \
     --temperature 0.3 --top-p 1 \
-    --harness app --tool-catalog work-v2 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
+    --harness app --tool-catalog agent-tool-v2.0 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism "${PARALLEL:-12}" --case-timeout 40m --remote-batch-wait 0s \
     --cases "$T/cases" --include-draft --output "$T/teacher-k$i" > "$T/teacher-k$i.log" 2>&1 || true
   grep -h "cases passed" "$T/teacher-k$i.log" || tail -3 "$T/teacher-k$i.log"

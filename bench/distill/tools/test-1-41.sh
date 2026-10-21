@@ -3,13 +3,13 @@
 #
 #   bench/distill/tools/test-1-41.sh <train-1-41 dir> [state_id ...]
 #
-# V1 (work-v1): workbank 148 + bfcl-product 60 through `rwkv-lab bench sweep`.
-# V2 (work-v2): bench/bashprobe 26 cases (+ bash, get_weather).
+# V1 (agent-tool-v1.0): workbank 148 + bfcl-product 60 through `rwkv-lab bench sweep`.
+# V2 (agent-tool-v2.0): bench/bashprobe 26 cases (+ bash, get_weather).
 # Arms: none, v13b-s688 (v1.3 pick, already on the endpoint), then every
 # v1.41 checkpoint: v141a-sNNN (lr2e-2) / v141b-sNNN (lr1e-2), finals first.
 #
 # Every run uses the 688cbfa1 cli and sidecar: b12 was rendered with them and
-# main's 51eef6ff changes the work-v2 bash description. sweep picks the cli up
+# main's 51eef6ff changes the agent-tool-v2.0 bash description. sweep picks the cli up
 # from RWKV_CLI; the lab itself is the main build (local/bin/rwkv-lab).
 # Reruns resume: sweep skips finished runs, bashprobe skips dirs with summary.json.
 set -euo pipefail
@@ -108,7 +108,7 @@ for id in "${ids[@]}"; do
       # shellcheck disable=SC2046
       $CLI agent-eval --completion rwkv-lightning-cuda --model "$MODEL" --api-url "$API" \
         --profile g1k --strict-spec \
-        --cases bench/bashprobe/cases --tool-catalog work-v2 --file-tools lines --include-draft \
+        --cases bench/bashprobe/cases --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft \
         --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 26 --case-timeout 30m \
         --remote-batch-wait 0s --sampling g1k-agent $(state_args "$id") --output "$run" ||
         true # exits 1 whenever a case fails; run check below is the validity gate

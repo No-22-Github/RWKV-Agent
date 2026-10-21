@@ -28,7 +28,7 @@ FIRST_NO = 21001
 NGRAM = 8
 JACCARD_MAX = 0.4    # near-duplicate threshold on 8-char shingles
 
-BATCH = Batch(salt="b20d", author="llm:claude-sonnet-b20d", version="v2.0", tool_catalog="work-v2")
+BATCH = Batch(salt="b20d", author="llm:claude-sonnet-b20d", version="v2.0", tool_catalog="agent-tool-v2.0")
 
 TOOLS = ["list_files", "read_file", "search_text", "read_lines", "write_file", "replace_lines", "append_file",
          "calculator", "data_query", "datetime", "web_search", "web_fetch", "bash", "get_weather"]

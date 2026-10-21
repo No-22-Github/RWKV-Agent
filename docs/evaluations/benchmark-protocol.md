@@ -79,10 +79,10 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 | 套件 | 调用 | 备注 |
 |---|---|---|
-| **exam-full** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=work-v2、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
+| **exam-full** | `--cases bench/exam/full.json` | **主指标**。清单带 tool_catalog=agent-tool-v2.0、harness=app；预算、兜底、任务约定全部取 App 默认（16 步 / 4096 / 2048 / 兜底 2/3/3 / 暂存文件），CLI 的预算参数在这个模式下不生效 |
 | **exam-quick** | `--cases bench/exam/quick.json` | 快速比较，不当作绝对水平；与完整版的排名一致性见 bench-composition 报告 §10.2 |
 | 裸能力诊断 | 同上加 `--harness raw` | 兜底关闭，看模型自己会不会收尾；作为训练信号另报，不当主分 |
-| 历史口径 workbank 148 | `--cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
+| 历史口径 workbank 148 | `--cases bench/workbank/cases --tool-catalog agent-tool-v1.0 --file-tools lines --include-draft` | 主指标；另报 `reviewed` 子集 |
 | bfcl-product 60 | `--suite bfcl-product` | 工具时机 |
 | boundary 18 / assistant 6 / smoke 10 | `--suite …` | 在 `g1k` 下 boundary 历史为 0/18，是真实读数，不为它换格式 |
 | primitive-orig30 / feedback30 | `--suite …`（不传 `--profile`） | 自带协议 |

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""The v2.2 tool-set generator (work-v3): copies cases into a run directory
+"""The v2.2 tool-set generator (agent-tool-v3.1): copies cases into a run directory
 with a concrete, shuffled tool directory drawn from each case's tool_policy.
-Same rule as v2.1's materialize.py over the 13-tool work-v3 catalog; a
-tool_policy naming read_lines (cases written for work-v2) means read_file.
+Same rule as v2.1's materialize.py over the 13-tool agent-tool-v3.1 catalog; a
+tool_policy naming read_lines (cases written for agent-tool-v2.0) means read_file.
 
     python3 bench/distill/tools/v22/materialize.py --cases bench/distill/v2.2/cases \
         --out local/runs/distill/v22/<batch>/cases [--ids-glob 'hyb-34*'] [--salt v2.2-toolset]
@@ -12,7 +12,7 @@ copies, so teacher and student face the same directory bytes (the harness
 keeps the listed order because offered_tools_ordered is true). The draw is a
 pure function of (salt, case id): re-running writes identical files.
 
-Per case, with C = work-v3 (13 tools), M = must_offer, N = never_offer and
+Per case, with C = agent-tool-v3.1 (13 tools), M = must_offer, N = never_offer and
 O = C - M - N the optional tools:
   45%  full       M + all of O
   35%  trimmed    M + O minus 1-4 random tools
@@ -93,7 +93,7 @@ def main():
         for key, value in case.items():
             if key == "tool_policy":
                 # The loader checks must_offer against offered_tools, so the
-                # written policy has to use work-v3 names too. A v2.0 policy
+                # written policy has to use agent-tool-v3.1 names too. A v2.0 policy
                 # that needs read_file but bans read_lines (whole-file reads
                 # only) maps both to read_file; must_offer wins.
                 value = {k: v3_names(v) if k in ("must_offer", "never_offer") else v

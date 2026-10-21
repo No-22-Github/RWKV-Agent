@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
@@ -498,7 +499,7 @@ func wireExperimentCommand(args RunArgs, suite, binary, output string, paralleli
 	cmd = append(cmd, "--api-stream=false")
 	switch suite {
 	case "workbank":
-		cmd = append(cmd, "--cases", "bench/workbank/cases", "--tool-catalog", "work-v1", "--file-tools", "lines")
+		cmd = append(cmd, "--cases", "bench/workbank/cases", "--tool-catalog", product.AgentToolV1, "--file-tools", "lines")
 	case "boundary":
 		cmd = append(cmd, "--suite", "boundary")
 	case "bfcl":

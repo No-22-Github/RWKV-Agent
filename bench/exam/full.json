@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "exam-full",
   "description": "完整考卷：按 App 默认配置（g1k、工具全开、暂存文件、复读兜底）考用户在 App 里会做的事",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "app",
   "hash": "c5ae05fc103d26fbb3489aab05bb61bd249a06100cd8e30f444a399c9ddec7c7",
   "summary": {

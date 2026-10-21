@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v2.2 teacher run for one batch (work-v3 catalog): draw the tool directories, check
+# v2.2 teacher run for one batch (agent-tool-v3.1 catalog): draw the tool directories, check
 # contamination against every test bank (exam included), then run the teacher
 # (Qwen3.7-Flash) with thinking on every step, NO system suffix, and the App
 # harness (--harness app: App system prompt and tool order, staged files,
@@ -15,7 +15,7 @@
 # Credentials: TEACHER_ENV_FILE (default ~/.llm_api_key.sh) (API_BASE / API_KEY / MODEL_NAME).
 # CASES picks the case tree (default bench/distill/v2.2/cases). Needs
 # local/bin/rwkv-cli-chat-v3 (go build -tags chatcompletions -o local/bin/rwkv-cli-chat-v3 ./cmd/rwkv-cli)
-# and local/bin/rwkv-lab-v3, built from a tree with work-v3 (25d1f2f0 or later).
+# and local/bin/rwkv-lab-v3, built from a tree with agent-tool-v3.1 (25d1f2f0 or later).
 set -euo pipefail
 batch="${1:?batch}"; glob="${2:?id glob}"; k="${3:-1}"; ids="${4:-}"
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"; cd "$repo"
@@ -44,7 +44,7 @@ for i in $(seq 0 $((k - 1))); do
   local/bin/rwkv-cli-chat-v3 agent-eval --completion chat-completions --api-url "$API_BASE" --model "${TEACHER_MODEL:-$MODEL_NAME}" \
     --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} ${SYSTEM_SUFFIX:+--chat-system-suffix "$SYSTEM_SUFFIX"} \
     --temperature 0.3 --top-p 1 \
-    --harness app --tool-catalog work-v3 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
+    --harness app --tool-catalog agent-tool-v3.1 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism "${PARALLEL:-12}" --case-timeout 40m --remote-batch-wait 0s \
     --cases "$T/cases" --include-draft --output "$T/teacher-k$i" > "$T/teacher-k$i.log" 2>&1 || true
   grep -h "cases passed" "$T/teacher-k$i.log" || tail -3 "$T/teacher-k$i.log"

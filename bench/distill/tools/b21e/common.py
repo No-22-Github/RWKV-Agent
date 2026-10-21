@@ -21,7 +21,7 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch, Sidecar  # noqa: E402
 
-BATCH = Batch(salt="b21e", author="llm:claude-sonnet-b21e", version="v2.1", tool_catalog="work-v2")
+BATCH = Batch(salt="b21e", author="llm:claude-sonnet-b21e", version="v2.1", tool_catalog="agent-tool-v2.0")
 EXTRA = {"batch": "b21e"}
 META = {}
 

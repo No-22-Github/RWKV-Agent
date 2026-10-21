@@ -6,13 +6,13 @@ import (
 	"io/fs"
 )
 
-// MaxTextFileBytes caps every work-v3 whole-file read (read_file, list_files
-// line counts, replace_lines). work-v2 kept its 64 KiB caps unchanged.
+// MaxTextFileBytes caps every agent-tool-v3 whole-file read (read_file, list_files
+// line counts, replace_lines). agent-tool-v2.0 kept its 64 KiB caps unchanged.
 const MaxTextFileBytes = 8 << 20
 
 const listFilesLineCountBudget = 32 << 20
 
-// WorkspaceToolsV3 returns work-v3's list_files and search_text: the work-v2
+// WorkspaceToolsV3 returns agent-tool-v3's list_files and search_text: the agent-tool-v2.0
 // tools with list_files line counts. read_file lives in the tools package (it shares read_lines'
 // numbered form).
 func WorkspaceToolsV3(root string, view WorkspaceFS) ([]Tool, error) {
@@ -23,7 +23,7 @@ func WorkspaceToolsV3(root string, view WorkspaceFS) ([]Tool, error) {
 	return []Tool{&listFilesTool{workspace: value}, &searchTextTool{workspace: value}}, nil
 }
 
-// NewWorkspaceResolverV3 is the resolver the work-v3 file tools share: the
+// NewWorkspaceResolverV3 is the resolver the agent-tool-v3 file tools share: the
 // same containment policy with list_files line counts.
 func NewWorkspaceResolverV3(root string, view WorkspaceFS) (*WorkspaceResolver, error) {
 	value, err := newWorkspaceV3(root, view)
@@ -47,7 +47,7 @@ func newWorkspaceV3(root string, view WorkspaceFS) (*workspace, error) {
 
 type lineCountBudget struct{ remaining int64 }
 
-// lines counts a regular text file's lines for list_files (work-v3 §2.2). A
+// lines counts a regular text file's lines for list_files (agent-tool-v3 §2.2). A
 // file over MaxTextFileBytes, a binary file, or one past the per-call read
 // budget gets no count.
 func (b *lineCountBudget) lines(view WorkspaceFS, path string, info fs.FileInfo) *int {

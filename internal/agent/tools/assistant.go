@@ -322,8 +322,8 @@ func evaluateExpression(expression ast.Expr, variables map[string]float64) (floa
 	return evaluateWith(expression, variables, false)
 }
 
-// evaluateWith is the shared evaluator; extended adds work-v3's sqrt, pow, ln,
-// log10 and exp (work-v2's calculator and data_query keep extended=false).
+// evaluateWith is the shared evaluator; extended adds agent-tool-v3's sqrt, pow, ln,
+// log10 and exp (agent-tool-v2.0's calculator and data_query keep extended=false).
 func evaluateWith(expression ast.Expr, variables map[string]float64, extended bool) (float64, error) {
 	switch value := expression.(type) {
 	case *ast.BasicLit:
@@ -444,11 +444,11 @@ func evaluateWith(expression ast.Expr, variables map[string]float64, extended bo
 
 type dataQueryTool struct {
 	workspace *agent.WorkspaceResolver
-	// match decides whether a row passes filter; nil is work-v2's exact
-	// equality (dataRowMatches). work-v3 sets dataRowMatchesV3.
+	// match decides whether a row passes filter; nil is agent-tool-v2.0's exact
+	// equality (dataRowMatches). agent-tool-v3 sets dataRowMatchesV3.
 	match func(row, filter map[string]any) bool
 	// normalize rewrites rows after reading; nil leaves them as parsed
-	// (work-v2). work-v3 sets normalizeRowsV3.
+	// (agent-tool-v2.0). agent-tool-v3 sets normalizeRowsV3.
 	normalize func(rows []map[string]any)
 }
 

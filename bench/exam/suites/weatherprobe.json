@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "weatherprobe",
   "description": "会不会用 get_weather、查完写产物",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
   "hash": "fc56f42cb6ab5d6440495c05f434663cd14d1ff0c4a1d5027612d1ebf22ce1c5",
   "summary": {

@@ -7,8 +7,8 @@ import (
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 )
 
-// toolsV3 assembles work-v3 (docs/design/work-v3-tools.md) in the canonical
-// order, which is work-v2's minus read_lines:
+// toolsV3 assembles agent-tool-v3 (docs/design/agent-tool-v3.md) in the canonical
+// order, which is agent-tool-v2.0's minus read_lines:
 //
 //	list_files, read_file, search_text            (Files)
 //	write_file, replace_lines, append_file        (Edit)

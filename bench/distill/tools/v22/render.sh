@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v2.2 (work-v3) after the teacher: pick one path per case (passing first; failing ones
+# v2.2 (agent-tool-v3.1) after the teacher: pick one path per case (passing first; failing ones
 # are kept so a judge fix re-judges them on replay), filter, and render
 # per-step g1k-think rows against the same materialized cases the teacher saw.
 #
@@ -19,4 +19,4 @@ local/bin/rwkv-lab-v3 corpus paths "${runs[@]}" --max-per-case 1 --include-faile
 python3 bench/distill/tools/v22/filter.py --script "$T/paths.jsonl" --cases "$T/cases" \
   --out "$T/script.jsonl" --report "$T/filter-report.json" ${exclude:+--exclude-ids "$exclude"}
 local/bin/rwkv-lab-v3 corpus render --cases "$T/cases" --script "$T/script.jsonl" --out "$T/corpus" \
-  --source "distill-$batch" --profile g1k-think --tool-catalog work-v3 --cli local/bin/rwkv-cli-v3 -- --harness app
+  --source "distill-$batch" --profile g1k-think --tool-catalog agent-tool-v3.1 --cli local/bin/rwkv-cli-v3 -- --harness app

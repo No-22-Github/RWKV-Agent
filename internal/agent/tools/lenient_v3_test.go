@@ -11,9 +11,9 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// The work-v3 argument leniency and feedback of the 2026-10-21 tool review
+// The agent-tool-v3 argument leniency and feedback of the 2026-10-21 tool review
 // (B1–B5, C1–C3). None of it changes a description or argument text, so the
-// catalog hash stays; work-v2 keeps rejecting what it rejected.
+// catalog hash stays; agent-tool-v2.0 keeps rejecting what it rejected.
 
 func TestWebFetchV3AcceptsURLSpellings(t *testing.T) {
 	provider := fixedFetch{"https://example.org/a": "A", "https://example.org/b": "B"}
@@ -43,9 +43,9 @@ func TestWebFetchV3AcceptsURLSpellings(t *testing.T) {
 			t.Fatalf("%s: want argument error, got %v", args, err)
 		}
 	}
-	// work-v2 keeps the strict shape.
+	// agent-tool-v2.0 keeps the strict shape.
 	if _, err := call(t, WebTools(WebOptions{Fetch: provider})[1], `{"url":"https://example.org/a"}`); err == nil {
-		t.Fatal("work-v2 web_fetch accepted url")
+		t.Fatal("agent-tool-v2.0 web_fetch accepted url")
 	}
 }
 
@@ -65,7 +65,7 @@ func TestWebSearchV3ClampsMaxResults(t *testing.T) {
 		}
 	}
 	if _, err := call(t, WebTools(WebOptions{Search: countingSearch{&got}})[0], `{"query":"x","max_results":20}`); err == nil {
-		t.Fatal("work-v2 web_search accepted 20")
+		t.Fatal("agent-tool-v2.0 web_search accepted 20")
 	}
 }
 
@@ -106,19 +106,19 @@ func TestWorkspaceV3LimitsNotesAndMissingPaths(t *testing.T) {
 	if _, err := call(t, v3["read_file"], `{"path":"dir"}`); err == nil || !strings.Contains(err.Error(), "用 list_files") {
 		t.Fatalf("read_file on a directory = %v", err)
 	}
-	// work-v2 keeps its English errors, its bounds and no note.
+	// agent-tool-v2.0 keeps its English errors, its bounds and no note.
 	v2, err := agent.WorkspaceTools(root)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err := call(t, v2[1], `{"path":"nope.txt"}`); err == nil || !strings.Contains(err.Error(), "no such file") {
-		t.Fatalf("work-v2 missing path = %v", err)
+		t.Fatalf("agent-tool-v2.0 missing path = %v", err)
 	}
 	if _, err := call(t, v2[0], `{"max_results":1000}`); err == nil {
-		t.Fatal("work-v2 list_files accepted 1000")
+		t.Fatal("agent-tool-v2.0 list_files accepted 1000")
 	}
 	if got, _ := call(t, v2[2], `{"query":"delta"}`); got["note"] != nil {
-		t.Fatalf("work-v2 search_text got a note: %v", got)
+		t.Fatalf("agent-tool-v2.0 search_text got a note: %v", got)
 	}
 }
 
@@ -197,10 +197,10 @@ func TestCalculatorV3Spellings(t *testing.T) {
 	if _, err := calcV3(t, "a.b(2)"); err == nil || strings.Contains(err.Error(), "only abs, min, max, and round") {
 		t.Fatalf("selector call error = %v", err)
 	}
-	// work-v2 is unchanged.
+	// agent-tool-v2.0 is unchanged.
 	raw, _ := json.Marshal(map[string]any{"expression": "1,200*3", "precision": nil})
 	if _, err := (calculatorTool{}).Execute(context.Background(), raw); err == nil {
-		t.Fatal("work-v2 calculator accepted 1,200")
+		t.Fatal("agent-tool-v2.0 calculator accepted 1,200")
 	}
 }
 
@@ -241,13 +241,13 @@ func TestDatetimeV3(t *testing.T) {
 	if _, err := call(t, tool, `{"op":"add","args":{"time":"2026-10-21","duration":"soon"}}`); err == nil || !strings.Contains(err.Error(), "3d") {
 		t.Fatalf("bad duration = %v", err)
 	}
-	// work-v2 keeps relation only and Go durations only.
+	// agent-tool-v2.0 keeps relation only and Go durations only.
 	v2 := &datetimeTool{clock: wednesdayClock{}}
 	got, err = call(t, v2, `{"op":"compare","args":{"left":"2026-10-21","right":"2026-12-25"}}`)
 	if err != nil || got["days_between"] != nil {
-		t.Fatalf("work-v2 compare drifted: %v, %v", got, err)
+		t.Fatalf("agent-tool-v2.0 compare drifted: %v, %v", got, err)
 	}
 	if _, err := call(t, v2, `{"op":"add","args":{"time":"2026-10-21","duration":"3d"}}`); err == nil {
-		t.Fatal("work-v2 datetime accepted 3d")
+		t.Fatal("agent-tool-v2.0 datetime accepted 3d")
 	}
 }

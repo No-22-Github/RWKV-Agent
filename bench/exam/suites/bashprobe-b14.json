@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "bashprobe-b14",
   "description": "第 14 批题转来的 bash 场景题，中英各半",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
   "hash": "3266f669a9a7ec5b216a307249b6665fdaaa2920296422e8fdc9ad3c32f61111",
   "summary": {

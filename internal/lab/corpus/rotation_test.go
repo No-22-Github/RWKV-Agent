@@ -33,7 +33,7 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 	cases := []*lab.OrderedMap{om("id", "tab-5001--p1")}
 	entries := []*lab.OrderedMap{entry}
 
-	first, err := rotateCatalogs(cases, entries, 1.0, eval.WorkToolCatalogName)
+	first, err := rotateCatalogs(cases, entries, 1.0, eval.AgentToolV1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 	// Same ID -> byte-identical decision on a fresh case object.
 	cases2 := []*lab.OrderedMap{om("id", "tab-5001--p1")}
 	entries2 := []*lab.OrderedMap{rotationEntry("tab-5001--p1", []string{"list_files", "read_file", "data_query"})}
-	if _, err := rotateCatalogs(cases2, entries2, 1.0, eval.WorkToolCatalogName); err != nil {
+	if _, err := rotateCatalogs(cases2, entries2, 1.0, eval.AgentToolV1); err != nil {
 		t.Fatal(err)
 	}
 	again, _ := cases2[0].Get("offered_tools")
@@ -72,7 +72,7 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 	// draws must both be valid subsets of the catalog.
 	cases3 := []*lab.OrderedMap{om("id", "tab-9999--p1")}
 	entries3 := []*lab.OrderedMap{rotationEntry("tab-9999--p1", []string{"list_files"})}
-	if _, err := rotateCatalogs(cases3, entries3, 1.0, eval.WorkToolCatalogName); err != nil {
+	if _, err := rotateCatalogs(cases3, entries3, 1.0, eval.AgentToolV1); err != nil {
 		t.Fatal(err)
 	}
 	if _, ok := cases3[0].Get("offered_tools"); !ok {
@@ -87,7 +87,7 @@ func TestRotateCatalogsSkipsFullyUsedTrajectories(t *testing.T) {
 	calls = calls[:len(catalog)-1] // one unused tool only
 	cases := []*lab.OrderedMap{om("id", "scr-0001--p1")}
 	entries := []*lab.OrderedMap{rotationEntry("scr-0001--p1", calls)}
-	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.WorkToolCatalogName)
+	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.AgentToolV1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestRotateCatalogsSkipsFullyUsedTrajectories(t *testing.T) {
 func TestRotateCatalogsRespectsAuthoredSubsets(t *testing.T) {
 	cases := []*lab.OrderedMap{om("id", "nt-6000--p1", "offered_tools", toOrdered(t, []any{"read_file"}))}
 	entries := []*lab.OrderedMap{rotationEntry("nt-6000--p1", nil)}
-	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.WorkToolCatalogName)
+	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.AgentToolV1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func TestRotateCatalogsHonorsShare(t *testing.T) {
 		cases = append(cases, om("id", id))
 		entries = append(entries, rotationEntry(id, []string{"read_file"}))
 	}
-	rotated, err := rotateCatalogs(cases, entries, 0.4, eval.WorkToolCatalogName)
+	rotated, err := rotateCatalogs(cases, entries, 0.4, eval.AgentToolV1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,7 +160,7 @@ func TestRotateCatalogsKeepsWorkV2ExtrasOffered(t *testing.T) {
 		entry.Set("outputs", []any{})
 		entries = append(entries, entry)
 	}
-	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.WorkV2ToolCatalogName)
+	rotated, err := rotateCatalogs(cases, entries, 1.0, eval.AgentToolV2)
 	if err != nil || rotated < len(cases)/2 {
 		t.Fatalf("rotated %d, err %v", rotated, err)
 	}
@@ -171,7 +171,7 @@ func TestRotateCatalogsKeepsWorkV2ExtrasOffered(t *testing.T) {
 		}
 		names := offered.([]any)
 		if !slices.Contains(names, any("bash")) || !slices.Contains(names, any("get_weather")) {
-			t.Fatalf("%v dropped a protected work-v2 tool: %v", caseObj, names)
+			t.Fatalf("%v dropped a protected agent-tool-v2.0 tool: %v", caseObj, names)
 		}
 	}
 }

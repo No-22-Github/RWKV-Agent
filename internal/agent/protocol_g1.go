@@ -231,8 +231,8 @@ Assistant: VALUE=cedar`)
 //     python or the network inside it, or for bash where a read suffices.
 //   - get_weather: live probes (2026-10-09) showed web_search chosen for
 //     weather whenever the request also asked for something else.
-// pagedReadFile reports work-v3's read_file, which takes a line range; the
-// work-v1/v2 read_file only takes a path.
+// pagedReadFile reports agent-tool-v3's read_file, which takes a line range; the
+// agent-tool-v1.0/v2 read_file only takes a path.
 func pagedReadFile(specs []ToolSpec) bool {
 	for _, spec := range specs {
 		if spec.Name == "read_file" {
@@ -246,7 +246,7 @@ func toolChoiceGuidance(specs []ToolSpec, separator string) string {
 	var sentences []string
 	if hasToolSpec(specs, "bash") {
 		if pagedReadFile(specs) {
-			// work-v3 (docs/design/work-v3-tools.md §2.11).
+			// agent-tool-v3 (docs/design/agent-tool-v3.md §2.11).
 			sentences = append(sentences, "bash runs in a sandbox whose /workspace is the user's workspace; use it for listing, counting, filtering or changing many files at once. Read single files with read_file, which shows numbered lines one screen at a time.")
 		} else {
 			sentences = append(sentences, "bash runs in a sandbox whose /workspace is the user's workspace; use it for listing, counting, filtering or changing many files at once, and read single files with read_file.")

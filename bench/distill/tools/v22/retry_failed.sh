@@ -25,7 +25,7 @@ source "${TEACHER_ENV_FILE:-$HOME/.llm_api_key.sh}"
 local/bin/rwkv-cli-chat-v3 agent-eval --completion chat-completions --api-url "$API_BASE" --model "${TEACHER_MODEL:-$MODEL_NAME}" \
   --api-key-env API_KEY --chat-thinking enabled ${REASONING_EFFORT:+--chat-reasoning-effort "$REASONING_EFFORT"} \
   --temperature 0.3 --top-p 1 \
-  --harness app --tool-catalog work-v3 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
+  --harness app --tool-catalog agent-tool-v3.1 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
   --case-parallelism "${PARALLEL:-12}" --case-timeout 40m --remote-batch-wait 0s \
   --cases "$T/cases-retry" --include-draft --output "$T/teacher-k1" > "$T/teacher-k1.log" 2>&1 || true
 grep -h "cases passed" "$T/teacher-k1.log" || tail -3 "$T/teacher-k1.log"

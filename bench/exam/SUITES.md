@@ -20,7 +20,7 @@ RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar ./local/bin/rwkv-cli agent
   --cases bench/exam/quick.json --case-parallelism 48 --output local/runs/<日期>/<名字>
 ```
 
-- `--cases <清单>`：清单自带工具清单（work-v2）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。
+- `--cases <清单>`：清单自带工具清单（agent-tool-v2.0）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。
 - `--profile g1k --strict-spec`：用 g1k 对话格式，并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。
 - 暂存文件靠 just-bash sidecar（`scripts/build-justbash.sh` 构建）。完整检查单见 `.claude/skills/rwkv-bench/SKILL.md`。
 - 出能力面板：`go run ./cmd/rwkv-lab exam panel <跑分目录>…`。
@@ -82,7 +82,7 @@ exam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层
 | bfcl-product | 由外部基准 BFCL 改写：该不该调工具、缺信息先反问、两轮对话 |
 | boundary | 改自社区 primitive-bench 的早期边界题 |
 | bash / 天气探针 | 专测 bash 和 get_weather 的题；「第二部分」来自第 14 批出题 |
-| work-v1 / work-v2 | 旧的工具清单版本；v2 比 v1 多 bash 和 get_weather。考卷统一用 App 的清单（等同 work-v2） |
+| agent-tool-v1.0 / v2.0 / v3.1 | 工具清单版本（旧名 work-v1/v2/v3，仍可在命令和清单里使用）。主版本号变了说明模型看到的工具描述或参数变了，小版本号变了说明只改了工具行为。v2.0 比 v1.0 多 bash 和 get_weather；v3 是现在 App 用的清单。考卷清单记的是 v2.0，历史分数都在 v2.0 下跑出来 |
 
 ## exam-full 的构成（568 题）
 
@@ -172,15 +172,15 @@ exam-quick 一定是 exam-full 的子集：按「任务类型 × 语言」分层
 
 | 来源 | 目录 | 内容 | 原工具清单 | 题数 | 泄漏 | 排除 | 进完整考卷 |
 |---|---|---|---|---|---|---|---|
-| workbank | `bench/workbank/cases` | 原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查） | work-v1 | 148 | 36 | 1 | 111 |
-| p13 留存题 | `bench/holdout/p13` | 从未进过训练的留存题，中文为主 | work-v1 | 60 | 0 | 1 | 59 |
+| workbank | `bench/workbank/cases` | 原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查） | agent-tool-v1.0 | 148 | 36 | 1 | 111 |
+| p13 留存题 | `bench/holdout/p13` | 从未进过训练的留存题，中文为主 | agent-tool-v1.0 | 60 | 0 | 1 | 59 |
 | bfcl-product | `bench/exam/imported/bfcl-product` | 工具时机：该不该调工具、缺信息先反问、两轮对话（改写自 BFCL v4） | 内置 | 60 | 0 | 0 | 60 |
 | boundary | `bench/exam/imported/boundary` | 早期边界题：多步工具、金融算术、注入（改写自 primitive-bench） | 内置 | 18 | 0 | 0 | 18 |
-| bash 探针·老题 | `bench/bashprobe/cases` | 会不会用 bash 做聚合、批量编辑、出错恢复 | work-v2 | 26 | 0 | 0 | 26 |
-| bash 探针·第二部分 | `bench/bashprobe/cases-b14` | 第 14 批题转来的 bash 场景题，中英各半 | work-v2 | 60 | 0 | 0 | 60 |
-| 天气探针·老题 | `bench/weatherprobe/cases` | 会不会用 get_weather、查完写产物 | work-v2 | 14 | 0 | 0 | 14 |
-| 天气探针·第二部分 | `bench/weatherprobe/cases-b14` | 第 14 批题转来的天气场景题 | work-v2 | 30 | 0 | 0 | 30 |
-| 考卷补题 | `bench/exam/cases` | 按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md） | work-v2 | 190 | 0 | 0 | 190 |
+| bash 探针·老题 | `bench/bashprobe/cases` | 会不会用 bash 做聚合、批量编辑、出错恢复 | agent-tool-v2.0 | 26 | 0 | 0 | 26 |
+| bash 探针·第二部分 | `bench/bashprobe/cases-b14` | 第 14 批题转来的 bash 场景题，中英各半 | agent-tool-v2.0 | 60 | 0 | 0 | 60 |
+| 天气探针·老题 | `bench/weatherprobe/cases` | 会不会用 get_weather、查完写产物 | agent-tool-v2.0 | 14 | 0 | 0 | 14 |
+| 天气探针·第二部分 | `bench/weatherprobe/cases-b14` | 第 14 批题转来的天气场景题 | agent-tool-v2.0 | 30 | 0 | 0 | 30 |
+| 考卷补题 | `bench/exam/cases` | 按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md） | agent-tool-v2.0 | 190 | 0 | 0 | 190 |
 
 进完整考卷 = 题数 − 泄漏 − 排除。
 

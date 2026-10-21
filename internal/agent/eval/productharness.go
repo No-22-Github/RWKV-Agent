@@ -106,14 +106,15 @@ func reviewStagedChanges(view *tools.StagedWorkspace, accept bool) error {
 	return err
 }
 
-// productToolSet is the App directory for one bank catalog name: work-v2
-// stays reproducible, anything else is the current App (work-v3).
+// productToolSet is the App directory for one bank catalog name:
+// agent-tool-v2.0 stays reproducible, anything else is the current App
+// (agent-tool-v3).
 func productToolSet(catalog string) product.ToolSet {
 	set := product.AppDefaultToolSet()
-	if catalog == WorkV2ToolCatalogName {
-		set.Catalog = product.CatalogWorkV2
+	if catalog, _ := product.CanonicalCatalog(catalog); catalog == AgentToolV2 {
+		set.Catalog = product.AgentToolV2
 	} else {
-		set.Catalog = product.CatalogWorkV3
+		set.Catalog = product.AgentToolV3
 	}
 	return set
 }

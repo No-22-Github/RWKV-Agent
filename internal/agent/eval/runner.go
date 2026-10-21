@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -117,6 +118,12 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.GeneratorFactory == nil {
 		return Config{}, fmt.Errorf("eval generator factory is required")
 	}
+	// Old work-vN names select their catalog; run.json records the version.
+	catalog, err := product.CanonicalCatalog(config.ToolCatalog)
+	if err != nil {
+		return Config{}, err
+	}
+	config.ToolCatalog = catalog
 	if config.CaseTimeout <= 0 {
 		config.CaseTimeout = defaultCaseTimeout
 	}
@@ -215,7 +222,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	toolCatalogHash := ""
 	if IsProductHarness(config.ProductHarness) {
 		toolCatalogHash = productCatalogHash(config.TempDir, config.ToolCatalog)
-	} else if IsWorkToolCatalog(config.ToolCatalog) {
+	} else if IsFixedToolCatalog(config.ToolCatalog) {
 		root, err := os.MkdirTemp(config.TempDir, "rwkv-agent-catalog-")
 		if err != nil {
 			toolCatalogHash = ""
@@ -586,7 +593,7 @@ func evalTools(
 	workspace string,
 	testCase Case,
 ) ([]agent.Tool, *primitiveExecution, error) {
-	if IsWorkToolCatalog(config.ToolCatalog) && testCase.primitive == nil {
+	if IsFixedToolCatalog(config.ToolCatalog) && testCase.primitive == nil {
 		// The fixed bank catalog: every case faces the same twelve tools, the
 		// same fixed clock, and web tools registered even when the case
 		// fixture is empty (empty search results / deterministic not-found).

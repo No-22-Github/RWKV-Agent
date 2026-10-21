@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "bashprobe",
   "description": "会不会用 bash 做聚合、批量编辑、出错恢复",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
   "hash": "5998aadfc5613b1d61a7c7fe8cdb086401802ae3309d12269df57655767d3bce",
   "summary": {

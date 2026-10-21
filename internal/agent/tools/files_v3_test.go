@@ -185,8 +185,8 @@ func TestWriteGuards(t *testing.T) {
 	}
 }
 
-// TestWorkV2FileToolsGolden pins work-v2 tool output on a fixed workspace
-// (work-v3-tools.md §4.1). Regenerate only from a commit where work-v2 is known
+// TestWorkV2FileToolsGolden pins agent-tool-v2.0 tool output on a fixed workspace
+// (agent-tool-v3.md §4.1). Regenerate only from a commit where agent-tool-v2.0 is known
 // good: go test ./internal/agent/tools -run TestWorkV2FileToolsGolden -update
 func TestWorkV2FileToolsGolden(t *testing.T) {
 	root := writeWorkspace(t, map[string]string{
@@ -237,6 +237,6 @@ func TestWorkV2FileToolsGolden(t *testing.T) {
 		t.Fatal(err)
 	}
 	if out.String() != string(want) {
-		t.Fatalf("work-v2 file tool output drifted:\n%s\nwant:\n%s", out.String(), want)
+		t.Fatalf("agent-tool-v2.0 file tool output drifted:\n%s\nwant:\n%s", out.String(), want)
 	}
 }

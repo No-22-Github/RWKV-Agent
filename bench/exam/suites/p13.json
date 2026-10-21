@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "p13",
   "description": "从未进过训练的留存题，中文为主",
-  "tool_catalog": "work-v1",
+  "tool_catalog": "agent-tool-v1.0",
   "harness": "legacy",
   "hash": "10c2229d5278cd92c0040f4b19cfe2ea7fe5fba52a565c139eaad5186aa60a53",
   "summary": {

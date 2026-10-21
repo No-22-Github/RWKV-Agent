@@ -20,7 +20,7 @@ done
 export API_KEY="${API_KEY:-proxy-injected}"
 for k in 0 1 2; do
   local/bin/rwkv-cli agent-eval --completion chat-completions --api-url https://next-token.cc/v1 --model deepseek-flash \
-    --api-key-env API_KEY --temperature 0.3 --top-p 1 --tool-catalog work-v2 --file-tools lines --max-steps 16 \
+    --api-key-env API_KEY --temperature 0.3 --top-p 1 --tool-catalog agent-tool-v2.0 --file-tools lines --max-steps 16 \
     --max-tokens 4096 --decision-max-tokens 8192 --case-parallelism 8 --case-timeout 30m --remote-batch-wait 0s \
     --chat-system-suffix bench/distill/v1.41/teacher/b12-suffix.txt --cases "$T/cases" --include-draft \
     --output "$T/teacher-k$k" > "$T/k$k.log" 2>&1 || true &

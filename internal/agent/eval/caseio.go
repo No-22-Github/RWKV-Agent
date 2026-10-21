@@ -483,7 +483,7 @@ func validateCaseExpect(testCase Case) error {
 				)
 			}
 		}
-		// absent may name an initial fixture file: the work-v2 bash tool can
+		// absent may name an initial fixture file: the agent-tool-v2.0 bash tool can
 		// delete and rename, so "this file is gone" is a scoreable end state.
 	}
 	if run := expect.Run; run != nil {

@@ -1,6 +1,6 @@
-# b22f 出题脚本（v2.2：8–16K token 长任务，work-v3，题号 34501–34580）
+# b22f 出题脚本（v2.2：8–16K token 长任务，agent-tool-v3，题号 34501–34580）
 
-> 10-20 起这批题已存档在 `bench/distill/v2.2/cases-shelved/`（web_fetch 改为截断，见 work-v3-tools.md §9）。`build.py` 仍写到 `cases/`，重建后要再移过去。
+> 10-20 起这批题已存档在 `bench/distill/v2.2/cases-shelved/`（web_fetch 改为截断，见 agent-tool-v3.md §9）。`build.py` 仍写到 `cases/`，重建后要再移过去。
 
 | 文件 | 内容 |
 | --- | --- |

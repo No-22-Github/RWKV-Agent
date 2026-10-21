@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v2.2 plan §3: scan the work-v3 re-rendered v2.1 rows for the three boundary
+"""v2.2 plan §3: scan the agent-tool-v3.1 re-rendered v2.1 rows for the three boundary
 patterns the 10-17 exam traced back to the training set.
 
   python3 bench/distill/tools/v22/scan_boundary_rows.py

@@ -31,7 +31,7 @@ recursively; tags.derived_from keeps the original id. tool_policy:
   must_offer  = tools a kept 1.x path used + required_tools + forbidden_tools
                 (a trap has to be offered to be a trap)
   never_offer = for a case that authored offered_tools (v1.3 §2.12), the
-                work-v1 tools it left out — the narrowed directory was the lesson.
+                agent-tool-v1.0 tools it left out — the narrowed directory was the lesson.
 Re-running rewrites the same files byte for byte.
 """
 import argparse
@@ -213,7 +213,7 @@ def main():
                 del expect["max_output_chars"]
                 hidden_limits[0] += 1
         tags = rebuilt["tags"]
-        tags["tool_catalog"] = "work-v2"
+        tags["tool_catalog"] = "agent-tool-v2.0"
         tags["batch"] = "b20s"
         tags["derived_from"] = c["id"]
         policy = policy_for(c, case)

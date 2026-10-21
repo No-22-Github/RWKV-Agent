@@ -37,8 +37,8 @@ func TestToolsCanonicalOrder(t *testing.T) {
 	if got := names(tools); !reflect.DeepEqual(got, want) {
 		t.Fatalf("order = %v, want %v", got, want)
 	}
-	// work-v2 stays assemblable, in its own order, for old runs.
-	set.Catalog = CatalogWorkV2
+	// agent-tool-v2.0 stays assemblable, in its own order, for old runs.
+	set.Catalog = AgentToolV2
 	tools, err = Tools(set, Backends{Workspace: t.TempDir(), Bash: BashBackend{CatalogOnly: true}})
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestToolsCanonicalOrder(t *testing.T) {
 		"web_search", "web_fetch", "get_weather", "bash", "spawn_agents",
 	}
 	if got := names(tools); !reflect.DeepEqual(got, wantV2) {
-		t.Fatalf("work-v2 order = %v, want %v", got, wantV2)
+		t.Fatalf("agent-tool-v2.0 order = %v, want %v", got, wantV2)
 	}
 }
 

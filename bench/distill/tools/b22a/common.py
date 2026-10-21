@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch  # noqa: E402
 
-BATCH = Batch(salt="b22a", author="llm:claude-sonnet-b22a", version="v2.2", tool_catalog="work-v3")
+BATCH = Batch(salt="b22a", author="llm:claude-sonnet-b22a", version="v2.2", tool_catalog="agent-tool-v3.1")
 META = {}
 DECOY = {"TR-ABSENT": "invented value", "TR-WEBSTALE": "the web page's different value"}
 AXIS = {"TR-ABSENT": "DEC", "TR-WEBSTALE": "VER"}

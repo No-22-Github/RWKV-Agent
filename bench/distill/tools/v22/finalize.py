@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pack the v2.2 per-step g1k-think rows (work-v3) into a MiSS training set.
+"""Pack the v2.2 per-step g1k-think rows (agent-tool-v3.1) into a MiSS training set.
 
     python3 bench/distill/tools/v22/finalize.py --batch b22a [--batch ...] \
         --rows local/runs/distill/v21-v3/kept/main.jsonl [--rows ...] \
@@ -8,7 +8,7 @@
 
 Copied from tools/v21/finalize.py. Inputs: local/runs/distill/v22/<batch>/corpus/rows.jsonl
 (render.sh / render_pick.sh output) and any --rows file (the v2.1 rows kept by
-the work-v3 replay). --drop-trajectories takes boundary-drop.txt lines
+the agent-tool-v3.1 replay). --drop-trajectories takes boundary-drop.txt lines
 ("<input>\t<case_id>#<turn>"); those turns' rows are dropped before anything
 else (v2.2 plan §3). The context default is 16K (user decision 10-19).
 Concept questions (scenario notool, task_type concept) are capped at

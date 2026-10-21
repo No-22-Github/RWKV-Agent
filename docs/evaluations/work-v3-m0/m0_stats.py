@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """work-v3 M0: how much of the v2.1 pack and the 10-17 exam runs the new
-tool rules touch (docs/design/work-v3-tools.md §2.12).
+tool rules touch (docs/design/agent-tool-v3.md §2.12).
 
   python3 docs/evaluations/work-v3-m0/m0_stats.py > docs/evaluations/work-v3-m0/stats.json
 """

@@ -40,7 +40,7 @@ func (exam *Exam) RenderSuites() string {
 	w("  --profile g1k --strict-spec --sampling g1k-agent --state-id <state> \\\n")
 	w("  --cases bench/exam/quick.json --case-parallelism 48 --output local/runs/<日期>/<名字>\n")
 	w("```\n\n")
-	w("- `--cases <清单>`：清单自带工具清单（work-v2）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。\n")
+	w("- `--cases <清单>`：清单自带工具清单（agent-tool-v2.0）和 `--harness app`（按 App 配置考），预算、兜底等不用再给，给了也不生效。\n")
 	w("- `--profile g1k --strict-spec`：用 g1k 对话格式，并确认它是登记过的预设。API 模型（DeepSeek 等）不传这两个，改传 `--chat-thinking disabled`（App 新建 chat 连接的默认）。\n")
 	w("- 暂存文件靠 just-bash sidecar（`scripts/build-justbash.sh` 构建）。完整检查单见 `.claude/skills/rwkv-bench/SKILL.md`。\n")
 	w("- 出能力面板：`go run ./cmd/rwkv-lab exam panel <跑分目录>…`。\n")
@@ -82,7 +82,7 @@ func (exam *Exam) RenderSuites() string {
 	w("| bfcl-product | 由外部基准 BFCL 改写：该不该调工具、缺信息先反问、两轮对话 |\n")
 	w("| boundary | 改自社区 primitive-bench 的早期边界题 |\n")
 	w("| bash / 天气探针 | 专测 bash 和 get_weather 的题；「第二部分」来自第 14 批出题 |\n")
-	w("| work-v1 / work-v2 | 旧的工具清单版本；v2 比 v1 多 bash 和 get_weather。考卷统一用 App 的清单（等同 work-v2） |\n\n")
+	w("| agent-tool-v1.0 / v2.0 / v3.1 | 工具清单版本（旧名 work-v1/v2/v3，仍可在命令和清单里使用）。主版本号变了说明模型看到的工具描述或参数变了，小版本号变了说明只改了工具行为。v2.0 比 v1.0 多 bash 和 get_weather；v3 是现在 App 用的清单。考卷清单记的是 v2.0，历史分数都在 v2.0 下跑出来 |\n\n")
 
 	exam.renderComposition(&b, "exam-full", exam.Full.Cases)
 	if exam.Quick != nil {

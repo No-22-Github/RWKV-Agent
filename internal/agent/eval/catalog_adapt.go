@@ -1,15 +1,17 @@
 package eval
 
-// work-v3 drops read_lines: read_file takes the same start_line/end_line
-// range (docs/design/work-v3-tools.md §2.1, §2.13). Case files keep naming
-// read_lines so work-v2 runs reproduce history; a work-v3 run reads every
+import "github.com/no22/RWKV-Agent/internal/agent/product"
+
+// agent-tool-v3 drops read_lines: read_file takes the same start_line/end_line
+// range (docs/design/agent-tool-v3.md §2.1, §2.13). Case files keep naming
+// read_lines so agent-tool-v2.0 runs reproduce history; a v3 run reads every
 // read_lines reference as read_file.
 var workV3ToolRenames = map[string]string{"read_lines": "read_file"}
 
 // adaptCasesToCatalog returns the cases as the named catalog sees them. Only
-// work-v3 rewrites anything; the input slice is never modified.
+// agent-tool-v3 rewrites anything; the input slice is never modified.
 func adaptCasesToCatalog(cases []Case, catalog string) []Case {
-	if catalog != WorkV3ToolCatalogName {
+	if catalog, _ := product.CanonicalCatalog(catalog); catalog != AgentToolV3 {
 		return cases
 	}
 	out := make([]Case, len(cases))

@@ -299,7 +299,7 @@ for k in 0 1 2; do
     --chat-token-limit-field max-tokens \
     --temperature 0.3 --top-p 1 \
     --cases bench/distill/<版本>/cases --include-draft \
-    --tool-catalog work-v1 --file-tools lines \
+    --tool-catalog agent-tool-v1.0 --file-tools lines \
     --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism 40 --case-timeout 30m \
     --output local/runs/distill/$B/teacher-k$k
@@ -309,7 +309,7 @@ done
 | 参数 | 值 | 不许动的理由 |
 |---|---|---|
 | `--temperature` | 0.3 | **DeepSeek-flash 不能用 0**：T=0 五轮作废数 14→40，出现大量 UNKNOWN 早退和不调 web_search（`docs/workbank/reports/dsflash-baseline-2026-09-22.md` §2）。T=0.3 同时给出 k 次之间的路径多样性 |
-| `--tool-catalog work-v1 --file-tools lines` | 固定 | 必须与 S6 render 的默认值一致。老师用了 student 没有的工具或参数形状，重放时会全部被拒 |
+| `--tool-catalog agent-tool-v1.0 --file-tools lines` | 固定 | 必须与 S6 render 的默认值一致。老师用了 student 没有的工具或参数形状，重放时会全部被拒 |
 | `--max-steps 16` | 固定 | 与 student 预算相同。更长的老师路径在 student 预算下本来就不可复现 |
 | `--decision-max-tokens 8192` | 固定 | dsflash 基线的设置；老师输出被截断会变成协议错误，白白浪费一次运行 |
 | `--include-draft` | 必须 | 蒸馏题全是 draft，不加就一题都不加载 |

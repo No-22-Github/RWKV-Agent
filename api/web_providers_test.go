@@ -63,7 +63,7 @@ func TestNewWebProvidersCombinesBackends(t *testing.T) {
 	}
 }
 
-// localFirst checks work-v3's keyless reader is the first fetch backend and
+// localFirst checks agent-tool-v3's keyless reader is the first fetch backend and
 // returns what backs it (nil without keys).
 func localFirst(t *testing.T, fetch assistanttools.WebFetchProvider) assistanttools.WebFetchProvider {
 	t.Helper()

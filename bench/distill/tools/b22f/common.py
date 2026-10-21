@@ -1,4 +1,4 @@
-"""b22f (v2.2: 8-16K long tasks, work-v3, ids 34501-34580) shared writer and helpers."""
+"""b22f (v2.2: 8-16K long tasks, agent-tool-v3.1, ids 34501-34580) shared writer and helpers."""
 import hashlib
 import json
 import os
@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch  # noqa: E402
 
-BATCH = Batch(salt="b22f", author="llm:claude-sonnet-b22f", version="v2.2", tool_catalog="work-v3")
+BATCH = Batch(salt="b22f", author="llm:claude-sonnet-b22f", version="v2.2", tool_catalog="agent-tool-v3.1")
 META = {}
 HAN = re.compile(r"[一-鿿]")
 DECOY = {"TR-WEBSTALE": "stale value", "TR-MULTISRC": "the other source's value", "TR-DECOY": "neighbouring item value",

@@ -10,7 +10,7 @@ import textwrap
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch  # noqa: E402
 
-BATCH = Batch(salt="b22b", author="llm:claude-sonnet-b22b", version="v2.2", tool_catalog="work-v3")
+BATCH = Batch(salt="b22b", author="llm:claude-sonnet-b22b", version="v2.2", tool_catalog="agent-tool-v3.1")
 META = {}
 _VOCAB = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "workbank", "tag-vocab.json")))
 TRAP_AXIS = {k: v.get("axis") for k, v in _VOCAB["traps"].items()}

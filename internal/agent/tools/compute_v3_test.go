@@ -31,10 +31,10 @@ func TestCalculatorV3Functions(t *testing.T) {
 			t.Fatalf("%s error lacks the bash hint: %v", expression, err)
 		}
 	}
-	// work-v2 stays strict.
+	// agent-tool-v2.0 stays strict.
 	raw := json.RawMessage(`{"expression":"sqrt(4)","precision":null}`)
 	if _, err := (calculatorTool{}).Execute(context.Background(), raw); err == nil {
-		t.Fatal("work-v2 calculator accepted sqrt")
+		t.Fatal("agent-tool-v2.0 calculator accepted sqrt")
 	}
 }
 

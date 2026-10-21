@@ -8,8 +8,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
+
+// recordedCatalog writes a run's tool catalog under its version name, so the
+// ledger reads the same for a run.json that says agent-tool-v2.0 and one that says
+// agent-tool-v2.0 (product.RecordedCatalog: an old agent-tool-v3 record is v3.0).
+func recordedCatalog(value any) any {
+	name, ok := value.(string)
+	if !ok || name == "" {
+		return value
+	}
+	return product.RecordedCatalog(name)
+}
 
 // Append-only scoring ledger for workbank runs.
 //
@@ -338,7 +350,7 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 		"wire_hash":                  harness["wire_hash"],
 		"harness_version":            harness["version"],
 		"scorer_version":             harness["scorer_version"],
-		"tool_catalog":               harness["tool_catalog"],
+		"tool_catalog":               recordedCatalog(harness["tool_catalog"]),
 		"tool_catalog_hash":          harness["tool_catalog_hash"],
 		"sampling":                   sampling,
 		"channel":                    channel,

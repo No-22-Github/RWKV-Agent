@@ -16,7 +16,7 @@ import (
 )
 
 // ReadabilityFetch reads pages itself: plain HTTP GET, go-readability for the
-// main content, html-to-markdown for Markdown (work-v3 §2.6). It needs no key.
+// main content, html-to-markdown for Markdown (agent-tool-v3 §2.6). It needs no key.
 // A page it cannot read comes back with empty content, so FallbackFetch hands
 // it to the next backend (Tavily / DeepSeek).
 type ReadabilityFetch struct {

@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch  # noqa: E402
 
-BATCH = Batch(salt="b20b", author="llm:claude-sonnet-b20b", version="v2.0", tool_catalog="work-v2")
+BATCH = Batch(salt="b20b", author="llm:claude-sonnet-b20b", version="v2.0", tool_catalog="agent-tool-v2.0")
 
 _CAN_ZH = ["无法", "不能", "没法", "做不到", "办不到", "没办法", "帮不了", "不支持", "不具备", "无权", "发不了", "订不了",
            "打不了", "付不了", "转不了", "截不了", "登不了", "提交不了", "设不了", "建不了", "没有发送", "没有邮件",

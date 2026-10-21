@@ -710,7 +710,7 @@ func newWebProviders(config Config) (*webProviderSet, error) {
 	} else if deepseek != nil {
 		set.fetch = deepseek
 	}
-	// work-v3: the keyless local reader goes first; a page it cannot read
+	// agent-tool-v3: the keyless local reader goes first; a page it cannot read
 	// (HTTP error, anti-bot page, too little text) falls through to the keyed
 	// backends chosen above.
 	var keyed assistanttools.WebFetchProvider

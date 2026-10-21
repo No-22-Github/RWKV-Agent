@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Main-agent acceptance for one v2.2 authoring batch: gate (lint + verify),
-# byte-identical rebuild, sub-type counts, no read_lines / work-v3 tag, and
+# byte-identical rebuild, sub-type counts, no read_lines / agent-tool-v3.1 tag, and
 # decontam against every test bank run_teacher.sh checks (any flag there
 # drops the case before the teacher sees it).
 #   bench/distill/tools/v22/check_batch.sh <batch> <id-substring> <gate-glob>
@@ -17,7 +17,7 @@ sub=sys.argv[1]; c=collections.Counter(); bad=[]; zh=multi=0; n=0
 for p in sorted(glob.glob(f'bench/distill/v2.2/cases/*/*{sub}*/case.json')):
     d=json.load(open(p)); t=d['tags']; c[t.get('subtype')]+=1; n+=1
     s=json.dumps(d,ensure_ascii=False)
-    if '"read_lines"' in s or t.get('tool_catalog')!='work-v3': bad.append(d['id'])
+    if '"read_lines"' in s or t.get('tool_catalog') not in ('work-v3','agent-tool-v3','agent-tool-v3.1'): bad.append(d['id'])
     zh+=any('一'<=ch<='鿿' for ch in d['turns'][0]['prompt']); multi+=len(d['turns'])>1
 print(n, dict(c), f'zh {zh} multi {multi}', 'bad', bad)
 PY

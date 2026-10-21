@@ -16,7 +16,7 @@ from random import Random
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch, Sidecar, check_reference, lines  # noqa: E402,F401
 
-BATCH = Batch(salt="b21f", author="llm:claude-sonnet-b21f", version="v2.1", tool_catalog="work-v2")
+BATCH = Batch(salt="b21f", author="llm:claude-sonnet-b21f", version="v2.1", tool_catalog="agent-tool-v2.0")
 EXTRA = {"batch": "b21f"}
 META = {}
 REFS = {}

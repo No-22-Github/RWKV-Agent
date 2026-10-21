@@ -11,7 +11,7 @@ path is kept only when every check passes; nothing is patched except one normali
   scalar_args        Qwen spells every integer and boolean argument as a
                      string ("max_results":"10", "case_sensitive":"False").
                      The harness coerces them, so the paths passed, but the
-                     student would learn quoted scalars. Fields the work-v2
+                     student would learn quoted scalars. Fields the agent-tool-v2.0
                      schemas declare integer/boolean are rewritten to JSON
                      literals inside the tool call text (top-level arguments
                      of the named tool only; anything that does not parse
@@ -58,7 +58,7 @@ META = re.compile(
     re.I)
 
 
-# work-v2 schema: tool -> {argument: "int" | "bool"}
+# agent-tool-v2.0 schema: tool -> {argument: "int" | "bool"}
 SCALAR_ARGS = {
     "list_files": {"max_depth": "int", "max_results": "int"},
     "search_text": {"max_results": "int", "case_sensitive": "bool"},

@@ -1,4 +1,4 @@
-"""b14 (v1.42: bash + get_weather "do it right" batch on work-v2) settings and helpers.
+"""b14 (v1.42: bash + get_weather "do it right" batch on agent-tool-v2.0) settings and helpers.
 
 The case writer, weather fixture helper and sidecar client come from ../casegen.py.
 Two things differ from b12:
@@ -22,7 +22,7 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch, Sidecar, lines, weather  # noqa: E402,F401
 
-BATCH = Batch(salt="b14", author="llm:claude-b14", version="v1.42", tool_catalog="work-v2")
+BATCH = Batch(salt="b14", author="llm:claude-b14", version="v1.42", tool_catalog="agent-tool-v2.0")
 
 SPEC = {}   # case id -> behavior.py spec
 REFS = {}   # case id -> (files, commands, check(stdout, read))

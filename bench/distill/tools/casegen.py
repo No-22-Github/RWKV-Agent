@@ -23,7 +23,7 @@ SCEN = {"tab": "tabular", "log": "logs", "cfg": "config", "doc": "docs", "fs": "
 
 class Batch:
     """salt seeds the canary ("b10-pilot"); tool_catalog is recorded in tags
-    when the batch targets a non-default catalog (b12: "work-v2")."""
+    when the batch targets a non-default catalog (b12: "agent-tool-v2.0")."""
 
     def __init__(self, *, salt, author, version, tool_catalog=None):
         self.salt = salt

@@ -10,7 +10,7 @@ import (
 )
 
 // rotateCatalogs applies the v1.3 §4.2 tool-directory rotation at render time:
-// with share 0.4, ~40% of the rendered rows face a work-v1 catalog missing 2-4
+// with share 0.4, ~40% of the rendered rows face a agent-tool-v1.0 catalog missing 2-4
 // tools their own trajectory never calls, so the model reads the turn's
 // directory instead of reciting a memorized one. The decision is a pure
 // function of the row's case ID, so re-rendering the same script reproduces
@@ -21,7 +21,7 @@ import (
 // calls to tools outside it, and the wire_hash is unaffected: it covers the
 // catalog rendering mode, not the tool list.
 //
-// bash and get_weather (work-v2) are never dropped: rows that leave them
+// bash and get_weather (agent-tool-v2.0) are never dropped: rows that leave them
 // unused are the "offered but not needed" lesson, which a narrowed directory
 // would erase.
 func rotateCatalogs(cases, entries []*lab.OrderedMap, share float64, catalogName string) (int, error) {

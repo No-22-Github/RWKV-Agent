@@ -6,7 +6,7 @@
 > 改动记录：`docs/evaluations/bench-composition-20261015/REPORT.md` §8、`naturalize.py`。
 
 
-26 道题，测模型在 `work-v2` 工具目录（work-v1 的 12 个工具 + `bash` + `get_weather`）下会不会用 bash、用得对不对。
+26 道题，测模型在 `agent-tool-v2.0` 工具目录（agent-tool-v1.0 的 12 个工具 + `bash` + `get_weather`）下会不会用 bash、用得对不对。
 题目由 [`gen.py`](gen.py) + [`cases_data.py`](cases_data.py) 生成：fixture 用固定种子造，答案在生成器里从同一份 fixture 算出，
 每道题的参考 bash 解都先在真实的 just-bash sidecar 里跑过、对上答案才落盘。**改题只改生成器，不手改 `cases/`。**
 
@@ -19,7 +19,7 @@ python3 bench/bashprobe/gen.py            # 重新生成并验证；--check 只�
 
 ```bash
 ./local/bin/rwkv-cli agent-eval ... --profile g1k --strict-spec \
-  --cases bench/bashprobe/cases --tool-catalog work-v2 --file-tools lines --include-draft \
+  --cases bench/bashprobe/cases --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m --remote-batch-wait 0s \
   --output local/runs/bashprobe-YYYYMMDD/<model>-<arm>
 ```
@@ -62,7 +62,7 @@ bash 使用率从 trace 里统计，作为诊断指标。所有题 `status: draf
 参考：DeepSeek-flash（T=0.3，k=3，带 b12 老师附加指令要求简短作答）170/180，三次全过 53 题；不带附加指令时它常写超过判据字数上限的长 Markdown，分数会明显偏低。
 
 ```bash
-./local/bin/rwkv-cli agent-eval ... --cases bench/bashprobe/cases-b14 --tool-catalog work-v2 --file-tools lines --include-draft ...
+./local/bin/rwkv-cli agent-eval ... --cases bench/bashprobe/cases-b14 --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft ...
 ```
 
 ### 已知问题（待定）：终答字数上限是隐性要求

@@ -14,24 +14,29 @@ import (
 	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 )
 
-// WorkToolCatalogName selects the work bank's fixed tool directory.
-const WorkToolCatalogName = "work-v1"
+// The fixed tool catalogs, by version (product/catalog_version.go explains
+// the numbering and the old work-vN names).
+const (
+	// AgentToolV1 (was agent-tool-v1.0) is the work bank's twelve tools.
+	AgentToolV1 = product.AgentToolV1
+	// AgentToolV2 (was agent-tool-v2.0) is v1 plus the sandboxed bash tool (just-bash
+	// sidecar) and get_weather backed by the case's weather fixture.
+	AgentToolV2 = product.AgentToolV2
+	// AgentToolV3 (was agent-tool-v3) is the 2026-10-19 refactor
+	// (docs/design/agent-tool-v3.md): read_file absorbs read_lines, web_fetch
+	// cuts long pages to a shared budget. It is always the App directory
+	// (product.Tools).
+	AgentToolV3 = product.AgentToolV3
+)
 
-// WorkV2ToolCatalogName is work-v1 plus the sandboxed bash tool (just-bash
-// sidecar) and get_weather backed by the case's weather fixture.
-const WorkV2ToolCatalogName = "work-v2"
-
-// WorkV3ToolCatalogName is the 2026-10-19 refactor (docs/design/work-v3-tools.md):
-// read_file absorbs read_lines, web_fetch cuts long pages to a shared budget.
-// It is always the App directory (product.Tools).
-const WorkV3ToolCatalogName = "work-v3"
-
-// IsWorkToolCatalog reports whether name is one of the fixed bank catalogs.
-func IsWorkToolCatalog(name string) bool {
-	return name == WorkToolCatalogName || name == WorkV2ToolCatalogName || name == WorkV3ToolCatalogName
+// IsFixedToolCatalog reports whether name selects one of the fixed catalogs,
+// under its version or an old work-vN name.
+func IsFixedToolCatalog(name string) bool {
+	catalog, err := product.CanonicalCatalog(name)
+	return err == nil && catalog != ""
 }
 
-// workToolCatalogClock is the fixed datetime every work-v1 case runs against
+// workToolCatalogClock is the fixed datetime every agent-tool-v1.0 case runs against
 // (bank contract, authoring-guide §2.4): no case may depend on wall-clock.
 var workToolCatalogClock = time.Date(
 	2026, time.September, 16, 10, 0, 0, 0,
@@ -57,22 +62,23 @@ var workV3ToolCatalogNames = []string{
 }
 
 func workCatalogNames(name string) []string {
-	switch name {
-	case WorkV2ToolCatalogName:
+	catalog, _ := product.CanonicalCatalog(name)
+	switch catalog {
+	case AgentToolV2:
 		return workV2ToolCatalogNames
-	case WorkV3ToolCatalogName:
+	case AgentToolV3:
 		return workV3ToolCatalogNames
 	}
 	return workToolCatalogNames
 }
 
 // WorkCatalogNames returns a copy of the named bank catalog's tool names
-// (work-v1 for any other name).
+// (agent-tool-v1.0 for any other name).
 func WorkCatalogNames(name string) []string {
 	return append([]string(nil), workCatalogNames(name)...)
 }
 
-// WorkToolCatalogNames returns a copy of the work-v1 catalog's tool names,
+// WorkToolCatalogNames returns a copy of the agent-tool-v1.0 catalog's tool names,
 // the one source of truth for the §4.2 render-layer rotation.
 func WorkToolCatalogNames() []string {
 	return append([]string(nil), workToolCatalogNames...)
@@ -92,7 +98,7 @@ func buildWorkToolCatalog(
 	fetchBudgetTokens int,
 	tokenCount func(string) int,
 ) ([]agent.Tool, error) {
-	if name == WorkV3ToolCatalogName {
+	if name == AgentToolV3 {
 		return buildWorkV3Catalog(workspace, fixture, weather, tokenCount)
 	}
 	workspaceTools, err := agent.WorkspaceTools(workspace)
@@ -118,7 +124,7 @@ func buildWorkToolCatalog(
 		TokenCount:        tokenCount,
 	})
 	catalog := append(append(append(workspaceTools, editTools...), localTools...), webTools...)
-	if name == WorkV2ToolCatalogName {
+	if name == AgentToolV2 {
 		bash, err := tools.BashTools(tools.BashOptions{Workspace: workspace, ApplyToDisk: true, Now: workToolCatalogClock})
 		if err != nil {
 			return nil, err
@@ -183,13 +189,13 @@ func workToolCatalogHash(catalog []agent.Tool) string {
 	return hex.EncodeToString(digest.Sum(nil))
 }
 
-// buildWorkV3Catalog is work-v3 outside the App harness: the same
+// buildWorkV3Catalog is agent-tool-v3 outside the App harness: the same
 // product.Tools assembly on the case workspace (no staged view, bash applies
 // to disk).
 func buildWorkV3Catalog(workspace string, fixture []WebFixtureEntry, weather []WeatherFixtureEntry, tokenCount func(string) int) ([]agent.Tool, error) {
 	web := webFixtureProviders{entries: fixture}
 	set := product.AppDefaultToolSet()
-	set.Catalog = product.CatalogWorkV3
+	set.Catalog = product.AgentToolV3
 	catalog, err := product.Tools(set, product.Backends{
 		Workspace: workspace,
 		Clock:     fixedAssistantClock{value: workToolCatalogClock},
@@ -200,7 +206,7 @@ func buildWorkV3Catalog(workspace string, fixture []WebFixtureEntry, weather []W
 	if err != nil {
 		return nil, err
 	}
-	if err := requireWorkCatalogShape(WorkV3ToolCatalogName, catalog); err != nil {
+	if err := requireWorkCatalogShape(AgentToolV3, catalog); err != nil {
 		return nil, err
 	}
 	return catalog, nil

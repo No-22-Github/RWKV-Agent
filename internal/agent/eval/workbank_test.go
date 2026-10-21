@@ -230,7 +230,7 @@ func TestWorkCatalogShapeAndHash(t *testing.T) {
 	if err := os.MkdirAll(workspace, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	catalog, err := buildWorkToolCatalog(WorkToolCatalogName, workspace, nil, nil, 0, nil)
+	catalog, err := buildWorkToolCatalog(AgentToolV1, workspace, nil, nil, 0, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -247,7 +247,7 @@ func TestWorkCatalogShapeAndHash(t *testing.T) {
 		}
 	}
 	first := workToolCatalogHash(catalog)
-	second, err := buildWorkToolCatalog(WorkToolCatalogName, workspace, nil, nil, 0, nil)
+	second, err := buildWorkToolCatalog(AgentToolV1, workspace, nil, nil, 0, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -410,7 +410,7 @@ func TestRunCaseLevelExpectationsEndToEnd(t *testing.T) {
 			}},
 		}},
 		Suite:       "workbank",
-		ToolCatalog: WorkToolCatalogName,
+		ToolCatalog: AgentToolV1,
 		Model:       ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
 		Runner: agent.Options{
 			MaxSteps:                4,
@@ -473,8 +473,9 @@ func TestRunManifestRecordsCatalogProfileAndState(t *testing.T) {
 				Expect: Expectation{Tools: []string{}, OutputEquals: &answer},
 			}},
 		}},
-		Suite:       "workbank",
-		ToolCatalog: WorkToolCatalogName,
+		Suite: "workbank",
+		// The old name still selects the catalog; run.json records the version.
+		ToolCatalog: "work-v1",
 		WireProfile: "xml-v1+align-qwen36+no-tool+bare+one-stage",
 		StateID:     "state-test-1234",
 		Model:       ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
@@ -497,7 +498,7 @@ func TestRunManifestRecordsCatalogProfileAndState(t *testing.T) {
 		t.Fatal(err)
 	}
 	harness := report.Manifest.Harness
-	if harness.ToolCatalog != WorkToolCatalogName {
+	if harness.ToolCatalog != AgentToolV1 {
 		t.Fatalf("tool catalog = %q", harness.ToolCatalog)
 	}
 	if len(harness.ToolCatalogHash) != 64 {
@@ -606,7 +607,7 @@ func TestWebFixtureFetchPrefersTheMostSpecificURLMatch(t *testing.T) {
 	}
 }
 
-// §2.12: offered_tools narrows the work-v1 catalog for one case. The prompt's
+// §2.12: offered_tools narrows the agent-tool-v1.0 catalog for one case. The prompt's
 // directory must drop the excluded tools, a call to a dropped tool is rejected
 // as unknown, and unknown names in the field are a load error.
 func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
@@ -636,7 +637,7 @@ func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
 		return Config{
 			Cases:       []Case{base},
 			Suite:       "workbank",
-			ToolCatalog: WorkToolCatalogName,
+			ToolCatalog: AgentToolV1,
 			Model:       ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
 			Runner:      runner,
 			GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
@@ -715,7 +716,7 @@ func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
 		}
 		// evalTools failures are per-case errors, not run errors.
 		if !strings.Contains(report.Summary.Cases[0].Error,
-			"offered_tools names outside the work-v1 catalog") {
+			"offered_tools names outside the agent-tool-v1.0 catalog") {
 			t.Fatalf("case error = %q, want the catalog error", report.Summary.Cases[0].Error)
 		}
 	})
@@ -799,7 +800,7 @@ func TestWorkV2CatalogAddsBashAndWeather(t *testing.T) {
 			{Date: "2026-09-18", Condition: "晴"}, {Date: "2026-09-19", Condition: "晴"},
 		}},
 	}}
-	catalog, err := buildWorkToolCatalog(WorkV2ToolCatalogName, workspace, nil, weather, 0, nil)
+	catalog, err := buildWorkToolCatalog(AgentToolV2, workspace, nil, weather, 0, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

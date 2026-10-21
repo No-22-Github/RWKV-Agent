@@ -38,7 +38,7 @@ local/bin/rwkv-lab corpus render \
   --out local/runs/harness-corpus-700
 ```
 
-默认 flags 与 `.claude/skills/rwkv-bench/sweep.py` 的 workbank 臂一致（`--tool-catalog work-v1
+默认 flags 与 `.claude/skills/rwkv-bench/sweep.py` 的 workbank 臂一致（`--tool-catalog agent-tool-v1.0
 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --profile g1k
 --strict-spec`）。case 写成 bank 目录（`cases/<id>/case.json`），所以走与 workbank 相同的
 suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的 `wire_hash` 应与对应
@@ -81,7 +81,7 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 ```bash
 # 1. teacher 在蒸馏题库上跑 k 次（原生通道、温度调高；每次换 --output）
 local/bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
-  --cases bench/distill --tool-catalog work-v1 --file-tools lines --output local/runs/distill/k0
+  --cases bench/distill --tool-catalog agent-tool-v1.0 --file-tools lines --output local/runs/distill/k0
 # 2. 抽路径：通过 + 干净 + 去重 + 每题 ≤2 条，参数去默认值
 local/bin/rwkv-lab corpus paths --run local/runs/distill/k0 --run local/runs/distill/k1 ... \
   --out local/runs/distill/script.jsonl --report local/runs/distill/paths.jsonl

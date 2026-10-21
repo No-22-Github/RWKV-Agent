@@ -59,7 +59,7 @@ state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api
   --api-url https://api-7b.rwkvos.com/v1 \
   --api-header-env 'CF-Access-Client-Id=RWKV_CF_ID' --api-header-env 'CF-Access-Client-Secret=RWKV_CF_SECRET' \
   --profile g1k --strict-spec \
-  --cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft \
+  --cases bench/workbank/cases --tool-catalog agent-tool-v1.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --case-parallelism 48 \
   <采样档参数> \
   --output local/runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>

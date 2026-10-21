@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
@@ -30,8 +31,8 @@ import (
 // benchFlags is the workbank arm of .claude/skills/rwkv-bench/sweep.py:
 // catalog, file tools, budgets and wire. Sampling flags are omitted because a
 // script ignores them.
-// The tool catalog is not part of it: --tool-catalog picks work-v1 (default)
-// or work-v2 per render, and benchFlagsFor prepends it.
+// The tool catalog is not part of it: --tool-catalog picks agent-tool-v1.0 (default)
+// or agent-tool-v2.0 per render, and benchFlagsFor prepends it.
 var benchFlags = []string{
 	"--file-tools", "lines",
 	"--max-steps", "16", "--max-tokens", "4096",
@@ -56,11 +57,11 @@ type RenderArgs struct {
 	AllowTestBank bool
 	KeepFailing   bool
 	// RotateCatalog is the v1.3 §4.2 tool-directory rotation share: with 0.4,
-	// ~40% of the rendered rows face a work-v1 catalog missing 2-4 tools the
+	// ~40% of the rendered rows face a agent-tool-v1.0 catalog missing 2-4 tools the
 	// row's own trajectory never calls. 0 (default) leaves every case untouched.
 	RotateCatalog float64
-	// ToolCatalog is the fixed bank catalog the rows replay against: work-v1
-	// (default) or work-v2 (v1.41 b12: + bash, get_weather).
+	// ToolCatalog is the fixed bank catalog the rows replay against: agent-tool-v1.0
+	// (default) or agent-tool-v2.0 (v1.41 b12: + bash, get_weather).
 	ToolCatalog string
 	// Profile is the registered wire the rows replay under: g1k (1.x state
 	// corpora, default) or g1k-think (2.x MiSS corpora: real thinking, one
@@ -84,7 +85,10 @@ func RunRender(args RenderArgs) int {
 		return 2
 	}
 	if args.ToolCatalog == "" {
-		args.ToolCatalog = eval.WorkToolCatalogName
+		args.ToolCatalog = eval.AgentToolV1
+	}
+	if catalog, err := product.CanonicalCatalog(args.ToolCatalog); err == nil {
+		args.ToolCatalog = catalog
 	}
 	if args.Profile == "" {
 		args.Profile = "g1k"
@@ -93,8 +97,8 @@ func RunRender(args RenderArgs) int {
 		fmt.Fprintf(stderr, "error: --profile %q is not a corpus wire (g1k, g1k-think)\n", args.Profile)
 		return 2
 	}
-	if !eval.IsWorkToolCatalog(args.ToolCatalog) {
-		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (work-v1, work-v2, work-v3)\n", args.ToolCatalog)
+	if !eval.IsFixedToolCatalog(args.ToolCatalog) {
+		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (%s, %s, %s; old names work-v1/v2/v3 also work)\n", args.ToolCatalog, eval.AgentToolV1, eval.AgentToolV2, eval.AgentToolV3)
 		return 2
 	}
 	// --source has no default on purpose: a default would silently label a
@@ -184,9 +188,9 @@ func RunRender(args RenderArgs) int {
 		}
 	}
 
-	if args.ToolCatalog == eval.WorkV3ToolCatalogName {
+	if args.ToolCatalog == eval.AgentToolV3 {
 		if renamed := renameScriptToolsV3(entries); renamed > 0 {
-			fmt.Fprintf(stderr, "work-v3: %d read_lines action(s) replayed as read_file\n", renamed)
+			fmt.Fprintf(stderr, "%s: %d read_lines action(s) replayed as read_file\n", args.ToolCatalog, renamed)
 		}
 	}
 
@@ -344,8 +348,8 @@ func SetAsideUnloadable(casesPath, parking string) ([]unloadable, error) {
 	}
 }
 
-// renameScriptToolsV3 rewrites teacher actions for work-v3, where read_file
-// takes read_lines' start_line/end_line range (work-v3-tools.md §2.12): only
+// renameScriptToolsV3 rewrites teacher actions for agent-tool-v3, where read_file
+// takes read_lines' start_line/end_line range (agent-tool-v3.md §2.12): only
 // the tool name changes, the arguments stay as the teacher wrote them.
 func renameScriptToolsV3(entries []*lab.OrderedMap) int {
 	renamed := 0

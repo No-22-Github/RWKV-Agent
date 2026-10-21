@@ -15,7 +15,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// work-v3 calculator and data_query (docs/design/work-v3-tools.md §2.9–§2.10).
+// agent-tool-v3 calculator and data_query (docs/design/agent-tool-v3.md §2.9–§2.10).
 // "^" is not added: Go's parser gives it the precedence of "+", so 2*3^2
 // would silently mean (2*3)^2. Powers go through pow(a, b) instead, and the
 // error for "^" or "**" says so.
@@ -140,8 +140,8 @@ const (
 )
 
 // Execute relaxes the aggregate argument combinations that made a third of
-// work-v2's data_query calls fail on the 10-17 exam, accepts a limit on the
-// listed rows, then runs work-v2's query and says when rows were left out.
+// agent-tool-v2.0's data_query calls fail on the 10-17 exam, accepts a limit on the
+// listed rows, then runs agent-tool-v2.0's query and says when rows were left out.
 func (t *dataQueryV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args map[string]any
 	if err := json.Unmarshal(raw, &args); err != nil {
@@ -212,7 +212,7 @@ func (t *dataQueryV3Tool) Execute(ctx context.Context, raw json.RawMessage) (any
 var formattedNumberPattern = regexp.MustCompile(`^([-+]?)\s*[$¥€£]?\s*([-+]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)$`)
 
 // formattedNumber reads such a cell as a number. A plain number without a
-// sign or separators is left to dataNumber, so this changes nothing work-v2
+// sign or separators is left to dataNumber, so this changes nothing agent-tool-v2.0
 // already parsed.
 func formattedNumber(value string) (float64, bool) {
 	text := strings.TrimSpace(value)
@@ -231,7 +231,7 @@ func formattedNumber(value string) (float64, bool) {
 }
 
 // normalizeRowsV3 turns formatted number cells into numbers, so sum/avg and
-// comparisons work on a CSV column such as price "1,200" (work-v2 reported
+// comparisons work on a CSV column such as price "1,200" (agent-tool-v2.0 reported
 // it as not numeric).
 func normalizeRowsV3(rows []map[string]any) {
 	for _, row := range rows {
@@ -245,13 +245,13 @@ func normalizeRowsV3(rows []map[string]any) {
 	}
 }
 
-// filterComparisons are the operator prefixes a work-v3 filter value may
+// filterComparisons are the operator prefixes a agent-tool-v3 filter value may
 // carry, longest first so ">=" is not read as ">".
 var filterComparisons = []string{">=", "<=", "!=", "<>", "==", ">", "<", "="}
 
-// dataRowMatchesV3 extends work-v2's exact-match filter with what models
+// dataRowMatchesV3 extends agent-tool-v2.0's exact-match filter with what models
 // write anyway: a value such as ">3" or ">=2026-10-01" is a comparison, and a
-// list is "any of". work-v2 read ">3" as the literal text and answered
+// list is "any of". agent-tool-v2.0 read ">3" as the literal text and answered
 // matched_rows 0 without an error, which the model took as "no such rows".
 func dataRowMatchesV3(row map[string]any, filter map[string]any) bool {
 	for field, expected := range filter {
@@ -338,8 +338,8 @@ func compareFloat(left, right float64) int {
 	return 0
 }
 
-// LocalToolsV3 is work-v3's always-present compute group: calculator,
-// data_query and datetime, in work-v2's order.
+// LocalToolsV3 is agent-tool-v3's always-present compute group: calculator,
+// data_query and datetime, in agent-tool-v2.0's order.
 func LocalToolsV3(options Options) ([]agent.Tool, error) {
 	resolver, err := agent.NewWorkspaceResolverV3(options.Workspace, options.Filesystem)
 	if err != nil {
@@ -355,7 +355,7 @@ func LocalToolsV3(options Options) ([]agent.Tool, error) {
 	}, nil
 }
 
-// datetimeV3Tool is work-v2's datetime with the answers models asked for and
+// datetimeV3Tool is agent-tool-v2.0's datetime with the answers models asked for and
 // could not get (10-21 review), under the same description and arguments:
 // compare also gives the days between, add takes days, weeks, months and
 // years ("3d", "2w", "1 month", "3天"), every date comes with its weekday,
@@ -390,7 +390,7 @@ func (t *datetimeV3Tool) Execute(_ context.Context, raw json.RawMessage) (any, e
 	location := t.inner.clock.Now().Location()
 	switch op {
 	case "now":
-		// Any args are ignored; work-v2 rejected anything but {}.
+		// Any args are ignored; agent-tool-v2.0 rejected anything but {}.
 		now := t.inner.clock.Now()
 		return map[string]any{"now": now.Format(time.RFC3339), "timezone": now.Location().String(), "weekday": weekdaysZH[now.Weekday()]}, nil
 	case "compare":

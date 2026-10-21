@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""work-v3 M5: which v2.1 training rows survive the work-v3 replay.
+"""agent-tool-v3.1 M5: which v2.1 training rows survive the agent-tool-v3.1 replay.
 
-A row is kept when its trajectory (case#turn) replays under work-v3 with every
+A row is kept when its trajectory (case#turn) replays under agent-tool-v3.1 with every
 supervised span byte-identical, still passes, and is not on M0's list of
 trajectories the new tool results no longer support (read past one screen,
 replace_lines/calculator/data_query errors that now succeed). Everything else

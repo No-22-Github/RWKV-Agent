@@ -23,6 +23,7 @@ import (
 	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/agent/product"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -715,7 +716,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				&options.evalToolCatalog,
 				"tool-catalog",
 				"",
-				"register a fixed tool catalog for --cases suites: work-v1 (twelve tools, fixed clock, always-on fixture web tools) or work-v2 (work-v1 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh)",
+				"register a fixed tool catalog for --cases suites: agent-tool-v1.0 (twelve tools, fixed clock, always-on fixture web tools), agent-tool-v2.0 (v1.0 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh) or agent-tool-v3.1 (the App directory); the old names work-v1/v2/v3 are still accepted",
 			)
 			fs.StringVar(
 				&options.evalHarness,
@@ -1884,6 +1885,13 @@ func runAgentEval(args []string) error {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
 	}
+	// Manifests and old commands may say work-vN; everything downstream
+	// (run.json included) sees the version.
+	if catalog, err := product.CanonicalCatalog(options.evalToolCatalog); err != nil {
+		return fmt.Errorf("--tool-catalog: %w", err)
+	} else {
+		options.evalToolCatalog = catalog
+	}
 	if options.evalHarness != "" && !agenteval.IsProductHarness(options.evalHarness) {
 		return fmt.Errorf("unsupported --harness %q (known: %s, %s)", options.evalHarness,
 			agenteval.ProductHarnessApp, agenteval.ProductHarnessRaw)
@@ -1892,22 +1900,18 @@ func runAgentEval(args []string) error {
 		if options.evalCasesPath == "" || agenteval.IsPrimitiveSuite(suite) {
 			return errors.New("--harness app/raw needs bank cases or an exam manifest under --cases")
 		}
-		// The App directory is work-v3; work-v2 stays selectable so runs from
-		// before 2026-10-19 reproduce (docs/design/work-v3-tools.md §2.13).
+		// The App directory is agent-tool-v3; agent-tool-v2.0 stays selectable
+		// so runs from before 2026-10-19 reproduce (docs/design/agent-tool-v3.md §2.13).
 		switch options.evalToolCatalog {
 		case "":
-			options.evalToolCatalog = agenteval.WorkV3ToolCatalogName
-		case agenteval.WorkV2ToolCatalogName, agenteval.WorkV3ToolCatalogName:
+			options.evalToolCatalog = agenteval.AgentToolV3
+		case agenteval.AgentToolV2, agenteval.AgentToolV3:
 		default:
-			return fmt.Errorf("--harness %s offers the App directory (work-v3, or work-v2 for old runs), not %s", options.evalHarness, options.evalToolCatalog)
+			return fmt.Errorf("--harness %s offers the App directory (%s, or %s for old runs), not %s", options.evalHarness, agenteval.AgentToolV3, agenteval.AgentToolV2, options.evalToolCatalog)
 		}
 	}
-	if options.evalToolCatalog != "" && !agenteval.IsWorkToolCatalog(options.evalToolCatalog) {
-		return fmt.Errorf("unsupported --tool-catalog %q (known: %s, %s, %s)", options.evalToolCatalog,
-			agenteval.WorkToolCatalogName, agenteval.WorkV2ToolCatalogName, agenteval.WorkV3ToolCatalogName)
-	}
-	if agenteval.IsWorkToolCatalog(options.evalToolCatalog) && suite == agenteval.SuitePrimitive {
-		return errors.New("--tool-catalog work-v1/work-v2/work-v3 requires a bank case directory or custom case file, not a Primitive suite")
+	if agenteval.IsFixedToolCatalog(options.evalToolCatalog) && suite == agenteval.SuitePrimitive {
+		return errors.New("--tool-catalog requires a bank case directory or custom case file, not a Primitive suite")
 	}
 	if !agenteval.IsPrimitiveSuite(suite) && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
 		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")

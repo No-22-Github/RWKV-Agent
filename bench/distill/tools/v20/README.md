@@ -6,7 +6,7 @@
 |---|---|
 | `pick_cases.py` | 从 1.x 训练包挑 600 道题（b20s），复制成 `<前缀>-2xxxx`，推出 `tool_policy`，去掉隐性字数上限；写 `v2.0/reports/b20s-selection.json` |
 | `materialize.py` | 工具目录生成器：按题号定种子，从 `tool_policy` 抽实际目录并打乱，写成运行副本（`offered_tools` + `offered_tools_ordered: true`）和 `toolsets.jsonl` |
-| `run_teacher.sh` | 一个批次：抽目录 → 对所有测试集去污染 → DeepSeek（无 suffix、每步思考、work-v2）跑 k 次 |
+| `run_teacher.sh` | 一个批次：抽目录 → 对所有测试集去污染 → DeepSeek（无 suffix、每步思考、agent-tool-v2.0）跑 k 次 |
 | `retry_failed.sh` | 只把 teacher-k0 失败的题重跑一次进 teacher-k1（代替全量第二遍） |
 | `finalize.py` | 加终止后缀、按题族切验证集、pack / segments / segcheck、固定种子打乱训练集 |
 | `filter.py` | 跑完后的机械过滤（终答长度/语言、只要值题的 Markdown、思考过长、思考谈论指令） |
@@ -34,6 +34,6 @@ bench/distill/tools/v20/render.sh qwen-calc
 python3 bench/distill/tools/v20/finalize.py --batch qwen --batch qwen-calc --out local/runs/distill/v20/final-<日期>
 ```
 
-`filter.py` 会把工具调用里写成字符串的整数/布尔参数（千问的 `"max_results":"10"`、`"case_sensitive":"False"`）按 work-v2 的类型声明改回 JSON 字面量；这是唯一的改写，其余检查只丢不改。
+`filter.py` 会把工具调用里写成字符串的整数/布尔参数（千问的 `"max_results":"10"`、`"case_sensitive":"False"`）按 agent-tool-v2.0 的类型声明改回 JSON 字面量；这是唯一的改写，其余检查只丢不改。
 
 产物都在 `local/runs/distill/v20/<批次>/`，不入库。

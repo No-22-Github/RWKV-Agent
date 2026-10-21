@@ -10,7 +10,7 @@ copies, so teacher and student face the same directory bytes (the harness
 keeps the listed order because offered_tools_ordered is true). The draw is a
 pure function of (salt, case id): re-running writes identical files.
 
-Per case, with C = work-v2 (14 tools), M = must_offer, N = never_offer and
+Per case, with C = agent-tool-v2.0 (14 tools), M = must_offer, N = never_offer and
 O = C - M - N the optional tools:
   45%  full       M + all of O
   35%  trimmed    M + O minus 1-4 random tools

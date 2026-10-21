@@ -10,8 +10,8 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// The work-v3 fixes for results that went wrong without an error (A1–A4 of
-// the 2026-10-21 tool review). Each test also pins work-v2's old behavior,
+// The agent-tool-v3 fixes for results that went wrong without an error (A1–A4 of
+// the 2026-10-21 tool review). Each test also pins agent-tool-v2.0's old behavior,
 // which must stay byte-identical for historical runs.
 
 func TestDataQueryV3FilterComparisons(t *testing.T) {
@@ -38,7 +38,7 @@ func TestDataQueryV3FilterComparisons(t *testing.T) {
 			t.Fatalf("filter %s matched %v, %v; want %v", filter, got["matched_rows"], err, want)
 		}
 	}
-	// work-v2 keeps exact equality: ">3" is literal text and matches nothing.
+	// agent-tool-v2.0 keeps exact equality: ">3" is literal text and matches nothing.
 	v2, err := LocalTools(Options{Workspace: root})
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +49,7 @@ func TestDataQueryV3FilterComparisons(t *testing.T) {
 		}
 		got, err := call(t, tool, `{"path":"orders.csv","filter":{"qty":">3"}}`)
 		if err != nil || got["matched_rows"].(float64) != 0 {
-			t.Fatalf("work-v2 filter drifted: %v, %v", got, err)
+			t.Fatalf("agent-tool-v2.0 filter drifted: %v, %v", got, err)
 		}
 	}
 }
@@ -81,7 +81,7 @@ func TestAppendFileV3WholeLines(t *testing.T) {
 			t.Fatalf("append result %v", got)
 		}
 	}
-	// work-v2 appends the bytes as given.
+	// agent-tool-v2.0 appends the bytes as given.
 	edits, err := FileEditTools(root, FileEditLines)
 	if err != nil {
 		t.Fatal(err)
@@ -90,7 +90,7 @@ func TestAppendFileV3WholeLines(t *testing.T) {
 		t.Fatal(err)
 	}
 	if data, _ := os.ReadFile(filepath.Join(root, "new.txt")); string(data) != "first\ntail" {
-		t.Fatalf("work-v2 append drifted: %q", data)
+		t.Fatalf("agent-tool-v2.0 append drifted: %q", data)
 	}
 }
 
@@ -113,20 +113,20 @@ func TestWorkspaceV3KeepsBuildDirs(t *testing.T) {
 	joined := strings.Join(paths, " ")
 	if !strings.Contains(joined, "build/report.md") || !strings.Contains(joined, "dist/export.csv") ||
 		strings.Contains(joined, "node_modules") || strings.Contains(joined, ".git") {
-		t.Fatalf("work-v3 list_files = %v", paths)
+		t.Fatalf("agent-tool-v3 list_files = %v", paths)
 	}
 	found, err := call(t, v3["search_text"], `{"query":"quarterly"}`)
 	if err != nil || len(found["matches"].([]any)) != 2 {
-		t.Fatalf("work-v3 search_text = %v, %v", found, err)
+		t.Fatalf("agent-tool-v3 search_text = %v, %v", found, err)
 	}
-	// work-v2 still skips build/ and dist/.
+	// agent-tool-v2.0 still skips build/ and dist/.
 	v2, err := agent.WorkspaceTools(root)
 	if err != nil {
 		t.Fatal(err)
 	}
 	old, err := call(t, v2[0], `{}`)
 	if err != nil || len(old["entries"].([]any)) != 0 {
-		t.Fatalf("work-v2 list_files drifted: %v, %v", old, err)
+		t.Fatalf("agent-tool-v2.0 list_files drifted: %v, %v", old, err)
 	}
 }
 

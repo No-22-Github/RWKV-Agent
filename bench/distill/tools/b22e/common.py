@@ -16,7 +16,7 @@ import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch, Sidecar  # noqa: E402
 
-BATCH = Batch(salt="b22e", author="llm:claude-sonnet-b22e", version="v2.2", tool_catalog="work-v3")
+BATCH = Batch(salt="b22e", author="llm:claude-sonnet-b22e", version="v2.2", tool_catalog="agent-tool-v3.1")
 META = {}
 CHECKS = []
 MAX_BYTES = 500 * 1024

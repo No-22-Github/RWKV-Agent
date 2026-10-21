@@ -28,7 +28,7 @@
 | --- | --- |
 | [inference-core-design.md](design/inference-core-design.md) | 跨平台推理核心设计：分层、对象生命周期、State 模型、调度与契约测试 |
 | [direct-pth-loading.md](design/direct-pth-loading.md) | 直接加载 `.pth`：mmap、索引缓存、转换链路 |
-| [work-v3-tools.md](design/work-v3-tools.md) | 工具目录 work-v3 重构规格：read_file 带行号按屏读、合并 read_lines，长网页存进 `.web/`，迁移与重跑基准（2026-10-19 起草，未实现） |
+| [agent-tool-v3.md](design/agent-tool-v3.md) | 工具目录 agent-tool-v3 重构规格：read_file 带行号按屏读、合并 read_lines，长网页存进 `.web/`，迁移与重跑基准（2026-10-19 起草，未实现） |
 | [go-tooling-migration.md](design/go-tooling-migration.md) | Python 实验工具迁移到 Go（`bin/rwkv-lab`）的对照表与验收记录 |
 | [preferences.md](design/preferences.md) | RWKV7-G1i 输出偏好与 Harness 工程规则总纲（原根目录 `PREFERENCES.md`） |
 

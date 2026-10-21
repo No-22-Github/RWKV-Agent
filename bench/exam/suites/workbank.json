@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "workbank",
   "description": "原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查）",
-  "tool_catalog": "work-v1",
+  "tool_catalog": "agent-tool-v1.0",
   "harness": "legacy",
   "hash": "e30508e8902973a36d00124dcf6e46ffa6f3d99401539d5742db4f54da9a4ae5",
   "summary": {

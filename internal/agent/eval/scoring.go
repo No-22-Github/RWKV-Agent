@@ -554,7 +554,7 @@ func stepsWithTools(steps []agent.Step) []agent.Step {
 // Forcing a specific one would penalise the cheaper path: search_text can find a
 // file and its value in a single call where list_files plus read_file needs two.
 //
-// read_lines and the sandboxed bash (work-v2 and the App directory: cat, grep,
+// read_lines and the sandboxed bash (agent-tool-v2.0 and the App directory: cat, grep,
 // find, ls) do the same investigation, so they belong to the class too; a model
 // that answered from `grep -r` was failed for "not calling read_file".
 var discoveryTools = map[string]struct{}{

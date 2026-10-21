@@ -1,6 +1,6 @@
 # work-v3 M0：影响面统计（2026-10-19）
 
-规格见 [work-v3-tools.md](../../design/work-v3-tools.md) §2.12、§5 M0。脚本 [m0_stats.py](m0_stats.py)，结果 [stats.json](stats.json)（含全部轨迹编号）。
+规格见 [agent-tool-v3.md](../../design/agent-tool-v3.md) §2.12、§5 M0。脚本 [m0_stats.py](m0_stats.py)，结果 [stats.json](stats.json)（含全部轨迹编号）。
 
 ```bash
 python3 docs/evaluations/work-v3-m0/m0_stats.py > docs/evaluations/work-v3-m0/stats.json

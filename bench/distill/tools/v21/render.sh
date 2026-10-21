@@ -19,4 +19,4 @@ local/bin/rwkv-lab-v21 corpus paths "${runs[@]}" --max-per-case 1 --include-fail
 python3 bench/distill/tools/v21/filter.py --script "$T/paths.jsonl" --cases "$T/cases" \
   --out "$T/script.jsonl" --report "$T/filter-report.json" ${exclude:+--exclude-ids "$exclude"}
 local/bin/rwkv-lab-v21 corpus render --cases "$T/cases" --script "$T/script.jsonl" --out "$T/corpus" \
-  --source "distill-$batch" --profile g1k-think --tool-catalog work-v2 --cli local/bin/rwkv-cli-v21 -- --harness app
+  --source "distill-$batch" --profile g1k-think --tool-catalog agent-tool-v2.0 --cli local/bin/rwkv-cli-v21 -- --harness app

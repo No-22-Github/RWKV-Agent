@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate bench/weatherprobe/cases: get_weather probes for the work-v2 catalog.
+"""Generate bench/weatherprobe/cases: get_weather probes for the agent-tool-v2.0 catalog.
 
     python3 bench/weatherprobe/gen.py
 
@@ -8,7 +8,7 @@ clock 2026-09-16, so 明天 = 09-17 and 后天 = 09-18). The axes follow the
 2026-10-09 live probe: explicit asks, implicit needs (umbrella, clothing),
 weather feeding an artifact (where the model used to switch to web_search),
 a second city in a later turn, an unknown city, and questions that must not
-call get_weather. Run with --tool-catalog work-v2 --include-draft.
+call get_weather. Run with --tool-catalog agent-tool-v2.0 --include-draft.
 """
 import json
 import shutil

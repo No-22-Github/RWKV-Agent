@@ -1,4 +1,4 @@
-# b12 样板题构建脚本（v1.41：bash + get_weather，work-v2）
+# b12 样板题构建脚本（v1.41：bash + get_weather，agent-tool-v2.0）
 
 v1.41 的 20 道样板题：M9 bash 12 道（`m9a.py` 多文件统计 / 批量修改 / 长文件，`m9b.py` 工具缺失恢复 / 有 bash 但不该用 / cwd 不保留），
 M10 专用工具优先 8 道（`m10.py`、`m10b.py`）。规格见 [distill-allocation-v1.41.md](../../v1.41/distill-allocation-v1.41.md)。

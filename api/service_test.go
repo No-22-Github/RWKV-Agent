@@ -404,7 +404,7 @@ func TestWebToolsStayListedWithoutKeys(t *testing.T) {
 		case "web_search":
 			_, called["web_search"] = tool.Execute(context.Background(), json.RawMessage(`{"query":"golang","max_results":3}`))
 		case "web_fetch":
-			// work-v3: web_fetch reads pages without a key, so it no longer
+			// agent-tool-v3: web_fetch reads pages without a key, so it no longer
 			// answers "not configured"; only its presence is checked here.
 			called["web_fetch"] = nil
 		}

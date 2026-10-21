@@ -18,7 +18,7 @@ import (
 // A script holds each generation's raw text; the student's wire (System block,
 // receipts, reminders) comes from the harness at render time. The only wire
 // knowledge this side needs is how an action is spelled. This matches the
-// work-v1 corpus renderer and the harness write-back: name first, compact
+// agent-tool-v1.0 corpus renderer and the harness write-back: name first, compact
 // JSON, non-ASCII kept.
 const (
 	ToolCallOpen  = "<tool_call>"

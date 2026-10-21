@@ -28,15 +28,15 @@ type workspace struct {
 	filesystem  WorkspaceFS
 	root        string
 	unavailable bool
-	// lineCounts (work-v3 only; false keeps work-v2 byte-identical) adds a
+	// lineCounts (agent-tool-v3 only; false keeps agent-tool-v2.0 byte-identical) adds a
 	// line count to list_files entries.
 	lineCounts bool
-	// keepBuildDirs (work-v3 only) walks build/ and dist/ like any other
+	// keepBuildDirs (agent-tool-v3 only) walks build/ and dist/ like any other
 	// directory: in a user's workspace they often hold the reports and
 	// exports the task is about, and skipping them left no trace in the
 	// result. .git and node_modules stay skipped.
 	keepBuildDirs bool
-	// relaxed (work-v3 only) clamps out-of-range max_depth/max_results to
+	// relaxed (agent-tool-v3 only) clamps out-of-range max_depth/max_results to
 	// the nearest bound instead of rejecting the call, answers an empty
 	// search with a note, and words a missing path in Chinese with the next
 	// step. The 10-21 probe found each of these a dead end for the model.
@@ -66,7 +66,7 @@ func (r *WorkspaceResolver) Resolve(path string) (string, error) {
 
 // RelativizeError rewrites a raw filesystem error so the model-visible text
 // names the workspace-relative path instead of the host absolute one. See
-// workspace.relativizeError. A work-v3 resolver also words a missing path in
+// workspace.relativizeError. A agent-tool-v3 resolver also words a missing path in
 // Chinese with the next step (workspace.missingPathError).
 func (r *WorkspaceResolver) RelativizeError(err error) error {
 	if r == nil || r.workspace == nil {
@@ -656,7 +656,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	return result, t.workspace.relativizeError(err)
 }
 
-// clampLimit is work-v3's reading of a count argument: past the upper bound
+// clampLimit is agent-tool-v3's reading of a count argument: past the upper bound
 // it means the bound, below 1 it means the default.
 func clampLimit(value, fallback, upper int) int {
 	if value < 1 {
@@ -680,8 +680,8 @@ func emptySearchNote(query string) string {
 	return emptySearchTextNote
 }
 
-// missingPathError is relativizeError plus, in work-v3, a Chinese message
-// with the next step for a path that does not exist (work-v2 said
+// missingPathError is relativizeError plus, in agent-tool-v3, a Chinese message
+// with the next step for a path that does not exist (agent-tool-v2.0 said
 // "stat nope.txt: no such file or directory").
 func (w *workspace) missingPathError(err error) error {
 	var pathError *fs.PathError

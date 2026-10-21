@@ -1,11 +1,12 @@
-# 工具目录 work-v3：读写与网页工具重构 —— 实施规格书
+# 工具目录 agent-tool-v3：读写与网页工具重构 —— 实施规格书
 
 > 2026-10-19 起草，给接手实现的编码 Agent 看。带"必须""不许"的句子是硬约束，后面都写了理由。
 > **核心章节是 §2**：新工具的逐字描述、参数、返回样例、提示语原文，以及旧数据怎么迁移。这些只能照抄，不能自己发挥。
+> **命名（2026-10-21 起）**：工具目录统一叫 `agent-tool-v主.次`。旧名 `work-v1/v2/v3` 对应 `agent-tool-v1.0/v2.0/v3`，规则见 §6。本文原名 `work-v3-tools.md`，正文里的 `work-v3-window` 这类 reason 值和 `docs/evaluations/work-v3-m0/` 目录名是历史数据，保持原样。
 
 ## 0. 目标
 
-在**一次改动**里把读文件、改文件、网页三组工具重做，定为新目录 `work-v3`，App、评测、训练数据渲染三处共用同一份。三个要解决的问题，都有 10-17 新考卷的数据支撑（v2.1 lr2e-5，两遍）：
+在**一次改动**里把读文件、改文件、网页三组工具重做，定为新目录 `agent-tool-v3`，App、评测、训练数据渲染三处共用同一份。三个要解决的问题，都有 10-17 新考卷的数据支撑（v2.1 lr2e-5，两遍）：
 
 1. **大文件一读就是几万 token。**`read_file` 一次最多返回 64KB，不带行号，截断时只给 `"truncated": true`。一遍里有 59 次读取超过 4KB、14 次被截断（模型只能拿半个文件去计数）。读过大文件的题通过率 14–29%，其他题约 48%。
 2. **两个读文件工具重复，其中一个没人用。**`read_lines`（带行号、分段、返回总行数）在考卷里每题都提供，但只被调用过 2 次；`read_file` 被调用了约 1080 次。`replace_lines` 的 30 次报错里有 21 次是"end_line 超过最后一行"——模型读文件时看不到行号，也不知道总行数。
@@ -15,7 +16,7 @@
 
 ## 1. 改动总览
 
-| 工具 | work-v2 | work-v3 | 改动类型 |
+| 工具 | agent-tool-v2.0 | agent-tool-v3 | 改动类型 |
 |---|---|---|---|
 | `read_file` | 整个文件原文，≤ 64KB，无行号 | 带行号、可指定行区间；默认一屏，超出时告诉模型总行数和下一步怎么做 | **重做**（吸收 read_lines） |
 | `read_lines` | 行区间、带行号、≤ 200 行 | **删除** | 合并进 read_file |
@@ -29,16 +30,16 @@
 | `data_query` | 参数组合不对就报错 | `sum/avg/min/max` 只给 `field` 或 `expression` 之一时照常算；`count` 忽略多余的 field | 放宽 |
 | `bash` `datetime` `get_weather` | — | 不变 | — |
 
-work-v3 共 13 个工具（work-v2 是 14 个）。
+agent-tool-v3 共 13 个工具（agent-tool-v2.0 是 14 个）。
 
 **不做的事**（以下方案都考虑过，**不许**实现）：
 
 - **纯 bash 目录。**原因见 §0。
 - **web_fetch 加字符偏移参数**（MCP fetch 的 `start_index`、Claude Code WebFetch 的 `offset`）。10-19 做过一版，被用户否掉：模型要从结果里抄字符数，工具参数和训练数据对不上，缓存藏在工具里成了看不见的状态。
 - **web_fetch 让模型或外部模型先摘要**（Claude Code、Gemini CLI 的 `prompt` 参数）。10-19 实测：RWKV 自摘要会编造；DeepSeek 摘要准确，但每次要调外部 API，评测也不再可复现。
-- **str_replace 式编辑**（Claude Code Edit、Anthropic text editor、Gemini `replace`）。它要求模型把原文逐字抄出来，RWKV 是固定大小状态，逐字回忆远处的长段落正是它的弱项；而行号编辑只需要记住几个数字。等 work-v3 稳定后可以单独做 A/B，这一版不做。
+- **str_replace 式编辑**（Claude Code Edit、Anthropic text editor、Gemini `replace`）。它要求模型把原文逐字抄出来，RWKV 是固定大小状态，逐字回忆远处的长段落正是它的弱项；而行号编辑只需要记住几个数字。等 agent-tool-v3 稳定后可以单独做 A/B，这一版不做。
 - **删掉 data_query。**它约 31% 的调用报错，但归因后有 26 次是参数组合问题（比如 sum 同时给了或都没给 field/expression），放宽就能消掉，不是工具本身没用。
-- **改 work-v2。**work-v2 的代码路径必须原样保留，见 §6.1。
+- **改 agent-tool-v2.0。**agent-tool-v2.0 的代码路径必须原样保留，见 §6.1。
 
 ## 2. 工具逐字规格（核心章节）
 
@@ -87,7 +88,7 @@ note 模板（`{a}` `{b}` `{total}` `{next}` 是占位符，其余逐字照抄�
 
 `b == total` 时不带 note。`start_line > total` 时返回 `content: ""`，note 为 `文件只有 {total} 行，第 {a} 行之后没有内容。`。
 
-- **不许**再有 64KB 读取上限。行数、字节都按整个文件算——work-v2 的 read_lines 只读前 64KB 再数行，超过 64KB 的文件总行数会算错、后面的行也读不到，这是要修的 bug。整个文件大小上限改为 8MB；超过时报错 `文件超过 8MB，用 bash 的 head、grep、wc 处理。`
+- **不许**再有 64KB 读取上限。行数、字节都按整个文件算——agent-tool-v2.0 的 read_lines 只读前 64KB 再数行，超过 64KB 的文件总行数会算错、后面的行也读不到，这是要修的 bug。整个文件大小上限改为 8MB；超过时报错 `文件超过 8MB，用 bash 的 head、grep、wc 处理。`
 - 非 UTF-8、二进制文件的报错文字保持不变（考卷里有故意放的 GBK 文件）。
 
 ### 2.2 list_files
@@ -153,7 +154,7 @@ Parameters 不变（`urls`，1–4 个）。这样训练集里已有的 154 次 
 
 **分页面处理**。按 RWKV World 词表计 token（已有的 `TokenCount`）：
 
-- **短页面**（≤ 3000 token）：整页放进 `content`，和 work-v2 一样。
+- **短页面**（≤ 3000 token）：整页放进 `content`，和 agent-tool-v2.0 一样。
 - **长页面**（> 3000 token）：
   - 整页 Markdown 存为 `.web/{n}-{host}.md`。`n` 是本会话第几个存下来的页面，从 1 开始；`host` 去掉 `www.`，只保留 `[a-z0-9.-]`。例：`.web/1-github.com.md`。
   - `content` 只放开头若干行，按整行截取，不超过 1200 token。
@@ -166,10 +167,10 @@ Parameters 不变（`urls`，1–4 个）。这样训练集里已有的 154 次 
 {"pages":[{"source_id":"page-1","url":"https://github.com/BlinkDL/RWKV-LM","title":"RWKV-LM","content":"# RWKV: Parallelizable RNN with Transformer-level LLM Performance\n\nRWKV is an RNN with transformer-level LLM performance…\n","saved_as":".web/1-github.com.md","total_lines":812,"outline":["1: # RWKV: Parallelizable RNN…","45: ## Installation","120: ## Usage","388: ## RWKV-7"]}],"note":"有的页面较长，只显示了开头。全文已存到 saved_as 里的文件：用 read_file 的 start_line 跳到 outline 里的章节，或用 search_text 在 .web/ 里搜关键词。"}
 ```
 
-- 短页面不带 `saved_as`、`total_lines`、`outline`，返回形状和 work-v2 完全一样。
+- 短页面不带 `saved_as`、`total_lines`、`outline`，返回形状和 agent-tool-v2.0 完全一样。
 - 空页面、部分为空的提示语（`emptyWebFetchNote`、`partialWebFetchNote`）**原样保留**，它们是 10-16 探针挑出来的措辞。
 - 长页面 note 与空页面 note 同时出现时，用 `；` 连成一条，长页面 note 在前。
-- `truncated` 字段不再出现。work-v3 里不会再有"内容被丢掉"的情况，只有"内容存进了文件"。
+- `truncated` 字段不再出现。agent-tool-v3 里不会再有"内容被丢掉"的情况，只有"内容存进了文件"。
 
 ### 2.7 .web/ 存档区
 
@@ -211,7 +212,7 @@ Evaluate arithmetic with +, -, *, /, %, ^, parentheses, and abs/min/max/round/sq
 
 description、参数都不变，只放宽校验（考卷两遍里这三类报错合计 26 次）：
 
-| 情况 | work-v2 | work-v3 |
+| 情况 | agent-tool-v2.0 | agent-tool-v3 |
 |---|---|---|
 | `sum/avg/min/max` 同时给了 `field` 和 `expression` | 报错 | 用 `expression`，结果里加 `"ignored":"field"` |
 | `sum/avg/min/max` 两个都没给 | 报错 | 仍报错，但改成：`sum 需要 field（列名）或 expression（按行计算的式子），例如 {"operation":"sum","field":"qty"}。` |
@@ -219,14 +220,14 @@ description、参数都不变，只放宽校验（考卷两遍里这三类报错
 
 ### 2.11 目录顺序与系统提示词
 
-- 目录顺序只在 `internal/agent/product/tools.go` 的 `Tools()` 一处定义；评测的 `buildWorkToolCatalog` 对 work-v3 **必须**调用它，不许再自己拼。现在两份代码里 bash 和 get_weather 的先后顺序不一样（产品是 weather 在前，评测是 bash 在前），这是 10-15 记下的漂移。
+- 目录顺序只在 `internal/agent/product/tools.go` 的 `Tools()` 一处定义；评测的 `buildWorkToolCatalog` 对 agent-tool-v3 **必须**调用它，不许再自己拼。现在两份代码里 bash 和 get_weather 的先后顺序不一样（产品是 weather 在前，评测是 bash 在前），这是 10-15 记下的漂移。
 - 系统提示词里 bash 那一句改为：`bash runs in a sandbox whose /workspace is the user's workspace; use it for listing, counting, filtering or changing many files at once. Read single files with read_file, which shows numbered lines one screen at a time.`
 
 ### 2.12 旧数据迁移规则
 
-训练行只能由 harness 重放老师的动作脚本生成（`docs/design/corpus-g1k-wire-format.md`、`bench/distill/common/harness-corpus-render.md`）。换成 work-v3 后，老师的**动作**照旧重放，工具**返回值**按新规则重新生成。动作按下表改写：
+训练行只能由 harness 重放老师的动作脚本生成（`docs/design/corpus-g1k-wire-format.md`、`bench/distill/common/harness-corpus-render.md`）。换成 agent-tool-v3 后，老师的**动作**照旧重放，工具**返回值**按新规则重新生成。动作按下表改写：
 
-| 老师原动作（work-v2） | 重放时改成（work-v3） | 轨迹怎么处理 |
+| 老师原动作（agent-tool-v2.0） | 重放时改成（agent-tool-v3） | 轨迹怎么处理 |
 |---|---|---|
 | `read_file {"path":P}`，文件 ≤ 200 行且 ≤ 12KB | `read_file {"path":P,"start_line":null,"end_line":null}` | 直接保留：返回内容一样，只是多了行号 |
 | `read_file {"path":P}`，文件超过一屏 | 同上 | **整条轨迹（这一用户轮）作废，重新跑老师**。老师当时看到了整个文件，后面的思考和答案可能用到第 200 行以后的内容，新返回值撑不住 |
@@ -245,16 +246,16 @@ description、参数都不变，只放宽校验（考卷两遍里这三类报错
 
 - 题库（`bench/exam`、`bench/workbank`、`bench/distill/*/cases`）里出现 `read_lines` 的地方——`tool_policy.must_offer` / `never_offer`、`required_tools`、`forbidden_tools`、`max_calls` 的键——一律改成 `read_file`。考卷里提到 read_lines 或 replace_lines 的题有 22 道，workbank 有 2 道。
 - 用一次性脚本改写，放在 `scripts/migrate_work_v3_cases.py`，改完的题 `tags.version` 加 1。
-- 目录由跑分参数选，不由题目选：`rwkv-cli` 的 `--tool-catalog`，以及 `--harness app/raw` 时强制使用的目录（现在写死为 work-v2，见 `cmd/rwkv-cli/main.go` 约 1868 行）。work-v3 落地后：
-  - `--harness app` 默认改为 work-v3；
-  - `--harness app --tool-catalog work-v2` **必须仍然可用**，用来按老口径复现历史跑分。所以 `product.Tools()` 要加一个目录版本参数，work-v2 分支原样保留。
-- `bank lint` 的目录契约（`workCatalogNames`）加上 work-v3 的 13 个工具名。
+- 目录由跑分参数选，不由题目选：`rwkv-cli` 的 `--tool-catalog`，以及 `--harness app/raw` 时强制使用的目录（现在写死为 agent-tool-v2.0，见 `cmd/rwkv-cli/main.go` 约 1868 行）。agent-tool-v3 落地后：
+  - `--harness app` 默认改为 agent-tool-v3；
+  - `--harness app --tool-catalog agent-tool-v2.0` **必须仍然可用**，用来按老口径复现历史跑分。所以 `product.Tools()` 要加一个目录版本参数，agent-tool-v2.0 分支原样保留。
+- `bank lint` 的目录契约（`workCatalogNames`）加上 agent-tool-v3 的 13 个工具名。
 
 ## 3. 接口契约
 
-- `eval.WorkV3ToolCatalogName = "work-v3"`；`IsWorkToolCatalog` 认识它。
-- `product.Tools(set ToolSet, b Backends)` 增加 `set.Catalog`（`"work-v2"` 或 `"work-v3"`，零值为 work-v3）。work-v2 分支在内部调用原来的构造函数。
-- `buildWorkToolCatalog("work-v3", …)` 只调用 `product.Tools`，然后用 `requireWorkCatalogShape` 校验工具名。
+- `eval.WorkV3ToolCatalogName = "agent-tool-v3"`；`IsWorkToolCatalog` 认识它。
+- `product.Tools(set ToolSet, b Backends)` 增加 `set.Catalog`（`"agent-tool-v2.0"` 或 `"agent-tool-v3"`，零值为 agent-tool-v3）。agent-tool-v2.0 分支在内部调用原来的构造函数。
+- `buildWorkToolCatalog("agent-tool-v3", …)` 只调用 `product.Tools`，然后用 `requireWorkCatalogShape` 校验工具名。
 - `WebFetchProvider` 接口不变。本地抽取作为一个新的 provider，排在 App 设置里"先用哪个后端读网页"的列表最前面。
 - `StagedWorkspace` 新增 `ScratchPrefix = ".web/"`：`Changes()` 和 `Resolve()` 过滤这个前缀；对这个前缀的写入，只有 web_fetch 用的内部方法能执行。
 
@@ -265,9 +266,9 @@ description、参数都不变，只放宽校验（考卷两遍里这三类报错
 
 ## 4. 实现注意事项（这个项目特有的坑）
 
-### 4.1 不能动坏 work-v2
+### 4.1 不能动坏 agent-tool-v2.0
 
-1. work-v2 的目录哈希、提示词字节、返回值必须完全不变。M1 第一件事是加一条金样测试：用固定工作区跑一遍 work-v2 的每个工具，把 `workToolCatalogHash` 和返回 JSON 存成 golden，之后每个里程碑都要过这条测试。
+1. agent-tool-v2.0 的目录哈希、提示词字节、返回值必须完全不变。M1 第一件事是加一条金样测试：用固定工作区跑一遍 agent-tool-v2.0 的每个工具，把 `workToolCatalogHash` 和返回 JSON 存成 golden，之后每个里程碑都要过这条测试。
 2. 共用的辅助函数（如 `readFileLinesWithFS`）要改行为时，复制一份新的给 v3 用，不要在原函数上加分支。v2 的 64KB 截断"bug"在 v2 里也要原样保留——历史跑分就是在这个行为下得出的。
 
 ### 4.2 行号
@@ -305,14 +306,14 @@ go test ./internal/agent/... ./internal/lab/... ./cmd/...
 
 ### M1 —— 文件工具（2 天）
 
-- 按 §2.1–§2.5 实现，加 §4.1 的 work-v2 金样测试。
+- 按 §2.1–§2.5 实现，加 §4.1 的 agent-tool-v2.0 金样测试。
 - 单测必须覆盖以下情况，每条都要有一个**故意改坏就失败**的版本：
   - 5000 行的文件：不给行号时只返回 200 行，note 逐字等于模板。把 note 里的 `200` 改成别的数，测试必须失败。
   - 每行 100 字节、共 300 行的文件：在 12KB 处截断，返回不到 200 行。
-  - 100KB、3000 行的文件：读 `start_line=2900` 能读到第 2900 行（work-v2 的 read_lines 读不到）。
+  - 100KB、3000 行的文件：读 `start_line=2900` 能读到第 2900 行（agent-tool-v2.0 的 read_lines 读不到）。
   - replace_lines 的 `end_line=999` 落在 3 行的文件上：成功，`end_line_clamped: true`。
   - write_file 的内容是 `1: a\n2: b\n3: c`：被拒；内容是 `1: a`：照常写入。
-  - work-v2 金样：故意在 v2 的 read_file 描述里加一个空格，金样测试必须失败。
+  - agent-tool-v2.0 金样：故意在 v2 的 read_file 描述里加一个空格，金样测试必须失败。
 
 ### M2 —— 网页（2–3 天）
 
@@ -343,20 +344,25 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 
 ### M5 —— 训练数据重渲染与补老师（1–2 天，按 M0 的数字定）
 
-- 用 work-v3 重渲染 v2.1 全部路径（命令同 `bench/distill/tools/v21/README.md`，把 `--tool-catalog work-v2` 换成 `work-v3`）。
+- 用 agent-tool-v3 重渲染 v2.1 全部路径（命令同 `bench/distill/tools/v21/README.md`，把 `--tool-catalog agent-tool-v2.0` 换成 `agent-tool-v3`）。
 - 按 §2.12 作废并重跑老师，按 §4.4 第 8 条逐行对齐检查。
 - 产出 v2.1-v3 包，并和 v2.1 原包比较行数、条数、各场景的条数。
 
 ### M6 —— 重跑基准（GPU，约 1 天）
 
-- 新目录下，下面每一组都用新考卷跑两遍（口径同 `docs/evaluations/exam-v21-20261017/REPORT.md` §1，只把目录换成 work-v3）：基模、v2.0 MiSS、v2.1 lr2e-5（老权重，没见过 work-v3）。
+- 新目录下，下面每一组都用新考卷跑两遍（口径同 `docs/evaluations/exam-v21-20261017/REPORT.md` §1，只把目录换成 agent-tool-v3）：基模、v2.0 MiSS、v2.1 lr2e-5（老权重，没见过 agent-tool-v3）。
 - 另建一套**长网页探针**（20–30 题，网页按真实长度，任务是写报告、摘要、多页对比）和**大文件探针**（从考卷里读过大文件的 59 题中挑），两套目录都跑。
 - 验收：报告写清新旧目录下的分数差，以及哪些题因为目录变化翻转。老权重在新目录下掉分是预期结果，**不是 bug**——它们从没见过行号和 `.web/`。
 
 ## 6. 版本与可比性
 
-- 跑分记录里的目录哈希（ledger 的 `tool_catalog` 及哈希）不同的两次跑分不能直接比较。work-v3 落地后，所有新数字都和 M6 的新基准比。
-- 以后再改工具：只改描述文字或提示语时，目录名不变，但哈希会变，需要重跑基准；改参数、改返回形状、增删工具时，开新目录名（work-v4）。
+- 跑分记录里的目录哈希（ledger 的 `tool_catalog` 及哈希）不同的两次跑分不能直接比较。agent-tool-v3 落地后，所有新数字都和 M6 的新基准比。
+- **版本号规则（2026-10-21 修订，取代原来的“开新目录名”）**：目录名写作 `agent-tool-v主.次`，定义在 `internal/agent/product/catalog_version.go`，`run.json` 和 ledger 记录完整版本号。
+  - **主版本号**：模型看到的东西变了，也就是任何一个工具的名字、描述、参数说明或 schema 变了。目录哈希会变，训练数据要重新渲染，基准要重跑。例：v2 → v3。
+  - **次版本号**：只改工具行为（参数容错、提示语、报错文字、返回里多加字段），目录哈希不变。跑分记录只能靠版本号区分，基准同样要重跑。例：v3.0 → v3.1（§10–§11）。
+  - 现有版本：`agent-tool-v1.0`（原 work-v1）、`agent-tool-v2.0`（原 work-v2，冻结）、`agent-tool-v3.0`（原 work-v3，10-21 修复前，代码里已不可复现，指定它会报错）、`agent-tool-v3.1`（当前 App 目录）。
+  - 旧名只在读取端保留为别名：命令行参数、考卷清单、题目文件里的 `work-vN` 照常可用（题目文件按内容算考卷哈希，不改）。写出来的地方（CLI 帮助、`run.json`、ledger、文档、脚本）一律用新名。历史 `run.json` 里的 `work-v3` 在 ledger 中记作 `agent-tool-v3.0`。
+  - 每次改动都要更新 `catalog_version.go` 里的版本号，以及 `internal/agent/eval/workcatalog_v2_golden_test.go` 里固定的哈希（主版本号变化时）。
 
 ## 7. 参考：成熟框架的做法（2026-10-19 查）
 
@@ -395,19 +401,19 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 |---|---|---|---|
 | §2.1 读到末尾之后 | `第 {a} 行之后没有内容` | `文件只有 {total} 行，没有第 {a} 行。` | 原句在 start_line 大于总行数时读不通 |
 | §2.1 区间超过 200 行 | 不得超过 | 按一屏截断并给出 note，不报错 | 报错只会让模型重试一次；截断后它照样能接着读 |
-| §2.3 返回字段 | `replaced: "2..2"` | 沿用 work-v2 的 `replaced_from` / `replaced_to` / `total_lines`，加 `around` 和 `end_line_clamped` | 和老返回值保持一致，训练过的字段名不变 |
+| §2.3 返回字段 | `replaced: "2..2"` | 沿用 agent-tool-v2.0 的 `replaced_from` / `replaced_to` / `total_lines`，加 `around` 和 `end_line_clamped` | 和老返回值保持一致，训练过的字段名不变 |
 | §2.7 bash 写 `.web/` | 不生效 | 能写进暂存区，但不出现在改动面板，也不落盘 | 拦 bash 写入要改 sidecar；不落盘已经够用 |
 | §2.7 无暂存区时 | — | 存档放在主机临时目录，read_file / search_text / list_files 能读，bash 读不到 | 没有暂存区就没有 bash 能看到的共享文件系统 |
 | §2.9 `^` 乘方 | 新增 `^` | **不加**，乘方写 `pow(a, b)`；遇到 `^` 或 `**` 时报错，并提示写法 | Go 的表达式解析里 `^` 和 `+` 同级，`2*3^2` 会被算成 36，而且不报错 |
-| §2.12 read_file 动作 | 补上 `start_line:null,end_line:null` | 原样保留 | 参数解码不强制 required，`{"path":P}` 在 work-v3 里照常可用；只有 read_lines 改名为 read_file |
-| §2.13 题库迁移 | 写迁移脚本改题目文件 | **不改题目文件**。用 work-v3 跑分或渲染时，在运行时把题目里的 `read_lines` 当成 `read_file`（`eval.adaptCasesToCatalog`） | 题目文件一改，work-v2 就复现不了历史分数 |
-| §3 非 App 路径 | — | `--tool-catalog work-v3` 不加 `--harness app` 时也走 `product.Tools`，但 bash 用的是真实时钟 | 现行的跑分和渲染都用 `--harness app`，这条路径基本不用 |
+| §2.12 read_file 动作 | 补上 `start_line:null,end_line:null` | 原样保留 | 参数解码不强制 required，`{"path":P}` 在 agent-tool-v3 里照常可用；只有 read_lines 改名为 read_file |
+| §2.13 题库迁移 | 写迁移脚本改题目文件 | **不改题目文件**。用 agent-tool-v3 跑分或渲染时，在运行时把题目里的 `read_lines` 当成 `read_file`（`eval.adaptCasesToCatalog`） | 题目文件一改，agent-tool-v2.0 就复现不了历史分数 |
+| §3 非 App 路径 | — | `--tool-catalog agent-tool-v3.1` 不加 `--harness app` 时也走 `product.Tools`，但 bash 用的是真实时钟 | 现行的跑分和渲染都用 `--harness app`，这条路径基本不用 |
 
 **已验证的内容：**
 
 - `go test ./internal/... ./api/ ./cmd/rwkv-cli/` 全部通过。
-- work-v2 的两条金样测试都会在改坏时失败：故意往 v2 的 read_file 描述里加一个空格，目录哈希测试失败；故意改动 note 文字，v3 测试失败。
-- 用 work-v3 重渲染 b21p（75 题）：201 行全部生成，每行训练片段的文本和 v2.1 原包逐字相同，作废的 6 题也和原来一样。工具返回值已经是带行号的新格式，系统提示词里的 bash 那句也换成了新句子。
+- agent-tool-v2.0 的两条金样测试都会在改坏时失败：故意往 v2 的 read_file 描述里加一个空格，目录哈希测试失败；故意改动 note 文字，v3 测试失败。
+- 用 agent-tool-v3 重渲染 b21p（75 题）：201 行全部生成，每行训练片段的文本和 v2.1 原包逐字相同，作废的 6 题也和原来一样。工具返回值已经是带行号的新格式，系统提示词里的 bash 那句也换成了新句子。
 - 真实网页冒烟（`RWKV_LIVE_WEB=1`）：GitHub README 约 8 万字，会存档；arXiv 摘要页正常；gov.cn 读不到，交给 Tavily / DeepSeek 回退；携程只读到页脚（约 1400 字），**没有**被识别成反爬页。这是已知缺口。
 
 ## 9. 修订：长网页改为截断，不再存档（2026-10-20）
@@ -434,11 +440,11 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 **影响：**
 - b22f（8–16K 长任务，80 题）是按存档设计的，已移到 `bench/distill/v2.2/cases-shelved/`，以后再说。
 - b22c 有 8 题的页面约 4–5K token，现在会整页返回，判据不变。
-- 工具描述变了，所以 work-v3 下渲染的训练行（v2.1 重放的 `kept/`）要重新渲染一次才和 App 一致。不需要重跑老师。
+- 工具描述变了，所以 agent-tool-v3 下渲染的训练行（v2.1 重放的 `kept/`）要重新渲染一次才和 App 一致。不需要重跑老师。
 
 ## 10. 修订：四处“结果悄悄出错”（2026-10-21）
 
-10-21 工具审阅时，用临时探针实测出四处“不报错、但结果是错的”。只改了 work-v3 的行为，描述、参数和目录哈希都没变；work-v2 保持原样（每条都有测试锁住）。
+10-21 工具审阅时，用临时探针实测出四处“不报错、但结果是错的”。只改了 agent-tool-v3 的行为，描述、参数和目录哈希都没变；agent-tool-v2.0 保持原样（每条都有测试锁住）。
 
 | # | 工具 | 以前 | 现在 |
 |---|---|---|---|
@@ -447,11 +453,11 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 | A3 | `list_files` `search_text` | 名叫 `build`、`dist` 的目录整个跳过，结果里没有任何提示 | 只跳过 `.git` 和 `node_modules` |
 | A4 | `read_file` `replace_lines` | CRLF 文件的 `\r` 漏进内容（`"1: one\r\n"`）；replace_lines 写回时全部改成 LF | 读取时去掉行尾 `\r`；写回时沿用原文件的换行风格（CRLF 占多数就按 CRLF 写） |
 
-影响面（10-21 扫描 `bench/**/case.json`）：exam、workbank、holdout 一题都不涉及。build/dist 下有文件的题：v2.0 2 题、v2.1 7 题、v2.2 5 题、bashprobe 4 题，都是以 build 目录本身为对象的题（删构建产物、提示注入要求删 build）。工作区里有 CRLF 文件的题：v1.4 2 题、v1.41 1 题、v2.0 2 题、v2.1 1 题。已经出好的训练包不变；以后用 work-v3 重新渲染时，这些题里 list_files、search_text、read_file 的返回会和旧包不同。
+影响面（10-21 扫描 `bench/**/case.json`）：exam、workbank、holdout 一题都不涉及。build/dist 下有文件的题：v2.0 2 题、v2.1 7 题、v2.2 5 题、bashprobe 4 题，都是以 build 目录本身为对象的题（删构建产物、提示注入要求删 build）。工作区里有 CRLF 文件的题：v1.4 2 题、v1.41 1 题、v2.0 2 题、v2.1 1 题。已经出好的训练包不变；以后用 agent-tool-v3 重新渲染时，这些题里 list_files、search_text、read_file 的返回会和旧包不同。
 
 ## 11. 修订：参数容错与返回提示（2026-10-21）
 
-接着 §10，把 10-21 审阅里“不用改描述就能修”的问题也修了。同样只改 work-v3 的行为，描述、参数和目录哈希都没变：哈希仍是 `70cca57d…`，由 `TestWorkV3AppCatalogHashPinned` 固定。work-v2 原样不动，每一条都有测试检查 v2 的旧行为。
+接着 §10，把 10-21 审阅里“不用改描述就能修”的问题也修了。同样只改 agent-tool-v3 的行为，描述、参数和目录哈希都没变：哈希仍是 `70cca57d…`，由 `TestWorkV3AppCatalogHashPinned` 固定。agent-tool-v2.0 原样不动，每一条都有测试检查 v2 的旧行为。
 
 | # | 工具 | 现在的行为 |
 |---|---|---|
@@ -467,8 +473,8 @@ python3 scripts/migrate_work_v3_cases.py --check               # 迁移后再跑
 
 **对跑分的影响**（10-21 用 `exam-20261017`、`exam-20261020`、`exam-20261021` 的轨迹估算）：
 
-- 这几轮考卷记录的目录都是 **work-v2**（哈希 `be0c3178…`），这次没有改动 v2，历史分数不受影响。work-v3 还没有考卷基准（§5 的 M6）。
+- 这几轮考卷记录的目录都是 **agent-tool-v2.0**（哈希 `be0c3178…`），这次没有改动 v2，历史分数不受影响。agent-tool-v3 还没有考卷基准（§5 的 M6）。
 - 原本报错、现在会成功的调用很少。v2.1 lr2e-5 每遍涉及 2–4 题（其中 1–3 题当时失分），比两遍之间的波动（299 对 294）还小。G1L 基模涉及 18 题（其中 13 题失分），主要是 web_fetch 网址写法 12 次、datetime 写法 7 次。
 - 结果照样成功或失败、只是文字变了的调用多一些：找不到路径的中文报错 33–133 题、搜索空结果的 note 14–67 题、datetime 多出的字段 12–20 题。这些会改变模型看到的内容，影响方向要实际跑过才知道。
-- 注意：修复前后 work-v3 的目录哈希相同，ledger 区分不出这两种行为。目前 work-v3 只有蒸馏老师的轨迹，没有考卷跑分，所以暂时不构成问题；以后的 work-v3 基准都应该在这次提交之后跑。
-- 训练数据：已出的包里，work-v3 的工具返回是修复前的行为。重新渲染后，这些路径的 `<tool_response>` 会变（每一次 datetime 调用都会多出字段），`loss_spans` 覆盖的文本不变。
+- 注意：修复前后 agent-tool-v3 的目录哈希相同，ledger 区分不出这两种行为。目前 agent-tool-v3 只有蒸馏老师的轨迹，没有考卷跑分，所以暂时不构成问题；以后的 agent-tool-v3 基准都应该在这次提交之后跑。
+- 训练数据：已出的包里，agent-tool-v3 的工具返回是修复前的行为。重新渲染后，这些路径的 `<tool_response>` 会变（每一次 datetime 调用都会多出字段），`loss_spans` 覆盖的文本不变。

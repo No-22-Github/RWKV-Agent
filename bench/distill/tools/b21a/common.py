@@ -22,7 +22,7 @@ RA = {"must_offer": ["read_file", "append_file"], "never_offer": ["web_search", 
 RB = {"must_offer": ["bash"], "never_offer": ["web_search", "web_fetch"]}
 RLW = {"must_offer": ["read_lines", "write_file"], "never_offer": ["web_search", "web_fetch"]}
 
-BATCH = Batch(salt="b21a", author="llm:claude-sonnet-b21a", version="v2.1", tool_catalog="work-v2")
+BATCH = Batch(salt="b21a", author="llm:claude-sonnet-b21a", version="v2.1", tool_catalog="agent-tool-v2.0")
 EXTRA = {"batch": "b21a"}
 META = {}
 

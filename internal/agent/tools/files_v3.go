@@ -15,7 +15,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// work-v3 file tools (docs/design/work-v3-tools.md §2.1–§2.4). The work-v2
+// agent-tool-v3 file tools (docs/design/agent-tool-v3.md §2.1–§2.4). The agent-tool-v2.0
 // tools above stay byte-identical; nothing here is shared with them except
 // write_file/append_file, which v3 wraps without touching.
 const (
@@ -38,7 +38,7 @@ const (
 	numberedContentError = `content 里每一行都带着 "N: " 行号前缀，这是 read_file 显示用的，不属于文件内容。去掉前缀后再写。`
 )
 
-// FileToolsV3 returns work-v3's read_file plus the three writing tools, all on
+// FileToolsV3 returns agent-tool-v3's read_file plus the three writing tools, all on
 // one resolver (same containment and view as list_files and search_text from
 // agent.WorkspaceToolsV3).
 func FileToolsV3(root string, view agent.WorkspaceFS) (read agent.Tool, edits []agent.Tool, err error) {
@@ -241,7 +241,7 @@ func capLine(line string) string {
 }
 
 // readTextLinesV3 reads a whole text file (up to agent.MaxTextFileBytes) into
-// lines. Unlike work-v2's readFileLinesWithFS it never silently stops at a
+// lines. Unlike agent-tool-v2.0's readFileLinesWithFS it never silently stops at a
 // byte cap: a larger file is an error. Lines carry no "\r": a CRLF file
 // would otherwise show "1: one\r" to the model, and newline reports the
 // file's own line ending so a rewrite keeps it.
@@ -331,7 +331,7 @@ func looksNumbered(content string) bool {
 	return seen >= 2
 }
 
-// guardWrite is the shared work-v3 check before any write.
+// guardWrite is the shared agent-tool-v3 check before any write.
 func guardWrite(path, content string) error {
 	if looksNumbered(content) {
 		return fmt.Errorf("%w: %s", agent.ErrInvalidToolArguments, numberedContentError)
@@ -384,7 +384,7 @@ func (t *appendFileV3Tool) Execute(ctx context.Context, raw json.RawMessage) (an
 }
 
 // lineContent makes the appended text whole lines in the file's own line
-// ending: a break first when the file does not end with one (work-v2 glued
+// ending: a break first when the file does not end with one (agent-tool-v2.0 glued
 // "beta" + "gamma" into "betagamma"), and one at the end of the content. A
 // file that cannot be read as text is appended to unchanged.
 func (t *appendFileV3Tool) lineContent(path, content string) (string, error) {

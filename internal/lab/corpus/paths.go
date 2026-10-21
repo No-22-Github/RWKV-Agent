@@ -26,7 +26,7 @@ import (
 // shortest path first and further paths only when their tool sequence differs,
 // up to --max-per-case. Script case IDs are "<case id>--p<n>".
 
-// defaults are the work-v1 implementation defaults for tool arguments.
+// defaults are the agent-tool-v1.0 implementation defaults for tool arguments.
 // Arguments equal to them carry no information; teachers that fill every
 // schema field would otherwise teach the student to spell them out. Values
 // from internal/agent/tools.go and internal/agent/tools/{web,assistant}.go.

@@ -6,13 +6,13 @@
 > 改动记录：`docs/evaluations/bench-composition-20261015/REPORT.md` §8、`naturalize.py`。
 
 
-14 道题，测模型在 `work-v2` 工具目录下会不会用 `get_weather`、用得对不对。题目由 [`gen.py`](gen.py) 生成，答案全部来自每道题自带的 `weather_fixture`，固定时钟是 2026-09-16（周三），所以"明天"是 09-17，"后天"是 09-18。
+14 道题，测模型在 `agent-tool-v2.0` 工具目录下会不会用 `get_weather`、用得对不对。题目由 [`gen.py`](gen.py) 生成，答案全部来自每道题自带的 `weather_fixture`，固定时钟是 2026-09-16（周三），所以"明天"是 09-17，"后天"是 09-18。
 **改题只改生成器，不手改 `cases/`。**
 
 ```bash
 python3 bench/weatherprobe/gen.py
 ./local/bin/rwkv-cli agent-eval ... --profile g1k --strict-spec \
-  --cases bench/weatherprobe/cases --tool-catalog work-v2 --file-tools lines --include-draft \
+  --cases bench/weatherprobe/cases --tool-catalog agent-tool-v2.0 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m --remote-batch-wait 0s
 ```
 

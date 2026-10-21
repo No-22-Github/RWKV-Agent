@@ -30,4 +30,4 @@ python3 bench/distill/tools/v22/filter.py --script "$T/paths.jsonl" --cases "$T/
   --out "$T/script.jsonl" --report "$T/filter-report.json" \
   --require-reasoning --max-step-reasoning 900 --one-per-case
 local/bin/rwkv-lab-v3 corpus render --cases "$T/cases" --script "$T/script.jsonl" --out "$T/corpus" \
-  --source "distill-$out" --profile g1k-think --tool-catalog work-v3 --cli local/bin/rwkv-cli-v3 -- --harness app
+  --source "distill-$out" --profile g1k-think --tool-catalog agent-tool-v3.1 --cli local/bin/rwkv-cli-v3 -- --harness app

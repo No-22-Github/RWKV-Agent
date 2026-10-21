@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# work-v3 M5 (docs/design/work-v3-tools.md §2.12, §5): replay every v2.1 pack
-# input under the work-v3 catalog, same teacher actions, same cases.
+# agent-tool-v3.1 M5 (docs/design/agent-tool-v3.md §2.12, §5): replay every v2.1 pack
+# input under the agent-tool-v3.1 catalog, same teacher actions, same cases.
 #
 #   go build -o local/bin/rwkv-cli-v3 ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab-v3 ./cmd/rwkv-lab
 #   bench/distill/tools/v21/rerender_v3.sh
@@ -26,7 +26,7 @@ for item in "${inputs[@]}"; do
   rm -rf "$out"; mkdir -p "$out"
   # The saved render dir already holds the per-path cases (cfg-31003--p1) the
   # first render resolved, so replay it directly: same flags as corpus render
-  # (benchFlags), catalog work-v3, read_lines renamed to read_file.
+  # (benchFlags), catalog agent-tool-v3.1, read_lines renamed to read_file.
   python3 - "$src/script.jsonl" "$out/script.jsonl" <<'PY'
 import json, sys
 src, dst = sys.argv[1:]
@@ -34,7 +34,7 @@ with open(src) as f, open(dst, "w") as g:
     for line in f:
         entry = json.loads(line)
         for output in entry.get("outputs", []):
-            # work-v3 has no read_lines: rename it in the action and in the
+            # agent-tool-v3.1 has no read_lines: rename it in the action and in the
             # teacher's reasoning that names it, so the row stays consistent.
             for field in ("text", "reasoning"):
                 if isinstance(output.get(field), str):
@@ -44,7 +44,7 @@ PY
   cp -R "$src/cases" "$out/cases"
   source="$(python3 -c 'import json,sys; print(json.loads(open(sys.argv[1]).readline())["meta"]["source"])' "$src/rows.jsonl")"
   local/bin/rwkv-cli-v3 agent-eval --script "$out/script.jsonl" --cases "$out/cases" --include-draft \
-    --case-parallelism 32 --output "$out/run" --tool-catalog work-v3 --profile g1k-think --decision-max-tokens 4096 \
+    --case-parallelism 32 --output "$out/run" --tool-catalog agent-tool-v3.1 --profile g1k-think --decision-max-tokens 4096 \
     --file-tools lines --max-steps 16 --max-tokens 4096 --strict-spec --trace-prompt-bytes -1 --harness app \
     > "$O/$name/render.log" 2>&1 || true
   local/bin/rwkv-lab-v3 corpus rows --run "$out/run" --script "$out/script.jsonl" --cases "$out/cases" \

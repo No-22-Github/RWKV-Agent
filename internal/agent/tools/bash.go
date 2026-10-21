@@ -128,7 +128,7 @@ type BashResult struct {
 func (r BashResult) WorkspaceChanged() bool { return r.changed }
 
 // bashStagedNote is said only where changes really wait for review. Applied
-// changes keep the pre-staging wording, which the work-v2 catalog hash and the
+// changes keep the pre-staging wording, which the agent-tool-v2.0 catalog hash and the
 // v1.41 training data were built with.
 const bashStagedNote = "Changes are staged in memory for user review; all file tools share the session view. "
 

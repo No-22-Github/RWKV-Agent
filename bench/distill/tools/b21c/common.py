@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from casegen import Batch, lines  # noqa: E402,F401
 
-BATCH = Batch(salt="b21c", author="llm:claude-sonnet-b21c", version="v2.1", tool_catalog="work-v2")
+BATCH = Batch(salt="b21c", author="llm:claude-sonnet-b21c", version="v2.1", tool_catalog="agent-tool-v2.0")
 META = {}
 
 _ABS_ZH = ["没有", "没找到", "未找到", "找不到", "不存在", "缺少", "缺失", "未定义", "没定义", "没有配置", "未设置", "没设置", "没设",

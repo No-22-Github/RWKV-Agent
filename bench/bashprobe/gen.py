@@ -9,7 +9,7 @@ a case that the sandbox cannot solve never reaches the bank.
     python3 bench/bashprobe/gen.py            # regenerate and validate
     python3 bench/bashprobe/gen.py --check    # validate only, write nothing
 
-Run with: rwkv-cli agent-eval --cases bench/bashprobe/cases --tool-catalog work-v2
+Run with: rwkv-cli agent-eval --cases bench/bashprobe/cases --tool-catalog agent-tool-v2.0
           --file-tools lines --include-draft ...
 """
 import argparse

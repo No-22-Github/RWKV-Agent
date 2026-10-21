@@ -28,17 +28,12 @@ type ToolSet struct {
 	Bash bool
 	// Subagents adds spawn_agents.
 	Subagents bool
-	// Catalog picks the tool generation: CatalogWorkV3 (the zero value) or
-	// CatalogWorkV2, kept frozen so historical runs can be reproduced
-	// (docs/design/work-v3-tools.md §4.1).
+	// Catalog picks the tool generation (catalog_version.go): AgentToolV3
+	// (the zero value) or AgentToolV2, kept frozen so historical runs can be
+	// reproduced (docs/design/agent-tool-v3.md §4.1). Old work-vN names are
+	// accepted.
 	Catalog string
 }
-
-// Tool generations product.Tools can assemble.
-const (
-	CatalogWorkV2 = "work-v2"
-	CatalogWorkV3 = "work-v3"
-)
 
 // AppDefaultToolSet is the directory a new App connection offers: files, line
 // editing, web, weather and bash; sub-agents stay opt-in.
@@ -115,17 +110,21 @@ type Backends struct {
 // The order is part of the prompt (the control prompt lists tools in catalog
 // order), so it is fixed here and nowhere else.
 func Tools(set ToolSet, b Backends) ([]agent.Tool, error) {
-	switch set.Catalog {
-	case CatalogWorkV2:
+	catalog, err := CanonicalCatalog(set.Catalog)
+	if err != nil {
+		return nil, err
+	}
+	switch catalog {
+	case AgentToolV2:
 		return toolsV2(set, b)
-	case "", CatalogWorkV3:
+	case "", AgentToolV3:
 		return toolsV3(set, b)
 	default:
-		return nil, fmt.Errorf("unknown tool catalog %q", set.Catalog)
+		return nil, fmt.Errorf("tool catalog %s is not an App directory (%s or %s)", catalog, AgentToolV3, AgentToolV2)
 	}
 }
 
-// toolsV2 is the work-v2 directory, unchanged since the 10-17 exam.
+// toolsV2 is the agent-tool-v2.0 directory, unchanged since the 10-17 exam.
 func toolsV2(set ToolSet, b Backends) ([]agent.Tool, error) {
 	var filesystem agent.WorkspaceFS
 	switch {

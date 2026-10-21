@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "weatherprobe-b14",
   "description": "第 14 批题转来的天气场景题",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
   "hash": "ea7be6f748d38338c544d12238fbab549f0a0f3c57d607baac974eca6f99f2bf",
   "summary": {

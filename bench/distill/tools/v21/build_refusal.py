@@ -232,7 +232,7 @@ def main():
     p.add_argument("--rows", required=True, help="rendered rows.jsonl of that batch (passing cases)")
     p.add_argument("--out", required=True)
     p.add_argument("--limit", type=int, default=0)
-    p.add_argument("--ids-file", help="only these base case ids (v2.2: rebuild the refusals the work-v3 replay dropped)")
+    p.add_argument("--ids-file", help="only these base case ids (v2.2: rebuild the refusals the agent-tool-v3.1 replay dropped)")
     t = sub.add_parser("teacher")
     t.add_argument("--out", required=True)
     t.add_argument("--model", default="Qwen/Qwen3.7-Flash")

@@ -2,7 +2,7 @@
 
 > 2026-10-19。整体计划和为什么出这几批见 [distill-allocation-v2.2.md](distill-allocation-v2.2.md)。基础规格按顺序**全部读完**：[v2.1 第三波任务书](../v2.1/authoring-v2.1-wave3.md) → [v2.1 出题规格](../v2.1/authoring-v2.1.md) → [v2.0 出题规格](../v2.0/authoring-v2.0.md) → [b20abc 判据修订记录](../v2.0/reports/b20abc-judge-fix.md)。下面只写 v2.2 新增或改动的部分；没提到的一律按 v2.1 第三波执行（题族独立、App 暂存、终答长度、must_offer 含完整路径、裸数字判据等）。
 >
-> **10-19 改：工具目录换成 work-v3**（[work-v3-tools.md](../../../docs/design/work-v3-tools.md)，§8 是实际实现）。工具的变化见下面 §1.1，出题和判据都以 work-v3 为准。上下文上限从 8K 放宽到 16K，新增 b22f 专门出 8–16K 的长任务。
+> **10-19 改：工具目录换成 work-v3**（[agent-tool-v3.md](../../../docs/design/agent-tool-v3.md)，§8 是实际实现）。工具的变化见下面 §1.1，出题和判据都以 work-v3 为准。上下文上限从 8K 放宽到 16K，新增 b22f 专门出 8–16K 的长任务。
 
 ## 0. 这一轮和以前不一样的地方
 

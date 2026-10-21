@@ -36,9 +36,9 @@ type suiteSpec struct {
 }
 
 var suites = map[string]suiteSpec{
-	"workbank": {"workbank", []string{"--cases", "bench/workbank/cases", "--tool-catalog", "work-v1",
+	"workbank": {"workbank", []string{"--cases", "bench/workbank/cases", "--tool-catalog", agenteval.AgentToolV1,
 		"--file-tools", "lines", "--include-draft"}, 148, 48, true},
-	"p13": {"p13", []string{"--cases", "bench/holdout/p13", "--tool-catalog", "work-v1",
+	"p13": {"p13", []string{"--cases", "bench/holdout/p13", "--tool-catalog", agenteval.AgentToolV1,
 		"--file-tools", "lines", "--include-draft"}, 60, 48, true},
 	// The exam (bench/exam): manifests pin their cases, tool catalog and the
 	// App harness (--harness app comes from the manifest).

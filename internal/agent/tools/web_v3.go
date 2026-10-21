@@ -12,7 +12,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
-// work-v3 web_fetch (docs/design/work-v3-tools.md §2.6, as revised
+// agent-tool-v3 web_fetch (docs/design/agent-tool-v3.md §2.6, as revised
 // 2026-10-20): Markdown link targets and images are dropped, then the pages
 // share one 6000-token budget; a page over its share keeps its leading whole
 // lines and is flagged truncated. The 10-20 long-page probe found the MiSS
@@ -38,7 +38,7 @@ func stripLinkTargets(content string) string {
 	return markdownLink.ReplaceAllString(content, "$1")
 }
 
-// WebToolsV3 is work-v3's web pair: web_search with a backend-neutral
+// WebToolsV3 is agent-tool-v3's web pair: web_search with a backend-neutral
 // description and the cutting web_fetch.
 func WebToolsV3(options WebOptions) []agent.Tool {
 	return []agent.Tool{
@@ -144,7 +144,7 @@ const (
 // decodeFetchURLs reads web_fetch's urls the ways models actually send them:
 // the documented array, a single string in urls, or a singular url (string or
 // array). Measured on the 10-21 probe, each of those was a hard argument error
-// before. max_results stays accepted and ignored, as in work-v2.
+// before. max_results stays accepted and ignored, as in agent-tool-v2.0.
 func decodeFetchURLs(raw json.RawMessage) ([]string, error) {
 	var args struct {
 		URLs       json.RawMessage `json:"urls"`

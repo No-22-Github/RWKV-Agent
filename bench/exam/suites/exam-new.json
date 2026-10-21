@@ -2,7 +2,7 @@
   "schema": "rwkv-exam/v1",
   "name": "exam-new",
   "description": "按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md）",
-  "tool_catalog": "work-v2",
+  "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
   "hash": "f993abe7152114f350a39554bc637ccf50d26a3482622804c0bbd390bb66e205",
   "summary": {

@@ -44,10 +44,10 @@ type Case struct {
 	// cross-contaminate through one shared keyword map. Empty falls back to the
 	// suite-level fixture for legacy custom suites.
 	WebFixture []WebFixtureEntry `json:"web_fixture,omitempty"`
-	// WeatherFixture backs get_weather in the work-v2 catalog. A location the
+	// WeatherFixture backs get_weather in the agent-tool-v2.0 catalog. A location the
 	// fixture does not list answers "location not found".
 	WeatherFixture []WeatherFixtureEntry `json:"weather_fixture,omitempty"`
-	// OfferedTools (v1.3 §2.12) narrows the work-v1 catalog to a per-case
+	// OfferedTools (v1.3 §2.12) narrows the agent-tool-v1.0 catalog to a per-case
 	// subset: ~40% of distill rows drop 2-4 irrelevant tools so the model reads
 	// the turn's directory instead of reciting a memorized one. nil keeps the
 	// whole catalog; a name outside the catalog is a load-time error. The
@@ -273,7 +273,7 @@ type HarnessMetadata struct {
 	WebFixture               bool     `json:"web_fixture,omitempty"`
 	SubagentFixture          bool     `json:"subagent_fixture,omitempty"`
 	TokenCountVocabSHA256    string   `json:"token_count_vocab_sha256,omitempty"`
-	// ToolCatalog names the registered tool catalog ("work-v1" for the work
+	// ToolCatalog names the registered tool catalog ("agent-tool-v1.0" for the work
 	// bank's fixed twelve-tool directory); ToolCatalogHash pins the exact
 	// schemas offered, so a catalog change invalidates ledger comparability.
 	ToolCatalog     string `json:"tool_catalog,omitempty"`
@@ -599,7 +599,7 @@ type Config struct {
 	// substring), so web-tool e2e tasks run deterministically without network
 	// access and fetch compression can be validated end to end.
 	WebFixture []WebFixtureEntry
-	// ToolCatalog selects a registered fixed tool catalog ("work-v1"); it
+	// ToolCatalog selects a registered fixed tool catalog ("agent-tool-v1.0"); it
 	// replaces the per-suite toolset so every bank case faces the same
 	// directory, with the fixed clock and always-on web tools.
 	ToolCatalog string
