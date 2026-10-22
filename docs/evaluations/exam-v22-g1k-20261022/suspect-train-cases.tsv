@@ -1,0 +1,68 @@
+hyb-20091--p1	bad_final	终答放弃且过短/无终答
+log-32147--p1	bad_final	终答放弃且过短/无终答
+nt-34301--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34303--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34304--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34305--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34306--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34307--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34308--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34310--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34311--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34312--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34313--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34315--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34316--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34318--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34319--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34320--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34321--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34322--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34323--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34325--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34326--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34327--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34328--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+nt-34329--p1	calc_trivial	b22d D1(心算子类)首步调calculator算简单算术，与设计意图相反
+web-33005--p1	env_breach	思考里点破搜索结果是示例/占位/假链接(example域名)
+web-33048--p1	env_breach	思考里点破搜索结果是示例/占位/假链接(example域名)
+web-34047--p1	env_breach	思考里点破搜索结果是示例/占位/假链接(example域名)
+code-27203--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+code-33524--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+log-27211--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+log-31106--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+log-32102--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+log-32117--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+scr-28021--p1	false_belief	思考自述"工具对整数参数出问题/输出被压缩"等，但上下文里工具调用实际成功
+cfg-32222--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+doc-31005--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main
+fs-31018--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main
+hyb-27702--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-v20-qwen
+hyb-33620--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-b21o
+hyb-34336--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 3 次；src=distill-b22d
+log-31392--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main
+log-32101--p1	flail_retry	思考里4步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32104--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32113--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32115--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32121--p1	flail_retry	思考里4步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32122--p1	flail_retry	思考里4步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main，v21被截断后在v22补全的老轨迹
+log-32142--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+scr-28021--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 2 次；src=distill-v20-qwen
+tab-32050--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-v21-redo，v21被截断后在v22补全的老轨迹
+tab-32204--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+tab-32209--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+tab-32211--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 1 次；src=distill-main，v21被截断后在v22补全的老轨迹
+tab-32240--p1	flail_retry	思考里3步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 0 次；src=distill-main
+tab-32317--p1	flail_retry	思考里2步自述命令不匹配/结果不对/被截断后换写法重试，空输出bash 2 次；src=distill-v21-redo
+log-27211--p1	line_count_mismatch	终答/思考称文件902行，与上下文total_lines[1010]不符
+log-29426--p1	line_count_mismatch	终答/思考称文件269行，与上下文total_lines[4, 1174]不符
+tab-29109--p1	line_count_mismatch	终答/思考称文件1325行，与上下文total_lines[4]不符
+web-33073--p1	search_spin	空结果后连续换词搜索>=3次或web_search>=3次
+web-33076--p1	search_spin	空结果后连续换词搜索>=3次或web_search>=3次
+code-31053--p1	think_dup	同一轮相邻两步思考开头复读
+doc-27326--p1	think_dup	同一轮相邻两步思考开头复读
+hyb-33302--p1	think_dup	同一轮相邻两步思考开头复读
+hyb-33367--p1	think_dup	同一轮相邻两步思考开头复读
+log-33762--p1	think_dup	同一轮相邻两步思考开头复读
+tab-32006--p1	think_dup	同一轮相邻两步思考开头复读

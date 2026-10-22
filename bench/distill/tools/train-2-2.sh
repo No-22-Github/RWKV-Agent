@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # v2.2 MiSS (thinking) adapter training: segments-2-2.jsonl (train 5953 rows,
 # ctx 16K pack), one run at the v2.1 winner lr 2e-5 (r16, 2 epochs), on the
-# G1L preview base rwkv-g1l-7b-temp-3797. Built for the Alic-Li Arch server
+# G1K release base rwkv7-g1k-7.2b-20260930-ctx25600 (the same base as v2.1).
+# The first run on the G1L preview rwkv-g1l-7b-temp-3797 went bad, so its
+# output stays in train-2-2/ and this run writes to train-2-2-g1k/.
+# Built for the Alic-Li Arch server
 # (/mnt/nvme0n1/no22, rwkv_lighting_cuda v1.8.6 release, which ships
 # rwkv_miss_tune with the segments loss mask).
 #
@@ -9,7 +12,7 @@
 #                                     rows, foreground: checks memory at
 #                                     ctx 16384
 #   GPUS="0" ./train-2-2.sh           start the run (nohup)
-#   CHUNK=512 ...                     lower state-passing chunk if the smoke
+#   CHUNK=8192 ...                    lower state-passing chunk if the smoke
 #                                     run runs out of memory
 #
 # GPUS has no default: check nvidia-smi for a free card first.
@@ -29,15 +32,16 @@ set -euo pipefail
 trap 'echo "train-2-2.sh: line $LINENO failed (exit $?): $BASH_COMMAND" >&2' ERR
 cd "$(dirname "$0")"
 
-MODEL=${MODEL:-../rwkv-g1l-7b-temp-3797.pth}
-# HF LFS oid of BlinkDL/temp-latest-training-models rwkv-g1l-7b-temp-3797.pth
-MODEL_SHA256_PREFIX=7bbef36528bb15e9
+MODEL=${MODEL:-../rwkv7-g1k-7.2b-20260930-ctx25600.pth}
+# Same prefix as train-2-1.sh
+MODEL_SHA256_PREFIX=0853d4ce
 DATA=${DATA:-segments-2-2.jsonl}
 DATA_SHA256=4b119f4d4d97ad0d39c14ebc3a3be248c127b4c8d712bd006c54a3eb0849dcd9
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
-OUT=${OUT:-train-2-2}
+OUT=${OUT:-train-2-2-g1k}
 BASE_OUT=$OUT
-CHUNK=${CHUNK:-1024}
+# 16384 = the whole ctx in one chunk; the PRO 6000 (96 GB) has the memory.
+CHUNK=${CHUNK:-16384}
 SMOKE=${SMOKE:-0}
 ONLY=${ONLY:-}
 if [[ -z ${GPUS:-} ]]; then
@@ -56,7 +60,7 @@ COMMON=(--model "$MODEL" --vocab "$VOCAB"
 
 # name rank alpha lr lr-final epochs; lr-final is always lr/10
 RUNS=(
-  "g1l-r16-lr2e-5-e2  16 16 0.00002 0.000002 2"
+  "g1k-r16-lr2e-5-e2  16 16 0.00002 0.000002 2"
 )
 if [[ -n $ONLY ]]; then
   picked=()
@@ -149,7 +153,7 @@ if [[ $SMOKE == 1 ]]; then
     tail -n 5 "$OUT/logs/$name.log"
   done
   if (( fail )); then
-    echo "smoke failed; on out of memory retry with CHUNK=512" >&2
+    echo "smoke failed; on out of memory retry with CHUNK=8192" >&2
     exit 1
   fi
   echo "smoke ok; start the real runs with the same GPUS"

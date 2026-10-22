@@ -1,0 +1,102 @@
+id	scenario	task	task_type	v21(k0k1)	v22-v2	v22-v3	退步臂	强度	失分类型	稳定性	一句话	关联训练case
+cfg-0009	config	find-read	missing_keys	PP	FP	PP	v2	弱(差1遍)	B 取错值/读错	波动	v22-v2 一遍把 7 个键判成都已声明(漏 retry_backoff_ms)；v3 两遍全过	
+cfg-0012	config	find-read	missing_keys	PP	FF	FP	v2+v3	强(2→0)	B 取错值/读错	稳定	sfo-edge.yaml 不存在，改读 iad-core 顶替，没按"无法核实 sfo-edge"作答	
+code-0008	code	write	explain_readonly	PP	PP	PF	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍判错	
+code-0010	code	write	fix_edge_case	PP	FF	FF	v2+v3	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	读文件重复被拒→作答阶段吐工具→兜底；v2 一遍断言"已正确"没改	
+doc-0007	docs	find-read	link_check	PP	PP	FF	v3	强(2→0)	B 取错值/读错	稳定	抄错文件名 deploy-runbook.md(少个 s)，证据就在上下文	
+doc-0008	docs	find-read	link_check	PP	FF	PF	v2+v3	强(2→0)	B 取错值/读错	较稳定	选错断链条目 oncall-rota.md(应 rollback-checklist.md)	
+doc-0009	docs	find-read	policy_lookup	PP	PP	FF	v3	强(2→0)	F 不该调/调错工具	稳定	手册题连续 web_search×14 空转→兜底；v2 也 8-12 次后才回本地	b22a(entity→web)
+doc-0012	docs	write	write_structured	PF	FF	FF	v2+v3	弱(差1遍)	E 写/改文件任务失败或宣称完成	稳定	没读资料就写文件，臆造间隔值 12	
+fs-0005	filesystem	compute	count_by_type	PP	FF	FF	v2+v3	强(2→0)	C 没读全/不核对	稳定	不核对计数：v3 数一屏 ls 答 15，v2 search_text 答 0；v21 用 bash 数出 34	
+fs-0012	filesystem	compute	duplicates	PP	FF	PP	v2	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	list_files 报错/重复→兜底或答错路径	
+hyb-0006	hybrid	write	local_first	PP	PP	FF	v3	强(2→0)	F 不该调/调错工具	稳定	本地先行题 read 后连 web_search×12→兜底(forbidden web)	b22a
+hyb-0009	hybrid	external	web_then_calc	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	船队吨位取错/漏了"已注册"约束，数不对(v3 算 8967.68)	
+log-0005	logs	compute	count_events	PP	PP	FF	v3	强(2→0)	A 试错空转	稳定	grep|awk 条件反复换写法 7 次得 0(应 27)	log-32101--p1
+log-0009	logs	compute	time_window	PP	FF	PP	v2	强(2→0)	B 取错值/读错	稳定	首个 ERROR 时间取错(14:07:12 vs 13:52:10)	
+log-0012	logs	find-read	root_cause	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	时区换算：给 UTC 或错一秒，没按要求转新加坡时间	
+log-0013	logs	compute	aggregate_jsonl	PP	FP	FF	v2+v3	强(2→0)	A 试错空转	稳定	bash 聚合重复被拒→兜底	tab-32204--p1
+scr-0019	script	write	add_flag	FP	FF	FF	v2+v3	弱(差1遍)	J 波动嫌疑	对照不稳	v21 自己 1/2；v22 出现臆造 edit_file	
+tab-0010	tabular	compute	filter_count	PF	FF	FF	v2+v3	弱(差1遍)	J 波动嫌疑	对照不稳	v21 1/2；v22 用 calculator/awk 逐次换写法答 10(应 6)	tab-32317--p1
+tab-0017	tabular	compute	rank	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	整张 11 行表已在上下文，第三大取错(MRA-2137/2041 vs 2160)	
+web-0005	web	external	deprecation	PP	FF	PP	v2	强(2→0)	F 不该调/调错工具	稳定	该联网的题只用 search_text 搜本地→兜底	
+cfg-8001	config	find-read	read_effective	PP	PP	PF	v3	弱(差1遍)	B 取错值/读错	波动	v3 一遍多搜多读后漏讲 backfill_cron 无说明	
+cfg-8004	config	write	edit_value	PP	FF	PP	v2	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	replace_lines end_line=7>6 行报错→重复被拒→作答阶段吐工具→谎称已改	doc-31005--p1 fs-31018--p1(replace_lines 试错)
+cfg-8011	config	find-read	read_effective	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	局部配置题先 web_search 空→v2 误选 64，v3 直接"无法回答"	b22a: hyb-34015--p1 hyb-34034--p1(实体名无本地线索→先 web)
+doc-8003	docs	find-read	policy_lookup	PP	FF	FF	v2+v3	强(2→0)	I 拒答(称无权限/无网络)	稳定	v2 称"无权访问共享盘"零调用；v3 读了但摘要漏 October	(共享盘措辞→拒答,无直接训练对应)
+doc-8006	docs	write	policy_lookup	FP	FF	PP	v2	弱(差1遍)	J 波动嫌疑	对照不稳	v21 自己 1/2，v22-v3 2/2	
+doc-8011	docs	find-read	policy_lookup	PP	FF	PP	v2	强(2→0)	F 不该调/调错工具	稳定	先 web_search 空转 7 次，终于读到后又答错 15/空	b22a
+doc-8013	docs	find-read	extract_items	PP	FF	PP	v2	强(2→0)	B 取错值/读错	稳定	行动项数成 6(应 5)	
+fs-8013	filesystem	compute	largest	PF	FF	FF	v2+v3	弱(差1遍)	B 取错值/读错	对照不稳	选了 .bak 当最大"可用资产"；v21 也 1/2	
+hyb-8009	hybrid	compute	multi_turn	FP	PP	FF	v3	弱(差1遍)	J 波动嫌疑	对照不稳	多轮；v21 自己 1/2	
+log-8002	logs	find-read	root_cause	PP	FF	PP	v2	强(2→0)	B 取错值/读错	稳定	根因摘要指向 payments-gw 而非期望项	
+log-8003	logs	compute	aggregate_jsonl	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	摘要漏"恢复"字样/乱译(支付宝 API)	
+log-8014	logs	find-read	root_cause	PP	FF	FP	v2+v3	强(2→0)	B 取错值/读错	稳定	首个报错下游取成 db-primary(应 sms-gateway)	
+tab-8002	tabular	compute	filter_count	PP	PP	PF	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍 data_query 报错后兜底	
+tab-8012	tabular	compute	filter_count	PP	PP	FF	v3	强(2→0)	B 取错值/读错	稳定	23 行全在上下文，数"已完成"数成 12(应 14)	
+web-8001	web	external	lookup_value	PF	FF	FF	v2+v3	弱(差1遍)	I 拒答(称无权限/无网络)	较稳定	web_search 后称"我没有联网能力"	(无直接训练对应)
+web-8002	web	external	latest_version	PP	FF	PP	v2	强(2→0)	I 拒答(称无权限/无网络)	稳定	搜索×5-11 次后放弃道歉，没给出 fetch 失败的线索	
+bfcl_irrelevance_19	notool	answer-direct	concept	PP	FF	FF	v2+v3	强(2→0)	CALC 计算器判法问题	calculator	calculator 为主(另有 bash 空转、v2 一遍零答)	
+bfcl_irrelevance_2	notool	answer-direct	concept	PP	FF	FF	v2+v3	强(2→0)	CALC 计算器判法问题	calculator	calculator 为主(另有 bash 空转)	
+pb_csv_reconcile_returns	tabular	compute	reconcile	PP	PP	FF	v3	强(2→0)	A 试错空转	稳定	data_query 报错→bash×9 换写法→重复被拒	tab-32209--p1 tab-32211--p1
+bsh-0002	bashprobe	compute	filter_count	PP	FP	FF	v2+v3	强(2→0)	A 试错空转	稳定	grep|wc 反复换写法最终 0	log-32101--p1
+bsh-0008	bashprobe	write	bulk_rename	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	批量改名脚本写错(IMG_IMG_…)，输出里已见仍宣称完成	
+bsh-0009	bashprobe	write	scoped_delete	PP	FF	PP	v2	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	删除脚本报错/重复被拒仍宣称完成	
+bsh-0017	bashprobe	find-read	no_install	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	pip 不可用却编造"已手工安装 pandas"	
+bsh-0023	bashprobe	compute	duplicates	PP	FF	FP	v2+v3	强(2→0)	A 试错空转	稳定	哈希比对结果不一致(2组/1对/无 vs 13对)	tab-32204--p1
+bsh-0104	logs	compute	aggregate_jsonl	PP	PP	FF	v3	强(2→0)	A 试错空转	稳定	bash 聚合重复被拒→兜底	tab-32204--p1
+bsh-0128	config	write	edit_value	PP	FF	FF	v2+v3	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	16 步预算用尽(多余 ls、重复读)，只改了 3 个 stack 就进兜底/宣称完成	
+bsh-0142	web	external	lookup_value	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	用 bash curl 取网页(沙箱无网)而非 web_fetch→重复→兜底	
+bsh-0144	script	find-read	reproduce_output	FP	FF	FF	v2+v3	弱(差1遍)	J 波动嫌疑	对照不稳	v21 自己 1/2	
+bsh-0155	notool	answer-direct	snippet_in_reply	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	"只要命令"的纯问答题调 bash 数部门	(非 calculator 的 notool 误调)
+bsh-0160	tabular	write	aggregate	PP	FF	FF	v2+v3	强(2→0)	A 试错空转	稳定	awk/grep 换写法，漏第三个清单→兜底/答错	tab-32204--p1
+wth-0007	weatherprobe	external	compare_two	PP	FF	FF	v2+v3	强(2→0)	H 工具参数错误/臆造工具	稳定	get_weather 传不存在的 locations 数组→重复被拒→空答	训练里 get_weather 只有 days+location，无此形态
+wth-0008	weatherprobe	external	markdown_brief	PP	PP	FF	v3	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	datetime 重复被拒→兜底	
+wth-0108	hybrid	external	special_tool	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	get_weather 不支持地名后改 web_search×8 空转，v21 老实说工具只支持西宁	b22a
+wth-0110	hybrid	external	tool_then_write	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	补天气一次写满 5 行(多补了前面日期)，格式/范围不符	
+wth-0118	hybrid	external	special_tool	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	天气题先 web_search 空转并称"没有天气工具"	b22a
+wth-0122	hybrid	external	special_tool	PP	FP	PP	v2	弱(差1遍)	J 波动嫌疑	波动	v22-v2 一遍	
+wth-0125	hybrid	external	special_tool	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	第一轮没给出 5% 降水概率	
+wth-0127	notool	answer-direct	concept	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	纯概念题却 web_search	(非 calculator 的 notool 误调)
+wth-0129	notool	answer-direct	concept	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	纯概念题调 web_search/get_weather	(同上)
+wth-0130	notool	answer-direct	concept	PP	PP	PF	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍空答	
+cfg-12003	config	write	edit_value	PP	FP	PP	v2	弱(差1遍)	J 波动嫌疑	波动	v22-v2 一遍 replace_lines 报错重复	
+cfg-12004	config	write	merge	PP	FF	PP	v2	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	replace_lines 报错→重复被拒→谎称已合并	doc-31005--p1 fs-31018--p1
+cfg-13401	config	find-read	missing_keys	FP	FF	PP	v2	弱(差1遍)	J 波动嫌疑	对照不稳	v21 自己 1/2；v22-v3 反而 2/2；v22-v2 把 retry_backoff_ms 当 max_retry_backoff 答 500	
+cfg-13403	config	find-read	missing_keys	PP	PP	FP	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍 search_text 重复→兜底	
+doc-12001	docs	write	write_structured	FP	FF	FF	v2+v3	弱(差1遍)	D 重复被拒→兜底/步数耗尽	稳定	read_file 重复被拒→作答阶段吐工具→兜底，4 遍全垮(v21 也 1/2)	
+doc-13314	docs	find-read	policy_lookup	PP	PP	FF	v3	强(2→0)	C 没读全/不核对	稳定	v3 read_file 只给 179/784 行，改用 search_text 命中旧表"90 days"(应 45)	windowed 训练 169 例但训练里续读多
+doc-13316	docs	find-read	policy_lookup	PP	PP	FF	v3	强(2→0)	C 没读全/不核对	稳定	窗口读后改 bash×9 空转→猜 30 秒/称未规定	
+doc-13317	docs	find-read	policy_lookup	PP	PF	PF	v2+v3	弱(差1遍)	J 波动嫌疑	波动	年假天数多档判断，单遍失误	
+doc-13318	docs	find-read	policy_lookup	PP	FF	FF	v2+v3	强(2→0)	C 没读全/不核对	稳定	v3 窗口读后抓"超 150 欧要上报"(应 900)；v2 读后重复被拒答 500	
+doc-13407	docs	find-read	policy_lookup	PP	FF	PP	v2	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	搜索重复被拒→兜底	
+doc-13411	docs	find-read	extract_items	PP	FF	FF	v2+v3	强(2→0)	D 重复被拒→兜底/步数耗尽	稳定	ls 重复被拒→作答阶段吐工具→兜底 4 遍(v21 同样被拒却直接作答)	
+doc-14021	docs	write	draft_document	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	文件里只写了联系人名，没写通讯录里的邮箱地址(v21 写了)	
+doc-14025	docs	write	draft_document	PP	PP	FP	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍判错	
+doc-14026	docs	write	draft_document	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	只在对话里贴草稿，没调 write_file 保存	
+fs-14145	filesystem	compute	count_by_type	PP	PP	FF	v3	强(2→0)	G 格式/判分边界	稳定	要 JSON 却给表格并写文件	
+hyb-14045	hybrid	external	web_then_edit	PP	PP	PF	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍	
+hyb-14102	hybrid	write	undo_change	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	replace_lines 行号算错→产生重复键→连环 rewrite；第二轮未按"只改日志级别"撤销	doc-31005--p1 fs-31018--p1
+hyb-14105	hybrid	write	undo_change	PP	FF	FF	v2+v3	强(2→0)	E 写/改文件任务失败或宣称完成	稳定	整文件 replace_lines/改回版本时覆盖或遗漏	doc-31005--p1 fs-31018--p1
+hyb-14107	hybrid	external	special_tool	PP	FF	FF	v2+v3	强(2→0)	A 试错空转	稳定	calculator 传 datetime()语法报错→bash 日期算术写错→重复→作答阶段吐工具	hyb-33620--p1 hyb-34336--p1(bash 连环)
+hyb-14113	hybrid	external	special_tool	PP	FF	FF	v2+v3	强(2→0)	A 试错空转	稳定	22! 精确值：calculator 报错→bash/awk 换写法得科学计数	hyb-34336--p1
+hyb-14131	hybrid	write	confirm_destructive	PP	FF	FF	v2+v3	强(2→0)	G 格式/判分边界	稳定	正确地追问了，但措辞不含判分关键词(请问您想…)	
+hyb-14134	hybrid	write	confirm_destructive	PP	FF	FF	v2+v3	强(2→0)	G 格式/判分边界	稳定	同上，询问澄清而无"confirm/确认"字样	
+log-13104	logs	compute	count_events	PP	FF	FF	v2+v3	强(2→0)	A 试错空转	稳定	日期/列号换写法多次 awk，date 14 vs 15 混乱→兜底	log-32104--p1 log-32142--p1
+log-13112	logs	compute	count_events	PF	FF	FF	v2+v3	弱(差1遍)	J 波动嫌疑	对照不稳	多轮；v21 自己 1/2	
+log-13207	logs	find-read	root_cause	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	发布失败步骤取 app-07 而非 db-03 迁移	
+log-13302	logs	find-read	root_cause	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	后端服务取错(payments-svc/refund-svc vs ledger-svc)	
+log-13305	logs	find-read	locate_error	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	取"发布完成"那行之前的 ERROR	
+log-14144	logs	compute	count_events	FP	FF	FF	v2+v3	弱(差1遍)	G 格式/判分边界	对照不稳	要 JSON 回复，却写文件；v21 也 1/2	
+nt-13008	notool	answer-direct	ambiguous_request	PP	FF	FP	v2+v3	强(2→0)	F 不该调/调错工具	较稳定	指令含糊不先问就动手改配置文件	
+nt-14006	notool	answer-direct	rewrite_text	PP	FF	FF	v2+v3	强(2→0)	G 格式/判分边界	稳定	译成"尼姆布"，破坏必须保留的 Nimbus	
+nt-14010	notool	answer-direct	rewrite_text	PP	PP	FP	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍	
+nt-14018	notool	answer-direct	code_help	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	纯写 SQL 题去 list_files/write_file	
+nt-14020	notool	answer-direct	code_help	PP	FF	FF	v2+v3	强(2→0)	F 不该调/调错工具	稳定	纯解释题调 bash	
+tab-13108	tabular	compute	aggregate	PP	FF	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	要按件数最多，却按金额作答	
+tab-14114	tabular	compute	aggregate	PP	PP	FF	v3	强(2→0)	B 取错值/读错	稳定	平均订单额算错(1133.10 vs 141.64)，输入取错	
+tab-14137	tabular	compute	aggregate	PP	PP	FF	v3	强(2→0)	H 工具参数错误/臆造工具	稳定	臆造工具 json，之后读取失败	
+web-13415	web	external	lookup_value	PP	FP	FF	v2+v3	强(2→0)	B 取错值/读错	稳定	幻觉 max_body_bytes 值	
+web-14044	web	external	summarize_page	PP	PP	FP	v3	弱(差1遍)	J 波动嫌疑	波动	v3 一遍	
+bfcl_irrelevance_14	notool	answer-direct	concept	PP	PF	FP	v2+v3	弱(差1遍)	CALC 计算器判法问题	calculator	只因调 calculator	
+bfcl_irrelevance_21	notool	answer-direct	concept	PP	FF	FF	v2+v3	强(2→0)	CALC 计算器判法问题	calculator	只因调 calculator	
+bsh-0152	notool	answer-direct	stable_fact	PP	PP	PF	v3	弱(差1遍)	CALC 计算器判法问题	calculator	只因调 calculator	
