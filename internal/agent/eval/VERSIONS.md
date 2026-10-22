@@ -4,15 +4,15 @@
 决定两次跑分能不能直接比。**只有评测或判分行为变了、分数可能变时才往上加整数**；
 改名字、改注释、改帮助文字不加。工具目录的版本规则见
 [`internal/agent/product/catalog_version.go`](../product/catalog_version.go)
-（`agent-tool-v3.1`；主版本号变了模型看到的工具描述就变了）。
+（`agent-tool-v3.2`；主版本号变了模型看到的工具描述就变了）。
 
 ## 版本写法与语义
 
 | 对象 | 写法 | 主版本号 | 次版本号 | 哈希 |
 |---|---|---|---|---|
-| 工具目录 | `agent-tool-v3.1` | 工具名、描述、参数、schema 变了 | 只改工具行为 | `tool_catalog_hash`：主版本变它才变 |
+| 工具目录 | `agent-tool-v3.2` | 工具名、描述、参数、schema 变了 | 只改工具行为 | `tool_catalog_hash`：主版本变它才变 |
 | wire 格式 | `agent-wire-v1.0` | 模型看到的提示词或协议格式变了 | 解析容错、兜底等不进 canonical 的行为 | `wire_hash`：主版本变它才变 |
-| 考卷 | `agent-exam-v1.0` | 增删题 | 修订题面或判据 | `exam_hash`：两种情况都会变 |
+| 考卷 | `agent-exam-v1.1` | 增删题 | 修订题面或判据 | `exam_hash`：两种情况都会变 |
 | harness / scorer / outcome | `rwkv-agent-eval-v22` 等 | 只往上加整数：评测或判分行为变了、分数可能变时才加 | — | — |
 | schema_version | 整数 | 只往上加整数：记录格式不兼容时才加 | — | — |
 | 蒸馏数据 | `v2.3` | 训练配方或格式大改 | 加批次、修数据 | — |

@@ -186,7 +186,13 @@ type Expectation struct {
 	Plan                *PlanExpectation `json:"plan,omitempty"`
 	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
 	RequireActiveNoCall bool             `json:"require_active_no_call,omitempty"`
-	ForbidRouteFallback bool             `json:"forbid_route_fallback,omitempty"`
+	// NoCallAllowedTools names side-effect-free tools that do not break
+	// require_active_no_call: a turn whose only calls are to these tools still
+	// counts as answering without tool evidence. The exam lists calculator on
+	// its notool and BFCL irrelevance cases, since a 7B model confirming
+	// arithmetic with the calculator is the product behaviour we want.
+	NoCallAllowedTools  []string `json:"no_call_allowed_tools,omitempty"`
+	ForbidRouteFallback bool     `json:"forbid_route_fallback,omitempty"`
 
 	// OutputContainsAnyToken applies the whole-token match of
 	// OutputContainsToken to the OutputContainsAny alternatives, for a number

@@ -42,7 +42,7 @@ state 上传：**走 Cloudflare**（`rwkv-cli state upload --api-url https://api
 ## 3. 命令模板
 
 **主考卷（2026-10-15 起）**：`--cases bench/exam/full.json`（或 `quick.json`）。清单自带 `--harness app`，按 App 默认配置跑，预算参数不用给；
-`bench sweep --suites agent-exam,agent-exam-quick` 已注册（版本号和题数取自考卷清单；旧名 exam-full / exam-quick、带版本号的 agent-exam-v1.0 也可用，后者只在清单仍是该版本时有效），闸门自动按 App 预算和清单题数核对。API 模型加 `--chat-thinking disabled`、不传 `--profile`。
+`bench sweep --suites agent-exam,agent-exam-quick` 已注册（版本号和题数取自考卷清单；旧名 exam-full / exam-quick、带版本号的 agent-exam-v1.1 也可用，后者只在清单仍是该版本时有效），闸门自动按 App 预算和清单题数核对。API 模型加 `--chat-thinking disabled`、不传 `--profile`。
 跑前 `local/bin/rwkv-lab exam lint` 必须 0 违规；需要 `RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar`（暂存文件靠它）。
 
 ```bash

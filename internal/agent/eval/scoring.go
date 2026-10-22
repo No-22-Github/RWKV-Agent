@@ -25,7 +25,8 @@ func validateTurn(
 		failures = append(failures, "runner error: "+runErr.Error())
 	}
 	outcome := classifyTurnOutcome(result)
-	if expect.RequireActiveNoCall && !isActiveNoCall(result, outcome) {
+	if expect.RequireActiveNoCall && !isActiveNoCall(result, outcome) &&
+		!onlyAllowedCalls(result, outcome, expect.NoCallAllowedTools) {
 		failures = append(failures, fmt.Sprintf("active no-call required, outcome = %q", outcome))
 	}
 	if expect.ForbidRouteFallback && routeFailedClosed(result) {
@@ -827,6 +828,25 @@ func isActiveNoCall(result agent.Result, outcome TurnOutcome) bool {
 		return false
 	}
 	return len(stepTools(result.Steps)) == 0
+}
+
+// onlyAllowedCalls reports whether every call in the turn went to a tool in
+// allowed, so require_active_no_call still holds. Protocol failures do not
+// qualify: the outcome must be a clean call, not a broken envelope.
+func onlyAllowedCalls(result agent.Result, outcome TurnOutcome, allowed []string) bool {
+	if len(allowed) == 0 || outcome != OutcomeCalledTool {
+		return false
+	}
+	tools := stepTools(result.Steps)
+	if len(tools) == 0 {
+		return false
+	}
+	for _, tool := range tools {
+		if !slices.Contains(allowed, tool) {
+			return false
+		}
+	}
+	return true
 }
 
 func summarize(

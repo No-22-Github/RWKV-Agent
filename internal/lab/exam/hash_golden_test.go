@@ -12,8 +12,8 @@ import (
 // leaves it unchanged. A mismatch means the case set or a case file changed;
 // that needs a versions.json entry, not an updated expectation.
 var examHashes = map[string]string{
-	"bench/exam/full.json":  "c5ae05fc103d26fbb3489aab05bb61bd249a06100cd8e30f444a399c9ddec7c7",
-	"bench/exam/quick.json": "4f878054600911849bce49fb31346b5973d46e69484090f2f053e81bfff0ef27",
+	"bench/exam/full.json":  "0c0101883de4a8d63a6734cf7d2e841ca6788454d533d9c4f12ab36c5fdb1e2b",
+	"bench/exam/quick.json": "dc2ae8b9a8acb55d4b2aacf5477176443c8b3c7954623502b391f1a700bae623",
 }
 
 func TestExamHashesArePinned(t *testing.T) {

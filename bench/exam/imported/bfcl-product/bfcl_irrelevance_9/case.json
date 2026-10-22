@@ -14,14 +14,15 @@
     "status": "draft",
     "task_type": "concept",
     "traps": [],
-    "version": 1
+    "version": 2
   },
   "turns": [
     {
       "prompt": "Find the definite integral of f(x)=x^2 from x=1 to x=3.",
       "expect": {
         "tools": [],
-        "require_active_no_call": true
+        "require_active_no_call": true,
+        "no_call_allowed_tools": ["calculator"]
       }
     }
   ]

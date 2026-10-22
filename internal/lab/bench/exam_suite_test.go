@@ -31,8 +31,8 @@ func TestExamSuitesUseTheManifest(t *testing.T) {
 func TestResolveSuiteName(t *testing.T) {
 	for name, want := range map[string]string{
 		"exam-full": "agent-exam", "exam-quick": "agent-exam-quick",
-		"agent-exam": "agent-exam", "agent-exam-v1.0": "agent-exam",
-		"agent-exam-quick-v1.0": "agent-exam-quick", "workbank": "workbank",
+		"agent-exam": "agent-exam", "agent-exam-v1.1": "agent-exam",
+		"agent-exam-quick-v1.1": "agent-exam-quick", "workbank": "workbank",
 	} {
 		if got, err := resolveSuiteName(name); err != nil || got != want {
 			t.Fatalf("resolveSuiteName(%q) = %q, %v; want %q", name, got, err, want)
@@ -40,7 +40,7 @@ func TestResolveSuiteName(t *testing.T) {
 	}
 	// A versioned name that is not the manifest's version must not run the
 	// newer exam silently.
-	if _, err := resolveSuiteName("agent-exam-v9.9"); err == nil || !strings.Contains(err.Error(), "agent-exam-v1.0") {
+	if _, err := resolveSuiteName("agent-exam-v9.9"); err == nil || !strings.Contains(err.Error(), "agent-exam-v1.1") {
 		t.Fatalf("stale exam version error = %v", err)
 	}
 }

@@ -20,7 +20,7 @@
     "ref_calls": 0,
     "fixture_bytes": 40,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:gpt-6.1-sol",
     "reviewer": null
   },
@@ -35,7 +35,8 @@
         "tolerance": 0.001,
         "expected_number_in_text": true,
         "tools": [],
-        "require_active_no_call": true
+        "require_active_no_call": true,
+        "no_call_allowed_tools": ["calculator"]
       }
     }
   ],

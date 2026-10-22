@@ -1,8 +1,10 @@
 {
   "agent-exam": [
-    {"version": "v1.0", "hash": "c5ae05fc103d26fbb3489aab05bb61bd249a06100cd8e30f444a399c9ddec7c7", "cases": 568, "since": "2026-10-16", "note": "568 题：改题面 + Sonnet 补题 190 道后的版本，10-17 起所有考卷跑分都用它"}
+    {"version": "v1.0", "hash": "c5ae05fc103d26fbb3489aab05bb61bd249a06100cd8e30f444a399c9ddec7c7", "cases": 568, "since": "2026-10-16", "note": "568 题：改题面 + Sonnet 补题 190 道后的版本，10-17 起所有考卷跑分都用它"},
+    {"version": "v1.1", "hash": "0c0101883de4a8d63a6734cf7d2e841ca6788454d533d9c4f12ab36c5fdb1e2b", "cases": 568, "since": "2026-10-22", "note": "只改判据：notool 30 题与 BFCL irrelevance 20 题放行 calculator（no_call_allowed_tools），调计算器确认不再判错；题面与题集不变"}
   ],
   "agent-exam-quick": [
-    {"version": "v1.0", "hash": "4f878054600911849bce49fb31346b5973d46e69484090f2f053e81bfff0ef27", "cases": 76, "since": "2026-10-16", "note": "agent-exam-v1.0 的分层子集"}
+    {"version": "v1.0", "hash": "4f878054600911849bce49fb31346b5973d46e69484090f2f053e81bfff0ef27", "cases": 76, "since": "2026-10-16", "note": "agent-exam-v1.0 的分层子集"},
+    {"version": "v1.1", "hash": "dc2ae8b9a8acb55d4b2aacf5477176443c8b3c7954623502b391f1a700bae623", "cases": 76, "since": "2026-10-22", "note": "agent-exam-v1.1 的分层子集（题集同 v1.0，只改判据）"}
   ]
 }

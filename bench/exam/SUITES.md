@@ -30,8 +30,8 @@ RWKV_JUSTBASH_SIDECAR=$PWD/local/bin/justbash-sidecar ./local/bin/rwkv-cli agent
 
 | 考卷 | 题数 | 哈希 | 用途 | 清单 |
 |---|---|---|---|---|
-| agent-exam-v1.0 | 568 | `c5ae05fc103d` | 完整考卷：按 App 默认配置（agent-wire-v1.0，原名 g1k；工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
-| agent-exam-quick-v1.0 | 76 | `4f8780546009` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
+| agent-exam-v1.1 | 568 | `0c0101883de4` | 完整考卷：按 App 默认配置（agent-wire-v1.0，原名 g1k；工具全开、暂存文件、复读兜底）考用户在 App 里会做的事 | `bench/exam/full.json` |
+| agent-exam-quick-v1.1 | 76 | `dc2ae8b9a8ac` | 快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较 | `bench/exam/quick.json` |
 
 agent-exam-quick 一定是 agent-exam 的子集：按「任务类型 × 语言」分层，优先选 RWKV 历史上时对时错的题，每类留一道送分题和一道难题，每个来源至少 12%。名单在 `bench/exam/quick-ids.txt`（`rwkv-lab exam select-quick` 生成，每题后面注明入选原因）。
 
@@ -45,12 +45,14 @@ agent-exam-quick 一定是 agent-exam 的子集：按「任务类型 × 语言�
 | 版本 | 题数 | 哈希 | 起始日期 | 说明 |
 |---|---|---|---|---|
 | v1.0 | 568 | `c5ae05fc103d` | 2026-10-16 | 568 题：改题面 + Sonnet 补题 190 道后的版本，10-17 起所有考卷跑分都用它 |
+| v1.1 | 568 | `0c0101883de4` | 2026-10-22 | 只改判据：notool 30 题与 BFCL irrelevance 20 题放行 calculator（no_call_allowed_tools），调计算器确认不再判错；题面与题集不变 |
 
 ### agent-exam-quick
 
 | 版本 | 题数 | 哈希 | 起始日期 | 说明 |
 |---|---|---|---|---|
 | v1.0 | 76 | `4f8780546009` | 2026-10-16 | agent-exam-v1.0 的分层子集 |
+| v1.1 | 76 | `dc2ae8b9a8ac` | 2026-10-22 | agent-exam-v1.1 的分层子集（题集同 v1.0，只改判据） |
 
 ## 怎么解读分数
 
@@ -101,7 +103,7 @@ agent-exam-quick 一定是 agent-exam 的子集：按「任务类型 × 语言�
 | bash / 天气探针 | 专测 bash 和 get_weather 的题；「第二部分」来自第 14 批出题 |
 | agent-tool-v1.0 / v2.0 / v3.1 | 工具清单版本（旧名 work-v1/v2/v3，仍可在命令和清单里使用）。主版本号变了说明模型看到的工具描述或参数变了，小版本号变了说明只改了工具行为。v2.0 比 v1.0 多 bash 和 get_weather；v3 是现在 App 用的清单。考卷清单记的是 v2.0，历史分数都在 v2.0 下跑出来 |
 
-## agent-exam-v1.0 的构成（568 题）
+## agent-exam-v1.1 的构成（568 题）
 
 | 任务类型 | 中文 | 英文 | 合计 |
 |---|---|---|---|
@@ -143,7 +145,7 @@ agent-exam-quick 一定是 agent-exam 的子集：按「任务类型 × 语言�
 | 天气探针·第二部分 | 30 |
 | 考卷补题 | 190 |
 
-## agent-exam-quick-v1.0 的构成（76 题）
+## agent-exam-quick-v1.1 的构成（76 题）
 
 | 任务类型 | 中文 | 英文 | 合计 |
 |---|---|---|---|

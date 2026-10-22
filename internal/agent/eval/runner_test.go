@@ -569,6 +569,37 @@ func TestSemanticNoToolIsAnActiveNoCallOutcome(t *testing.T) {
 	}
 }
 
+func TestNoCallAllowedToolsKeepsActiveNoCall(t *testing.T) {
+	t.Parallel()
+	expect := Expectation{
+		Tools:               []string{},
+		RequireActiveNoCall: true,
+		NoCallAllowedTools:  []string{"calculator"},
+	}
+	call := func(tools ...string) agent.Result {
+		var steps []agent.Step
+		for _, tool := range tools {
+			steps = append(steps, agent.Step{Stage: agent.StageDecision, ActionType: agent.ActionTypeTool, Tool: tool})
+		}
+		steps = append(steps, agent.Step{Stage: agent.StageAnswer, ActionType: agent.ActionTypeFinal})
+		return agent.Result{Steps: steps, Output: "42"}
+	}
+	for name, tc := range map[string]struct {
+		result agent.Result
+		expect Expectation
+		pass   bool
+	}{
+		"no call":                   {call(), expect, true},
+		"calculator only":           {call("calculator", "calculator"), expect, true},
+		"calculator then read_file": {call("calculator", "read_file"), expect, false},
+		"calculator without allow":  {call("calculator"), Expectation{Tools: []string{}, RequireActiveNoCall: true}, false},
+	} {
+		if failures := validateTurn(tc.expect, tc.result, nil); (len(failures) == 0) != tc.pass {
+			t.Errorf("%s: failures = %v, want pass %v", name, failures, tc.pass)
+		}
+	}
+}
+
 func TestBFCLProductAcceptsBothProductTranscripts(t *testing.T) {
 	t.Parallel()
 	newConfig := func(runner agent.Options) Config {
