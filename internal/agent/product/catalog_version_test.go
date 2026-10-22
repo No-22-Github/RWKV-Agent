@@ -13,15 +13,17 @@ func TestCanonicalCatalog(t *testing.T) {
 		"Work-V3":           AgentToolV3,
 		"agent-tool-v2":     AgentToolV2,
 		"agent-tool-v3":     AgentToolV3,
-		"agent-tool-v3.1":   AgentToolV3,
+		"agent-tool-v3.2":   AgentToolV3,
 		" agent-tool-v1.0 ": AgentToolV1,
 	} {
 		if got, err := CanonicalCatalog(name); err != nil || got != want {
 			t.Fatalf("CanonicalCatalog(%q) = %q, %v; want %q", name, got, err, want)
 		}
 	}
-	if _, err := CanonicalCatalog("agent-tool-v3.0"); err == nil || !strings.Contains(err.Error(), "no longer be run") {
-		t.Fatalf("v3.0 must be refused as retired: %v", err)
+	for _, retired := range []string{"agent-tool-v3.0", "agent-tool-v3.1"} {
+		if _, err := CanonicalCatalog(retired); err == nil || !strings.Contains(err.Error(), "no longer be run") {
+			t.Fatalf("%s must be refused as retired: %v", retired, err)
+		}
 	}
 	if _, err := CanonicalCatalog("work-v4"); err == nil || !strings.Contains(err.Error(), AgentToolV3) {
 		t.Fatalf("unknown name error = %v", err)

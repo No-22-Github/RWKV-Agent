@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go/ast"
 	"go/parser"
+	"go/token"
 	"math"
 	"regexp"
 	"strconv"
@@ -21,7 +23,7 @@ import (
 // error for "^" or "**" says so.
 const calculatorV3Description = "Evaluate arithmetic with +, -, *, /, %, parentheses, and abs/min/max/round/sqrt/pow/ln/log10/exp. Use precision to format decimal or money results."
 
-const calculatorV3Hint = "calculator 只做四则运算和 abs/min/max/round/sqrt/pow/ln/log10/exp，乘方写 pow(a, b)，开方写 sqrt(x)；更复杂的计算用 bash：awk 'BEGIN{printf \"%.4f\\n\", 表达式}'。"
+const calculatorV3Hint = "calculator 只做四则运算、比较大小（如 3.9 > 3.11）和 abs/min/max/round/sqrt/pow/ln/log10/exp，乘方写 pow(a, b)，开方写 sqrt(x)；更复杂的计算用 bash：awk 'BEGIN{printf \"%.4f\\n\", 表达式}'。"
 
 func extendedFunction(name string, arguments []float64) (float64, bool, error) {
 	one := func(apply func(float64) float64, domain func(float64) bool) (float64, bool, error) {
@@ -57,7 +59,7 @@ var (
 	functionCall      = regexp.MustCompile(`[A-Za-z_]\s*\(`)
 	thousandsNumber   = regexp.MustCompile(`\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b`)
 	percentOfNumber   = regexp.MustCompile(`(\d+(?:\.\d+)?)\s*%(\s*(?:$|[)+\-*/,]))`)
-	expressionSymbols = strings.NewReplacer("×", "*", "÷", "/", "（", "(", "）", ")", "，", ",", "＋", "+", "－", "-", "＊", "*", "／", "/", "　", " ")
+	expressionSymbols = strings.NewReplacer("×", "*", "÷", "/", "（", "(", "）", ")", "＞", ">", "＜", "<", "≥", ">=", "≤", "<=", "≠", "!=", "，", ",", "＋", "+", "－", "-", "＊", "*", "／", "/", "　", " ")
 )
 
 // normalizeExpression rewrites the ways people write arithmetic that Go's
@@ -105,6 +107,9 @@ func (calculatorV3Tool) Execute(_ context.Context, raw json.RawMessage) (any, er
 	if err != nil {
 		return nil, invalidArguments("invalid expression: %v。%s", err, calculatorV3Hint)
 	}
+	if comparison, ok := topComparison(parsed); ok {
+		return compareV3(expression, comparison)
+	}
 	result, err := evaluateWith(parsed, nil, true)
 	if err != nil {
 		return nil, invalidArguments("%v。%s", err, calculatorV3Hint)
@@ -122,6 +127,68 @@ func (calculatorV3Tool) Execute(_ context.Context, raw json.RawMessage) (any, er
 		formatted = strconv.FormatFloat(result, 'f', *args.Precision, 64)
 	}
 	return calculatorResult{Expression: expression, Result: result, Formatted: formatted}, nil
+}
+
+// calculatorComparison answers "is a bigger than b": a 7B model misjudges
+// 3.9 against 3.11 and reaches for the calculator to check, which rejected
+// ">" until agent-tool-v3.2. Only a comparison at the top of the expression
+// is accepted; both sides are ordinary calculator expressions.
+type calculatorComparison struct {
+	Expression string  `json:"expression"`
+	Result     bool    `json:"result"`
+	Left       float64 `json:"left"`
+	Right      float64 `json:"right"`
+}
+
+var comparisonOperators = map[token.Token]func(a, b float64) bool{
+	token.GTR: func(a, b float64) bool { return a > b },
+	token.LSS: func(a, b float64) bool { return a < b },
+	token.GEQ: func(a, b float64) bool { return a >= b },
+	token.LEQ: func(a, b float64) bool { return a <= b },
+	token.EQL: nearlyEqual,
+	token.NEQ: func(a, b float64) bool { return !nearlyEqual(a, b) },
+}
+
+// nearlyEqual absorbs binary rounding, so 0.1+0.2 == 0.3 holds as a user
+// means it.
+func nearlyEqual(a, b float64) bool {
+	return math.Abs(a-b) <= 1e-9*math.Max(1, math.Max(math.Abs(a), math.Abs(b)))
+}
+
+func topComparison(expression ast.Expr) (*ast.BinaryExpr, bool) {
+	for {
+		paren, ok := expression.(*ast.ParenExpr)
+		if !ok {
+			break
+		}
+		expression = paren.X
+	}
+	binary, ok := expression.(*ast.BinaryExpr)
+	if !ok {
+		return nil, false
+	}
+	_, ok = comparisonOperators[binary.Op]
+	return binary, ok
+}
+
+func compareV3(expression string, comparison *ast.BinaryExpr) (any, error) {
+	sides := [2]float64{}
+	for index, side := range []ast.Expr{comparison.X, comparison.Y} {
+		value, err := evaluateWith(side, nil, true)
+		if err != nil {
+			return nil, invalidArguments("%v。%s", err, calculatorV3Hint)
+		}
+		if math.IsNaN(value) || math.IsInf(value, 0) {
+			return nil, invalidArguments("expression result must be finite")
+		}
+		sides[index] = value
+	}
+	return calculatorComparison{
+		Expression: expression,
+		Result:     comparisonOperators[comparison.Op](sides[0], sides[1]),
+		Left:       sides[0],
+		Right:      sides[1],
+	}, nil
 }
 
 type dataQueryV3Tool struct{ inner *dataQueryTool }

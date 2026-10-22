@@ -720,7 +720,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				&options.evalToolCatalog,
 				"tool-catalog",
 				"",
-				"register a fixed tool catalog for --cases suites: agent-tool-v1.0 (twelve tools, fixed clock, always-on fixture web tools), agent-tool-v2.0 (v1.0 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh) or agent-tool-v3.1 (the App directory); the old names work-v1/v2/v3 are still accepted",
+				"register a fixed tool catalog for --cases suites: agent-tool-v1.0 (twelve tools, fixed clock, always-on fixture web tools), agent-tool-v2.0 (v1.0 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh) or agent-tool-v3.2 (the App directory); the old names work-v1/v2/v3 are still accepted",
 			)
 			fs.StringVar(
 				&options.evalHarness,

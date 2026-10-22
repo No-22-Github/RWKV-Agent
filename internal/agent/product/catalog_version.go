@@ -16,10 +16,11 @@ import (
 //	agent-tool-v2.0  was work-v2: v1 + bash + get_weather
 //	agent-tool-v3.0  was work-v3 until 2026-10-21 (no longer reproducible)
 //	agent-tool-v3.1  work-v3 with the 10-21 behavior fixes (docs/design/agent-tool-v3.md §10–§11)
+//	agent-tool-v3.2  v3.1 + calculator comparisons (3.9 > 3.11), 2026-10-22 (§12)
 const (
 	AgentToolV1 = "agent-tool-v1.0"
 	AgentToolV2 = "agent-tool-v2.0"
-	AgentToolV3 = "agent-tool-v3.1"
+	AgentToolV3 = "agent-tool-v3.2"
 )
 
 // catalogAliases maps the old work-vN names and the bare major versions to
@@ -35,6 +36,7 @@ var catalogAliases = map[string]string{
 // retiredCatalogs are versions whose behavior is no longer in the code.
 var retiredCatalogs = map[string]string{
 	"agent-tool-v3.0": "agent-tool-v3.0 is the work-v3 behavior before the 2026-10-21 fixes and can no longer be run; use " + AgentToolV3,
+	"agent-tool-v3.1": "agent-tool-v3.1 is agent-tool-v3 before calculator comparisons (2026-10-22) and can no longer be run; use " + AgentToolV3,
 }
 
 // CanonicalCatalog returns the version a catalog name selects; "" stays ""

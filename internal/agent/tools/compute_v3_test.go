@@ -38,6 +38,22 @@ func TestCalculatorV3Functions(t *testing.T) {
 	}
 }
 
+func TestCalculatorV3Compares(t *testing.T) {
+	for expression, want := range map[string]bool{"3.9 > 3.11": true, "3.9 < 3.11": false, "(1/3) >= 0.333": true, "sqrt(2) ≤ 1.5": true, "0.1+0.2 == 0.3": true, "2*3 != 6": false} {
+		raw, _ := json.Marshal(map[string]any{"expression": expression})
+		value, err := calculatorV3Tool{}.Execute(context.Background(), raw)
+		if err != nil {
+			t.Fatalf("%s: %v", expression, err)
+		}
+		if got := value.(calculatorComparison).Result; got != want {
+			t.Fatalf("%s = %v, want %v", expression, got, want)
+		}
+	}
+	if _, err := calcV3(t, "1 + (2 > 1)"); err == nil {
+		t.Fatal("a comparison nested inside arithmetic was accepted")
+	}
+}
+
 func TestDataQueryV3Relaxed(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "orders.csv"), []byte("sku,qty,price\na,2,3\nb,5,1\n"), 0o644); err != nil {
