@@ -114,12 +114,18 @@ func TestAnswerFallbackSummaryText(t *testing.T) {
 	want := "这次没能直接给出回答。我查过的内容：\n" +
 		"- web_search「quillbrook-sdk」：没有结果\n" +
 		"- web_fetch「https://a.example/x」：页面没有正文\n" +
-		"- read_file「notes.md」：出错（file not found）\n\n" +
+		"- read_file「notes.md」：出错（file not found）\n" +
 		"没有查到能回答这个问题的信息。你可以换个说法再问，或者提供具体的网址或文件，我再查一次。"
 	if got != want {
 		t.Fatalf("summary =\n%s\nwant\n%s", got, want)
 	}
 	if violations := validateAnswer(got); len(violations) != 0 {
 		t.Fatalf("summary violates the answer contract: %v", violations)
+	}
+	english := answerFallbackSummaryText("check the quillbrook-sdk version", steps[:1])
+	for _, text := range []string{got, english} {
+		if strings.Contains(text, "\n\n") {
+			t.Fatalf("summary contains a blank line, which splits the RWKV block: %q", text)
+		}
 	}
 }

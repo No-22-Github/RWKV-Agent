@@ -116,7 +116,9 @@ func answerFallbackSummaryText(task string, steps []Step) string {
 		out.WriteString("I could not produce a direct answer this time. What I looked up:\n")
 	}
 	out.WriteString(strings.Join(lines, "\n"))
-	out.WriteString("\n\n")
+	// A single newline: the text is replayed in later turns, and "\n\n" there
+	// reads as a block boundary in the RWKV transcript.
+	out.WriteString("\n")
 	switch {
 	case gotContent && zh:
 		out.WriteString("工具已经拿到了一些内容，但这次没能据此整理出回答，可以让我再试一次。")
