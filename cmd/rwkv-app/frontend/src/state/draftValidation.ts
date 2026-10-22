@@ -53,3 +53,17 @@ export function derivedProviderLabel(config: Config): string {
   if (model && host) return `${model} · ${host}`
   return model || host || '远端连接'
 }
+
+/*
+ * 档案名是不是自动名（用户没改过）。除了等于当前派生名，还认「某个模型 · 当前主机」：
+ * 换过模型的老档案里存着的是旧模型派生出来的名字，只比当前派生名会把它当成用户起的名而冻结。
+ * 模型 ID 不含空格，用户自己起的名字很难恰好长这样。
+ */
+export function isAutoProviderLabel(label: string, config: Config): boolean {
+  const value = label.trim()
+  if (!value || value === derivedProviderLabel(config)) return true
+  if (config.provider === Provider.ProviderLocal) return false
+  const host = derivedProviderLabel(new Config({ ...config, model: '' }))
+  const suffix = ` · ${host}`
+  return value.endsWith(suffix) && /^\S+$/.test(value.slice(0, -suffix.length))
+}

@@ -32,7 +32,7 @@ import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveEvent, LiveTurn } from './trajectory/rwkv-adapter'
 import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
-import { useAgentSettings } from './state/agentSettings'
+import { patchAgentSettings, useAgentSettings } from './state/agentSettings'
 import { applyTheme, getThemePreference, setThemePreference, watchSystemTheme, type ThemePreference } from './theme'
 import { useSnackbar } from './snackbar'
 import { writeClipboard } from './trajectory/primitives/clipboard'
@@ -108,7 +108,7 @@ export default function App() {
   const stopped = useRef(false)
   const eventRunID = useRef<string | null>(null)
   const latestEventRun = useRef(0)
-  // 聊天页的失败要在聊天页看得见：settingsMessage 只在设置页底部渲染。
+  // 失败一律走右下角通知，设置页和对话页都看得见。
   const reportError = (error: unknown) => notify(errorText(error), 'error')
   const { settingsOpen } = manager
 
@@ -147,10 +147,12 @@ export default function App() {
       }
       setActivity((current) => [...current, { ...data, at: Date.now() }])
     })
+    // 后端给用户的提示（例如记住的 State 已被服务端清空、这次没用上）。
+    const offNotice = Events.On('app:notice', (event) => notify(String(event.data ?? ''), 'info'))
     const offChanges = Events.On('workspace:changes', (event) => setFileChanges((event.data || []) as FileChange[]))
     const offChangesError = Events.On('workspace:changes-error', (event) => reportError(event.data))
     void Backend.FileChanges().then(setFileChanges).catch(reportError)
-    return () => { offStatus(); offAgent(); offChanges(); offChangesError() }
+    return () => { offStatus(); offAgent(); offNotice(); offChanges(); offChangesError() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -207,12 +209,17 @@ export default function App() {
   async function activateProviderNow(id: string) {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
-    try { await manager.activateProvider(id) } catch (error) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } finally { setBusy(false) }
+    try { await manager.activateProvider(id) } catch (error) { reportError(error) } finally { setBusy(false) }
   }
   async function toggleCapabilityNow(key: 'enableWeb' | 'enableSubagents', value: boolean) {
     if (busy) return
     setBusy(true)
-    try { await manager.setRuntimeCapability(key, value) } catch (error) { reportError(error) } finally { setBusy(false) }
+    try { await patchAgentSettings({ [key]: value }); await manager.refreshProviders() } catch (error) { reportError(error) } finally { setBusy(false) }
+  }
+  async function setFormatNow(presetId: string) {
+    if (busy) return
+    setBusy(true)
+    try { await manager.setRuntimeFormat(presetId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
   }
   // 导出当前会话所有轮次的原始 trace，每行一轮（JSONL）。
   async function exportTrajectory() {
@@ -243,7 +250,7 @@ export default function App() {
   async function deleteProviderNow(id: string) {
     if (busy) return
     setBusy(true)
-    try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
+    try { await manager.deleteProvider(id) } catch (error) { reportError(error) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
     liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0)
@@ -261,7 +268,7 @@ export default function App() {
   }
   function ensureReady() {
     if (ready) return true
-    manager.openSettings(); manager.setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。')
+    manager.openSettings(); notify('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。')
     return false
   }
   async function sendMessage(value: string) {
@@ -365,7 +372,7 @@ export default function App() {
   async function newConversation() { if (busy) return; try { await Backend.NewConversation(); liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
-  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } } finally { setBusy(false) } }
+  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) reportError(error) } finally { setBusy(false) } }
   async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function renameConversation(id: string, title: string) {
     try { await Backend.RenameConversation(id, title); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) }
@@ -393,7 +400,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section, options) => { setRunConfigOpen(false); manager.openSettings(section, options) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetFormat={setFormatNow} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section, options) => { setRunConfigOpen(false); manager.openSettings(section, options) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}

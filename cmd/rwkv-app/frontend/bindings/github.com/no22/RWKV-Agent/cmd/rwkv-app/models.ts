@@ -277,6 +277,42 @@ export const DisplayMessage = appstorage$0.DisplayMessage;
 export type DisplayMessage = appstorage$0.DisplayMessage;
 
 /**
+ * RuntimeFormat 是对话页格式芯片选中的一档：工具协议、wire 预设、wire 覆盖与思考模式。
+ */
+export class RuntimeFormat {
+    "agentProtocol": api$0.AgentProtocol;
+    "profile": string;
+    "wire": string;
+    "thinking": string;
+
+    /** Creates a new RuntimeFormat instance. */
+    constructor($$source: Partial<RuntimeFormat> = {}) {
+        if (!("agentProtocol" in $$source)) {
+            this["agentProtocol"] = api$0.AgentProtocol.$zero;
+        }
+        if (!("profile" in $$source)) {
+            this["profile"] = "";
+        }
+        if (!("wire" in $$source)) {
+            this["wire"] = "";
+        }
+        if (!("thinking" in $$source)) {
+            this["thinking"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RuntimeFormat instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RuntimeFormat {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new RuntimeFormat($$parsedSource as Partial<RuntimeFormat>);
+    }
+}
+
+/**
  * StateEntry is one server-side state joined with the local upload record, if
  * this machine uploaded it.
  */

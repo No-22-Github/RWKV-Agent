@@ -63,10 +63,39 @@ type Settings struct {
 	UpdatedAt time.Time      `json:"updatedAt"`
 }
 
-// AgentSettings 是所有连接档案共用的 Agent 设置：搜索与抓取的 API Key、搜索路由、
-// 天气数据源。它们和用哪个模型无关，只存一份，不再复制进每个档案。
-// 各工具开不开仍由档案里的 enableWeb / weatherBackend 决定。
+// AgentSettingsRevision 是 AgentSettings 当前的版本：2 起生成参数、工具开关与提示词
+// 也从档案搬进了这里。低于它的设置第一次读取时从旧档案补齐（见 AgentSettings）。
+const AgentSettingsRevision = 2
+
+// AgentSettings 是所有连接档案共用的 Agent 设置：和用哪个端点无关的一切——
+// 采样、预算、工具开关与调度、提示词，以及搜索与抓取的 API Key、搜索路由、天气数据源。
+// 只存一份，不再复制进每个档案；档案只剩连接本身和跟着端点走的 State、MiSS、对话格式。
 type AgentSettings struct {
+	// Revision 记录这份设置迁移到了哪一版；见 AgentSettingsRevision。
+	Revision int `json:"revision,omitempty"`
+
+	Temperature       float64 `json:"temperature"`
+	TopK              int     `json:"topK"`
+	TopP              float64 `json:"topP"`
+	PresencePenalty   float64 `json:"presencePenalty"`
+	FrequencyPenalty  float64 `json:"frequencyPenalty"`
+	PenaltyDecay      float64 `json:"penaltyDecay"`
+	MaxSteps          int     `json:"maxSteps,omitempty"`
+	MaxTokens         int     `json:"maxTokens,omitempty"`
+	DecisionMaxTokens int     `json:"decisionMaxTokens,omitempty"`
+
+	EnableWeb              bool `json:"enableWeb"`
+	EnableWeather          bool `json:"enableWeather"`
+	EnableBash             bool `json:"enableBash"`
+	ProgressiveTools       bool `json:"progressiveTools"`
+	EnableSubagents        bool `json:"enableSubagents"`
+	SubagentMaxParallel    int  `json:"subagentMaxParallel,omitempty"`
+	SubagentMaxSteps       int  `json:"subagentMaxSteps,omitempty"`
+	SubagentTimeoutSeconds int  `json:"subagentTimeoutSeconds,omitempty"`
+
+	TaskControl       string `json:"taskControl,omitempty"`
+	InjectSessionTime bool   `json:"injectSessionTime"`
+
 	BraveAPIKey       string `json:"braveApiKey,omitempty"`
 	TavilyAPIKey      string `json:"tavilyApiKey,omitempty"`
 	DeepSeekWebAPIKey string `json:"deepseekWebApiKey,omitempty"`
@@ -239,8 +268,9 @@ func (s *Store) LoadSettings() (Settings, error) {
 	return s.loadLocked()
 }
 
-// AgentSettings 返回共用的 Agent 设置。旧版本把 Key 存在各个档案里：第一次读取时
-// 从档案里收集（运行档案优先，其次按列表顺序取第一个非空值）并落盘，之后以这份为准。
+// AgentSettings 返回共用的 Agent 设置。旧版本把这些值存在各个档案里：第一次读取时
+// 从档案里收集并落盘，之后以这份为准。Key 与数据源逐项取第一个非空值（运行档案优先）；
+// 生成参数、工具与提示词整组取自运行档案（没有就取列表第一个，一个档案都没有用新连接默认值）。
 func (s *Store) AgentSettings() (AgentSettings, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -248,15 +278,50 @@ func (s *Store) AgentSettings() (AgentSettings, error) {
 	if err != nil {
 		return AgentSettings{}, err
 	}
-	if settings.Agent != nil {
+	if settings.Agent != nil && settings.Agent.Revision >= AgentSettingsRevision {
 		return *settings.Agent, nil
 	}
-	migrated := collectAgentSettings(settings)
+	var migrated AgentSettings
+	if settings.Agent != nil {
+		migrated = *settings.Agent
+	} else {
+		migrated = collectAgentSettings(settings)
+	}
+	applyBehavior(&migrated, behaviorSource(settings))
+	migrated.Revision = AgentSettingsRevision
 	settings.Agent = &migrated
 	if err := s.writeSettingsLocked(settings); err != nil {
 		return AgentSettings{}, err
 	}
 	return migrated, nil
+}
+
+// behaviorSource 是迁移生成参数与工具开关时取值的那份配置：用户最近实际在用的档案。
+func behaviorSource(settings Settings) agentapi.Config {
+	for _, entry := range settings.Providers {
+		if entry.ID == settings.ActiveID {
+			return entry.Config
+		}
+	}
+	if len(settings.Providers) > 0 {
+		return settings.Providers[0].Config
+	}
+	return agentapi.NewConfigDefaults()
+}
+
+// applyBehavior 把一份配置里的生成参数、工具开关与提示词抄进共用设置。
+func applyBehavior(value *AgentSettings, config agentapi.Config) {
+	value.Temperature, value.TopK, value.TopP = config.Temperature, config.TopK, config.TopP
+	value.PresencePenalty, value.FrequencyPenalty, value.PenaltyDecay = config.PresencePenalty, config.FrequencyPenalty, config.PenaltyDecay
+	value.MaxSteps, value.MaxTokens, value.DecisionMaxTokens = config.MaxSteps, config.MaxTokens, config.DecisionMaxTokens
+	value.EnableWeb = config.EnableWeb
+	value.EnableWeather = strings.TrimSpace(config.WeatherBackend) != ""
+	value.EnableBash = config.EnableBash
+	value.ProgressiveTools = config.ProgressiveTools != nil && *config.ProgressiveTools
+	value.EnableSubagents = config.EnableSubagents
+	value.SubagentMaxParallel, value.SubagentMaxSteps, value.SubagentTimeoutSeconds = config.SubagentMaxParallel, config.SubagentMaxSteps, config.SubagentTimeoutSeconds
+	value.TaskControl = config.TaskControl
+	value.InjectSessionTime = config.InjectSessionTime
 }
 
 // SaveAgentSettings 覆盖保存共用的 Agent 设置。

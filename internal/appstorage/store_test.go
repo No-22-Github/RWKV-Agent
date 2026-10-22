@@ -304,3 +304,38 @@ func TestConversationIDCannotEscapeDataDirectory(t *testing.T) {
 		t.Fatal("path traversal conversation ID was deleted")
 	}
 }
+
+// 生成参数与工具开关搬进共用设置：Key 已经迁过（revision 1）的设置第一次读取时，从运行档案
+// 整组补齐，已有的 Key 不动；一个档案都没有时用新连接默认值。
+func TestAgentSettingsMigratesBehaviorFromActiveProfile(t *testing.T) {
+	t.Parallel()
+	store := testStore(t)
+	other := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://other.test", Model: "other", EnableWeb: true, TopK: 99}
+	active := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://active.test", Model: "active", EnableBash: true, WeatherBackend: "wttr", TopK: 1, MaxTokens: 4096, TaskControl: "回答用中文"}
+	if _, err := store.SaveProvider("", "", other, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.SaveProvider("", "", active, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.SaveAgentSettings(AgentSettings{BraveAPIKey: "brave"}); err != nil {
+		t.Fatal(err)
+	}
+	value, err := store.AgentSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.Revision != AgentSettingsRevision || value.BraveAPIKey != "brave" || value.EnableWeb || !value.EnableBash || !value.EnableWeather || value.TopK != 1 || value.MaxTokens != 4096 || value.TaskControl != "回答用中文" {
+		t.Fatalf("migrated = %+v", value)
+	}
+
+	empty := testStore(t)
+	value, err = empty.AgentSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defaults := agentapi.NewConfigDefaults()
+	if !value.EnableWeb || !value.EnableBash || !value.EnableWeather || value.TopK != defaults.TopK || value.DecisionMaxTokens != defaults.DecisionMaxTokens {
+		t.Fatalf("fresh defaults = %+v", value)
+	}
+}

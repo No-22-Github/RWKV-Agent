@@ -1,15 +1,11 @@
 import { useState } from 'react'
 import { ChevronLeft, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
-import { Button, Disclosure, Notice, PANE_WIDTH, Row, RunningBadge, SaveStatus, Section, SettingsPane, TextInput, TextRow } from './ui'
+import { Button, Disclosure, Notice, NumberRow, PANE_WIDTH, Row, RunningBadge, SaveStatus, Section, SettingsPane, TextInput, TextRow } from './ui'
 import { Select } from './Select'
 import AdapterSection from './AdapterSection'
 import StateSection from './StateSection'
 import { derivedProviderLabel } from '../../state/draftValidation'
-import ParametersSection from './ParametersSection'
-import AgentBehaviorSection from './AgentBehaviorSection'
-
-type Tab = 'source' | 'params' | 'agent'
 
 type Props = {
   manager: ProviderManager
@@ -25,7 +21,8 @@ type Props = {
 
 /*
  * 档案详情：从列表点进来，页头「‹ 远端连接」回到列表。页头只有一层——名称、状态、动作；
- * 下面三个标签编辑同一份档案：连接或模型（来源与凭据）、生成参数（格式、采样、预算）、工具（能力开关与预算）。
+ * 下面只有连接本身：来源与凭据、请求头、批处理参数，以及记在这个连接上的 State 与 MiSS 适配器。
+ * 对话格式也记在连接上，但在对话页的格式芯片里切换；生成参数与工具所有连接共用，在「Agent」分区。
  *
  * 页头动作按类别分开：远端连接只有新建时的「保存」，切换在对话页做；本地模型有加载、
  * 重新加载与释放——它们占内存、要时间，必须由用户显式触发。已建档的档案改动自动保存，
@@ -37,13 +34,6 @@ export default function ProviderEditor({ manager, ready, backLabel, onBack, onTe
   const busy = manager.settingsBusy
   const blocked = !isNew && manager.draftError !== ''
   const noun = local ? '模型' : '连接'
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'source', label: local ? '模型' : '连接' },
-    { id: 'params', label: '生成参数' },
-    // 「工具」是这个连接开哪些工具；所有连接共用的 Key 与数据源在全局「Agent」分区。
-    { id: 'agent', label: '工具' },
-  ]
-  const [tab, setTab] = useState<Tab>('source')
 
   const status = isNew && manager.draftDirty
     ? <RunningBadge tone="warning">未保存更改</RunningBadge>
@@ -54,7 +44,7 @@ export default function ProviderEditor({ manager, ready, backLabel, onBack, onTe
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex-none border-b border-line">
-        <div className={`${PANE_WIDTH} pt-[18px]`}>
+        <div className={`${PANE_WIDTH} pb-[14px] pt-[18px]`}>
           <button aria-label={`返回${backLabel}列表`} className="-ml-[6px] flex h-[26px] items-center gap-[2px] rounded-md border-0 bg-transparent pl-[2px] pr-[8px] text-sm text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" onClick={onBack}>
             <ChevronLeft size={15} />{backLabel}
           </button>
@@ -84,28 +74,15 @@ export default function ProviderEditor({ manager, ready, backLabel, onBack, onTe
               )}
             </span>
           </header>
-          <div role="tablist" aria-label="连接详情" className="mt-[12px] flex gap-[22px]">
-            {tabs.map((item) => (
-              <button
-                key={item.id}
-                role="tab"
-                aria-selected={tab === item.id}
-                className={`-mb-px border-0 border-b-2 bg-transparent px-0 pb-[10px] pt-[4px] text-base transition-colors ${tab === item.id ? 'border-ink font-medium text-ink' : 'border-transparent text-ink-muted hover:text-ink'}`}
-                onClick={() => setTab(item.id)}
-              >{item.label}</button>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* 按标签重建滚动区：换标签从顶部看起，不沿用上一个标签的滚动位置。 */}
-      <SettingsPane key={tab}>
-        {manager.draftNeedsReload && (
+      <SettingsPane>
+        {local && manager.draftNeedsReload && (
           <Notice tone="warning">更改已保存，但本地模型仍在用旧配置运行；点右上「重新加载模型」生效。</Notice>
         )}
-        {manager.settingsMessage && <Notice>{manager.settingsMessage}</Notice>}
 
-        {tab === 'params' ? <ParametersSection manager={manager} /> : tab === 'agent' ? <AgentBehaviorSection manager={manager} /> : local ? (
+        {local ? (
           <LocalSource manager={manager} isNew={isNew} onRequestDelete={onRequestDelete} />
         ) : (
           <RemoteSource manager={manager} isNew={isNew} onTestRemote={onTestRemote} onRequestDelete={onRequestDelete} />
@@ -121,6 +98,9 @@ function LocalSource({ manager, isNew, onRequestDelete }: { manager: ProviderMan
       <Section title="模型文件">
         <TextRow label="模型路径" width="w-[340px]" value={manager.modelPath} onChange={manager.setModelPath} placeholder="/path/to/rwkv7-model.pth" error={isNew ? undefined : manager.draftErrors.model} />
         <TextRow label="Tokenizer 路径" width="w-[340px]" value={manager.tokenizerPath} onChange={manager.setTokenizerPath} placeholder="留空则在模型旁边自动查找" />
+      </Section>
+      <Section title="高级">
+        <NumberRow label="活动批量" description="同时解码的请求数；改后重新加载模型生效" min={1} max={8} defaultValue={4} value={manager.maxActiveBatch} onChange={manager.setMaxActiveBatch} />
       </Section>
       {!isNew && <DeleteSection noun="模型" onRequestDelete={onRequestDelete} disabled={manager.settingsBusy} />}
     </>
@@ -168,13 +148,14 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
           ))}
           <Button variant="ghost" size="sm" className="-ml-[8px] mt-[2px]" icon={<Plus size={14} />} onClick={addHeader}>添加请求头</Button>
         </Disclosure>
+        {lightning && <NumberRow label="远端聚合窗口（毫秒）" description="等一下再合批发送；0 = 不等" min={0} max={1000} defaultValue={10} value={manager.remoteBatchWaitMS} onChange={manager.setRemoteBatchWaitMS} />}
         {cuda && (
-          <Disclosure label="State" summary={manager.stateId ? `当前：${manager.stateId}` : '只对本次运行有效，服务端重启后清空'} open={Boolean(open.state)} onToggle={() => toggle('state')}>
+          <Disclosure label="State" summary={manager.stateId ? `当前：${manager.stateId}` : '记在这个连接上；服务端重启会清空已上传的 State'} open={Boolean(open.state)} onToggle={() => toggle('state')}>
             <StateSection manager={manager} />
           </Disclosure>
         )}
         {cuda && (
-          <Disclosure label="MiSS 适配器" summary={manager.adapterId ? `当前：${manager.adapterId}` : '只对本次运行有效，可与 State 同时使用'} open={Boolean(open.adapter)} onToggle={() => toggle('adapter')}>
+          <Disclosure label="MiSS 适配器" summary={manager.adapterId ? `当前：${manager.adapterId}` : '记在这个连接上，可与 State 同时使用'} open={Boolean(open.adapter)} onToggle={() => toggle('adapter')}>
             <AdapterSection manager={manager} />
           </Disclosure>
         )}
@@ -188,7 +169,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
 function DeleteSection({ noun, disabled, onRequestDelete }: { noun: string; disabled: boolean; onRequestDelete: () => void }) {
   return (
     <Section title="管理">
-      <Row label={`删除这个${noun}`} description="连同它的生成参数与工具设置，不可撤销">
+      <Row label={`删除这个${noun}`} description="连同它记住的对话格式、State 与 MiSS 选择，不可撤销">
         <Button variant="danger" onClick={onRequestDelete} disabled={disabled} aria-label={`删除${noun}`}>删除</Button>
       </Row>
     </Section>

@@ -6,7 +6,7 @@ import { kindOf, type ProviderKind, type ProviderManager } from '../../state/pro
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
-import { Button, Notice, RunningBadge, Section, SettingsPane } from './ui'
+import { Button, RunningBadge, Section, SettingsPane } from './ui'
 import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
@@ -87,7 +87,6 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
         />
       ) : (
         <SettingsPane>
-          {manager.settingsMessage && <Notice>{manager.settingsMessage}</Notice>}
           <Section
             title={local ? '本地模型' : '远端连接'}
             action={<Button size="sm" icon={<Plus size={14} />} onClick={() => void leaveDraft({ kind: 'new' })}>{local ? '添加模型' : '新建连接'}</Button>}

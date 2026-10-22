@@ -13,11 +13,34 @@ import * as api$0 from "../../api/models.js";
 import * as tools$0 from "../agent/tools/models.js";
 
 /**
- * AgentSettings 是所有连接档案共用的 Agent 设置：搜索与抓取的 API Key、搜索路由、
- * 天气数据源。它们和用哪个模型无关，只存一份，不再复制进每个档案。
- * 各工具开不开仍由档案里的 enableWeb / weatherBackend 决定。
+ * AgentSettings 是所有连接档案共用的 Agent 设置：和用哪个端点无关的一切——
+ * 采样、预算、工具开关与调度、提示词，以及搜索与抓取的 API Key、搜索路由、天气数据源。
+ * 只存一份，不再复制进每个档案；档案只剩连接本身和跟着端点走的 State、MiSS、对话格式。
  */
 export class AgentSettings {
+    /**
+     * Revision 记录这份设置迁移到了哪一版；见 AgentSettingsRevision。
+     */
+    "revision"?: number;
+    "temperature": number;
+    "topK": number;
+    "topP": number;
+    "presencePenalty": number;
+    "frequencyPenalty": number;
+    "penaltyDecay": number;
+    "maxSteps"?: number;
+    "maxTokens"?: number;
+    "decisionMaxTokens"?: number;
+    "enableWeb": boolean;
+    "enableWeather": boolean;
+    "enableBash": boolean;
+    "progressiveTools": boolean;
+    "enableSubagents": boolean;
+    "subagentMaxParallel"?: number;
+    "subagentMaxSteps"?: number;
+    "subagentTimeoutSeconds"?: number;
+    "taskControl"?: string;
+    "injectSessionTime": boolean;
     "braveApiKey"?: string;
     "tavilyApiKey"?: string;
     "deepseekWebApiKey"?: string;
@@ -39,6 +62,42 @@ export class AgentSettings {
 
     /** Creates a new AgentSettings instance. */
     constructor($$source: Partial<AgentSettings> = {}) {
+        if (!("temperature" in $$source)) {
+            this["temperature"] = 0;
+        }
+        if (!("topK" in $$source)) {
+            this["topK"] = 0;
+        }
+        if (!("topP" in $$source)) {
+            this["topP"] = 0;
+        }
+        if (!("presencePenalty" in $$source)) {
+            this["presencePenalty"] = 0;
+        }
+        if (!("frequencyPenalty" in $$source)) {
+            this["frequencyPenalty"] = 0;
+        }
+        if (!("penaltyDecay" in $$source)) {
+            this["penaltyDecay"] = 0;
+        }
+        if (!("enableWeb" in $$source)) {
+            this["enableWeb"] = false;
+        }
+        if (!("enableWeather" in $$source)) {
+            this["enableWeather"] = false;
+        }
+        if (!("enableBash" in $$source)) {
+            this["enableBash"] = false;
+        }
+        if (!("progressiveTools" in $$source)) {
+            this["progressiveTools"] = false;
+        }
+        if (!("enableSubagents" in $$source)) {
+            this["enableSubagents"] = false;
+        }
+        if (!("injectSessionTime" in $$source)) {
+            this["injectSessionTime"] = false;
+        }
 
         Object.assign(this, $$source);
     }

@@ -10,7 +10,7 @@ import {
   StoragePaths,
   WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
-import { SavedProvider, SubagentStep, SubagentTrace, ToolRetryTrace, ToolTrace } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
+import { AgentSettings, SavedProvider, SubagentStep, SubagentTrace, ToolRetryTrace, ToolTrace } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import App from './App'
 import { SnackbarProvider } from './snackbar-context'
 
@@ -45,6 +45,9 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   ConfigureProvider: vi.fn(),
   SaveProvider: vi.fn(),
   ActivateProvider: vi.fn(),
+  SetRuntimeFormat: vi.fn(),
+  SetRuntimeState: vi.fn(),
+  SetRuntimeAdapter: vi.fn(),
   DeleteProvider: vi.fn(),
   ListRemoteModels: vi.fn(),
   PreviewSystemPrompt: vi.fn(),
@@ -89,6 +92,11 @@ function savedRemoteProvider(config: Partial<Config> = {}, profile: Partial<Save
   })
 }
 
+/* 和 main.tsx 一样包在通知层里：设置的结果与错误都以右下角通知出现。 */
+function renderApp() {
+  return render(<SnackbarProvider><App /></SnackbarProvider>)
+}
+
 /* 设置页下拉是自绘 combobox：点开后点对应 data-value 的选项。 */
 function chooseOption(label: string, value: string) {
   fireEvent.click(screen.getByLabelText(label))
@@ -103,14 +111,15 @@ function openSettings() {
 
 /* 连接分区先显示列表：有已保存档案时点进正在编辑的那一行（默认是运行中的），新建草稿本来就在详情里。 */
 function openDetail() {
-  if (screen.queryByRole('tablist', { name: '连接详情' })) return
+  if (screen.queryByRole('button', { name: /^返回.*列表$/ })) return
   const list = screen.getByRole('list', { name: /列表$/ })
   fireEvent.click(within(list).getAllByRole('button')[0])
 }
 
-/* 生成参数与 Agent 是「模型」分区里连接详情的两个标签。 */
-function openSettingsSection(name: string) {
-  openDetail()
+/* 生成参数、工具与搜索 Key 在全局「Agent」分区的三个标签里，所有连接共用。 */
+async function openAgentTab(name: '生成' | '工具' | '搜索与数据源') {
+  fireEvent.click(screen.getByRole('button', { name: 'Agent' }))
+  await waitFor(() => expect(Backend.GetAgentSettings).toHaveBeenCalled())
   fireEvent.click(screen.getByRole('tab', { name }))
 }
 
@@ -120,14 +129,9 @@ function expandDisclosure(label: string) {
   if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button)
 }
 
-/* 网页与子 Agent 开关在连接详情的「工具」标签。 */
-function openAgentSection() {
-  openSettingsSection('工具')
-}
-
-/* 对话格式、采样、预算与附加约定在连接详情的生成参数标签。 */
-function openParametersSection() {
-  openSettingsSection('生成参数')
+/* 最近一次保存的共用设置。 */
+function lastAgentSave() {
+  return vi.mocked(Backend.SaveAgentSettings).mock.calls.at(-1)![0]
 }
 
 const readyStatus = () => new Status({
@@ -197,7 +201,7 @@ afterEach(() => {
 
 describe('App', () => {
   it('renders the stable empty conversation layout', async () => {
-    render(<App />)
+    renderApp()
     expect(screen.getByText('你好')).toBeInTheDocument()
     expect(screen.getByLabelText('消息')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '概括这个仓库的近期进度' })).toBeInTheDocument()
@@ -216,7 +220,7 @@ describe('App', () => {
       }),
     }))
 
-    const { container } = render(<App />)
+    const { container } = renderApp()
 
     const modelChipSelector = `button[title^="${model}"]`
     await waitFor(() => expect(container.querySelector(modelChipSelector)).not.toBeNull())
@@ -225,12 +229,11 @@ describe('App', () => {
   })
 
   it('opens the settings page from the sidebar', () => {
-    render(<App />)
+    renderApp()
     openSettings()
     expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '远端连接' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '本地推理' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: '工具' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Agent' })).toBeInTheDocument()
   })
 
@@ -243,7 +246,7 @@ describe('App', () => {
       hasApiKey: false,
       updatedAt: new Date().toISOString(),
     }))
-    render(<App />)
+    renderApp()
     openSettings()
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
@@ -261,8 +264,9 @@ describe('App', () => {
     expect(config.stream).toBeUndefined()
     expect(config.headers).toEqual({ 'CF-Access-Client-Id': 'secret' })
     expect(config.agentProtocol).toBe('xml')
-    expect(config.progressiveTools).toBe(false)
-    expect(config.enableSubagents).toBe(false)
+    // 工具开关是共用设置，由后端在连接时填进运行配置。
+    expect(config.progressiveTools).toBeUndefined()
+    expect(config.enableSubagents).toBeUndefined()
   })
 
   it.each([
@@ -270,7 +274,7 @@ describe('App', () => {
     ['cuda', Provider.ProviderRWKVLightningCUDA, 'eos'],
     ['openai', Provider.ProviderChatCompletions, undefined],
   ] as const)('saves a new %s connection with its own backend identity', async (protocol, provider, stops) => {
-    render(<App />)
+    renderApp()
     openSettings()
     switchToRemoteProvider()
     chooseOption('远端协议', protocol)
@@ -288,11 +292,10 @@ describe('App', () => {
 
   it('saves web credentials once in the shared Agent section, not in the profile', async () => {
     bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
-    fireEvent.click(screen.getByRole('button', { name: 'Agent' }))
-    await waitFor(() => expect(Backend.GetAgentSettings).toHaveBeenCalled())
+    await openAgentTab('搜索与数据源')
     fireEvent.change(await screen.findByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
     fireEvent.change(screen.getByLabelText('DeepSeek API Key'), { target: { value: 'deepseek-secret' } })
@@ -300,7 +303,7 @@ describe('App', () => {
     chooseOption('天气数据源', 'wttr')
 
     await waitFor(() => expect(Backend.SaveAgentSettings).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.SaveAgentSettings).mock.calls.at(-1)![0]).toMatchObject({
+    expect(lastAgentSave()).toMatchObject({
       braveApiKey: 'brave-secret', tavilyApiKey: 'tavily-secret', deepseekWebApiKey: 'deepseek-secret',
       webSearchBackend: 'brave', weatherBackend: 'wttr',
     })
@@ -309,102 +312,93 @@ describe('App', () => {
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
   })
 
-  it('passes web and concurrent subagent switches through auto-apply', async () => {
+  it('saves tool switches and subagent budgets as shared settings without reconnecting', async () => {
     bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
-    openAgentSection()
-    fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
+    await openAgentTab('工具')
+    fireEvent.click(await screen.findByLabelText('网页搜索与正文获取'))
     fireEvent.click(screen.getByLabelText('并发子 Agent'))
-    fireEvent.change(screen.getByLabelText('活动批量'), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('子 Agent 并发'), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('单 Agent 步数'), { target: { value: '5' } })
     fireEvent.change(screen.getByLabelText('批次超时（秒）'), { target: { value: '180' } })
+
+    await waitFor(() => expect(lastAgentSave()).toMatchObject({
+      enableWeb: true, enableSubagents: true, subagentMaxParallel: 6, subagentMaxSteps: 5, subagentTimeoutSeconds: 180,
+    }), { timeout: 3000 })
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('keeps only the connection and its batching knobs in the connection detail', async () => {
+    bootstrapWithRunningProvider()
+    renderApp()
+    await waitRuntimeReady()
+    openSettings()
+    openDetail()
+    // 生成参数与工具不在连接里了：没有标签，也没有格式选择器。
+    expect(screen.queryByRole('tablist', { name: '连接详情' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('格式预设')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('采样预设')).not.toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('远端聚合窗口（毫秒）'), { target: { value: '15' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
-    expect(config).toMatchObject({
-      enableWeb: true,
-      enableSubagents: true,
-      maxActiveBatch: 6,
-      remoteBatchWaitMs: 15,
-      subagentMaxParallel: 6,
-      subagentMaxSteps: 5,
-      subagentTimeoutSeconds: 180,
-    })
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({ remoteBatchWaitMs: 15 })
     expect(await screen.findByText('已自动生效')).toBeInTheDocument()
   })
 
-  it('allows the Markdown protocol to be selected explicitly', async () => {
-    bootstrapWithRunningProvider()
-    render(<App />)
+  it.each([
+    ['Markdown 工具调用（实验）', { agentProtocol: 'markdown', profile: '', thinking: 'off' }],
+    ['深度思考', { agentProtocol: 'xml', profile: 'agent-wire-v1.0', wire: 'thinking=full,nudge=think', thinking: 'full' }],
+  ] as const)('switches the running connection to %s from the format chip', async (label, expected) => {
+    bootstrapWithRunningProvider({ profile: 'agent-wire-v1.0', agentProtocol: AgentProtocol.AgentProtocolXML, thinking: 'off' })
+    vi.mocked(Backend.SetRuntimeFormat).mockResolvedValue(readyStatus())
+    renderApp()
     await waitRuntimeReady()
-    openSettings()
-    openParametersSection()
-    chooseOption('格式预设', 'markdown')
+    const chip = screen.getByRole('button', { name: '对话格式' })
+    expect(chip).toHaveTextContent('标准')
+    fireEvent.click(chip)
+    fireEvent.click(await screen.findByText(label))
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].profile).toBeUndefined()
+    await waitFor(() => expect(Backend.SetRuntimeFormat).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.SetRuntimeFormat).mock.calls[0][0]).toMatchObject(expected)
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
   })
 
-  it('submits the deep-thinking format as agent-wire-think-v1.0 through auto-apply', async () => {
+  it('submits the personal task contract as a shared setting', async () => {
     bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
-    openParametersSection()
-    chooseOption('格式预设', 'think')
+    await openAgentTab('生成')
+    fireEvent.change(await screen.findByLabelText('附加任务约定'), { target: { value: '回答使用中文。' } })
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
-    expect(config.thinking).toBe('full')
-    expect(config.profile).toBe('agent-wire-v1.0')
-    expect(config.wire).toBe('thinking=full,nudge=think')
-  })
-
-  it('submits the personal task contract through auto-apply', async () => {
-    bootstrapWithRunningProvider()
-    render(<App />)
-    await waitRuntimeReady()
-    openSettings()
-    openParametersSection()
-    fireEvent.change(screen.getByLabelText('附加任务约定'), { target: { value: '  回答使用中文。  ' } })
-
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].taskControl).toBe('回答使用中文。')
+    await waitFor(() => expect(lastAgentSave().taskControl).toBe('回答使用中文。'), { timeout: 3000 })
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
   })
 
   it('auto-saves a non-running profile without reconnecting', async () => {
     const provider = bootstrapWithRunningProvider()
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      status: new Status({
-        state: ModelState.ModelReady,
-        provider: Provider.ProviderRWKVLightningCUDA,
-        model: 'rwkv7-test',
-        workspace: '/tmp/RWKV-Agent',
-        hasApiKey: false,
-        updatedAt: new Date().toISOString(),
-      }),
+      status: readyStatus(),
       config: provider.config,
       hasConfig: true,
       providers: [provider],
       activeProviderId: provider.id,
     }))
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
-    openParametersSection()
-    chooseOption('格式预设', 'think')
+    openDetail()
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'other-model' } })
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
     expect(await screen.findByText('已自动保存')).toBeInTheDocument()
   })
 
-  it('previews the system prompt in the parameters section', async () => {
+  it('previews the system prompt with the running connection format', async () => {
     vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({
       control: 'You are a local-first assistant with read-only tools.',
       responseControl: '',
@@ -414,17 +408,19 @@ describe('App', () => {
       thinkingMode: 'off',
       native: false,
     }))
-    render(<App />)
+    bootstrapWithRunningProvider({ profile: 'agent-wire-v1.0', thinking: 'full', wire: 'thinking=full,nudge=think' })
+    renderApp()
+    await waitRuntimeReady()
     openSettings()
-    switchToRemoteProvider()
-    openParametersSection()
-    // 预览默认收起，展开时才按当前草稿拉取。
+    await openAgentTab('生成')
+    // 预览默认收起，展开时才拉取。
     expect(screen.getByRole('button', { name: /^系统提示词预览/ })).toHaveAttribute('aria-expanded', 'false')
     expandDisclosure('系统提示词预览')
 
     expect(await screen.findByText(/You are a local-first assistant/)).toBeInTheDocument()
     expect(screen.getByText(/协议 rwkv-g1-envelope-v1/)).toBeInTheDocument()
     expect(screen.getByText(/工具 2 项/)).toBeInTheDocument()
+    expect(vi.mocked(Backend.PreviewSystemPrompt).mock.calls[0][0]).toMatchObject({ profile: 'agent-wire-v1.0', thinking: 'full', wire: 'thinking=full,nudge=think' })
   })
 
   it('toggles session time injection independently of the system prompt', async () => {
@@ -433,10 +429,9 @@ describe('App', () => {
       toolNames: [],
     })
     vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(preview)
-    render(<App />)
+    renderApp()
     openSettings()
-    switchToRemoteProvider()
-    openParametersSection()
+    await openAgentTab('生成')
     expandDisclosure('系统提示词预览')
     const toggle = screen.getByRole('checkbox', { name: '注入会话启动时间' })
     expect(toggle).not.toBeChecked()
@@ -452,46 +447,25 @@ describe('App', () => {
     expect(vi.mocked(Backend.PreviewSystemPrompt).mock.lastCall?.[0].injectSessionTime).toBe(false)
   })
 
-  it('offers only the recommended formats with Chinese names', async () => {
-    render(<App />)
+  it('applies a named sampling preset as a shared setting', async () => {
+    renderApp()
     openSettings()
-    switchToRemoteProvider()
-    openParametersSection()
-    const select = screen.getByLabelText('格式预设')
-    expect(select).toHaveAttribute('data-value', 'standard')
-    fireEvent.click(select)
-    // 选项第一行是名称，第二行是用途说明（hint）。
-    expect(screen.getAllByRole('option').map((option) => option.firstElementChild?.firstElementChild?.textContent)).toEqual(['标准（不思考）', '深度思考', 'Markdown 工具调用（实验）'])
-    fireEvent.click(select)
-    chooseOption('格式预设', 'think')
-    expect(select).toHaveAttribute('data-value', 'think')
-    chooseOption('格式预设', 'markdown')
-    expect(select).toHaveAttribute('data-value', 'markdown')
-  })
-
-  it('applies a named sampling preset through auto-apply', async () => {
-    bootstrapWithRunningProvider()
-    render(<App />)
-    await waitRuntimeReady()
-    openSettings()
-    openParametersSection()
-    // 档案没存过采样，后端会归一成 greedy，选择器应当认出它而不是报自定义。
+    await openAgentTab('生成')
+    // 没存过采样，后端会归一成 greedy，选择器应当认出它而不是报自定义。
     expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'greedy')
     chooseOption('采样预设', 'agent-default')
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
+    await waitFor(() => expect(Backend.SaveAgentSettings).toHaveBeenCalled(), { timeout: 3000 })
+    expect(lastAgentSave()).toMatchObject({
       temperature: 0.3, topK: 65536, topP: 0.5,
       presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
     })
   })
 
   it('drops to custom sampling once a preset value is overridden', async () => {
-    bootstrapWithRunningProvider()
-    render(<App />)
-    await waitRuntimeReady()
+    renderApp()
     openSettings()
-    openParametersSection()
+    await openAgentTab('生成')
     // 预设模式下六个数字是只读的展示，不占编辑位。
     expect(screen.queryByLabelText('温度')).not.toBeInTheDocument()
     chooseOption('采样预设', 'agent-default')
@@ -505,46 +479,32 @@ describe('App', () => {
     // 改过的配置不再冒充预设名。
     expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'custom')
     expect(screen.getByText(/六个参数直接决定采样/)).toBeInTheDocument()
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({ temperature: 0.9, topK: 65536, topP: 0.5 })
+    await waitFor(() => expect(lastAgentSave()).toMatchObject({ temperature: 0.9, topK: 65536, topP: 0.5 }), { timeout: 3000 })
   })
 
-  it('opens a profile with non-preset sampling in custom mode', async () => {
-    const provider = savedRemoteProvider({ temperature: 0.7, topK: 40, topP: 0.8, penaltyDecay: 0.98 })
-    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      config: provider.config,
-      hasConfig: true,
-      providers: [provider],
-      activeProviderId: provider.id,
-      runtimeProviderId: provider.id,
-    }))
-
-    render(<App />)
-    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+  it('opens non-preset shared sampling in custom mode', async () => {
+    vi.mocked(Backend.GetAgentSettings).mockResolvedValue(new AgentSettings({ temperature: 0.7, topK: 40, topP: 0.8, penaltyDecay: 0.98 }))
+    renderApp()
     openSettings()
-    openParametersSection()
+    await openAgentTab('生成')
 
-    expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'custom')
+    await waitFor(() => expect(screen.getByLabelText('采样预设')).toHaveAttribute('data-value', 'custom'))
     expect(screen.getByLabelText('温度')).toHaveValue(0.7)
     expect(screen.getByLabelText('top-k 截断')).toHaveValue(40)
   })
 
-  it('passes the generation budget through auto-apply', async () => {
-    bootstrapWithRunningProvider()
-    render(<App />)
-    await waitRuntimeReady()
+  it('saves the generation budget as a shared setting', async () => {
+    renderApp()
     openSettings()
-    openParametersSection()
+    await openAgentTab('生成')
+    // 没存过的预算按后端缺省显示。
     expect(screen.getByLabelText('最大步数')).toHaveValue(16)
     expect(screen.getByLabelText('最大输出 token')).toHaveValue(1024)
     fireEvent.change(screen.getByLabelText('最大步数'), { target: { value: '24' } })
     fireEvent.change(screen.getByLabelText('最大输出 token'), { target: { value: '4096' } })
     fireEvent.change(screen.getByLabelText('决策输出 token'), { target: { value: '2048' } })
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
-      maxSteps: 24, maxTokens: 4096, decisionMaxTokens: 2048,
-    })
+    await waitFor(() => expect(lastAgentSave()).toMatchObject({ maxSteps: 24, maxTokens: 4096, decisionMaxTokens: 2048 }), { timeout: 3000 })
   })
 
   it('saves a draft without switching the runtime connection', async () => {
@@ -558,7 +518,7 @@ describe('App', () => {
     vi.mocked(Backend.SaveProvider).mockResolvedValue(saved)
     bootstrapWithRunningProvider()
 
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     fireEvent.click(screen.getByRole('button', { name: '新建连接' }))
@@ -580,7 +540,7 @@ describe('App', () => {
   })
 
   it('marks edited fields as an unsaved draft', async () => {
-    render(<App />)
+    renderApp()
     openSettings()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Unsaved connection' } })
 
@@ -613,7 +573,7 @@ describe('App', () => {
       runtimeProviderId: runtime.id,
     }))
 
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
     // 设置打开先看列表：运行中的那一行带徽标，其他行没有。
@@ -639,7 +599,7 @@ describe('App', () => {
     }))
     vi.mocked(Backend.SaveProvider).mockResolvedValue(first)
 
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
     openDetail()
@@ -664,7 +624,7 @@ describe('App', () => {
       activeProviderId: first.id,
     }))
 
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
     openDetail()
@@ -684,7 +644,7 @@ describe('App', () => {
   it('still confirms leaving an unsaved new connection and can save it from the dialog', async () => {
     const created = savedRemoteProvider({ endpoint: 'https://new.example.test', model: 'new-model' }, { id: 'created', label: 'New one' })
     vi.mocked(Backend.SaveProvider).mockResolvedValue(created)
-    render(<App />)
+    renderApp()
     openSettings()
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://new.example.test' } })
@@ -699,10 +659,10 @@ describe('App', () => {
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('')
   })
-  it('starts a new connection on the agent-wire-v1.0 wire with web, weather and bash on', async () => {
+  it('starts a new connection on the agent-wire-v1.0 wire without carrying shared settings', async () => {
     const created = savedRemoteProvider({ endpoint: 'https://new.example.test', model: 'new-model' }, { id: 'created', label: 'New one' })
     vi.mocked(Backend.SaveProvider).mockResolvedValue(created)
-    render(<App />)
+    renderApp()
     openSettings()
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://new.example.test' } })
@@ -712,30 +672,20 @@ describe('App', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: '保存并返回' }))
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.SaveProvider).mock.calls[0][2]
-    expect(config).toMatchObject({
-      profile: 'agent-wire-v1.0', agentProtocol: 'xml', thinking: 'off',
-      enableWeb: true, enableBash: true, enableSubagents: false, weatherBackend: 'open-meteo',
-      temperature: 0.3, topK: 65536, topP: 0.5, presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
-    })
-    expect(config.decisionMaxTokens).toBe(2048)
-    expect(config.maxTokens).toBe(4096)
+    expect(config).toMatchObject({ profile: 'agent-wire-v1.0', agentProtocol: 'xml', thinking: 'off', maxActiveBatch: 4, remoteBatchWaitMs: 10 })
+    // 采样、预算与工具开关是共用设置，新连接的档案里不带。
+    expect(config.temperature).toBeUndefined()
+    expect(config.enableWeb).toBeUndefined()
+    expect(config.maxTokens).toBeUndefined()
   })
 
-  it('keeps a saved connection without a profile on its legacy settings', async () => {
-    bootstrapWithRunningProvider({ enableWeb: false, enableBash: false })
-    render(<App />)
+  it('shows a saved connection without a profile as the legacy format on the chip', async () => {
+    bootstrapWithRunningProvider({ profile: undefined })
+    renderApp()
     await waitRuntimeReady()
-    openSettings()
-    openParametersSection()
-    expandDisclosure('系统提示词预览')
-    await waitFor(() => expect(Backend.PreviewSystemPrompt).toHaveBeenCalled())
-    const draft = vi.mocked(Backend.PreviewSystemPrompt).mock.calls[0][0]
-    expect(draft.profile).toBeUndefined()
-    expect(draft.enableBash).toBe(false)
-    expect(draft.enableWeb).toBe(false)
-    expect(draft.weatherBackend).toBeUndefined()
-    expect(draft.temperature).toBe(1)
-    expect(draft.topK).toBe(1)
+    const chip = screen.getByRole('button', { name: '对话格式' })
+    expect(chip).toHaveTextContent('旧版 XML')
+    expect(chip.getAttribute('title')).toContain('不推荐')
   })
 
   it('activates a saved remote connection from the model chip', async () => {
@@ -753,7 +703,7 @@ describe('App', () => {
       updatedAt: new Date().toISOString(),
     }))
 
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     // 切换只在对话页的模型标签里做；设置里的列表行只是打开详情。
     fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
@@ -766,7 +716,7 @@ describe('App', () => {
   it('closes the run config dropdown when its chip is clicked again', async () => {
     bootstrapWithRunningProvider()
 
-    render(<App />)
+    renderApp()
     const chip = await screen.findByRole('button', { name: /rwkv7-test/ })
     fireEvent.mouseDown(chip); fireEvent.click(chip)
     expect(screen.getByText('当前运行')).toBeInTheDocument()
@@ -776,51 +726,31 @@ describe('App', () => {
     await waitFor(() => expect(screen.queryByText('当前运行')).not.toBeInTheDocument())
   })
 
-  it('toggles a capability of the running remote profile from the run config dropdown', async () => {
-    const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
+  it('toggles a shared capability from the chip without touching the profile', async () => {
+    bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true })
+    vi.mocked(Backend.GetAgentSettings).mockResolvedValue(new AgentSettings({ enableWeb: true, enableSubagents: true, braveApiKey: 'kept' }))
 
-    render(<App />)
-    fireEvent.click(await screen.findByRole('button', { name: /rwkv7-test/ }))
+    renderApp()
+    await waitRuntimeReady()
     const web = screen.getByRole('switch', { name: '网页搜索' })
     expect(web).toHaveAttribute('aria-checked', 'true')
     fireEvent.click(web)
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
-    const [id, label, config] = vi.mocked(Backend.ConfigureProvider).mock.calls[0]
-    expect([id, label]).toEqual([runtime.id, 'Runtime connection'])
-    expect(config.enableWeb).toBe(false)
-    expect(config.enableSubagents).toBe(true)
-    expect(config.endpoint).toBe(runtime.config.endpoint)
-  })
-
-  it('derives the capability indicator from the running config and applies toggles on close', async () => {
-    const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
-
-    render(<App />)
-    expect(await screen.findByTitle(/能力：web · subagents/)).toBeInTheDocument()
-    openSettings()
-    openAgentSection()
-    fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
-    expect(screen.getByLabelText('网页搜索与正文获取')).not.toBeChecked()
-    // 草稿改了但还没生效：头部能力仍是运行中的配置。
+    await waitFor(() => expect(Backend.SaveAgentSettings).toHaveBeenCalledOnce())
+    // 只改这一项，其余共用设置原样存回去。
+    expect(lastAgentSave()).toMatchObject({ enableWeb: false, enableSubagents: true, braveApiKey: 'kept' })
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
-
-    // 后端应用后的状态：运行配置不再含 web。
-    const applied = new Config({ ...runtime.config, enableWeb: false })
-    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      status: readyStatus(), config: applied, hasConfig: true,
-      providers: [new SavedProvider({ ...runtime, config: applied })],
-      activeProviderId: runtime.id, runtimeProviderId: runtime.id,
-    }))
-    // Esc 不再弹"放弃更改"：待保存的更改立即落盘并生效，然后返回对话。
-    fireEvent.keyDown(window, { key: 'Escape' })
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
-    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].enableWeb).toBe(false)
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(await screen.findByTitle(/能力：subagents$/)).toBeInTheDocument()
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
   })
+
+  it('derives the capability indicator from the running config', async () => {
+    bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true })
+    renderApp()
+    expect(await screen.findByTitle(/能力：web · subagents/)).toBeInTheDocument()
+  })
+
   it('closes via Escape with confirmation when the draft is dirty', async () => {
-    render(<App />)
+    renderApp()
     openSettings()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Esc draft' } })
 
@@ -832,7 +762,7 @@ describe('App', () => {
   })
 
   it('closes the settings sheet with the close button, a backdrop click or a second Cmd+,', async () => {
-    render(<App />)
+    renderApp()
     fireEvent.keyDown(window, { key: ',', metaKey: true })
     expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
     fireEvent.keyDown(window, { key: ',', metaKey: true })
@@ -851,7 +781,7 @@ describe('App', () => {
 
   it('keeps an auto-derived name in sync with the model in the list and on save', async () => {
     const provider = bootstrapWithRunningProvider({}, { label: 'saved-model · saved.example.test' })
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -865,9 +795,59 @@ describe('App', () => {
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][1]).toBe('')
   })
 
+  it('updates an outdated model and its automatic name from 测试连接', async () => {
+    const provider = bootstrapWithRunningProvider({ model: 'old-model' }, { label: 'older-model · saved.example.test' })
+    vi.mocked(Backend.ListRemoteModels).mockResolvedValue([{ id: 'served-model' } as never])
+    renderApp()
+    await waitRuntimeReady()
+    openSettings()
+    openDetail()
+    // 旧模型派生的名字也是自动名：表单留空，按当前模型显示。
+    expect(screen.getByLabelText('连接名称')).toHaveValue('')
+    fireEvent.click(screen.getByRole('button', { name: '测试连接' }))
+
+    expect(await screen.findByText(/模型 ID 已从 old-model 更新为 served-model/)).toBeInTheDocument()
+    expect(screen.getByLabelText('模型 ID')).toHaveValue('served-model')
+    expect(screen.getByLabelText('连接名称')).toHaveAttribute('placeholder', 'served-model · saved.example.test（自动命名）')
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
+    expect(vi.mocked(Backend.SaveProvider).mock.calls.at(-1)!.slice(0, 2)).toEqual([provider.id, ''])
+    expect(vi.mocked(Backend.SaveProvider).mock.calls.at(-1)![2].model).toBe('served-model')
+  })
+
+  it('shows settings results as a corner toast instead of a notice that follows you to other pages', async () => {
+    bootstrapWithRunningProvider()
+    vi.mocked(Backend.ListRemoteModels).mockResolvedValue([{ id: 'saved-model' }] as never)
+    renderApp()
+    await waitRuntimeReady()
+    openSettings()
+    openDetail()
+    fireEvent.click(screen.getByRole('button', { name: '测试连接' }))
+    const toast = await screen.findByText('连接成功，发现 1 个模型。')
+    // 通知挂在设置弹窗外面：回到列表、换到本地推理，页面里都没有这句话。
+    const dialog = screen.getByRole('dialog', { name: '设置' })
+    expect(dialog).not.toContainElement(toast)
+    fireEvent.click(screen.getByRole('button', { name: '返回远端连接列表' }))
+    fireEvent.click(within(dialog).getByRole('button', { name: '本地推理' }))
+    expect(within(dialog).queryByText(/连接成功/)).not.toBeInTheDocument()
+  })
+
+  it('keeps a model the server still serves and a name the user wrote', async () => {
+    bootstrapWithRunningProvider({}, { label: '我的连接' })
+    vi.mocked(Backend.ListRemoteModels).mockResolvedValue([{ id: 'other-model' }, { id: 'saved-model' }] as never)
+    renderApp()
+    await waitRuntimeReady()
+    openSettings()
+    openDetail()
+    fireEvent.click(screen.getByRole('button', { name: '测试连接' }))
+
+    expect(await screen.findByText('连接成功，发现 2 个模型。')).toBeInTheDocument()
+    expect(screen.getByLabelText('模型 ID')).toHaveValue('saved-model')
+    expect(screen.getByLabelText('连接名称')).toHaveValue('我的连接')
+  })
+
   it('applies connection edits to the running remote profile without a save button', async () => {
     const provider = bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -888,7 +868,7 @@ describe('App', () => {
 
   it('renames a running profile without reconnecting and shows the new name in the list', async () => {
     bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -903,7 +883,7 @@ describe('App', () => {
 
   it('does not auto-save an invalid endpoint and explains why', async () => {
     bootstrapWithRunningProvider()
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -918,7 +898,7 @@ describe('App', () => {
   it('surfaces a rejected auto-save and does not retry the same draft', async () => {
     bootstrapWithRunningProvider()
     vi.mocked(Backend.SaveProvider).mockRejectedValue(new Error('another provider profile already uses this provider, endpoint, and model'))
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -945,7 +925,7 @@ describe('App', () => {
       runtimeProviderId: local.id,
     }))
     vi.mocked(Backend.UnloadModel).mockResolvedValue(new Status({ state: ModelState.ModelIdle }))
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
 
     // 对话页的模型菜单只列远端连接，本地模型走「加载与释放」入口。
@@ -982,7 +962,7 @@ describe('App', () => {
       runtimeOutdated: true,
     }))
     vi.mocked(Backend.ConfigureProvider).mockResolvedValue(readyStatus())
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     openSettings()
     openDetail()
@@ -995,7 +975,7 @@ describe('App', () => {
   })
 
   it('refreshes the provider list when the backend announces a change', async () => {
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
     expect(screen.getByText('尚无保存的远端连接，去设置里添加一个')).toBeInTheDocument()
@@ -1013,7 +993,7 @@ describe('App', () => {
     pending.cancel = () => { cancel(); reject(new Error('cancelled')) }
     vi.mocked(Backend.Chat).mockReturnValue(pending as unknown as ReturnType<typeof Backend.Chat>)
 
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'long task' } })
     fireEvent.click(screen.getByRole('button', { name: '发送' }))
@@ -1039,7 +1019,7 @@ describe('App', () => {
     const pending = new Promise<Result>((_, fail) => { reject = fail }) as Promise<Result> & { cancel: () => void }
     pending.cancel = () => reject(new Error('cancelled'))
     vi.mocked(Backend.Chat).mockReturnValue(pending as ReturnType<typeof Backend.Chat>)
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'first' } })
     fireEvent.click(screen.getByRole('button', { name: '发送' }))
@@ -1076,7 +1056,7 @@ describe('App', () => {
     const pending = new Promise<Result>(done => { resolve = done }) as Promise<Result> & { cancel: () => void }
     pending.cancel = vi.fn()
     vi.mocked(Backend.Chat).mockReturnValue(pending as ReturnType<typeof Backend.Chat>)
-    render(<App />)
+    renderApp()
     await waitRuntimeReady()
     fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'animation' } })
     fireEvent.click(screen.getByRole('button', { name: '发送' }))
@@ -1096,7 +1076,7 @@ describe('App', () => {
   it('closes a conversation menu when its own button is clicked again', async () => {
     const conversation = new ConversationSummary({ id: 'c1', title: '检查项目', updatedAt: new Date().toISOString(), pinned: false })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [conversation] }))
-    render(<App />)
+    renderApp()
     const more = await screen.findByRole('button', { name: '会话“检查项目”的更多操作' })
     fireEvent.pointerDown(more); fireEvent.click(more)
     expect(screen.getByRole('menu', { name: '会话操作' })).toBeInTheDocument()
@@ -1108,32 +1088,21 @@ describe('App', () => {
     const conversation = new ConversationSummary({ id: 'c1', title: 'Broken', updatedAt: new Date().toISOString(), pinned: false })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [conversation] }))
     vi.mocked(Backend.OpenConversation).mockRejectedValue(new Error('conversation belongs to another workspace'))
-    render(<SnackbarProvider><App /></SnackbarProvider>)
+    renderApp()
     fireEvent.click(await screen.findByTitle('Broken'))
     expect(await screen.findByText('conversation belongs to another workspace')).toBeInTheDocument()
   })
 
-  it('preserves an explicitly saved Markdown and Router selection', async () => {
-    const provider = savedRemoteProvider({
-      agentProtocol: AgentProtocol.AgentProtocolMarkdown,
-      progressiveTools: true,
-    })
-    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      config: provider.config,
-      hasConfig: true,
-      providers: [provider],
-      activeProviderId: provider.id,
-      runtimeProviderId: provider.id,
-    }))
+  it('shows a remembered Markdown format on the chip and the shared Router switch in Agent', async () => {
+    bootstrapWithRunningProvider({ agentProtocol: AgentProtocol.AgentProtocolMarkdown })
+    vi.mocked(Backend.GetAgentSettings).mockResolvedValue(new AgentSettings({ progressiveTools: true }))
 
-    render(<App />)
-    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    renderApp()
+    await waitRuntimeReady()
+    expect(screen.getByRole('button', { name: '对话格式' })).toHaveTextContent('Markdown')
     openSettings()
-    openParametersSection()
-
-    expect(screen.getByLabelText('格式预设')).toHaveAttribute('data-value', 'markdown')
-    openAgentSection()
-    expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
+    await openAgentTab('工具')
+    await waitFor(() => expect(screen.getByLabelText('渐进式工具路由')).toBeChecked())
   })
 
   it('hydrates saved provider settings and plaintext credentials', async () => {
@@ -1154,7 +1123,7 @@ describe('App', () => {
       runtimeProviderId: provider.id,
     }))
 
-    render(<App />)
+    renderApp()
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
     openDetail()
@@ -1169,18 +1138,14 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
-    openParametersSection()
-    expect(screen.getByLabelText('格式预设')).toHaveAttribute('data-value', 'legacy')
-    openAgentSection()
-    expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     // 共用的 Key 与搜索后端由后端从旧档案迁出，在全局「Agent」分区里显示。
-    vi.mocked(Backend.GetAgentSettings).mockResolvedValue({
+    vi.mocked(Backend.GetAgentSettings).mockResolvedValue(new AgentSettings({
       braveApiKey: 'saved-brave', tavilyApiKey: 'saved-tavily', deepseekWebApiKey: 'saved-deepseek', webSearchBackend: 'deepseek',
-    })
+    }))
     fireEvent.click(screen.getByRole('button', { name: '关闭设置' }))
     await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
     openSettings()
-    fireEvent.click(screen.getByRole('button', { name: 'Agent' }))
+    await openAgentTab('搜索与数据源')
     expect(await screen.findByDisplayValue('saved-brave')).toBeInTheDocument()
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
     expect(screen.getByLabelText('DeepSeek API Key')).toHaveValue('saved-deepseek')
@@ -1201,7 +1166,7 @@ describe('App', () => {
       workspaces: workspaces.map((item) => new WorkspaceItem({ ...item, active: item.path === '/tmp/project-b' })),
     }))
 
-    render(<App />)
+    renderApp()
     fireEvent.click(await screen.findByRole('button', { name: 'project-b' }))
 
     await waitFor(() => expect(Backend.OpenWorkspace).toHaveBeenCalledWith('/tmp/project-b'))
@@ -1251,7 +1216,7 @@ describe('App', () => {
       ],
     }))
 
-    render(<App />)
+    renderApp()
     fireEvent.click(await screen.findByTitle('检查项目'))
 
     expect(await screen.findByText('项目说明已读取')).toBeInTheDocument()
@@ -1281,7 +1246,7 @@ describe('App', () => {
     }))
     vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => {}) as ReturnType<typeof Backend.Chat>)
 
-    render(<App />)
+    renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '你好' } })
     act(() => {
@@ -1297,7 +1262,7 @@ describe('App', () => {
       status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
     }))
 
-    render(<App />)
+    renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: 'nihao' } })
     fireEvent.keyDown(composer, { key: 'Enter', keyCode: 229 })
@@ -1319,7 +1284,7 @@ describe('App', () => {
       new Promise((resolve) => { resolveChat = resolve }) as ReturnType<typeof Backend.Chat>,
     )
 
-    render(<App />)
+    renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '并行检查' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
@@ -1364,7 +1329,7 @@ describe('App', () => {
     let resolveChat!: (result: Result) => void
     vi.mocked(Backend.Chat).mockReturnValue(new Promise((resolve) => { resolveChat = resolve }) as ReturnType<typeof Backend.Chat>)
 
-    const { container } = render(<App />)
+    const { container } = renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '打个招呼' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
@@ -1396,7 +1361,7 @@ describe('App', () => {
     }))
     vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => undefined) as ReturnType<typeof Backend.Chat>)
 
-    const { container } = render(<App />)
+    const { container } = renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '写一段长回答' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
@@ -1451,7 +1416,7 @@ describe('App', () => {
         new DisplayMessage({ id: 'trace-assistant', role: 'assistant', content: '已完成读取。', trace }),
       ],
     }))
-    render(<App />)
+    renderApp()
     fireEvent.click(await screen.findByTitle('轨迹验收'))
     expect(await screen.findByText('已完成读取。')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
@@ -1482,7 +1447,7 @@ describe('App', () => {
       ],
     }))
 
-    render(<App />)
+    renderApp()
     fireEvent.click(await screen.findByTitle('旧轨迹'))
     expect(await screen.findByText('旧数据已恢复')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: /轨迹/ }))
@@ -1518,7 +1483,7 @@ describe('App', () => {
       }))
     vi.mocked(Backend.Chat).mockRejectedValue(new Error('模型服务返回 503'))
 
-    render(<App />)
+    renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '检查失败原因' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
@@ -1539,7 +1504,7 @@ describe('App', () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ status: readyStatus() }))
     vi.mocked(Backend.Chat).mockRejectedValue(new Error('连接未配置'))
 
-    render(<App />)
+    renderApp()
     const composer = await screen.findByLabelText('消息')
     fireEvent.change(composer, { target: { value: '检查会话建立失败' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
@@ -1568,7 +1533,7 @@ describe('App', () => {
     vi.mocked(Backend.Chat).mockClear()
     vi.mocked(Backend.Regenerate).mockResolvedValue(new Result({ output: '新回答二', steps: [], durationMs: 5 }))
 
-    render(<App />)
+    renderApp()
     await screen.findByText('旧回答二')
     const buttons = screen.getAllByRole('button', { name: '重新生成' })
     expect(buttons).toHaveLength(1)
@@ -1601,7 +1566,7 @@ describe('App', () => {
     vi.mocked(Backend.Chat).mockClear()
     vi.mocked(Backend.EditLast).mockResolvedValue(new Result({ output: '新回答二', steps: [], durationMs: 5 }))
 
-    render(<App />)
+    renderApp()
     await screen.findByText('旧回答二')
     const editButtons = screen.getAllByRole('button', { name: '编辑' })
     expect(editButtons).toHaveLength(1)
@@ -1625,7 +1590,7 @@ describe('App', () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
     vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({ id: summary.id, title: summary.title, messages: [] }))
 
-    render(<App />)
+    renderApp()
     fireEvent.click(screen.getByRole('button', { name: '打开导航' }))
     expect(document.querySelector('.sidebar-scrim')).not.toBeNull()
     fireEvent.click(await screen.findByRole('button', { name: /^抽屉会话/ }))

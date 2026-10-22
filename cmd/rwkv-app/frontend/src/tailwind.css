@@ -45,6 +45,7 @@
 
   /* 阴影：shadcn 式的轻阴影，亮暗两套值在 styles/tokens.css */
   --shadow-pop: var(--elev-pop);
+  --shadow-toast: var(--elev-toast);
   --shadow-hair: var(--elev-sm);
 
   /*
@@ -88,6 +89,9 @@
   --animate-menu-up-out: menu-up-out .12s ease-in both;
   --animate-menu-down-in: menu-down-in .16s cubic-bezier(.2, 0, 0, 1) both;
   --animate-sheet-in: sheet-in .2s cubic-bezier(.2, 0, 0, 1) both;
+  --animate-toast-in: toast-in .24s cubic-bezier(.2, 0, 0, 1) both;
+  --animate-toast-out: toast-out .16s ease-in both;
+  --animate-toast-progress: toast-progress 4s linear forwards;
   --animate-fade-in: stream-fade .16s ease-out both;
   --animate-wordmark-blink: wordmark-blink 1.06s steps(1, end) infinite;
   --animate-stream-fade: stream-fade .5s ease-out both;
@@ -99,6 +103,9 @@
   @keyframes menu-up-out { to { opacity: 0; transform: translateY(4px) scale(.98); } }
   @keyframes menu-down-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
   @keyframes sheet-in { from { opacity: 0; transform: translateY(8px) scale(.985); } }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+  @keyframes toast-out { to { opacity: 0; transform: translateX(12px); } }
+  @keyframes toast-progress { to { transform: scaleX(0); } }
   @keyframes wordmark-blink { 50% { opacity: 0; } }
   @keyframes stream-fade { from { opacity: 0; } }
   @keyframes tok-in { from { opacity: 0; filter: blur(2.5px); } }

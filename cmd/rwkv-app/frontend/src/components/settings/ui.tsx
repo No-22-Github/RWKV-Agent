@@ -217,12 +217,18 @@ export function Notice({ tone = 'neutral', children }: { tone?: 'neutral' | 'war
  * 这条契约只写在这里一处，避免再被复制到第 N 个分区时漏掉。
  *
  * 左右各留 56px：弹窗右上角的关闭按钮悬在内容区之上，窄窗口时不能压住标题行的按钮。
+ *
+ * 内容按外层（不滚动的那层）的宽度定位，而不是按滚动区：macOS「始终显示滚动条」下，内容一超过
+ * 一屏滚动条就出现、滚动区变窄，按滚动区居中的内容会往左抽一下（打开详情、数据加载完、展开折叠行
+ * 都会触发）。外层是 container，100cqw 是外层宽度、不随滚动条变，左边距因此固定；滚动条只吃掉
+ * 右侧 56px 留白，和上方按同一宽度居中的页头始终对齐。不用 scrollbar-gutter：WKWebView 不一定支持。
+ * 横向不滚动，免得触控板左右一划整块挪动。
  */
 export function SettingsPane({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="flex min-w-0 min-h-0 flex-1 flex-col">
-      <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-auto">
-        <div className={`${PANE_WIDTH} flex-none pb-[40px] pt-[28px]`}>
+    <div className="@container flex min-w-0 min-h-0 flex-1 flex-col">
+      <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div className="flex-none pb-[40px] pt-[28px]" style={PANE_FIXED_POSITION}>
           {children}
         </div>
       </div>
@@ -231,5 +237,9 @@ export function SettingsPane({ children, footer }: { children: ReactNode; footer
   )
 }
 
-/* 详情页与 SettingsPane 同宽的固定页头容器。 */
+/* 详情页与 SettingsPane 同宽的固定页头容器（页头不滚动，按自身宽度居中即可）。 */
 export const PANE_WIDTH = 'mx-auto w-[min(640px,calc(100%-112px))]'
+
+/* SettingsPane 里同一宽度、同一位置，但按外层容器宽度（100cqw）算，滚动条出现也不动。 */
+const PANE_FIXED_WIDTH = 'min(640px, calc(100cqw - 112px))'
+const PANE_FIXED_POSITION = { width: PANE_FIXED_WIDTH, marginLeft: `calc((100cqw - ${PANE_FIXED_WIDTH}) / 2)` }

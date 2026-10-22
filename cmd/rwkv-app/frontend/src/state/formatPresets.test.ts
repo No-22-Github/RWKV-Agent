@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AgentProtocol } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
-import { FORMAT_PRESETS, isAgentWireV1, matchFormatPreset } from './formatPresets'
+import { FORMAT_PRESETS, formatPresetById, formatSelection, isAgentWireV1, matchFormatPreset } from './formatPresets'
 
 describe('format presets', () => {
   it('recognises a saved connection that still says g1k', () => {
@@ -23,5 +23,11 @@ describe('format presets', () => {
       expect(preset.profile).toBe('agent-wire-v1.0')
       expect(isAgentWireV1(preset.profile)).toBe(true)
     }
+  })
+
+  it('writes deep thinking as the agent-wire-think-v1.0 wire override and clears it again', () => {
+    expect(formatSelection(formatPresetById('think')!).wire).toBe('thinking=full,nudge=think')
+    expect(formatSelection(formatPresetById('standard')!, 'thinking=full,nudge=think').wire).toBe('')
+    expect(formatSelection(formatPresetById('standard')!, 'loop=off').wire).toBe('loop=off')
   })
 })

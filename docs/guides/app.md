@@ -22,8 +22,10 @@ frontend and bind the same public Go API from `api/`.
   where the file is staged by the app server and forwarded), pick the state a
   connection generates from, and delete states from the shared deployment. The
   app remembers which local file produced each `state_id`; when a deployment
-  restart wipes its states, the editor offers a one-click re-upload, and
-  connecting with a state the server no longer holds is refused up front. The
+  restart wipes its states, the editor offers a one-click re-upload. The chosen
+  state is remembered on the connection and used again when you switch back to
+  it; if the server no longer holds it, that connection starts without it and a
+  notice says so (picking a missing state from the chip is refused up front). The
   running state is shown next to the model name and in each turn's metadata.
 - MiSS adapter management for the same connections, independent of the state
   (a connection can use an adapter, a state, both, or neither): upload a local
@@ -33,14 +35,25 @@ frontend and bind the same public Go API from `api/`.
   the server's RAM, so the desktop app remembers which local file produced each
   one and offers a one-click re-upload after a restart. Registering a package
   that already sits on the inference host is a CLI-only operation:
-  `rwkv-cli adapter register --path …` (also `adapter list` / `adapter delete`). Connecting is refused when the chosen adapter is gone or the
-  deployment has no `/v1/adapters` (an old build would ignore `adapter_id` and
-  answer as the base model). The running adapter has its own chip next to the
-  state chip.
-- One "格式预设" selector replaces the protocol and thinking selectors: 标准（不思考）
+  `rwkv-cli adapter register --path …` (also `adapter list` / `adapter delete`). Like the state, the adapter is remembered on the
+  connection; a remembered adapter that is gone (or a deployment without
+  `/v1/adapters`, which would ignore `adapter_id` and answer as the base model)
+  is dropped for that run with a notice, and picking one from the chip is refused.
+  The running adapter has its own chip next to the state chip.
+- Settings are split by what follows the endpoint. A connection holds only the
+  connection itself (protocol, address, model, credentials, headers, batching
+  knobs) plus three choices remembered per connection: the dialogue format, the
+  state and the MiSS adapter. Those three are switched from the chips above the
+  composer and are applied again whenever that connection is activated. Sampling,
+  budgets, tool switches, scheduling, prompt additions and the search keys are
+  one shared layer (`appstorage.AgentSettings`, settings → Agent: 生成 / 工具 /
+  搜索与数据源); changes there and the chip's web/sub-agent toggles apply on the
+  next turn without reconnecting, and also for a loaded local model. On first run
+  the shared layer is filled from the active connection.
+- The format chip replaces the protocol and thinking selectors: 标准（不思考）
   = `agent-wire-v1.0` (原名 `g1k`), 深度思考 = `agent-wire-think-v1.0` (原名 `g1k-think`; the wire v2.0 MiSS adapters were trained on),
   Markdown 工具调用（实验）. Fast thinking and the profile-less legacy `xml-v1` only
-  appear while a saved connection still uses them. Sampling presets show Chinese
+  appear while a saved connection still uses them, and the chip turns amber. Sampling presets show Chinese
   names; the CLI `--sampling` name is in the hint.
 - Thinking is visible: the runner streams `thinking_delta` events, the chat shows
   the last two lines of the current step's thought while it runs, and the tool
@@ -194,7 +207,7 @@ Open **设置** in the lower-left corner.
 - **远端 API** defaults to **RWKV 续写**. It accepts an API base URL, `/v1/models`, or `/v1/batch/completions` and normalizes inference to the continuation-native `/v1/batch/completions` endpoint. Stop sequences are enforced by the Harness client, so the server-specific `stop_tokens` field is omitted by default.
 - **OpenAI 兼容** is the fallback for non-RWKV models and normalizes the same base URL to `/v1/chat/completions`.
 - Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. The desktop app saves these values in the local plaintext `settings.json`; model status exposes only sanitized header names, never values.
-- **Agent 能力** for a **new** connection defaults to the `agent-wire-v1.0` wire profile (called `g1k` before 2026-10-21; the format the training corpus is rendered in and the product evaluation runs), the `agent-default` sampling preset (`g1k-agent` before the rename), XML protocol with thinking off, and loop-rescue limits 2/3/3. Web search/fetch, weather (keyless Open-Meteo) and bash are on; sub-agents stay off. Saved connections are never rewritten: one without a profile keeps its legacy XML defaults (`xml-v1` wire, greedy sampling) until you change it. The defaults live in `api.NewConfigDefaults` and are mirrored by `NEW_CONFIG_DEFAULTS` in `providerManager.ts`. Markdown/function protocol and progressive tool routing remain explicit options (choosing Markdown drops the profile; choosing XML again restores `agent-wire-v1.0`). With a profile set, the thinking selector is written as a `thinking=fast|full` wire override. Optional Brave Search + Tavily Extract and concurrent `spawn_agents` delegation are unchanged. Web tools no longer need both keys to be enabled: without keys they stay in the tool list and a call answers "not configured, fill in the key in settings" (the Runner marks the tool unavailable for that turn). Subagent settings control local active batch, child concurrency/steps/timeout, and the RWKV Lightning request-coalescing window.
+- **Agent 能力**: a **new** connection starts on the `agent-wire-v1.0` wire profile (called `g1k` before 2026-10-21; the format the training corpus is rendered in and the product evaluation runs), XML protocol with thinking off, and loop-rescue limits 2/3/3. When there is no connection yet, the shared layer starts on the `agent-default` sampling preset (`g1k-agent` before the rename) with web search/fetch, weather (keyless Open-Meteo) and bash on and sub-agents off. Saved connections keep their format: one without a profile stays on the legacy `xml-v1` wire until you switch it on the format chip. The defaults live in `api.NewConfigDefaults` and are mirrored by `NEW_CONFIG_DEFAULTS` in `providerManager.ts`. Markdown/function protocol and progressive tool routing remain explicit options (choosing Markdown drops the profile; choosing XML again restores `agent-wire-v1.0`). With a profile set, the thinking selector is written as a `thinking=fast|full` wire override. Optional Brave Search + Tavily Extract and concurrent `spawn_agents` delegation are unchanged. Web tools no longer need both keys to be enabled: without keys they stay in the tool list and a call answers "not configured, fill in the key in settings" (the Runner marks the tool unavailable for that turn). Subagent settings control child concurrency/steps/timeout; the local active batch and the RWKV Lightning request-coalescing window are per-connection knobs in the connection's 高级 group.
 - On macOS, the desktop process uses `HTTP_PROXY`/`HTTPS_PROXY` when present and otherwise reads the explicit HTTP, HTTPS, or SOCKS proxy from `scutil --proxy` at startup. System proxy exceptions and local addresses bypass the proxy. Restart the app after changing macOS proxy settings; PAC auto-configuration is not evaluated yet.
 
 Each child Agent gets an independent Session and transcript. Local MLX uses

@@ -9,8 +9,8 @@ import (
 	"github.com/no22/RWKV-Agent/internal/appstorage"
 )
 
-// 共用 Agent 设置：旧档案里的 Key 第一次读取时迁移出来；连接时填进运行配置，
-// 档案里不再存；改设置后运行配置立即更新，不重建连接。
+// 共用 Agent 设置：旧档案里的 Key、生成参数与工具开关第一次读取时迁移出来；连接时填进
+// 运行配置，档案里不再存；改设置后运行配置立即更新，不重建连接。
 func TestAppServiceSharesAgentSettingsAcrossProfiles(t *testing.T) {
 	server := httptest.NewServer(&fakeStateServer{})
 	t.Cleanup(server.Close)
@@ -50,21 +50,21 @@ func TestAppServiceSharesAgentSettingsAcrossProfiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	saved := value.Providers[0].Config
-	if saved.BraveAPIKey != "" || saved.WebSearchBackend != "" || saved.WeatherBackend != agentapi.NewConfigWeatherBackend {
+	if saved.BraveAPIKey != "" || saved.WebSearchBackend != "" || saved.WeatherBackend != "" || saved.EnableWeb {
 		t.Fatalf("profile still carries shared settings: %+v", saved)
 	}
-	if value.Config.BraveAPIKey != "brave-old" || value.Config.WeatherBackend != "wttr" || value.RuntimeOutdated {
+	if value.Config.BraveAPIKey != "brave-old" || value.Config.WeatherBackend != "wttr" || !value.Config.EnableWeb || value.RuntimeOutdated {
 		t.Fatalf("runtime config = %+v outdated = %v", value.Config, value.RuntimeOutdated)
 	}
 
-	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{BraveAPIKey: "brave-new", WeatherBackend: "open-meteo", WebFetchBackend: "deepseek"}); err != nil {
+	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{BraveAPIKey: "brave-new", EnableWeather: true, WeatherBackend: "open-meteo", WebFetchBackend: "deepseek", Temperature: 0.4, TopK: 20}); err != nil {
 		t.Fatal(err)
 	}
 	value, err = backend.Bootstrap()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if value.Config.BraveAPIKey != "brave-new" || value.Config.WebSearchBackend != "" || value.Config.WebFetchBackend != "deepseek" || value.Config.WeatherBackend != "open-meteo" || value.RuntimeOutdated {
+	if value.Config.BraveAPIKey != "brave-new" || value.Config.WebSearchBackend != "" || value.Config.WebFetchBackend != "deepseek" || value.Config.WeatherBackend != "open-meteo" || value.Config.TopK != 20 || value.Config.EnableWeb || value.RuntimeOutdated {
 		t.Fatalf("runtime config after save = %+v outdated = %v", value.Config, value.RuntimeOutdated)
 	}
 	if _, err := backend.SaveAgentSettings(appstorage.AgentSettings{WebFetchBackend: "brave"}); err == nil {

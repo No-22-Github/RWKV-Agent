@@ -33,7 +33,8 @@ const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
  * 设置弹窗：浮在对话上方的卡片，背后的对话保持可见，进出都不丢上下文。
  * 关闭方式：右上 ✕、Esc、点卡片外、再按 ⌘,。脏表单时关闭走确认框，不再阻断或静默丢失。
  * 远端连接与本地推理分开：本地模型有加载与释放的代价，远端只是换个地址，两者不混在一个列表里。
- * 连接、生成参数与 Agent 编辑的都是同一份档案，所以收在同一个详情下的三个标签里。
+ * 连接分区只管连接本身（地址、模型、凭据，以及记在连接上的 State 与 MiSS）；生成参数、工具与
+ * 搜索 Key 所有连接共用，在「Agent」分区。
  */
 export default function SettingsPage({ manager, agent, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider }: Props) {
   const section = manager.settingsSection
@@ -164,7 +165,7 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
           {connectionSection
             ? <ConnectionsSection key={section} kind={section === '本地推理' ? 'local' : 'remote'} manager={manager} ready={ready} onDeleteProvider={onDeleteProvider} />
             : section === 'Agent'
-              ? <GlobalAgentSection agent={agent} />
+              ? <GlobalAgentSection agent={agent} runtimeConfig={manager.runtimeConfig} />
             : section === '外观'
               ? <AppearanceSection themePreference={themePreference} onThemeChange={onThemeChange} />
               : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} />}

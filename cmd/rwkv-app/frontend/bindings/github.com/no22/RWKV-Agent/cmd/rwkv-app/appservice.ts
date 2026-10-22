@@ -25,7 +25,8 @@ import * as appstorage$0 from "../../internal/appstorage/models.js";
 import * as $models from "./models.js";
 
 /**
- * ActivateProvider 切换到一条已保存的连接档案：取出其 Config 后复用 Configure 完成连接并置为 active。
+ * ActivateProvider 切换到一条已保存的连接档案：连同它记住的格式、State 与 MiSS 适配器一起用上。
+ * 记住的 State 或适配器已不在服务器上时这次不用，照常连接，经 app:notice 告诉用户。
  */
 export function ActivateProvider(id: string): $CancellablePromise<api$0.Status> {
     return $Call.ByID(537261178, id).then(($result: any) => {
@@ -87,6 +88,7 @@ export function Close(): $CancellablePromise<void> {
 
 /**
  * ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
+ * ConfigureProvider 连接设置里编辑的那条档案（已有档案的格式、State 与适配器沿用档案里记住的值）。
  */
 export function ConfigureProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<api$0.Status> {
     return $Call.ByID(348868143, id, label, config).then(($result: any) => {
@@ -254,7 +256,7 @@ export function ResolveFileChanges(reviewed: api$0.FileChange[], accept: boolean
 
 /**
  * SaveAgentSettings 保存共用的 Agent 设置，并让运行中的模型下一轮就用上：
- * 只改配置里的 Key 与路由，不重建 provider（本地模型不会重新加载）。
+ * 只改配置，不重建 provider（本地模型不会重新加载，远端不重连）。
  */
 export function SaveAgentSettings(value: appstorage$0.AgentSettings): $CancellablePromise<appstorage$0.AgentSettings> {
     return $Call.ByID(1675591009, value).then(($result: any) => {
@@ -276,6 +278,34 @@ export function SaveProvider(id: string, label: string, config: api$0.Config): $
  */
 export function SetConversationPinned(id: string, pinned: boolean): $CancellablePromise<void> {
     return $Call.ByID(233989379, id, pinned);
+}
+
+/**
+ * SetRuntimeAdapter 换运行中连接的 MiSS 适配器（空串 = 基模）并记进档案；要重连。
+ */
+export function SetRuntimeAdapter(adapterID: string): $CancellablePromise<api$0.Status> {
+    return $Call.ByID(3789526017, adapterID).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * SetRuntimeFormat 改运行中连接的对话格式并记进它的档案：下次切到这个连接还是这个格式。
+ * 格式只在建会话时读，所以不重连、本地模型也不重新加载，下一轮生效。
+ */
+export function SetRuntimeFormat(value: $models.RuntimeFormat): $CancellablePromise<api$0.Status> {
+    return $Call.ByID(2002806945, value).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
+ * SetRuntimeState 换运行中连接的 State（空串 = 不用）并记进档案；要重连。
+ */
+export function SetRuntimeState(stateID: string): $CancellablePromise<api$0.Status> {
+    return $Call.ByID(2157234503, stateID).then(($result: any) => {
+        return $$createType0($result);
+    });
 }
 
 /**

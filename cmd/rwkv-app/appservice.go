@@ -118,6 +118,15 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 		// 远端配置很轻量（不发网络请求，连通性检查在"测试连接"里），启动时自动连上
 		// 上次使用的远端档案，省去手动重连；本地模型加载较重，仍需用户显式加载。
 		if cfg.Provider != agentapi.ProviderLocal {
+			// 记住的 State / 适配器先确认还在；服务器连不上时按在处理，不拖慢启动太久。
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			checked, notice := backend.dropMissingBindings(ctx, cfg)
+			cancel()
+			if notice != "" {
+				cfg = checked
+				backend.config = cfg
+				backend.warning = joinWarning(backend.warning, notice)
+			}
 			if _, err := service.Configure(context.Background(), liveStreamConfig(cfg), func(agentapi.Status) {}); err != nil {
 				backend.warning = joinWarning(backend.warning, fmt.Sprintf("自动连接上次的远端失败：%v", err))
 			} else {
@@ -171,9 +180,13 @@ func (s *AppService) PreviewSystemPrompt(config agentapi.Config) (agentapi.Agent
 }
 
 // ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
+// ConfigureProvider 连接设置里编辑的那条档案（已有档案的格式、State 与适配器沿用档案里记住的值）。
 func (s *AppService) ConfigureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if stored, ok := s.savedProvider(id); ok {
+		config = withStoredBinding(config, stored.Config)
+	}
 	return s.configureProvider(ctx, id, label, config)
 }
 
@@ -223,24 +236,30 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	return status, nil
 }
 
-// storedProfile 是写进连接档案的那一份配置，去掉两类不属于档案的字段：
-//   - State 与 MiSS 适配器：只在本次运行有效。服务端重启就会清空上传的 State/适配器，
-//     记在档案里只会让下次连接报"找不到"。
-//   - 共用的 Agent 设置（搜索 Key、搜索路由、天气数据源）：只存一份，见 appstorage.AgentSettings。
-//     档案里的 weatherBackend 只表示"开不开天气工具"，具体数据源取共用设置。
+// storedProfile 是写进连接档案的那一份配置：连接本身，加上跟着端点走的对话格式、
+// State 与 MiSS 适配器。所有连接共用的设置（生成参数、工具开关、提示词、搜索 Key 与数据源）
+// 只存一份，见 appstorage.AgentSettings，这里一律去掉。
 //
 // 旧档案里存着的这些值在启动、保存、比较时一律按没有处理。
 func storedProfile(config agentapi.Config) agentapi.Config {
-	config.StateID = ""
-	config.AdapterID = ""
+	// 空请求头存盘后读回来是 nil：不统一成 nil，没有请求头的连接会被比成「配置已变、待重新加载」。
+	if len(config.Headers) == 0 {
+		config.Headers = nil
+	}
 	config.BraveAPIKey = ""
 	config.TavilyAPIKey = ""
 	config.DeepSeekWebAPIKey = ""
 	config.WebSearchBackend = ""
 	config.WebFetchBackend = ""
-	if strings.TrimSpace(config.WeatherBackend) != "" {
-		config.WeatherBackend = agentapi.NewConfigWeatherBackend
-	}
+	config.WeatherBackend = ""
+	config.Temperature, config.TopK, config.TopP = 0, 0, 0
+	config.PresencePenalty, config.FrequencyPenalty, config.PenaltyDecay = 0, 0, 0
+	config.MaxSteps, config.MaxTokens, config.DecisionMaxTokens = 0, 0, 0
+	config.EnableWeb, config.EnableBash, config.EnableSubagents = false, false, false
+	config.ProgressiveTools = nil
+	config.SubagentMaxParallel, config.SubagentMaxSteps, config.SubagentTimeoutSeconds = 0, 0, 0
+	config.TaskControl = ""
+	config.InjectSessionTime = false
 	return config
 }
 
@@ -251,10 +270,69 @@ func withAgentSettings(config agentapi.Config, agent appstorage.AgentSettings) a
 	config.DeepSeekWebAPIKey = agent.DeepSeekWebAPIKey
 	config.WebSearchBackend = agent.WebSearchBackend
 	config.WebFetchBackend = agent.WebFetchBackend
-	if strings.TrimSpace(config.WeatherBackend) != "" && strings.TrimSpace(agent.WeatherBackend) != "" {
-		config.WeatherBackend = agent.WeatherBackend
+	config.WeatherBackend = ""
+	if agent.EnableWeather {
+		config.WeatherBackend = agentapi.NewConfigWeatherBackend
+		if strings.TrimSpace(agent.WeatherBackend) != "" {
+			config.WeatherBackend = agent.WeatherBackend
+		}
+	}
+	config.Temperature, config.TopK, config.TopP = agent.Temperature, agent.TopK, agent.TopP
+	config.PresencePenalty, config.FrequencyPenalty, config.PenaltyDecay = agent.PresencePenalty, agent.FrequencyPenalty, agent.PenaltyDecay
+	config.MaxSteps, config.MaxTokens, config.DecisionMaxTokens = agent.MaxSteps, agent.MaxTokens, agent.DecisionMaxTokens
+	config.EnableWeb, config.EnableBash, config.EnableSubagents = agent.EnableWeb, agent.EnableBash, agent.EnableSubagents
+	progressive := agent.ProgressiveTools
+	config.ProgressiveTools = &progressive
+	config.SubagentMaxParallel, config.SubagentMaxSteps, config.SubagentTimeoutSeconds = agent.SubagentMaxParallel, agent.SubagentMaxSteps, agent.SubagentTimeoutSeconds
+	config.TaskControl = agent.TaskControl
+	config.InjectSessionTime = agent.InjectSessionTime
+	return config
+}
+
+// withStoredBinding 让设置里的连接编辑只改连接本身：对话格式、State 与 MiSS 适配器
+// 取档案里记住的值（它们在对话页的芯片里改）。换了协议或地址，那台服务器上未必有这两个 ID，一并清掉。
+func withStoredBinding(config agentapi.Config, stored agentapi.Config) agentapi.Config {
+	config.AgentProtocol, config.Profile, config.Wire, config.Thinking = stored.AgentProtocol, stored.Profile, stored.Wire, stored.Thinking
+	config.StateID, config.AdapterID = "", ""
+	if config.Provider == stored.Provider && strings.TrimSpace(config.Endpoint) == strings.TrimSpace(stored.Endpoint) {
+		config.StateID, config.AdapterID = stored.StateID, stored.AdapterID
 	}
 	return config
+}
+
+// savedProvider 按 ID 找一条已保存的档案。
+func (s *AppService) savedProvider(id string) (appstorage.SavedProvider, bool) {
+	if id == "" {
+		return appstorage.SavedProvider{}, false
+	}
+	settings, err := s.storage.LoadSettings()
+	if err != nil {
+		return appstorage.SavedProvider{}, false
+	}
+	for _, entry := range settings.Providers {
+		if entry.ID == id {
+			return entry, true
+		}
+	}
+	return appstorage.SavedProvider{}, false
+}
+
+// dropMissingBindings 检查档案记住的 State 与 MiSS 适配器还在不在服务器上（服务端重启会清空它们）。
+// 不在的这次不用，连接照常建立，返回一句给用户看的说明。
+func (s *AppService) dropMissingBindings(ctx context.Context, config agentapi.Config) (agentapi.Config, string) {
+	var missing []string
+	if err := s.verifyStateAvailable(ctx, config); err != nil {
+		missing = append(missing, "State "+config.StateID)
+		config.StateID = ""
+	}
+	if err := s.verifyAdapterAvailable(ctx, config); err != nil {
+		missing = append(missing, "MiSS 适配器 "+config.AdapterID)
+		config.AdapterID = ""
+	}
+	if len(missing) == 0 {
+		return config, ""
+	}
+	return config, fmt.Sprintf("上次用的%s已不在服务器上（服务端重启会清空），这次没有使用；重新上传后在对话页再选一次", strings.Join(missing, "、"))
 }
 
 // GetAgentSettings 返回所有连接共用的 Agent 设置。
@@ -263,14 +341,16 @@ func (s *AppService) GetAgentSettings() (appstorage.AgentSettings, error) {
 }
 
 // SaveAgentSettings 保存共用的 Agent 设置，并让运行中的模型下一轮就用上：
-// 只改配置里的 Key 与路由，不重建 provider（本地模型不会重新加载）。
+// 只改配置，不重建 provider（本地模型不会重新加载，远端不重连）。
 func (s *AppService) SaveAgentSettings(value appstorage.AgentSettings) (appstorage.AgentSettings, error) {
-	value = appstorage.AgentSettings{
-		BraveAPIKey: strings.TrimSpace(value.BraveAPIKey), TavilyAPIKey: strings.TrimSpace(value.TavilyAPIKey),
-		DeepSeekWebAPIKey: strings.TrimSpace(value.DeepSeekWebAPIKey),
-		WebSearchBackend:  strings.TrimSpace(value.WebSearchBackend), WeatherBackend: strings.TrimSpace(value.WeatherBackend),
-		WebFetchBackend: strings.TrimSpace(value.WebFetchBackend),
-	}
+	value.BraveAPIKey = strings.TrimSpace(value.BraveAPIKey)
+	value.TavilyAPIKey = strings.TrimSpace(value.TavilyAPIKey)
+	value.DeepSeekWebAPIKey = strings.TrimSpace(value.DeepSeekWebAPIKey)
+	value.WebSearchBackend = strings.TrimSpace(value.WebSearchBackend)
+	value.WebFetchBackend = strings.TrimSpace(value.WebFetchBackend)
+	value.WeatherBackend = strings.TrimSpace(value.WeatherBackend)
+	value.TaskControl = strings.TrimSpace(value.TaskControl)
+	value.Revision = appstorage.AgentSettingsRevision
 	switch value.WebSearchBackend {
 	case "", "auto", "deepseek", "brave":
 	default:
@@ -286,26 +366,108 @@ func (s *AppService) SaveAgentSettings(value appstorage.AgentSettings) (appstora
 	default:
 		return appstorage.AgentSettings{}, fmt.Errorf("天气数据源只能是 open-meteo 或 wttr")
 	}
+	if value.MaxSteps < 0 || value.MaxSteps == 1 || value.MaxTokens < 0 || value.DecisionMaxTokens < 0 {
+		return appstorage.AgentSettings{}, fmt.Errorf("最大步数至少为 2，输出 token 不能为负")
+	}
 	s.operation.Lock()
 	defer s.operation.Unlock()
-	if err := s.storage.SaveAgentSettings(value); err != nil {
-		return appstorage.AgentSettings{}, err
-	}
 	s.mu.Lock()
 	service := s.service
-	s.config = withAgentSettings(s.config, value)
 	old := s.session
-	// 会话在建立时装好工具；关掉它，下一轮按新设置重建（对话历史由下一轮恢复）。
-	if service.UpdateConfig(func(config *agentapi.Config) { *config = withAgentSettings(*config, value) }) {
+	// 会话在建立时装好工具与参数；关掉它，下一轮按新设置重建（对话历史由下一轮恢复）。
+	active, err := service.UpdateConfig(func(config *agentapi.Config) { *config = withAgentSettings(*config, value) })
+	if err != nil {
+		s.mu.Unlock()
+		return appstorage.AgentSettings{}, err
+	}
+	if active {
 		s.session = nil
 	} else {
 		old = nil
 	}
+	s.config = withAgentSettings(s.config, value)
 	s.mu.Unlock()
 	if old != nil {
 		_ = old.Close()
 	}
+	if err := s.storage.SaveAgentSettings(value); err != nil {
+		return appstorage.AgentSettings{}, err
+	}
+	s.emit(providersChangedEvent)
 	return value, nil
+}
+
+// RuntimeFormat 是对话页格式芯片选中的一档：工具协议、wire 预设、wire 覆盖与思考模式。
+type RuntimeFormat struct {
+	AgentProtocol agentapi.AgentProtocol `json:"agentProtocol"`
+	Profile       string                 `json:"profile"`
+	Wire          string                 `json:"wire"`
+	Thinking      string                 `json:"thinking"`
+}
+
+func (value RuntimeFormat) apply(config *agentapi.Config) {
+	config.AgentProtocol, config.Profile, config.Wire, config.Thinking = value.AgentProtocol, strings.TrimSpace(value.Profile), strings.TrimSpace(value.Wire), value.Thinking
+}
+
+// SetRuntimeFormat 改运行中连接的对话格式并记进它的档案：下次切到这个连接还是这个格式。
+// 格式只在建会话时读，所以不重连、本地模型也不重新加载，下一轮生效。
+func (s *AppService) SetRuntimeFormat(value RuntimeFormat) (agentapi.Status, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	entry, ok := s.runtimeProvider()
+	if !ok {
+		return s.currentService().Status(), fmt.Errorf("还没有正在运行的连接")
+	}
+	s.mu.Lock()
+	service := s.service
+	old := s.session
+	if _, err := service.UpdateConfig(value.apply); err != nil {
+		s.mu.Unlock()
+		return service.Status(), err
+	}
+	value.apply(&s.config)
+	s.session = nil
+	s.mu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+	stored := entry.Config
+	value.apply(&stored)
+	if _, err := s.storage.SaveProvider(entry.ID, entry.Label, storedProfile(stored), false); err != nil {
+		return service.Status(), fmt.Errorf("格式已生效，但保存到连接档案失败: %w", err)
+	}
+	s.emit(providersChangedEvent)
+	return service.Status(), nil
+}
+
+// SetRuntimeState 换运行中连接的 State（空串 = 不用）并记进档案；要重连。
+func (s *AppService) SetRuntimeState(ctx context.Context, stateID string) (agentapi.Status, error) {
+	return s.rebindRuntime(ctx, func(config *agentapi.Config) { config.StateID = strings.TrimSpace(stateID) })
+}
+
+// SetRuntimeAdapter 换运行中连接的 MiSS 适配器（空串 = 基模）并记进档案；要重连。
+func (s *AppService) SetRuntimeAdapter(ctx context.Context, adapterID string) (agentapi.Status, error) {
+	return s.rebindRuntime(ctx, func(config *agentapi.Config) { config.AdapterID = strings.TrimSpace(adapterID) })
+}
+
+func (s *AppService) rebindRuntime(ctx context.Context, edit func(*agentapi.Config)) (agentapi.Status, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	entry, ok := s.runtimeProvider()
+	if !ok {
+		return s.currentService().Status(), fmt.Errorf("还没有正在运行的连接")
+	}
+	config := storedProfile(entry.Config)
+	edit(&config)
+	return s.configureProvider(ctx, entry.ID, entry.Label, config)
+}
+
+// runtimeProvider 是正在运行的那条档案。
+func (s *AppService) runtimeProvider() (appstorage.SavedProvider, bool) {
+	s.mu.Lock()
+	id := s.runtimeProviderID
+	s.mu.Unlock()
+	return s.savedProvider(id)
 }
 
 // UnloadModel 释放当前运行的模型：本地模型卸载权重、归还内存，远端断开连接。
@@ -342,6 +504,9 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	}
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if stored, ok := s.savedProvider(id); ok {
+		config = withStoredBinding(config, stored.Config)
+	}
 	saved, err := s.storage.SaveProvider(id, label, storedProfile(config), false)
 	if err != nil {
 		return appstorage.SavedProvider{}, err
@@ -366,18 +531,21 @@ func (s *AppService) ListRemoteModels(ctx context.Context, config agentapi.Confi
 	return service.ListRemoteModels(ctx, config)
 }
 
-// ActivateProvider 切换到一条已保存的连接档案：取出其 Config 后复用 Configure 完成连接并置为 active。
+// ActivateProvider 切换到一条已保存的连接档案：连同它记住的格式、State 与 MiSS 适配器一起用上。
+// 记住的 State 或适配器已不在服务器上时这次不用，照常连接，经 app:notice 告诉用户。
 func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.Status, error) {
-	settings, err := s.storage.LoadSettings()
-	if err != nil {
-		return agentapi.Status{}, err
+	entry, ok := s.savedProvider(id)
+	if !ok {
+		return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
 	}
-	for _, entry := range settings.Providers {
-		if entry.ID == id {
-			return s.ConfigureProvider(ctx, entry.ID, entry.Label, storedProfile(entry.Config))
-		}
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	config, notice := s.dropMissingBindings(ctx, storedProfile(entry.Config))
+	status, err := s.configureProvider(ctx, entry.ID, entry.Label, config)
+	if err == nil && notice != "" {
+		s.emit(noticeEvent, notice)
 	}
-	return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
+	return status, err
 }
 
 // DeleteProvider 删除一条连接档案并返回刷新后的引导状态（不影响当前正在运行的会话）。
@@ -1023,6 +1191,9 @@ func (s *AppService) loadActiveConversation() {
 // 重新拉取档案状态：任何入口（设置页、运行配置下拉、另一个窗口）的修改都走同一条
 // 刷新路径，侧栏与下拉的档案列表因此只有一个数据源。
 const providersChangedEvent = "providers:changed"
+
+// noticeEvent 带一句给用户看的提示（字符串负载），前端在对话页的提示条里显示。
+const noticeEvent = "app:notice"
 
 func (s *AppService) emit(name string, data ...any) {
 	s.mu.Lock()

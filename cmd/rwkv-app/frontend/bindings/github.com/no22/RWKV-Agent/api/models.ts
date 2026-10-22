@@ -174,7 +174,7 @@ export class Config {
 
     /**
      * DeepSeekWebAPIKey enables DeepSeek's search API as a second web_search
-     * backend and its fetch API as the fallback for pages Tavily cannot read.
+     * backend and its fetch API as a second web_fetch backend.
      */
     "deepseekWebApiKey"?: string;
     "deepseekWebEndpoint"?: string;

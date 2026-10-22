@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Events } from '@wailsio/runtime'
-import {
-  AgentPromptPreview, AgentProtocol, Config, Provider, Status, type RemoteModel,
-} from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { AgentProtocol, Config, Provider, Status, type RemoteModel } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import { derivedProviderLabel, firstDraftError, validateDraft } from './draftValidation'
-import { DEFAULT_SAMPLING, NEW_CONFIG_SAMPLING_ID, matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
+import { firstDraftError, isAutoProviderLabel, validateDraft } from './draftValidation'
+import { DEFAULT_SAMPLING, NEW_CONFIG_SAMPLING_ID, presetById } from './samplingPresets'
+import { formatPresetById, formatSelection } from './formatPresets'
+import { useSnackbar } from '../snackbar'
 
 /* 自动保存的防抖：停止输入这么久后才落盘，敲到一半的值不会触发保存或重连。 */
 export const AUTOSAVE_DELAY_MS = 800
@@ -57,28 +57,19 @@ function providerDraftSignature(label: string, config: Config): string {
 let nextHeaderID = 1
 
 /*
- * Agent 能力与预算的默认值。与后端 api/service.go normalizeConfig 中的缺省值
- * 一一对应：后端调整默认值时这里必须同步，否则脏标记签名会静默漂移。
+ * 连接自己的批处理参数默认值，与后端 api/service.go normalizeConfig 的缺省值一致：
+ * 两个都是在建连接时读的（本地合批、远端聚合窗口），所以跟着连接存，不进共用设置。
  */
-const DEFAULT_AGENT_LIMITS = {
-  maxSteps: 16,
-  maxTokens: 1024,
+const DEFAULT_CONNECTION_LIMITS = {
   maxActiveBatch: 4,
   remoteBatchWaitMS: 10,
-  subagentMaxParallel: 4,
-  subagentMaxSteps: 4,
-  subagentTimeoutSeconds: 120,
 }
 
-/* 决策阶段输出预算的"自动"：0 让后端按协议挑默认（XML 512，其余 96）。 */
-const DECISION_MAX_TOKENS_AUTO = 0
-
 /*
- * 新建连接的 Agent 默认值，对应后端 api.NewConfigDefaults（api/defaults.go）：评测与训练
- * 语料用的 agent-wire-v1.0（原名 g1k）wire、agent-default（原名 g1k-agent）采样，
- * 联网/天气/bash 默认开（没有 key 时联网工具仍在清单里，调用时提示去设置里填写）。
- * 只用于新档案的初始值——已保存的档案按自己存的值水合，不会被改写；后端
- * normalizeConfig 也不会替旧档案补这些默认。
+ * 新档案的默认值，对应后端 api.NewConfigDefaults（api/defaults.go）：新连接的对话格式是评测与
+ * 训练语料用的 agent-wire-v1.0（原名 g1k）；其余各项是共用设置第一次建立时的默认值（后端迁移
+ * 时写入，见 appstorage.AgentSettings）——agent-default 采样、联网/天气/bash 默认开。
+ * 已保存的档案按自己存的格式水合，不会被改写。
  */
 export const NEW_CONFIG_DEFAULTS = {
   profile: 'agent-wire-v1.0',
@@ -91,9 +82,6 @@ export const NEW_CONFIG_DEFAULTS = {
   decisionMaxTokens: 2048,
 }
 
-/* 思考模式选择器落到 wire 覆盖上的那一种写法；识别它是为了不误删用户自己写的 wire。 */
-const THINKING_WIRE = /^thinking=(fast|full(,nudge=think)?)$/
-
 /* 只看配置、不看名称的签名：改名不应触发重连。 */
 function configSignature(config: Config): string {
   return JSON.stringify(stableValue(config))
@@ -103,7 +91,11 @@ function configSignature(config: Config): string {
  * 连接档案域的唯一状态所有者：档案列表、编辑器表单、脏标记与全部档案动作。
  * App 只保留聊天/会话域状态，通过这里的方法操作设置。
  *
- * 保存模型：已有档案的全部字段（连接、参数、Agent）停止输入 AUTOSAVE_DELAY_MS 后
+ * 档案只管连接本身：地址、模型、凭据与批处理参数。对话格式、State 与 MiSS 适配器也记在档案里，
+ * 但在对话页的芯片里改（后端保存草稿时沿用档案里的值）；生成参数、工具与提示词是所有连接共用的，
+ * 见 agentSettings.ts。
+ *
+ * 保存模型：已有档案的字段停止输入 AUTOSAVE_DELAY_MS 后
  * 自动保存；校验不过的草稿只提示、不保存。编辑的是运行中的远端档案时直接重连，
  * 更改即时生效；本地模型需要重新加载（重的操作，不由敲字触发），档案保存后标
  * 「待重新加载」，由用户点「重新加载模型」。新建连接没有档案 ID，仍由显式的
@@ -134,37 +126,12 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   /* 网页版（server 模式）没有系统文件对话框，上传改走浏览器的文件选择框。 */
   const [browserUploads, setBrowserUploads] = useState(false)
   const [headers, setHeaders] = useState<HeaderRow[]>([])
-  const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
-  const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
-  const [progressiveTools, setProgressiveTools] = useState(false)
-  const [profile, setProfile] = useState(NEW_CONFIG_DEFAULTS.profile)
-  const [enableWeb, setEnableWeb] = useState(NEW_CONFIG_DEFAULTS.enableWeb)
-  const [enableSubagents, setEnableSubagents] = useState(false)
-  const [weatherBackend, setWeatherBackend] = useState(NEW_CONFIG_DEFAULTS.weatherBackend)
-  const [enableBash, setEnableBash] = useState(NEW_CONFIG_DEFAULTS.enableBash)
-  const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_AGENT_LIMITS.maxActiveBatch)
-  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
-  const [subagentMaxParallel, setSubagentMaxParallel] = useState(DEFAULT_AGENT_LIMITS.subagentMaxParallel)
-  const [subagentMaxSteps, setSubagentMaxSteps] = useState(DEFAULT_AGENT_LIMITS.subagentMaxSteps)
-  const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
-  const [maxSteps, setMaxSteps] = useState(DEFAULT_AGENT_LIMITS.maxSteps)
-  const [maxTokens, setMaxTokens] = useState(NEW_CONFIG_DEFAULTS.maxTokens)
-  const [decisionMaxTokens, setDecisionMaxTokens] = useState(NEW_CONFIG_DEFAULTS.decisionMaxTokens)
-  const [sampleTemperature, setSampleTemperature] = useState(NEW_CONFIG_DEFAULTS.sampling.temperature)
-  const [sampleTopK, setSampleTopK] = useState(NEW_CONFIG_DEFAULTS.sampling.topK)
-  const [sampleTopP, setSampleTopP] = useState(NEW_CONFIG_DEFAULTS.sampling.topP)
-  const [samplePresencePenalty, setSamplePresencePenalty] = useState(NEW_CONFIG_DEFAULTS.sampling.presencePenalty)
-  const [sampleFrequencyPenalty, setSampleFrequencyPenalty] = useState(NEW_CONFIG_DEFAULTS.sampling.frequencyPenalty)
-  const [samplePenaltyDecay, setSamplePenaltyDecay] = useState(NEW_CONFIG_DEFAULTS.sampling.penaltyDecay)
-  const [advancedSampling, setAdvancedSampling] = useState(false)
+  const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_CONNECTION_LIMITS.maxActiveBatch)
+  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
-  const [settingsMessage, setSettingsMessage] = useState('')
+  // 设置里的结果与错误一律走右下角通知：不再有挂在某个分区顶上、换页也不消失的提示框。
+  const { show: notify } = useSnackbar()
   const [settingsBusy, setSettingsBusy] = useState(false)
-  const [promptPreview, setPromptPreview] = useState<AgentPromptPreview | null>(null)
-  const [previewOpen, setPreviewOpen] = useState(false)
-  const [previewBusy, setPreviewBusy] = useState(false)
-  const [taskControl, setTaskControl] = useState('')
-  const [injectSessionTime, setInjectSessionTime] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' })
   // 运行中连接实际使用的配置（bootstrap.config），与档案的已保存配置分开：
   // 能力指示与"待重新加载"都以它为准，而不是以正在编辑的草稿为准。
@@ -177,57 +144,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   // 后端拒绝过的草稿签名：同一份内容不再自动重试，改动任意字段后恢复。
   const failedSignatureRef = useRef('')
 
-  const samplingValues = normalizeSampling({
-    temperature: sampleTemperature, topK: sampleTopK, topP: sampleTopP,
-    presencePenalty: samplePresencePenalty, frequencyPenalty: sampleFrequencyPenalty, penaltyDecay: samplePenaltyDecay,
-  })
-  /*
-   * 反查当前数值属于哪个预设。数值被改过（或档案里存着一组非预设的组合）就报自定义，
-   * 并把高级输入展开——否则选择器会显示一个名字，而实际发出去的是别的数。
-   */
-  const matchedSamplingPreset = matchSamplingPreset(samplingValues)
-  const samplingIsCustom = advancedSampling || matchedSamplingPreset === ''
-
-  /*
-   * 有 wire 预设时，思考模式由预设说了算，旧的 thinking 字段不再起作用；这里把选择器
-   * 的取值写成 wire 覆盖（thinking=fast|full），选择器才不是摆设。关闭思考时沿用档案
-   * 里原有的 wire（若原值正是上次写的思考覆盖则清掉）。完整思考另带 nudge=think（工具
-   * 结果后不禁止思考的提醒），使 agent-wire-v1.0 落到 agent-wire-think-v1.0 预设上：
-   * v2.0 MiSS 适配器按它训练，
-   * think-full 复测与评测也用它。
-   */
-  function wireOverride(): string | undefined {
-    const base = draftBaseConfig.wire?.trim() || undefined
-    if (!profile) return base
-    if (thinking !== 'off') return thinking === 'full' ? 'thinking=full,nudge=think' : `thinking=${thinking}`
-    return base && THINKING_WIRE.test(base) ? undefined : base
-  }
-
-  function agentCapabilityConfig() {
-    return {
-      profile: profile || undefined, wire: wireOverride(),
-      agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
-      // 搜索 Key、搜索路由与天气数据源是所有连接共用的（见 agentSettings.ts），不进档案；
-      // 档案里的 weatherBackend 只表示开不开天气工具。
-      braveApiKey: undefined, tavilyApiKey: undefined, deepseekWebApiKey: undefined, webSearchBackend: undefined, webFetchBackend: undefined,
-      enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
-      subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
-      maxSteps, maxTokens, decisionMaxTokens,
-      ...samplingValues,
-    }
-  }
-
-  /* 选中一个预设：六个参数一起写成测量过的那组值；选"自定义"只展开输入，不动数值。 */
-  function applySamplingPreset(id: string) {
-    const preset = presetById(id)
-    if (!preset) {
-      setAdvancedSampling(true)
-      return
-    }
-    setSampleTemperature(preset.temperature); setSampleTopK(preset.topK); setSampleTopP(preset.topP)
-    setSamplePresencePenalty(preset.presencePenalty); setSampleFrequencyPenalty(preset.frequencyPenalty)
-    setSamplePenaltyDecay(preset.penaltyDecay)
-    setAdvancedSampling(false)
+  /* 连接自己的批处理参数；共用设置由后端在连接时填进运行配置，草稿里不带。 */
+  function connectionTuning() {
+    return { maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS }
   }
 
   function localConfig() {
@@ -236,7 +155,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
       endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined, stateId: undefined, adapterId: undefined,
-      ...agentCapabilityConfig(),
+      ...connectionTuning(),
     })
   }
   function remoteConfig() {
@@ -255,9 +174,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       // 流式由后端统一决定（App 一律流式显示回答），旧档案里的 stream:false 不再带出去。
       stream: undefined,
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
-      // State 与 MiSS 适配器只在本次运行有效，不属于档案：草稿里永远不带。
-      stateId: undefined, adapterId: undefined,
-      ...agentCapabilityConfig(),
+      ...connectionTuning(),
     })
   }
   function providerDraftConfig() { return settingsTab === 'local' ? localConfig() : remoteConfig() }
@@ -289,33 +206,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   }, [])
 
   /*
-   * 系统提示词预览：设置页打开且展开时拉取，影响提示词的开关变化后防抖刷新。
-   * 草稿的其他字段（地址、密钥、采样）不影响提示词，不触发刷新。
-   */
-  useEffect(() => {
-    if (!settingsOpen || !previewOpen) return
-    let cancelled = false
-    const timer = setTimeout(() => {
-      setPreviewBusy(true)
-      Backend.PreviewSystemPrompt(providerDraftConfig())
-        .then((value) => {
-          if (!cancelled) setPromptPreview(value)
-        })
-        .catch((error) => {
-          if (!cancelled) setSettingsMessage(error instanceof Error ? error.message : String(error))
-        })
-        .finally(() => {
-          if (!cancelled) setPreviewBusy(false)
-        })
-    }, 350)
-    return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsOpen, previewOpen, settingsTab, profile, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl, injectSessionTime])
-
-  /*
    * 自动保存一次：只对已有档案生效。先 SaveProvider（后端校验唯一性、落盘），编辑的是
    * 运行中的远端档案且配置真的变了才 ConfigureProvider 重连——改名不重连；本地模型只
    * 保存，由 runtimeOutdated 提示重新加载。保存成功后只推进脏基线、刷新列表，绝不重新
@@ -342,7 +232,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       setSaveState({ kind: 'saving', message: reconnect ? '正在应用…' : '正在自动保存…' })
       try {
         await Backend.SaveProvider(id, label, config)
-        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, withRuntimeWeights(config)))
+        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, config))
         snapshotRef.current = signature
         snapshotConfigRef.current = configSignature(config)
         failedSignatureRef.current = ''
@@ -409,31 +299,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
-    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
-    setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
-    setTaskControl(config.taskControl || '')
-    setInjectSessionTime(config.injectSessionTime || false)
-    setProgressiveTools(config.progressiveTools ?? false)
-    setProfile(config.profile || '')
-    setEnableWeb(config.enableWeb || false)
-    setEnableSubagents(config.enableSubagents || false)
-    // 天气工具开关：有值即开；具体数据源取共用设置，这里统一写成默认值，免得旧档案里的 wttr 让草稿一打开就"脏"。
-    setWeatherBackend(config.weatherBackend ? NEW_CONFIG_DEFAULTS.weatherBackend : '')
-    setEnableBash(config.enableBash || false)
-    setMaxActiveBatch(config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch)
-    setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
-    setSubagentMaxParallel(config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel)
-    setSubagentMaxSteps(config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps)
-    setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
-    setMaxSteps(config.maxSteps || DEFAULT_AGENT_LIMITS.maxSteps)
-    setMaxTokens(config.maxTokens || DEFAULT_AGENT_LIMITS.maxTokens)
-    setDecisionMaxTokens(config.decisionMaxTokens ?? DECISION_MAX_TOKENS_AUTO)
-    const sampling = normalizeSampling(config)
-    setSampleTemperature(sampling.temperature); setSampleTopK(sampling.topK); setSampleTopP(sampling.topP)
-    setSamplePresencePenalty(sampling.presencePenalty); setSampleFrequencyPenalty(sampling.frequencyPenalty)
-    setSamplePenaltyDecay(sampling.penaltyDecay)
-    // 存着一组非预设数值的档案直接进高级模式，否则选择器会顶着一个不成立的名字。
-    setAdvancedSampling(matchSamplingPreset(sampling) === '')
+    setMaxActiveBatch(config.maxActiveBatch || DEFAULT_CONNECTION_LIMITS.maxActiveBatch)
+    setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS)
     // 水合即基线（由 draftInitialized 效果记录）：打开设置永远不会触发保存或重连。
     setSaveState({ kind: 'idle' })
   }
@@ -452,33 +319,19 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setDraftInitialized(false)
     setEditingProviderId(provider.id)
     // 自动名（与后端派生规则一致）在表单里留空：改模型或地址后名称随之更新，而不是冻结成旧模型名。
-    setDraftLabel(provider.label && provider.label !== derivedProviderLabel(config) ? provider.label : '')
+    setDraftLabel(isAutoProviderLabel(provider.label, config) ? '' : provider.label)
     setDraftBaseConfig(config)
     setAvailableModels([])
     applyConfig(config)
   }
-  /* 新建连接：Agent 的行为开关和 token 预算回到新档案默认值（预算跟 agent-wire-v1.0 绑定），其余（key、步数）沿用当前表单。 */
-  function newConnectionAgentDefaults() {
-    const sampling = NEW_CONFIG_DEFAULTS.sampling
-    return {
-      profile: NEW_CONFIG_DEFAULTS.profile, wire: undefined,
-      agentProtocol: AgentProtocol.AgentProtocolXML, thinking: 'off',
-      enableWeb: NEW_CONFIG_DEFAULTS.enableWeb, weatherBackend: NEW_CONFIG_DEFAULTS.weatherBackend,
-      enableBash: NEW_CONFIG_DEFAULTS.enableBash,
-      maxTokens: NEW_CONFIG_DEFAULTS.maxTokens, decisionMaxTokens: NEW_CONFIG_DEFAULTS.decisionMaxTokens,
-      temperature: sampling.temperature, topK: sampling.topK, topP: sampling.topP,
-      presencePenalty: sampling.presencePenalty, frequencyPenalty: sampling.frequencyPenalty,
-      penaltyDecay: sampling.penaltyDecay,
-    }
-  }
   function beginNewProvider(kind: ProviderKind = 'remote') {
+    // 新连接从默认格式出发；之后在对话页的格式芯片里改，记在这个连接上。
     const config = new Config({
-      ...draftBaseConfig,
       provider: kind === 'local' ? Provider.ProviderLocal : Provider.ProviderRWKVLightningCUDA,
-      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined, adapterId: undefined,
+      model: '', endpoint: '', headers: {},
       chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
-      ...agentCapabilityConfig(),
-      ...newConnectionAgentDefaults(),
+      agentProtocol: AgentProtocol.AgentProtocolXML, profile: NEW_CONFIG_DEFAULTS.profile, thinking: 'off',
+      maxActiveBatch: DEFAULT_CONNECTION_LIMITS.maxActiveBatch, remoteBatchWaitMs: DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS,
     })
     setDraftInitialized(false)
     setEditingProviderId('')
@@ -505,7 +358,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     const editing = focusKind(next === '本地推理' ? 'local' : 'remote', true)
     setSettingsDetail(editing === 'new' || Boolean(options.detail || options.focus))
     setSettingsFocus(options.focus ?? null)
-    setSettingsMessage('')
     setSettingsOpen(true)
   }
   /*
@@ -527,7 +379,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     const current = providers.find((provider) => provider.id === editingProviderId)
     if (current) beginEditingProvider(current)
     else beginNewProvider(settingsTab)
-    setSettingsMessage('已放弃未保存更改。')
+    notify('已放弃未保存更改。')
   }
   function selectProvider(id: string) {
     const provider = providers.find((item) => item.id === id)
@@ -544,64 +396,44 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       return value
     } catch (error) {
       // 刷新失败不能静默：否则列表停在旧状态、看起来像"没保存上"。
-      setSettingsMessage(`刷新连接列表失败：${errorText(error)}`)
+      notify(`刷新连接列表失败：${errorText(error)}`, 'error')
       return undefined
     }
   }
 
-  /*
-   * 顶栏下拉里的能力开关：直接改运行中档案的一个字段并重连生效（远端重连不加载模型，
-   * 对话历史由后端在下一轮恢复）。本地模型重配要重新加载，不走这里。
-   */
-  async function setRuntimeCapability(key: 'enableWeb' | 'enableSubagents', value: boolean) {
-    const provider = providers.find((item) => item.id === runtimeProviderId)
-    if (!provider || provider.config.provider === Provider.ProviderLocal) return
-    const config = withRuntimeWeights(new Config({ ...provider.config, [key]: value }))
-    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
-    await refreshProviders()
-  }
-
-  /** 切换运行中连接的 State（仅 Lightning CUDA）；空串表示不使用 State。 */
+  /** 切换运行中连接的 State（仅 Lightning CUDA）；空串表示不使用 State。记在这个连接上。 */
   async function setRuntimeState(stateId: string) {
-    const provider = providers.find((item) => item.id === runtimeProviderId)
-    if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
-    const config = new Config({ ...withRuntimeWeights(provider.config), stateId: stateId || undefined })
-    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
+    onStatus(await Backend.SetRuntimeState(stateId))
     await refreshProviders()
   }
 
-  /** 切换运行中连接的 MiSS 适配器（仅 Lightning CUDA）；空串表示用基模本身的权重。 */
+  /** 切换运行中连接的 MiSS 适配器（仅 Lightning CUDA）；空串表示用基模本身的权重。记在这个连接上。 */
   async function setRuntimeAdapter(adapterId: string) {
-    const provider = providers.find((item) => item.id === runtimeProviderId)
-    if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
-    const config = new Config({ ...withRuntimeWeights(provider.config), adapterId: adapterId || undefined })
-    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
+    onStatus(await Backend.SetRuntimeAdapter(adapterId))
     await refreshProviders()
   }
 
-  /*
-   * 把本次运行选的 State / MiSS 适配器带到一次重连上：它们不在档案里，重连时不带
-   * 就会被悄悄换回零状态。换了端点或协议则不带——那台服务器上未必有这两个 ID。
-   */
-  function withRuntimeWeights(config: Config): Config {
-    const runtime = runtimeConfig
-    if (!runtime || runtime.provider !== config.provider || runtime.endpoint !== config.endpoint || config.provider !== Provider.ProviderRWKVLightningCUDA) return config
-    return new Config({ ...config, stateId: runtime.stateId || undefined, adapterId: runtime.adapterId || undefined })
+  /** 切换运行中连接的对话格式：不重连、本地模型也不重新加载，下一轮生效；记在这个连接上。 */
+  async function setRuntimeFormat(presetId: string) {
+    const preset = formatPresetById(presetId)
+    if (!preset) return
+    onStatus(await Backend.SetRuntimeFormat(formatSelection(preset, runtimeConfig?.wire || '')))
+    await refreshProviders()
   }
 
   /*
    * 设置里的 State / 适配器选择器读写的是运行中的那份：只有正在编辑的档案就是运行中的
-   * 连接时才能选，选了立即生效、不进档案。
+   * 连接时才能选，选了立即生效并记在这个连接上。
    */
   const stateId = draftIsRunning ? runtimeConfig?.stateId || '' : ''
   const adapterId = draftIsRunning ? runtimeConfig?.adapterId || '' : ''
   function setStateId(id: string) {
     if (!draftIsRunning) return
-    void setRuntimeState(id).catch((error) => setSettingsMessage(errorText(error)))
+    void setRuntimeState(id).catch((error) => notify(errorText(error), 'error'))
   }
   function setAdapterId(id: string) {
     if (!draftIsRunning) return
-    void setRuntimeAdapter(id).catch((error) => setSettingsMessage(errorText(error)))
+    void setRuntimeAdapter(id).catch((error) => notify(errorText(error), 'error'))
   }
 
   /* 释放当前运行的模型：本地模型卸载权重、归还内存；档案保留，可以再加载。 */
@@ -610,10 +442,10 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     try {
       onStatus(await Backend.UnloadModel())
       await refreshProviders()
-      if (settingsOpen) setSettingsMessage('模型已释放，内存已归还；档案保留，需要时再加载。')
+      if (settingsOpen) notify('模型已释放，内存已归还；档案保留，需要时再加载。', 'success')
     } catch (error) {
       if (!settingsOpen) throw error
-      setSettingsMessage(errorText(error))
+      notify(errorText(error), 'error')
     } finally {
       setSettingsBusy(false)
     }
@@ -640,14 +472,19 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   }
 
   async function testRemote() {
-    setSettingsBusy(true); setSettingsMessage('正在请求 /v1/models…')
+    setSettingsBusy(true); notify('正在请求 /v1/models…', 'loading', { key: 'test-remote' })
     try {
       const models = await Backend.ListRemoteModels(remoteConfig())
       setAvailableModels(models)
-      if (!remoteModel && models[0]) setRemoteModel(models[0].id)
-      setSettingsMessage(`连接成功，发现 ${models.length} 个模型。`)
+      // 填的模型不在服务端列表里（没填，或部署换了模型）就换成服务端的第一个；名称没改过时随之自动更新。
+      const current = remoteModel.trim()
+      const replaced = models[0] && !models.some((model) => model.id === current) ? models[0].id : ''
+      if (replaced) setRemoteModel(replaced)
+      notify(replaced && current
+        ? `连接成功，发现 ${models.length} 个模型；模型 ID 已从 ${current} 更新为 ${replaced}。`
+        : `连接成功，发现 ${models.length} 个模型。`, 'success', { key: 'test-remote' })
     } catch (error) {
-      setSettingsMessage(error instanceof Error ? error.message : String(error))
+      notify(errorText(error), 'error', { key: 'test-remote' })
     } finally {
       setSettingsBusy(false)
     }
@@ -657,17 +494,17 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   async function saveProviderDraft(): Promise<boolean> {
     if (inFlightRef.current) await inFlightRef.current
     setSettingsBusy(true)
-    setSettingsMessage('正在保存连接档案…')
+    notify('正在保存连接档案…', 'loading', { key: 'save-provider' })
     try {
       const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       await refreshProviders()
       beginEditingProvider(saved)
-      setSettingsMessage(settingsTab === 'local'
+      notify(settingsTab === 'local'
         ? '档案已保存；点「加载模型」后才会占用内存。'
-        : ready ? '档案已保存；当前运行连接保持不变，在对话页的模型标签里切换。' : '档案已保存，尚未连接。')
+        : ready ? '档案已保存；当前运行连接保持不变，在对话页的模型标签里切换。' : '档案已保存，尚未连接。', 'success', { key: 'save-provider' })
       return true
     } catch (error) {
-      setSettingsMessage(errorText(error))
+      notify(errorText(error), 'error', { key: 'save-provider' })
       return false
     } finally {
       setSettingsBusy(false)
@@ -678,7 +515,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   async function saveAndUseProviderDraft() {
     if (inFlightRef.current) await inFlightRef.current
     setSettingsBusy(true)
-    setSettingsMessage(settingsTab === 'local' ? '正在加载本地模型，这可能需要一些时间…' : '正在切换远端连接…')
+    notify(settingsTab === 'local' ? '正在加载本地模型，这可能需要一些时间…' : '正在切换远端连接…', 'loading', { key: 'use-provider' })
     try {
       const configured = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       onStatus(configured)
@@ -686,9 +523,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       const running = value?.providers.find((provider) => provider.id === value.runtimeProviderId)
       if (running) beginEditingProvider(running)
       else setDraftSnapshot(providerDraftSignature(draftLabel, draftConfigValue))
-      setSettingsMessage(settingsTab === 'local' ? '模型已加载，成为当前运行连接。' : '已切换为当前运行连接。')
+      notify(settingsTab === 'local' ? '模型已加载，成为当前运行连接。' : '已切换为当前运行连接。', 'success', { key: 'use-provider' })
     } catch (error) {
-      setSettingsMessage(errorText(error))
+      notify(errorText(error), 'error', { key: 'use-provider' })
     } finally {
       setSettingsBusy(false)
     }
@@ -706,29 +543,16 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     stateId, setStateId,
     adapterId, setAdapterId,
     browserUploads,
-    profile, setProfile, agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
-    enableWeb, setEnableWeb,
-    enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
-    remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
-    subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,
-    maxSteps, setMaxSteps, maxTokens, setMaxTokens,
-    decisionMaxTokens, setDecisionMaxTokens,
-    sampleTemperature, setSampleTemperature, sampleTopK, setSampleTopK,
-    sampleTopP, setSampleTopP, samplePresencePenalty, setSamplePresencePenalty,
-    sampleFrequencyPenalty, setSampleFrequencyPenalty, samplePenaltyDecay, setSamplePenaltyDecay,
-    samplingValues, matchedSamplingPreset, samplingIsCustom, applySamplingPreset,
+    maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS,
     availableModels, setAvailableModels,
-    settingsMessage, setSettingsMessage, settingsBusy,
-    promptPreview, previewOpen, setPreviewOpen, previewBusy,
-    taskControl, setTaskControl,
-    injectSessionTime, setInjectSessionTime,
+    settingsBusy,
     saveState, runtimeConfig, runtimeOutdated,
     // 派生
     draftConfigValue, draftErrors, draftError, draftNeedsReload, draftBlockReason,
     // 动作
     openSettings, focusKind, discardDraft, selectProvider, startNewDraft, unloadModel,
     applyProviderBootstrapState, applyConfig, refreshProviders,
-    activateProvider, setRuntimeCapability, setRuntimeState, setRuntimeAdapter, deleteProvider, testRemote,
+    activateProvider, setRuntimeState, setRuntimeAdapter, setRuntimeFormat, deleteProvider, testRemote,
     saveProviderDraft, saveAndUseProviderDraft, flushDraft,
   }
 }
