@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | 工具目录 | `agent-tool-v3.2` | 工具名、描述、参数、schema 变了 | 只改工具行为 | `tool_catalog_hash`：主版本变它才变 |
 | wire 格式 | `agent-wire-v1.0` | 模型看到的提示词或协议格式变了 | 解析容错、兜底等不进 canonical 的行为 | `wire_hash`：主版本变它才变 |
-| 考卷 | `agent-exam-v1.1` | 增删题 | 修订题面或判据 | `exam_hash`：两种情况都会变 |
+| 考卷 | `agent-exam-v1.2` | 增删题 | 修订题面或判据 | `exam_hash`：两种情况都会变 |
 | harness / scorer / outcome | `rwkv-agent-eval-v22` 等 | 只往上加整数：评测或判分行为变了、分数可能变时才加 | — | — |
 | schema_version | 整数 | 只往上加整数：记录格式不兼容时才加 | — | — |
 | 蒸馏数据 | `v2.3` | 训练配方或格式大改 | 加批次、修数据 | — |
@@ -42,7 +42,7 @@
 | `rwkv-agent-eval-v20` | 2026-08-28 | `e0047792` | 产品 harness 对齐 G1I 的行为偏好 | 未知（未记录） |
 | `rwkv-agent-eval-v21` | 2026-09-17 | `665c166e` | workbank 收尾 Part A：重跑前修测量缺陷 | 未知（未记录） |
 | `rwkv-agent-eval-v22` | 2026-09-25 | `1d92d15d` | md-fence 解析器不再把终答从第一个围栏处截断 | 未知（未记录） |
-| `rwkv-agent-eval-v23` | 2026-10-23 | 未提交 | 没有 `<tool_call>` 包裹的 JSON 一律当正文：不再报"缺信封"协议错，作答阶段不再当工具调用，终答不再被当成 JSON 违规换成兜底话术 | 42 遍旧 run 里触发过 json_payload 9 次、缺信封 4 次；需新跑分才能看到 |
+| `rwkv-agent-eval-v23` | 2026-10-23 | `57f55c66` | 没有 `<tool_call>` 包裹的 JSON 一律当正文：不再报"缺信封"协议错，作答阶段不再当工具调用，终答不再被当成 JSON 违规换成兜底话术 | 42 遍旧 run 里触发过 json_payload 9 次、缺信封 4 次；需新跑分才能看到 |
 
 考古命令（不限文件路径：早期常量定义在别的文件里，只搜 `types.go` 会漏掉 v4–v17）：
 `git log --reverse -G '"rwkv-agent-eval-v[0-9]+"' -- '*.go' ':!*_test.go'`，再看每个提交新增的常量定义行。

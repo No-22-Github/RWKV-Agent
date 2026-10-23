@@ -4,7 +4,7 @@
   "description": "从未进过训练的留存题，中文为主",
   "tool_catalog": "agent-tool-v1.0",
   "harness": "legacy",
-  "hash": "10c2229d5278cd92c0040f4b19cfe2ea7fe5fba52a565c139eaad5186aa60a53",
+  "hash": "78eecf5858db2aab32e9144528e2b7e97ed2c334421aee9916ac64b8767a7ea7",
   "summary": {
     "total": 60,
     "by_suite": {
@@ -12,9 +12,9 @@
     },
     "by_task": {
       "answer-direct": 2,
-      "compute": 24,
+      "compute": 26,
       "external": 2,
-      "find-read": 22,
+      "find-read": 20,
       "write": 10
     },
     "by_difficulty": {
@@ -31,9 +31,9 @@
     },
     "by_answer_form": {
       "abstain": 5,
-      "contains": 26,
+      "contains": 24,
       "file": 10,
-      "number": 19
+      "number": 21
     },
     "by_level": {
       "L0": 9,
@@ -46,16 +46,16 @@
         "zh": 1
       },
       "compute": {
-        "en": 6,
-        "zh": 18
+        "en": 7,
+        "zh": 19
       },
       "external": {
         "en": 1,
         "zh": 1
       },
       "find-read": {
-        "en": 7,
-        "zh": 15
+        "en": 6,
+        "zh": 14
       },
       "write": {
         "en": 5,
@@ -679,15 +679,15 @@
       "id": "hyb-8004",
       "suite": "p13",
       "path": "bench/holdout/p13/hybrid/hyb-8004",
-      "sha256": "e6be68023a7dbe2b0a5ef9a0921426a5491ad72f073270a48cf7e557e9401566",
+      "sha256": "91860d3f467d7b72213fa40c6975e1e0550d2f94344e5aafca7c82a612617457",
       "scenario": "hybrid",
       "task_type": "multi_turn",
       "level": "L1",
       "language": "zh",
       "user_turns": 3,
       "ref_calls": 3,
-      "answer_form": "contains",
-      "task": "find-read",
+      "answer_form": "number",
+      "task": "compute",
       "difficulties": [
         "check",
         "follow-up",
@@ -758,15 +758,15 @@
       "id": "hyb-8008",
       "suite": "p13",
       "path": "bench/holdout/p13/hybrid/hyb-8008",
-      "sha256": "1570e263977ba5e5acd977fe1d7c8ba796ce239234dc6ec700118c926bb5e428",
+      "sha256": "049feb0c55ad06dd1fa835230754e7d2d69efe15c8e96e7ce36c8404aa9f6d71",
       "scenario": "hybrid",
       "task_type": "multi_turn",
       "level": "L1",
       "language": "en",
       "user_turns": 3,
       "ref_calls": 3,
-      "answer_form": "contains",
-      "task": "find-read",
+      "answer_form": "number",
+      "task": "compute",
       "difficulties": [
         "check",
         "follow-up",

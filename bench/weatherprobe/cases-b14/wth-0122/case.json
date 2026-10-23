@@ -21,7 +21,7 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-b14",
     "reviewer": null,
     "answer_style": "natural",
@@ -87,7 +87,14 @@
           "couldn't retrieve",
           "could not retrieve",
           "could not be resolved",
-          "no match"
+          "no match",
+          "没有找到",
+          "暂时没有找到",
+          "不支持",
+          "暂不支持",
+          "目前不支持",
+          "未收录",
+          "不在支持"
         ]
       }
     }

@@ -1,10 +1,10 @@
 {
   "schema": "rwkv-exam/v1",
-  "name": "agent-exam-quick-v1.1",
+  "name": "agent-exam-quick-v1.2",
   "description": "快测版：从完整考卷分层抽出，几分钟跑完，用于快速比较",
   "tool_catalog": "agent-tool-v2.0",
   "harness": "app",
-  "hash": "dc2ae8b9a8acb55d4b2aacf5477176443c8b3c7954623502b391f1a700bae623",
+  "hash": "14f184f0e146b485cd68939869042e18ba078927acb247772dd3568ddc53dcf1",
   "summary": {
     "total": 76,
     "by_suite": {
@@ -1152,7 +1152,7 @@
       "id": "bsh-0149",
       "suite": "bashprobe-b14",
       "path": "bench/bashprobe/cases-b14/bsh-0149",
-      "sha256": "c17bb69c4c0c047117e7171c2f1f26e470d593b1a52cbd8ae7719033821a6e8b",
+      "sha256": "7eea58a4af5a08adc48bb8eeaa330d1e6dc59367f2317c3dd5947980a158f2ec",
       "scenario": "notool",
       "task_type": "stable_fact",
       "level": "L1",

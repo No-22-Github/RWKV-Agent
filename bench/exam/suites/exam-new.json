@@ -4,7 +4,7 @@
   "description": "按覆盖缺口新出的题（docs/evaluations/bench-composition-20261015/gap-fill-spec.md）",
   "tool_catalog": "agent-tool-v2.0",
   "harness": "legacy",
-  "hash": "1c48b741e6bfab0c8116fe2bbd37b0c8e5add35011676f72086bd059b2137b3a",
+  "hash": "0e203b50061177a7fff324ac9ad0c0f1a0457ff895295ed4c7c43d78c6400786",
   "summary": {
     "total": 190,
     "by_suite": {
@@ -14,8 +14,8 @@
       "answer-direct": 34,
       "compute": 23,
       "external": 32,
-      "find-read": 35,
-      "write": 66
+      "find-read": 34,
+      "write": 67
     },
     "by_difficulty": {
       "check": 61,
@@ -32,8 +32,8 @@
     },
     "by_answer_form": {
       "abstain": 18,
-      "contains": 68,
-      "file": 42,
+      "contains": 67,
+      "file": 43,
       "format": 21,
       "no-call": 3,
       "number": 38
@@ -59,11 +59,11 @@
       },
       "find-read": {
         "en": 17,
-        "zh": 18
+        "zh": 17
       },
       "write": {
         "en": 24,
-        "zh": 42
+        "zh": 43
       }
     }
   },
@@ -184,7 +184,7 @@
       "id": "cfg-13110",
       "suite": "exam-new",
       "path": "bench/exam/cases/config/cfg-13110",
-      "sha256": "79507b1ff9dc65dfdbf9b22237619d20736904356f9ce363d83cfef4c5fd3594",
+      "sha256": "949dab3d48015feab103332a2c3b41eba7665cbd8eb0f129cf9440e56aaa4880",
       "scenario": "config",
       "task_type": "read_effective",
       "level": "L1",
@@ -243,7 +243,7 @@
       "id": "cfg-13210",
       "suite": "exam-new",
       "path": "bench/exam/cases/config/cfg-13210",
-      "sha256": "5c3ea154f18c61607ca605847807a18e8c8b62c6154252ba4549df1a0488c59f",
+      "sha256": "37342e516fbd77adf42f5f612828e4fdb6a3dc4bc2d48f3cf3378e543134446d",
       "scenario": "config",
       "task_type": "read_effective",
       "level": "L1",
@@ -608,7 +608,7 @@
       "id": "doc-13212",
       "suite": "exam-new",
       "path": "bench/exam/cases/docs/doc-13212",
-      "sha256": "bd1c05d6bf65f118f01d87663d666a91e529a21c8d00ffe77c9c5fe3a7a1716c",
+      "sha256": "fdba6e29a25cb979741c2ec3c4a9d0c30e4c082fc1653eea027ef2a86ea1e2c9",
       "scenario": "docs",
       "task_type": "policy_lookup",
       "level": "L1",
@@ -1877,7 +1877,7 @@
       "id": "log-13112",
       "suite": "exam-new",
       "path": "bench/exam/cases/logs/log-13112",
-      "sha256": "25cf7b9aeff76c3fa33dc7b975c3a0cbcaa5ed1ae16820632a468d5bb26270d0",
+      "sha256": "4e3ad446a5e868e6d200c9399c1652718c739afcaeba3459898ededcdc28b473",
       "scenario": "logs",
       "task_type": "count_events",
       "level": "L1",
@@ -1956,15 +1956,15 @@
       "id": "log-13301",
       "suite": "exam-new",
       "path": "bench/exam/cases/logs/log-13301",
-      "sha256": "de6b37b715d8dc804a55a372d3999c6afb96c676d3fac9e398c3950cb4a1754f",
+      "sha256": "a1304a01878c19769125e80a7bbf69706112ebd185306b3962dc0242062acabb",
       "scenario": "logs",
       "task_type": "locate_error",
       "level": "L2",
       "language": "zh",
       "user_turns": 1,
       "ref_calls": 2,
-      "answer_form": "contains",
-      "task": "find-read",
+      "answer_form": "file",
+      "task": "write",
       "difficulties": [
         "long-input",
         "decoy"

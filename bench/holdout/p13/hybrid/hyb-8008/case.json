@@ -20,7 +20,7 @@
     "ref_calls": 3,
     "fixture_bytes": 2067,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-p13",
     "reviewer": null,
     "answer_style": "natural"
@@ -53,21 +53,16 @@
         "required_tools": [
           "read_file"
         ],
-        "output_contains_any": [
-          "18 sev",
-          "18 incidents",
-          "is 18",
-          "count is 18",
-          "18 production",
-          "production count is 18"
-        ],
         "output_excludes": [
           "26 sev",
           "26 incidents",
           "is 26",
           "count is 26",
           "26 production"
-        ]
+        ],
+        "expected_number": 18.0,
+        "tolerance": 0.01,
+        "expected_number_in_text": true
       }
     }
   ]

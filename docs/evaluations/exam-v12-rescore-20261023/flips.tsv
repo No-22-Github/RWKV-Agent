@@ -1,0 +1,498 @@
+run	id	change	reason
+exam-20261016/base-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	bfcl_supplied_simple_python_79	pass→fail	t1 output does not contain "config/flags.txt"
+exam-20261016/base-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261016/base-full-k0	fs-8013	fail→pass	t1 first line "根据上面的工具结果，icons 目录下的资产文件有：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261016/base-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k0	web-13415	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "max_body_bytes"
+exam-20261016/base-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261016/base-full-k1	fs-8013	fail→pass	t1 first line "根据上面的工具结果，icons 目录下的资产文件有：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261016/base-full-k1	log-13306	pass→fail	t1 answer contains no figure within 0.001 of 22
+exam-20261016/base-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/base-full-k1	wth-0120	fail→pass	t1 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261016/miss-r16-lr3e-5-think-full-k0	cfg-13105	fail→pass	t2 first line "在 `deploy/prod.env` 中查看到：" does not lead with any of ["64"]
+exam-20261016/miss-r16-lr3e-5-think-full-k0	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261016/miss-r16-lr3e-5-think-full-k0	nt-0012	pass→fail	t1 output does not contain any of ["cannot" "Cannot" "can't" "Can't" "can’t" "Can’t" "can not" "Can not" "couldn't" "Couldn't" "couldn’t" "Couldn’t" "could not" "Could not" "not able" "Not able" "unable" "Unable" "no tool" "No tool" "no such tool" "No such tool" "no way to" "No way to" "don't have" …
+exam-20261016/miss-r16-lr3e-5-think-full-k0	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261016/miss-r16-lr3e-5-think-full-k0	web-14037	fail→pass	t1 first line "Based on the web search results, here are the current prices for both laptops:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261016/miss-r16-lr3e-5-think-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261016/miss-r16-lr3e-5-think-full-k0	wth-0012	pass→fail	t1 output does not contain any of ["没有" "未能" "无法" "查不到" "找不到" "not found" "失败"]
+exam-20261016/miss-r16-lr3e-5-think-full-k1	cfg-13105	fail→pass	t2 first line "在 `deploy/prod.env` 中查看到：" does not lead with any of ["64"]
+exam-20261016/miss-r16-lr3e-5-think-full-k1	doc-13317	pass→fail	t1 answer contains no figure within 0.001 of 11
+exam-20261016/miss-r16-lr3e-5-think-full-k1	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261016/miss-r16-lr3e-5-think-full-k1	log-13104	fail→pass	t2 first line "根据 `logs/access.log` 的统计，14 号那天各服务的 5xx 报错次数如下：" does not lead with any of ["order-gateway"]
+exam-20261016/miss-r16-lr3e-5-think-full-k1	nt-0012	pass→fail	t1 output does not contain any of ["cannot" "Cannot" "can't" "Can't" "can’t" "Can’t" "can not" "Can not" "couldn't" "Couldn't" "couldn’t" "Couldn’t" "could not" "Could not" "not able" "Not able" "unable" "Unable" "no tool" "No tool" "no such tool" "No such tool" "no way to" "No way to" "don't have" …
+exam-20261016/miss-r16-lr3e-5-think-full-k1	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261016/miss-r16-lr3e-5-think-full-k1	web-14037	fail→pass	t1 first line "Based on the web search results, here are the current prices for both laptops:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261016/miss-r16-lr3e-5-think-full-k1	wth-0012	pass→fail	t1 output does not contain any of ["没有" "未能" "无法" "查不到" "找不到" "not found" "失败"]
+exam-20261016/v141b-s1224-full-k0	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261016/v141b-s1224-full-k1	tab-0019	pass→fail	t1 answer contains no figure within 0.01 of 8
+exam-20261017/v20-lr3e-5-e2-think-full-k0	cfg-13105	fail→pass	t2 first line "在 `deploy/prod.env` 中查看到：" does not lead with any of ["64"]
+exam-20261017/v20-lr3e-5-e2-think-full-k0	doc-13317	pass→fail	t1 answer contains no figure within 0.001 of 11
+exam-20261017/v20-lr3e-5-e2-think-full-k0	log-13104	fail→pass	t2 first line "根据 `logs/access.log` 中 2026-09-14 的日志统计，5xx 错误次数最多的服务是：" does not lead with any of ["order-gateway"]
+exam-20261017/v20-lr3e-5-e2-think-full-k0	nt-0012	pass→fail	t1 output does not contain any of ["cannot" "Cannot" "can't" "Can't" "can’t" "Can’t" "can not" "Can not" "couldn't" "Couldn't" "couldn’t" "Couldn’t" "could not" "Could not" "not able" "Not able" "unable" "Unable" "no tool" "No tool" "no such tool" "No such tool" "no way to" "No way to" "don't have" …
+exam-20261017/v20-lr3e-5-e2-think-full-k0	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261017/v20-lr3e-5-e2-think-full-k0	web-14037	fail→pass	t1 first line "Based on the web search results, here are the current prices for both laptops:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v20-lr3e-5-e2-think-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v20-lr3e-5-e2-think-full-k1	cfg-13105	fail→pass	t2 first line "在 `deploy/prod.env` 中查看到：" does not lead with any of ["64"]
+exam-20261017/v20-lr3e-5-e2-think-full-k1	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261017/v20-lr3e-5-e2-think-full-k1	web-14037	fail→pass	t1 first line "Based on the web search results, here are the current prices for both laptops:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v20-lr3e-5-e2-think-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v20-lr3e-5-e2-think-full-k1	wth-0012	pass→fail	t1 output does not contain any of ["没有" "未能" "无法" "查不到" "找不到" "not found" "失败"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	code-0008	pass→fail	t1 output does not contain any of ["find_reference" "lookup" "never call" "never calls" "does not call" "doesn't call" "not called" "never checks" "does not check" "doesn't check" "never looks up" "no duplicate check" "unused import" "never used"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	doc-8003	fail→pass	t1 output does not contain "mileage"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	nt-0006	pass→fail	t1 answer contains no figure within 0.01 of 429
+exam-20261017/v21-lr1e-5-e2-think-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	tab-8001	pass→fail	t1 output does not contain any of ["refund" "refunds" "refunded"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261017/v21-lr1e-5-e2-think-full-k0	web-14034	fail→pass	t1 first line "根据两个来源的对比：" does not lead with any of ["3.1.4"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	web-14037	fail→pass	t1 first line "Based on the prices I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v21-lr1e-5-e2-think-full-k0	wth-0120	pass→fail	t1 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261017/v21-lr1e-5-e2-think-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261017/v21-lr1e-5-e2-think-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	tab-8001	pass→fail	t1 output does not contain any of ["refund" "refunds" "refunded"]
+exam-20261017/v21-lr1e-5-e2-think-full-k1	web-13413	pass→fail	t1 output does not contain any of ["没有" "找不到" "无法" "不存在" "未找到" "未定义" "未设置" "查不到" "没找到" "未提供" "未提及" "没写" "没提供" "没定义" "没设置"] | t1 output does not explicitly state unverified item "3.8"
+exam-20261017/v21-lr1e-5-e2-think-full-k1	web-14034	fail→pass	t1 first line "根据两个来源的对比：" does not lead with any of ["3.1.4"]
+exam-20261017/v21-lr1e-5-e2-think-full-k1	web-14037	fail→pass	t1 first line "Based on the prices I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr1e-5-e2-think-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v21-lr2e-5-e2-think-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261017/v21-lr2e-5-e2-think-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261017/v21-lr2e-5-e2-think-full-k0	doc-13317	pass→fail	t1 answer contains no figure within 0.001 of 11
+exam-20261017/v21-lr2e-5-e2-think-full-k0	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261017/v21-lr2e-5-e2-think-full-k0	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261017/v21-lr2e-5-e2-think-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr2e-5-e2-think-full-k0	web-8001	pass→fail	t1 output does not contain any of ["connection reset" "status.unipalm.example" "incidents/payments-4021"]
+exam-20261017/v21-lr2e-5-e2-think-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v21-lr2e-5-e2-think-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261017/v21-lr2e-5-e2-think-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	web-13415	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "max_body_bytes"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	web-13416	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "ERR_SNAPSHOT_88"
+exam-20261017/v21-lr2e-5-e2-think-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr2e-5-e2-think-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261017/v21-lr3e-5-e2-think-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261017/v21-lr3e-5-e2-think-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k0	nt-14010	fail→pass	t1 output does not contain "staging"
+exam-20261017/v21-lr3e-5-e2-think-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I fetched:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr3e-5-e2-think-full-k0	wth-0124	fail→pass	t1 output does not contain any of ["周一"]
+exam-20261017/v21-lr3e-5-e2-think-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261017/v21-lr3e-5-e2-think-full-k1	nt-13008	pass→fail	t1 output does not contain any of ["哪个" "哪份" "哪一份" "哪个文件" "哪套" "哪边" "多少" "多久" "多长" "调到" "改成" "dev" "prod" "开发" "生产" "which" "how long" "what value" "how many"]
+exam-20261017/v21-lr3e-5-e2-think-full-k1	nt-14010	fail→pass	t1 output does not contain "staging"
+exam-20261017/v21-lr3e-5-e2-think-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I fetched:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261017/v21-lr3e-5-e2-think-full-k1	wth-0124	fail→pass	t1 output does not contain any of ["周一"]
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k0	nt-13006	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-base-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261020/g1l-recpre-full-k0	doc-13314	pass→fail	t1 answer contains no figure within 0.001 of 45
+exam-20261020/g1l-recpre-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261020/g1l-recpre-full-k1	doc-13314	pass→fail	t1 answer contains no figure within 0.001 of 45
+exam-20261020/g1l-recpre-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261020/g1l-recpre-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k0	nt-13006	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v2-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_10	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	bfcl_supplied_simple_python_79	pass→fail	t1 output does not contain "config/flags.txt"
+exam-20261021/base-v3-full-k0	bsh-0152	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	code-0008	pass→fail	t1 output does not contain any of ["find_reference" "lookup" "never call" "never calls" "does not call" "doesn't call" "not called" "never checks" "does not check" "doesn't check" "never looks up" "no duplicate check" "unused import" "never used"]
+exam-20261021/base-v3-full-k0	fs-8013	fail→pass	t1 first line "根据已读取的资产文件，三个图标文件的大小分别为：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261021/base-v3-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	bfcl_supplied_simple_python_79	pass→fail	t1 output does not contain "config/flags.txt"
+exam-20261021/base-v3-full-k1	bsh-0152	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	fs-8013	fail→pass	t1 first line "根据已读取的资产文件，三个图标文件的大小分别为：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261021/base-v3-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/base-v3-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	bsh-0149	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-full-k0	fs-8013	fail→pass	t1 first line "根据文件列表，可用的资产文件（不包括.bak备份文件）中：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261021/qwen35-4b-full-k0	log-13104	fail→pass	t2 first line "让我重新查看 2026-09-14 的日志：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k0	web-14037	fail→pass	t1 first line "Based on the web fetch results:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_16	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-full-k1	fs-8013	fail→pass	t1 first line "根据文件列表，可用的资产文件（不包括.bak备份文件）中：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261021/qwen35-4b-full-k1	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261021/qwen35-4b-full-k1	log-13104	fail→pass	t2 first line "让我重新查看 2026-09-14 的数据：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-full-k1	log-13204	fail→pass	t2 first line "Based on the log file from 2026-09-14 (the day before yesterday), here are the 5xx errors by service:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/qwen35-4b-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-full-k1	web-14037	fail→pass	t1 first line "Based on the web fetch results:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-official-full-k0	log-13104	fail→pass	t2 first line "让我重新查看 2026-09-14 的数据：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-official-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k0	web-14037	fail→pass	t1 first line "Based on the web results:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	cfg-13210	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	code-0011	pass→fail	t1 answer contains no figure within 0.01 of 5
+exam-20261021/qwen35-4b-official-full-k1	fs-8013	fail→pass	t1 first line "根据文件列表，可用的资产文件（不包括.bak备份文件）中最大的是：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261021/qwen35-4b-official-full-k1	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261021/qwen35-4b-official-full-k1	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261021/qwen35-4b-official-full-k1	log-13204	fail→pass	t2 first line "Based on the access log for 2026-09-14 (the day before yesterday), here are the 5xx errors by service:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-official-full-k1	log-13207	fail→pass	t1 output does not contain "migrate"
+exam-20261021/qwen35-4b-official-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/qwen35-4b-official-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-official-full-k1	web-14034	fail→pass	t1 first line "根据两个页面的内容，版本信息不一致：" does not lead with any of ["3.1.4"]
+exam-20261021/qwen35-4b-official-full-k1	web-14037	fail→pass	t1 first line "Based on the web results:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-official-full-k1	wth-0122	fail→pass	t2 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-think-full-k0	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261021/qwen35-4b-think-full-k0	log-13104	fail→pass	t2 first line "抱歉，我重新查看 2026-09-14 的数据：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-think-full-k0	log-13204	fail→pass	t2 first line "Based on the log file from the day before yesterday (2026-09-14), I counted the 5xx errors by service:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-think-full-k0	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/qwen35-4b-think-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	nt-13006	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k0	web-14037	fail→pass	t1 first line "Based on the current prices:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-think-full-k0	wth-0122	fail→pass	t2 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	bsh-0152	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	cfg-13110	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	code-0011	pass→fail	t1 answer contains no figure within 0.01 of 5
+exam-20261021/qwen35-4b-think-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-think-full-k1	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261021/qwen35-4b-think-full-k1	log-13204	fail→pass	t2 first line "Based on the log file from the day before yesterday (2026-09-14), I counted the 5xx errors by service:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-think-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/qwen35-4b-think-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-full-k1	web-14034	fail→pass	t1 first line "根据两个网页的内容，版本信息确实不一致：" does not lead with any of ["3.1.4"]
+exam-20261021/qwen35-4b-think-full-k1	web-14037	fail→pass	t1 first line "Based on the current prices:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	bsh-0152	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	cfg-13210	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-think-official-full-k0	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261021/qwen35-4b-think-official-full-k0	log-13104	fail→pass	t2 first line "2026-09-14（9 月 14 号）当天 5xx 报错统计：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-think-official-full-k0	log-13204	fail→pass	t2 first line "Based on the log file for yesterday (2026-09-14), here are the 5xx errors by service:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-think-official-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k0	web-14037	fail→pass	t1 first line "Based on the current pricing:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/qwen35-4b-think-official-full-k0	wth-0122	fail→pass	t2 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_1	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	cfg-13105	fail→pass	t2 first line "在 `deploy/prod.env` 文件中，prod 的数据库连接池大小设置为：" does not lead with any of ["64"]
+exam-20261021/qwen35-4b-think-official-full-k1	cfg-13110	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	code-0011	pass→fail	t1 answer contains no figure within 0.01 of 5
+exam-20261021/qwen35-4b-think-official-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/qwen35-4b-think-official-full-k1	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261021/qwen35-4b-think-official-full-k1	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261021/qwen35-4b-think-official-full-k1	log-13104	fail→pass	t2 first line "根据 access.log 文件内容，统计 2026-09-14 当天的 5xx 错误：" does not lead with any of ["order-gateway"]
+exam-20261021/qwen35-4b-think-official-full-k1	log-13204	pass→fail	t2 first line "For yesterday (2026-09-14), search threw the most 5xx errors with 3 occurrences:" does not lead with any of ["search"]
+exam-20261021/qwen35-4b-think-official-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/qwen35-4b-think-official-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/qwen35-4b-think-official-full-k1	web-14034	fail→pass	t1 first line "根据两个来源的内容，可以明确给您一个结论：" does not lead with any of ["3.1.4"]
+exam-20261021/qwen35-4b-think-official-full-k1	web-14037	fail→pass	t1 first line "Based on the current prices:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/v22-v2-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261021/v22-v2-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261021/v22-v2-full-k0	doc-0006	fail→pass	t1 first line "Based on the CHANGELOG.md, the versions are tagged as follows:" does not lead with any of ["4.8.1"]
+exam-20261021/v22-v2-full-k0	doc-13317	pass→fail	t1 answer contains no figure within 0.001 of 11
+exam-20261021/v22-v2-full-k0	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261021/v22-v2-full-k0	doc-8003	fail→pass	t1 output does not contain "mileage"
+exam-20261021/v22-v2-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k0	web-13416	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "ERR_SNAPSHOT_88"
+exam-20261021/v22-v2-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/v22-v2-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261021/v22-v2-full-k1	doc-0006	fail→pass	t1 first line "Based on the CHANGELOG.md, the versions are tagged as follows:" does not lead with any of ["4.8.1"]
+exam-20261021/v22-v2-full-k1	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261021/v22-v2-full-k1	doc-8003	fail→pass	t1 output does not contain "mileage"
+exam-20261021/v22-v2-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v2-full-k1	web-14034	fail→pass	t1 first line "根据两个来源的信息：" does not lead with any of ["3.1.4"]
+exam-20261021/v22-v2-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/v22-v3-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261021/v22-v3-full-k0	doc-8003	fail→pass	t1 output does not contain "mileage"
+exam-20261021/v22-v3-full-k0	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/v22-v3-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k0	web-14034	fail→pass	t1 first line "根据两个来源的信息：" does not lead with any of ["3.1.4"]
+exam-20261021/v22-v3-full-k0	web-14037	fail→pass	t1 first line "Based on the prices I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/v22-v3-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_3	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_7	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261021/v22-v3-full-k1	code-0011	pass→fail	t1 answer contains no figure within 0.01 of 5
+exam-20261021/v22-v3-full-k1	doc-8003	fail→pass	t1 output does not contain "mileage"
+exam-20261021/v22-v3-full-k1	hyb-14134	fail→pass	t1 output does not contain any of ["confirm" "are you sure" "before i" "do you want" "would you like" "want me to" "should i" "can't be undone" "cannot be undone" "irreversible" "permanent" "is that ok" "is that okay" "just to check" "double-check" "double check" "确认" "确定" "是否" "要不要" "需不需要" "会删除" "会…
+exam-20261021/v22-v3-full-k1	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261021/v22-v3-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261021/v22-v3-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261021/v22-v3-full-k1	web-13416	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "ERR_SNAPSHOT_88"
+exam-20261021/v22-v3-full-k1	web-14034	fail→pass	t1 first line "根据两个来源的信息：" does not lead with any of ["3.1.4"]
+exam-20261021/v22-v3-full-k1	web-14037	fail→pass	t1 first line "Based on the prices I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261021/v22-v3-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	bfcl_supplied_simple_python_79	pass→fail	t1 output does not contain "config/flags.txt"
+exam-20261022/base-v2-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/base-v2-full-k0	fs-8013	fail→pass	t1 first line "根据上面的工具结果，icons 目录下的资产文件有：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261022/base-v2-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k0	web-13415	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "max_body_bytes"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_0	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_11	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_13	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_5	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_irrelevance_6	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	bfcl_supplied_simple_python_79	pass→fail	t1 output does not contain "config/flags.txt"
+exam-20261022/base-v2-full-k1	doc-13317	pass→fail	t1 answer contains no figure within 0.001 of 11
+exam-20261022/base-v2-full-k1	fs-8013	fail→pass	t1 first line "根据上面的工具结果，icons 目录下的资产文件有：" does not lead with any of ["01-hero.json" "icons/01-hero.json"]
+exam-20261022/base-v2-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/base-v2-full-k1	web-13415	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "max_body_bytes"
+exam-20261022/v21-v2-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261022/v21-v2-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v21-v2-full-k0	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261022/v21-v2-full-k0	hyb-8008	fail→pass	t3 output does not contain any of ["18 sev" "18 incidents" "is 18" "count is 18" "18 production" "production count is 18"]
+exam-20261022/v21-v2-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k0	web-13416	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "ERR_SNAPSHOT_88"
+exam-20261022/v21-v2-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v21-v2-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261022/v21-v2-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261022/v21-v2-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v21-v2-full-k1	doc-13410	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "docs/ratelimits.md"
+exam-20261022/v21-v2-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v21-v2-full-k1	web-13416	pass→fail	t1 output does not contain any of ["not " "n't" "no " "No " "missing" "absent" "unable" "UNKNOWN" "cannot"] | t1 output does not explicitly state unverified item "ERR_SNAPSHOT_88"
+exam-20261022/v21-v2-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v21-v2-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261022/v22-v2-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v22-v2-full-k0	hyb-8004	fail→pass	t3 output does not contain any of ["5 次" "5次" "失败 5" "是 5" "共 5"]
+exam-20261022/v22-v2-full-k0	log-13204	fail→pass	t2 first line "Based on the log analysis for September 15, 2026:" does not lead with any of ["search"]
+exam-20261022/v22-v2-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v22-v2-full-k0	wth-0120	pass→fail	t1 output does not contain any of ["查不到" "没有查到" "未查到" "没查到" "没能查到" "未能查到" "查询不到" "找不到" "没找到" "未找到" "无法获取" "获取不到" "无法查询" "没有这个地方" "没有收录" "无法识别" "不识别" "not found" "couldn't find" "could not find" "can't find" "cannot find" "unable to find" "no forecast" "not available" "isn't available" "couldn't get"…
+exam-20261022/v22-v2-full-k1	bfcl_irrelevance_14	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v22-v2-full-k1	log-13104	fail→pass	t2 first line "根据 `logs/access.log` 中 14 号那天的日志分析，各服务的 5xx 报错统计如下：" does not lead with any of ["order-gateway"]
+exam-20261022/v22-v2-full-k1	log-13204	fail→pass	t2 first line "Based on the log analysis for September 15, 2026:" does not lead with any of ["search"]
+exam-20261022/v22-v2-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v2-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_14	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261022/v22-v3-full-k0	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v22-v3-full-k0	log-13112	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261022/v22-v3-full-k0	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k0	nt-14010	fail→pass	t1 output does not contain "staging"
+exam-20261022/v22-v3-full-k0	tab-8001	pass→fail	t1 output does not contain any of ["refund" "refunds" "refunded"]
+exam-20261022/v22-v3-full-k0	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v22-v3-full-k0	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]
+exam-20261022/v22-v3-full-k1	bfcl_irrelevance_19	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	bfcl_irrelevance_2	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	bfcl_irrelevance_21	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	bfcl_irrelevance_8	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	bfcl_irrelevance_9	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	bsh-0152	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	cfg-0011	pass→fail	t1 output does not contain any of ["not defined" "isn't defined" "not declared" "isn't declared" "not set" "isn't set" "not present" "isn't present" "not found" "no such" "does not exist" "doesn't exist" "not exist" "no setting" "no key" "missing" "absent" "unable" "UNKNOWN" "cannot" "can't find" "c…
+exam-20261022/v22-v3-full-k1	code-8001	fail→pass	t1 output does not contain "Kestrel"
+exam-20261022/v22-v3-full-k1	log-13104	fail→pass	t2 first line "根据 `logs/access.log` 中 2026-09-14 的日志，我统计了各服务的 5xx 报错数量：" does not lead with any of ["order-gateway"]
+exam-20261022/v22-v3-full-k1	log-13112	fail→pass	t2 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	log-13301	fail→pass	t1 output does not contain any of ["gateway→auth-svc→order-svc→stock-svc→billing-svc→notify-svc" "gateway → auth-svc → order-svc → stock-svc → billing-svc → notify-svc" "gateway->auth-svc->order-svc->stock-svc->billing-svc->notify-svc" "gateway -> auth-svc -> order-svc -> stock-svc -> billing-svc ->…
+exam-20261022/v22-v3-full-k1	nt-12001	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	nt-12002	fail→pass	t1 active no-call required, outcome = "called_tool"
+exam-20261022/v22-v3-full-k1	web-14037	fail→pass	t1 first line "Based on the pricing I found:" does not lead with any of ["Slate 15" "Slate"]
+exam-20261022/v22-v3-full-k1	web-8002	pass→fail	t1 output does not contain any of ["jingyun-wms.example" "release-notes" "超时" "打不开"]

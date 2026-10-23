@@ -4,7 +4,7 @@
   "description": "原主考卷：模拟工作区里的日常任务（查表、看日志、改配置、写脚本、上网查）",
   "tool_catalog": "agent-tool-v1.0",
   "harness": "legacy",
-  "hash": "e30508e8902973a36d00124dcf6e46ffa6f3d99401539d5742db4f54da9a4ae5",
+  "hash": "87fcac4af7efc917da9bcbfe563d36da1076ffc8308f4af7d3bafc3d9d65936e",
   "summary": {
     "total": 148,
     "by_suite": {
@@ -255,7 +255,7 @@
       "id": "cfg-0011",
       "suite": "workbank",
       "path": "bench/workbank/cases/config/cfg-0011",
-      "sha256": "835bb55605da501d7292f6c2a0f176353be872aefebb018bcc3b9243ed5ba5b6",
+      "sha256": "47cade8387242457b6b1503769bca2f2390f53e0a6a0d4f4c68a0a0bdea02aa2",
       "scenario": "config",
       "task_type": "read_effective",
       "level": "L1",
