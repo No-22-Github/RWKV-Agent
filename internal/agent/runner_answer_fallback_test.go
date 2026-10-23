@@ -53,7 +53,7 @@ func TestAnswerStagePrefillsOpeningAfterRepeatedToolCalls(t *testing.T) {
 	if !strings.HasSuffix(prompts[len(prompts)-1], opener) {
 		t.Fatalf("last prompt does not end with the opener:\n%s", prompts[len(prompts)-1])
 	}
-	if result.AnswerFallback != answerFallbackOpener || !strings.Contains(result.Output, "the echo returned same") {
+	if result.AnswerFallback != AnswerFallbackOpener || !strings.Contains(result.Output, "the echo returned same") {
 		t.Fatalf("fallback = %q output = %q", result.AnswerFallback, result.Output)
 	}
 	for _, prompt := range prompts[3:] {
@@ -76,7 +76,7 @@ func TestAnswerStageSummarizesWhenOpenerAlsoCallsTools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err = %v", err)
 	}
-	if result.AnswerFallback != answerFallbackSummary ||
+	if result.AnswerFallback != AnswerFallbackSummary ||
 		!strings.Contains(result.Output, "- counting_echo: returned a result") {
 		t.Fatalf("fallback = %q output = %q", result.AnswerFallback, result.Output)
 	}

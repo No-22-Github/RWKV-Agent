@@ -139,7 +139,7 @@ func validateTurn(
 		failures = append(failures, planFailures(*expect.Plan, *result.Plan)...)
 	}
 	for _, required := range expect.MustStateUnverified {
-		if !strings.Contains(result.Output, required) {
+		if !containsFold(modelAnswer(result), required) {
 			failures = append(failures, fmt.Sprintf("output does not explicitly state unverified item %q", required))
 		}
 	}
@@ -242,9 +242,9 @@ func answerFailures(expect Expectation, output string) []string {
 		}
 	}
 	for _, required := range expect.OutputContains {
-		found := strings.Contains(output, required)
+		found := containsFold(output, required)
 		if expect.OutputContainsToken {
-			found = containsToken(output, required)
+			found = containsTokenFold(output, required)
 		}
 		if !found {
 			failures = append(
@@ -256,9 +256,9 @@ func answerFailures(expect Expectation, output string) []string {
 	if len(expect.OutputContainsAny) > 0 {
 		matched := false
 		for _, alternative := range expect.OutputContainsAny {
-			found := strings.Contains(output, alternative)
+			found := containsFold(output, alternative)
 			if expect.OutputContainsAnyToken {
-				found = containsToken(output, alternative)
+				found = containsTokenFold(output, alternative)
 			}
 			if found {
 				matched = true
@@ -273,26 +273,34 @@ func answerFailures(expect Expectation, output string) []string {
 		}
 	}
 	if len(expect.OutputFirstLineContainsAny) > 0 {
-		head := firstContentLine(output)
+		lead := leadLines(output)
 		matched := false
 		for _, want := range expect.OutputFirstLineContainsAny {
-			if containsToken(head, want) {
-				matched = true
-				break
+			for _, line := range lead {
+				if containsTokenFold(line, want) {
+					matched = true
+					break
+				}
 			}
 		}
 		if !matched {
 			failures = append(failures,
-				fmt.Sprintf("first line %q does not lead with any of %q", head, expect.OutputFirstLineContainsAny))
+				fmt.Sprintf("first line %q does not lead with any of %q", firstContentLine(output), expect.OutputFirstLineContainsAny))
 		}
+	}
+	if len(expect.OutputContainsInOrder) > 0 && !containsInOrder(output, expect.OutputContainsInOrder) {
+		failures = append(failures,
+			fmt.Sprintf("output does not contain %q in that order", expect.OutputContainsInOrder))
 	}
 	for _, format := range expect.OutputFormat {
 		if problem := checkOutputFormat(output, format); problem != "" {
 			failures = append(failures, problem)
 		}
 	}
+	// Excludes stay case-sensitive: "UNKNOWN" is the literal abstention token,
+	// and "unknown from this data" in prose is not it (log-8001).
 	for _, forbidden := range expect.OutputExcludes {
-		if strings.Contains(output, forbidden) {
+		if strings.Contains(strings.ReplaceAll(output, "**", ""), forbidden) {
 			failures = append(
 				failures,
 				fmt.Sprintf("output contains forbidden text %q", forbidden),
@@ -306,7 +314,7 @@ func answerFailures(expect Expectation, output string) []string {
 		)
 	}
 	if expect.ExpectedNumber != nil && expect.ExpectedNumberInText {
-		if !numberInText(output, *expect.ExpectedNumber, *expect.Tolerance) {
+		if !numberInText(salientAnswerText(output), *expect.ExpectedNumber, *expect.Tolerance) {
 			failures = append(
 				failures,
 				fmt.Sprintf("answer contains no figure within %g of %g", *expect.Tolerance, *expect.ExpectedNumber),
@@ -748,12 +756,20 @@ func hasAnswerExpectation(expect Expectation) bool {
 		len(expect.OutputContains) > 0 ||
 		len(expect.OutputContainsAny) > 0 ||
 		len(expect.OutputFirstLineContainsAny) > 0 ||
+		len(expect.OutputContainsInOrder) > 0 ||
 		len(expect.OutputFormat) > 0 ||
 		len(expect.OutputExcludes) > 0 ||
 		expect.ExpectedNumber != nil
 }
 
+// modelAnswer is the answer the model itself wrote. The summary fallback is
+// harness-written text listing what the turn looked up; it carries paths,
+// URLs and query words that answer word lists can match (web-8002 passed on
+// "release-notes" in a fetch it listed as failed), so it is no answer at all.
 func modelAnswer(result agent.Result) string {
+	if result.AnswerFallback == agent.AnswerFallbackSummary {
+		return ""
+	}
 	if result.OriginalOutput != "" || result.AnswerContractRepaired {
 		return result.OriginalOutput
 	}
@@ -902,7 +918,7 @@ func summarize(
 				}
 				for _, required := range expect.MustStateUnverified {
 					summary.Metrics.ExplicitAbstention.Total++
-					if strings.Contains(answer, required) {
+					if containsFold(answer, required) {
 						summary.Metrics.ExplicitAbstention.Correct++
 					}
 				}
@@ -1219,6 +1235,105 @@ func numberInText(output string, want, tolerance float64) bool {
 		}
 	}
 	return false
+}
+
+// foldText is what text matching compares: Markdown bold markers removed and
+// ASCII letters lowercased. Only ASCII is folded so byte offsets stay put for
+// containsToken, and Han text is untouched.
+func foldText(text string) string {
+	text = strings.ReplaceAll(text, "**", "")
+	return strings.Map(func(r rune) rune {
+		if r >= 'A' && r <= 'Z' {
+			return r + ('a' - 'A')
+		}
+		return r
+	}, text)
+}
+
+func containsFold(output, want string) bool {
+	return strings.Contains(foldText(output), foldText(want))
+}
+
+func containsTokenFold(output, want string) bool {
+	return containsToken(foldText(output), foldText(want))
+}
+
+// containsInOrder reports whether every entry occurs after the previous one.
+func containsInOrder(output string, wants []string) bool {
+	rest := foldText(output)
+	for _, want := range wants {
+		want = foldText(want)
+		index := strings.Index(rest, want)
+		if index < 0 {
+			return false
+		}
+		rest = rest[index+len(want):]
+	}
+	return true
+}
+
+// boldSpan is a Markdown bold run on one line. Prose replies bold either the
+// value ("最大的是 **01-hero.json**") or its label ("**Total value:**
+// $5,115.80"), so the whole line around it is what counts.
+var boldSpan = regexp.MustCompile(`\*\*([^*\n]+)\*\*`)
+
+// leadLines are where output_first_line_contains_any looks for the
+// conclusion. Normally that is the first content line alone, so "110 行。\n
+// 如果含 21 号则为 121。" still leads with the decoy. A first line that ends
+// in a colon ("Based on the current prices:", "资产文件有：") only introduces
+// what follows, so the committed lines after it count instead.
+func leadLines(output string) []string {
+	committed := committedLines(output)
+	if len(committed) == 0 {
+		return nil
+	}
+	head := committed[0]
+	if !strings.HasSuffix(head, ":") && !strings.HasSuffix(head, "：") {
+		return committed[:1]
+	}
+	rest := output
+	if index := strings.Index(output, "\n"); index >= 0 {
+		rest = output[index+1:]
+	} else {
+		return committed[:1]
+	}
+	return committedLines(rest)
+}
+
+// committedLines are the positions where a prose reply commits: the first
+// and last content lines and whatever follows an explicit answer marker.
+func committedLines(output string) []string {
+	var lines []string
+	for _, line := range strings.Split(output, "\n") {
+		line = strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(line), "#>-* "))
+		line = strings.ReplaceAll(line, "**", "")
+		if line != "" {
+			lines = append(lines, line)
+		}
+	}
+	if len(lines) == 0 {
+		return nil
+	}
+	committed := []string{lines[0], lines[len(lines)-1]}
+	lowered := strings.ToLower(output)
+	for _, marker := range answerMarkers {
+		if index := strings.LastIndex(lowered, marker); index >= 0 {
+			committed = append(committed, firstContentLine(output[index+len(marker):]))
+		}
+	}
+	return committed
+}
+
+// salientAnswerText is the committed lines plus every line that carries
+// bold text: the text expected_number_in_text reads its figures from.
+func salientAnswerText(output string) string {
+	parts := committedLines(output)
+	for _, line := range strings.Split(output, "\n") {
+		if boldSpan.MatchString(line) {
+			parts = append(parts, line)
+		}
+	}
+	return strings.Join(parts, "\n")
 }
 
 // firstContentLine is the reply's first non-empty line with Markdown emphasis

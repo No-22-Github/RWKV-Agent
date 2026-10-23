@@ -54,6 +54,7 @@ v1–v3、v6、v9、v11 在仓库历史里没有出现过：常量第一次提�
 | `rwkv-agent-eval-scorer-v1` | 2026-08-26 | `7b068359` | 引入独立判分器版本，并分类主动弃权/协议失败 | 未知（未记录） |
 | `rwkv-agent-eval-scorer-v2` | 2026-09-17 | `665c166e` | 随 workbank 收尾 Part A 的测量缺陷修复升级 | 未知（未记录） |
 | `rwkv-agent-eval-scorer-v3` | 2026-09-21 | `85e7dc6c` | 判分对象改为模型行为而非 harness 行为 | 未知（未记录） |
+| `rwkv-agent-eval-scorer-v4` | 2026-10-23 | 未提交 | 判分审计：summary 兜底不算模型答案；包含类检查不分大小写、去 `**`（排除项仍分大小写）；首行以冒号结尾时看其后首末行；`expected_number_in_text` 只读首末行、加粗行和答案标记后；新增 `output_contains_in_order`；文件 equals 容忍末尾换行 | 见 `docs/evaluations/exam-v12-rescore-20261023/`（离线重判） |
 
 ## outcome
 

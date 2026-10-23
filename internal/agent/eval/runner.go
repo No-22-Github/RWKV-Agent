@@ -537,8 +537,7 @@ func runCase(
 			// The App shows the user the fallback text, not the raw output the
 			// legacy scoring reads (modelAnswer); a value buried in a repaired
 			// reply never reached the user.
-			turnResult.Failures = append(turnResult.Failures,
-				"answer contract repaired: the App showed the fallback reply, not the model's answer")
+			turnResult.Failures = append(turnResult.Failures, answerContractFailure)
 		}
 		turnResult.Failures = append(
 			turnResult.Failures,

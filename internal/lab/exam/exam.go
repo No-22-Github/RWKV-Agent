@@ -18,6 +18,7 @@ usage: rwkv-lab exam <command> [flags]
   import-builtin  export the built-in bfcl-product and boundary suites to case.json files
   select-quick    pick the quick exam from the full one and local run history
   panel           score runs by task kind, difficulty, language and source
+  rescore         re-judge finished runs under the current scorer and case files
 `
 
 // Run dispatches an exam subcommand.
@@ -37,6 +38,8 @@ func Run(args []string) int {
 		return runSelectQuick(args[1:])
 	case "panel":
 		return runPanel(args[1:])
+	case "rescore":
+		return runRescore(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

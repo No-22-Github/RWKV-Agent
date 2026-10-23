@@ -532,4 +532,79 @@ func TestFirstLineLeads(t *testing.T) {
 	if f := answerFailures(expect, "110 行。\n如果含 21 号则为 121。"); len(f) == 0 {
 		t.Error("answer led by the decoy passed")
 	}
+	// A colon-ended opener only introduces; the verdict closes the reply.
+	if f := answerFailures(expect, "根据工具结果，统计如下：\n| 日期 | 行数 |\n|---|---|\n合计 **121** 行"); len(f) != 0 {
+		t.Errorf("introduced answer failed: %v", f)
+	}
+}
+
+// TestTextMatchingFoldsCaseAndBold covers the 2026-10-23 scoring audit:
+// code-8001 wrote "kestrel", nt-14010 "**Staging** is frozen", wth-0124
+// "每周**一闭馆".
+func TestTextMatchingFoldsCaseAndBold(t *testing.T) {
+	expect := Expectation{OutputContains: []string{"Kestrel", "staging", "周一"}}
+	if f := answerFailures(expect, "Runs on kestrel. **Staging** is frozen; 每周**一闭馆"); len(f) != 0 {
+		t.Errorf("folded match failed: %v", f)
+	}
+	// Excludes stay case-sensitive: "UNKNOWN" is the abstention token, not
+	// the English word (log-8001).
+	exclude := Expectation{OutputExcludes: []string{"UNKNOWN"}}
+	if f := answerFailures(exclude, "the impact is unknown from this data"); len(f) != 0 {
+		t.Errorf("prose 'unknown' hit the UNKNOWN exclude: %v", f)
+	}
+	if f := answerFailures(exclude, "**UNKNOWN**"); len(f) == 0 {
+		t.Error("UNKNOWN exclude missed")
+	}
+	five, tol := 5115.8, 0.01
+	total := Expectation{ExpectedNumber: &five, Tolerance: &tol, ExpectedNumberInText: true}
+	if f := answerFailures(total, "Items:\n| a | $1 |\n\n**Total value:** $5,115.80\n\nThe rest are excluded."); len(f) != 0 {
+		t.Errorf("bold-labelled total failed: %v", f)
+	}
+}
+
+// TestNumberInTextReadsCommittedPositions: a breakdown that carries the
+// expected figure no longer passes a wrong total (doc-13317, code-0011).
+func TestNumberInTextReadsCommittedPositions(t *testing.T) {
+	five, tol := 5.0, 0.01
+	expect := Expectation{ExpectedNumber: &five, Tolerance: &tol, ExpectedNumberInText: true}
+	if f := answerFailures(expect, "共 9 个 TODO：\n- a.py: 5\n- b.py: 4\n以上。"); len(f) == 0 {
+		t.Error("figure in the breakdown passed a wrong total")
+	}
+	for _, output := range []string{
+		"共 5 次。",
+		"复查如下：\n- 9/3 失败\n生产环境一共失败 5 次",
+		"明细：\n| a | 2 |\n合计 **5** 次，其余是预发。\n需要我再导出吗？",
+	} {
+		if f := answerFailures(expect, output); len(f) != 0 {
+			t.Errorf("%q failed: %v", output, f)
+		}
+	}
+}
+
+func TestContainsInOrder(t *testing.T) {
+	expect := Expectation{OutputContainsInOrder: []string{"gateway", "auth-svc", "order-svc"}}
+	if f := answerFailures(expect, "1. gateway\n2. auth-svc\n3. order-svc"); len(f) != 0 {
+		t.Errorf("numbered list failed: %v", f)
+	}
+	if f := answerFailures(expect, "gateway → order-svc → auth-svc"); len(f) == 0 {
+		t.Error("wrong order passed")
+	}
+}
+
+// TestSummaryFallbackIsNoAnswer: the harness-written summary lists what was
+// looked up, so it must not satisfy answer word lists (web-8002).
+func TestSummaryFallbackIsNoAnswer(t *testing.T) {
+	result := agent.Result{
+		Output:         "这次没能直接给出回答。我查过的内容：\n- web_fetch「https://x/release-notes」：出错",
+		OriginalOutput: "这次没能直接给出回答。我查过的内容：\n- web_fetch「https://x/release-notes」：出错",
+		AnswerFallback: agent.AnswerFallbackSummary,
+	}
+	expect := Expectation{OutputContainsAny: []string{"release-notes"}}
+	if f := validateTurn(expect, result, nil); len(f) == 0 {
+		t.Error("summary fallback passed an answer check")
+	}
+	result.AnswerFallback = agent.AnswerFallbackOpener
+	if f := validateTurn(expect, result, nil); len(f) != 0 {
+		t.Errorf("opener fallback is the model's own answer: %v", f)
+	}
 }

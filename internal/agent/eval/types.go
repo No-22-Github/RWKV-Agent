@@ -20,7 +20,7 @@ const (
 	caseSchemaVersionLegacy = 4
 	RunSchemaVersion        = 8
 	HarnessVersion          = "rwkv-agent-eval-v22"
-	ScorerVersion           = "rwkv-agent-eval-scorer-v3"
+	ScorerVersion           = "rwkv-agent-eval-scorer-v4"
 	OutcomeTaxonomyVersion  = "rwkv-agent-outcome-v2"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
@@ -157,7 +157,12 @@ type Expectation struct {
 	RequiredCalls   []ExpectedCall `json:"required_calls,omitempty"`
 	OutputEquals    *string        `json:"output_equals,omitempty"`
 	OutputEqualsAny []string       `json:"output_equals_any,omitempty"`
-	OutputContains  []string       `json:"output_contains,omitempty"`
+	// OutputContains, OutputContainsAny and MustStateUnverified match with
+	// Latin letters case-folded and Markdown bold markers removed: "**Staging**
+	// is frozen" contains "staging", and "每周**一闭馆" contains "周一".
+	// OutputExcludes drops bold markers but keeps case, since "UNKNOWN" is a
+	// literal token and "unknown" in prose is not it.
+	OutputContains []string `json:"output_contains,omitempty"`
 	// OutputContainsToken makes each OutputContains entry match only as a whole
 	// token, so "5" is not found inside "2026-05" or "95000".
 	OutputContainsToken bool     `json:"output_contains_token,omitempty"`
@@ -166,17 +171,25 @@ type Expectation struct {
 	MaxOutputChars      int      `json:"max_output_chars,omitempty"`
 	ExpectedNumber      *float64 `json:"expected_number,omitempty"`
 	Tolerance           *float64 `json:"tolerance,omitempty"`
-	// ExpectedNumberInText scores ExpectedNumber against every figure in a
-	// natural-language answer instead of requiring the whole reply to be one
-	// number: "共 33 条成功的删除请求" passes for 33. The exam asks the way an
-	// App user does, so the reply is prose and the figure sits inside it.
+	// ExpectedNumberInText scores ExpectedNumber against the figures where a
+	// natural-language answer commits: the first and last lines, bold spans
+	// and whatever follows an answer marker (salientAnswerText). "共 33 条成功
+	// 的删除请求" passes for 33. The middle of the reply is not searched: a
+	// breakdown table or a quoted old value carries the expected figure often
+	// enough that a wrong total passed on it (doc-13317, code-0011).
 	ExpectedNumberInText bool `json:"expected_number_in_text,omitempty"`
 	// OutputFirstLineContainsAny requires the reply's first non-empty line to
 	// contain one of these values as a whole token: the conclusion leads. It
 	// catches the hedge that lists the right value among others ("can't tell —
 	// 4.6.0, 4.5.2, 4.4.0") and the reply that heads with the decoy and only
-	// mentions the answer later.
+	// mentions the answer later. A first line ending in a colon ("Based on the
+	// current prices:") only introduces, so the first and last lines after it
+	// and an answer marker count instead (leadLines).
 	OutputFirstLineContainsAny []string `json:"output_first_line_contains_any,omitempty"`
+	// OutputContainsInOrder requires every entry to occur, as a whole token,
+	// after the previous one: an ordered sequence the reply may write as an
+	// arrow chain, a comma list or a numbered list.
+	OutputContainsInOrder []string `json:"output_contains_in_order,omitempty"`
 	// OutputFormat checks the shape the user asked the reply to take, each
 	// entry one requirement: "json" (the reply, or its one fenced code block,
 	// parses as JSON), "markdown_table" (a header row followed by a |---|

@@ -107,7 +107,10 @@ func fileExpectFailures(workspace string, testCase Case) []string {
 				))
 			}
 		case fileExpect.Equals != nil:
-			if string(content) != *fileExpect.Equals {
+			// A missing final newline is not different content: before
+			// 2026-10-21 append_file did not add one, and bsh-0020 failed 13
+			// runs that appended exactly the right line.
+			if strings.TrimSuffix(string(content), "\n") != strings.TrimSuffix(*fileExpect.Equals, "\n") {
 				failures = append(failures, fmt.Sprintf(
 					"expect.files %q does not equal the expected content",
 					path,

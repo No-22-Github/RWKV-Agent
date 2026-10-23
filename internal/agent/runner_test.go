@@ -1011,7 +1011,7 @@ func TestRunnerAnswerStageRejectsEmptyNoTool(t *testing.T) {
 	closing := result.Steps[1]
 	if closing.Stage != StageAnswer || closing.StageViolation ||
 		!strings.Contains(closing.ProtocolError, "no_tool") ||
-		result.AnswerFallback != answerFallbackSummary || !strings.Contains(result.Output, "- counting_echo") {
+		result.AnswerFallback != AnswerFallbackSummary || !strings.Contains(result.Output, "- counting_echo") {
 		t.Fatalf("empty no_tool step = %+v output = %q", closing, result.Output)
 	}
 }

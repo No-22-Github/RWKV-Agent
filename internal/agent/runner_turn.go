@@ -832,7 +832,7 @@ func (turn *runnerTurn) retryProtocolAction(
 		// The prefilled opening was the last generation: keep any real prose
 		// written before the tool frame, otherwise summarize the evidence.
 		if salvaged := salvageAnswerProse(modelStep.modelAction, turn.assistantPrefix); salvaged != "" {
-			turn.result.AnswerFallback = answerFallbackOpener
+			turn.result.AnswerFallback = AnswerFallbackOpener
 			turn.commitFinalText(salvaged)
 		} else {
 			turn.commitAnswerFallback()
@@ -914,13 +914,13 @@ func (turn *runnerTurn) finishFinalAction(step int, action Action) (bool, error)
 // commitAnswerFallback ends the answer stage with the harness-written account
 // of what the turn looked up, for a model that would not stop calling tools.
 func (turn *runnerTurn) commitAnswerFallback() {
-	turn.result.AnswerFallback = answerFallbackSummary
+	turn.result.AnswerFallback = AnswerFallbackSummary
 	turn.commitFinalText(answerFallbackSummaryText(turn.task, turn.result.Steps))
 }
 
 func (turn *runnerTurn) commitFinalText(content string) {
 	if turn.answerOpenerTried && turn.result.AnswerFallback == "" {
-		turn.result.AnswerFallback = answerFallbackOpener
+		turn.result.AnswerFallback = AnswerFallbackOpener
 	}
 	turn.result.OriginalOutput = content
 	violations := validateAnswer(content)

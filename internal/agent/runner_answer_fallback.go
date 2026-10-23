@@ -13,8 +13,8 @@ import (
 // protocol error instead of an answer (2026-10-16 probe on g1k-7.2b without
 // thinking: 48 of 112 runs). The stage now ends in one of two fallbacks.
 const (
-	answerFallbackOpener  = "opener"
-	answerFallbackSummary = "summary"
+	AnswerFallbackOpener  = "opener"
+	AnswerFallbackSummary = "summary"
 )
 
 // errAnswerCommitted tells the turn loop that retryProtocolAction already
