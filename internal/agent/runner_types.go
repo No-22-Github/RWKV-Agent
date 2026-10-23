@@ -379,7 +379,6 @@ type answerViolation string
 const (
 	violationProtocolTag answerViolation = "protocol_tag"
 	violationRoleHeader  answerViolation = "role_header"
-	violationJSONPayload answerViolation = "json_payload"
 	violationToolEcho    answerViolation = "tool_payload_echo"
 )
 

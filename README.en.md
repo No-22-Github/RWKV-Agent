@@ -21,7 +21,7 @@ It can also talk to a remote `rwkv_lightning` deployment or any OpenAI-compatibl
 | --- | --- |
 | Platforms | Source builds work on Apple Silicon, macOS 15+. Linux is only verified in CI with `-tags server` (remote providers); no Windows entry point yet |
 | Front ends | CLI / TUI, Wails V3 desktop app, headless browser service |
-| Agent | Experimental; tools are read-only — no file writes, no command execution. Eval harness version `rwkv-agent-eval-v22` |
+| Agent | Experimental; tools are read-only — no file writes, no command execution. Eval harness version `rwkv-agent-eval-v23` |
 | Distribution | The packaging chain works; upstream licenses must be confirmed and a project license chosen before public distribution |
 
 ## Quick start

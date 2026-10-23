@@ -702,14 +702,14 @@ func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
 			wantDecisionValid: Score{Correct: 1, Total: 1, Rate: 1},
 		},
 		{
-			name:              "bare tool JSON",
+			// JSON outside a <tool_call> envelope is a plain answer.
+			name:              "bare tool JSON is text",
 			script:            []continuation.Result{generated(`{"name":"read_file","arguments":{"path":"README.md"}}`)},
 			expect:            Expectation{Tools: []string{}},
-			wantOutcome:       OutcomeToolEnvelopeMissing,
-			wantPassed:        false,
-			wantActiveNoCall:  Score{Total: 1},
-			wantDecisionValid: Score{Total: 1},
-			wantFailureClass:  agent.ProtocolFailureToolEnvelopeMissing,
+			wantOutcome:       OutcomeDirectFinal,
+			wantPassed:        true,
+			wantActiveNoCall:  Score{Correct: 1, Total: 1, Rate: 1},
+			wantDecisionValid: Score{Correct: 1, Total: 1, Rate: 1},
 		},
 		{
 			name:              "damaged tool envelope",
@@ -1589,7 +1589,7 @@ func TestRunManifestRecordsActuallySentSampling(t *testing.T) {
 	if manifest.Sampling["temperature"] != float32(0.3) || manifest.Sampling["seed"] != int64(7) {
 		t.Fatalf("sampling values = %v", manifest.Sampling)
 	}
-	if HarnessVersion != "rwkv-agent-eval-v22" || ScorerVersion != "rwkv-agent-eval-scorer-v4" {
+	if HarnessVersion != "rwkv-agent-eval-v23" || ScorerVersion != "rwkv-agent-eval-scorer-v4" {
 		t.Fatalf("versions = %q/%q", HarnessVersion, ScorerVersion)
 	}
 }

@@ -773,9 +773,15 @@ func TestValidateAnswerRejectsRoleHeader(t *testing.T) {
 	assertAnswerViolation(t, "Assistant: The answer is 42.", violationRoleHeader)
 }
 
-func TestValidateAnswerRejectsJSONPayload(t *testing.T) {
+// TestValidateAnswerAcceptsBareJSON: a user who asks for JSON gets a bare
+// object; only a <tool_call> envelope marks protocol text.
+func TestValidateAnswerAcceptsBareJSON(t *testing.T) {
 	t.Parallel()
-	assertAnswerViolation(t, `{"answer":42}`, violationJSONPayload)
+	for _, output := range []string{`{"docx":5,"pdf":3}`, `[1,2,3]`, `{"name":"read_file","arguments":{}}`} {
+		if violations := validateAnswer(output); len(violations) != 0 {
+			t.Errorf("validateAnswer(%q) = %v", output, violations)
+		}
+	}
 }
 
 func TestValidateAnswerRejectsToolEcho(t *testing.T) {
@@ -1174,7 +1180,7 @@ func TestRunnerRequiresTerminalToolBeforeFinal(t *testing.T) {
 func TestRunnerRetriesProtocolOnce(t *testing.T) {
 	t.Parallel()
 	outputs := []string{
-		`{"name":"missing","arguments":{}}`,
+		`<tool_call>{"name":"missing","arguments":`,
 		`done`,
 	}
 	calls := 0

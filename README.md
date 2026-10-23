@@ -19,7 +19,7 @@
 | --- | --- |
 | 平台 | Apple Silicon、macOS 15+ 源码构建可用。Linux 仅在 CI 验证 `-tags server`（远程 provider）；Windows 暂无入口 |
 | 产品形态 | CLI / TUI、Wails V3 桌面 App、headless 浏览器服务 |
-| Agent | 实验性；工具只读，不写文件、不执行命令。评测 Harness 版本 `rwkv-agent-eval-v22` |
+| Agent | 实验性；工具只读，不写文件、不执行命令。评测 Harness 版本 `rwkv-agent-eval-v23` |
 | 分发 | 技术链路已通；公开分发前需确认上游授权并选定项目许可证 |
 
 ## 快速开始

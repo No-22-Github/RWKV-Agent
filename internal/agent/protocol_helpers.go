@@ -6,16 +6,6 @@ import (
 	"strings"
 )
 
-func looksLikeBareToolCall(candidate string) bool {
-	var object map[string]json.RawMessage
-	if json.Unmarshal([]byte(candidate), &object) != nil || object == nil {
-		return false
-	}
-	_, hasName := object["name"]
-	_, hasArguments := object["arguments"]
-	return hasName || hasArguments
-}
-
 const (
 	maxAnswerToolStringRunes = 2400
 	answerToolPrefixRunes    = 320

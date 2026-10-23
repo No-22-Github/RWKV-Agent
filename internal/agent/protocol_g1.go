@@ -599,9 +599,9 @@ func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason)
 	if action, ok := parseLegacyXMLToolCall(candidate); ok {
 		return action, nil
 	}
-	if looksLikeBareToolCall(candidate) {
-		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1 envelope", ErrToolEnvelopeMissing)
-	}
+	// JSON outside a <tool_call> envelope is text: a user who asks for JSON
+	// gets a bare object, and reading {"name":…} as a botched call would
+	// replace the answer they asked for.
 	return Action{Type: ActionTypeFinal, Content: candidate}, nil
 }
 

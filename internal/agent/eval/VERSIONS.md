@@ -42,6 +42,7 @@
 | `rwkv-agent-eval-v20` | 2026-08-28 | `e0047792` | 产品 harness 对齐 G1I 的行为偏好 | 未知（未记录） |
 | `rwkv-agent-eval-v21` | 2026-09-17 | `665c166e` | workbank 收尾 Part A：重跑前修测量缺陷 | 未知（未记录） |
 | `rwkv-agent-eval-v22` | 2026-09-25 | `1d92d15d` | md-fence 解析器不再把终答从第一个围栏处截断 | 未知（未记录） |
+| `rwkv-agent-eval-v23` | 2026-10-23 | 未提交 | 没有 `<tool_call>` 包裹的 JSON 一律当正文：不再报"缺信封"协议错，作答阶段不再当工具调用，终答不再被当成 JSON 违规换成兜底话术 | 42 遍旧 run 里触发过 json_payload 9 次、缺信封 4 次；需新跑分才能看到 |
 
 考古命令（不限文件路径：早期常量定义在别的文件里，只搜 `types.go` 会漏掉 v4–v17）：
 `git log --reverse -G '"rwkv-agent-eval-v[0-9]+"' -- '*.go' ':!*_test.go'`，再看每个提交新增的常量定义行。
@@ -54,7 +55,7 @@ v1–v3、v6、v9、v11 在仓库历史里没有出现过：常量第一次提�
 | `rwkv-agent-eval-scorer-v1` | 2026-08-26 | `7b068359` | 引入独立判分器版本，并分类主动弃权/协议失败 | 未知（未记录） |
 | `rwkv-agent-eval-scorer-v2` | 2026-09-17 | `665c166e` | 随 workbank 收尾 Part A 的测量缺陷修复升级 | 未知（未记录） |
 | `rwkv-agent-eval-scorer-v3` | 2026-09-21 | `85e7dc6c` | 判分对象改为模型行为而非 harness 行为 | 未知（未记录） |
-| `rwkv-agent-eval-scorer-v4` | 2026-10-23 | 未提交 | 判分审计：summary 兜底不算模型答案；包含类检查不分大小写、去 `**`（排除项仍分大小写）；首行以冒号结尾时看其后首末行；`expected_number_in_text` 只读首末行、加粗行和答案标记后；新增 `output_contains_in_order`；文件 equals 容忍末尾换行 | 见 `docs/evaluations/exam-v12-rescore-20261023/`（离线重判） |
+| `rwkv-agent-eval-scorer-v4` | 2026-10-23 | `ac2405a8` | 判分审计：summary 兜底不算模型答案；包含类检查不分大小写、去 `**`（排除项仍分大小写）；首行以冒号结尾时看其后首末行；`expected_number_in_text` 只读首末行、加粗行和答案标记后；新增 `output_contains_in_order`；文件 equals 容忍末尾换行 | 见 `docs/evaluations/exam-v12-rescore-20261023/`（离线重判） |
 
 ## outcome
 

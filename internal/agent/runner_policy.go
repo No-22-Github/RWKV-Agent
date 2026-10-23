@@ -158,8 +158,7 @@ func workspaceChanged(value any) bool {
 }
 
 func answerContainsToolFrame(content string) bool {
-	lower := strings.ToLower(strings.TrimSpace(content))
-	return strings.Contains(lower, "<tool_call") || looksLikeBareToolCall(content)
+	return strings.Contains(strings.ToLower(content), "<tool_call")
 }
 
 func terminalToolOutput(action Action, value any) string {
@@ -229,14 +228,6 @@ func validateAnswer(output string) []answerViolation {
 		}
 		if line == "" && len(violations) > 0 && violations[len(violations)-1] == violationRoleHeader {
 			break
-		}
-	}
-
-	var payload any
-	if json.Unmarshal([]byte(trimmed), &payload) == nil {
-		switch payload.(type) {
-		case map[string]any, []any:
-			violations = append(violations, violationJSONPayload)
 		}
 	}
 

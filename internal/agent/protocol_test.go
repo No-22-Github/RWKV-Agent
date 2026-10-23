@@ -104,8 +104,12 @@ func TestG1ProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	if err != nil || action.Type != "final" {
 		t.Fatalf("plain protocol explanation = %+v, error = %v", action, err)
 	}
+	// JSON outside an envelope is text, not a botched call.
+	action, err = protocol.Parse(`{"name":"read_file","arguments":{"path":"README.md"}}`, continuation.FinishUnknown)
+	if err != nil || action.Type != "final" {
+		t.Fatalf("bare JSON = %+v, error = %v", action, err)
+	}
 	for _, invalid := range []string{
-		`{"name":"read_file","arguments":{"path":"README.md"}}`,
 		`<tool_call>{"name":"read_file","arguments":{}}</tool_call> trailing`,
 		`<answer></answer>`,
 		`<think>unfinished<answer>no</answer>`,
@@ -134,11 +138,6 @@ func TestG1ProtocolClassifiesToolExtractionFailures(t *testing.T) {
 		value string
 		want  error
 	}{
-		{
-			name:  "missing envelope",
-			value: `{"name":"read_file","arguments":{"path":"README.md"}}`,
-			want:  ErrToolEnvelopeMissing,
-		},
 		{
 			name:  "damaged JSON",
 			value: `<tool_call>{"name":"read_file","arguments":`,
