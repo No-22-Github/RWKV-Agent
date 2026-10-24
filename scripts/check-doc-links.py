@@ -20,7 +20,9 @@ SKIP_DIRS = ("/cases/", "/cases-shelved/")  # case NOTES under bench/distill/<ve
 def main() -> int:
     root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
     os.chdir(root)
-    tracked = set(subprocess.check_output(["git", "ls-files"], text=True).splitlines())
+    # quotePath off: non-ASCII filenames must match link targets byte-for-byte
+    tracked = set(subprocess.check_output(
+        ["git", "-c", "core.quotePath=false", "ls-files"], text=True).splitlines())
     dirs = {os.path.dirname(p) for p in tracked}
     for d in list(dirs):
         while d:
