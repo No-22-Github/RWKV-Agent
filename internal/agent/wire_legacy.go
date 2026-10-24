@@ -54,6 +54,9 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		if protocol.BareExamples {
 			spec.Control = wire.ControlBare
 		}
+		if protocol.ConciseControl != "" {
+			spec.Control = wire.Control(protocol.ConciseControl)
+		}
 		if protocol.SemanticNoTool {
 			spec.Abstain = wire.AbstainNoTool
 		}
@@ -164,6 +167,7 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 			NoCallDemo:       spec.Control == wire.ControlBaseNoCall,
 			GreetingExamples: spec.Control == wire.ControlGreeting,
 			BareExamples:     spec.Control == wire.ControlBare,
+			ConciseControl:   conciseControl(spec.Control),
 			SemanticNoTool:   spec.Abstain != wire.AbstainNone,
 			AlignQwen36:      spec.Align.ToolResultsInUser(),
 			Hermes:           spec.Align == wire.AlignHermes,
@@ -265,4 +269,12 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	}
 	options.Wire = &spec
 	return options, nil
+}
+
+// conciseControl returns the concise control variant, or "" for the others.
+func conciseControl(control wire.Control) string {
+	if control == wire.ControlConcise || control == wire.ControlConcisePaths {
+		return string(control)
+	}
+	return ""
 }

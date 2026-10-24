@@ -25,6 +25,13 @@ G1L 预览版（`rwkv-g1l-7b-temp-3797`，无 State / MiSS）在 Agent 场景下
 | `tF` | `agent-wire-think-v1.0+recover-preamble` | 完整思考 `Assistant: <think` |
 | `mu` | `rp+merge-users` | 连续 User 合并（结果 + 提醒放同一条），贴近官方严格轮替 |
 | `md` | `md-fence-v1+prefill-none` | 官方函数调用写法：`System: Tools:`、```` ```json ```` 围栏、`User: Function output:` |
+| `nn` | `rp+merge-users-no-nudge` | 去掉每步提醒，工具结果直接挨着生成点（补充组，见下） |
+| `lead` | `rp+merge-users-lead` | 提醒、被拒说明、收尾指令都挪到结果前面，结果永远在最后（补充组） |
+
+补充组的来由：`rp` 里 53% 的题出现过"重复上一次成功调用 → 被拒 → 强制收尾"，这些题通过率 20%（其余 43%）。
+每步工具结果后面跟着约 53 token 的 `User:` 提醒，把证据从生成点推远；RWKV 是 RNN，离生成点越近的内容越"新鲜"。
+`nn` 测"不提醒"，`lead` 测"提醒还在、但证据在最后"，两者对照能区分是提醒的位置问题还是提醒本身多余。
+补充组用 564c2573 构建的二进制（只新增 lead 取值，其它预设 hash 不变），第一轮其余组用 9cfbb65e。
 
 ## 主指标与判定
 

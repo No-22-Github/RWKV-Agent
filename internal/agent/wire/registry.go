@@ -209,11 +209,13 @@ var modifiers = map[string]func(Spec) Spec{
 		return s
 	},
 
-	"fewshot":     func(s Spec) Spec { s.Control = ControlFewShot; return s },
-	"base-nocall": func(s Spec) Spec { s.Control = ControlBaseNoCall; return s },
-	"greeting":    func(s Spec) Spec { s.Control = ControlGreeting; return s },
-	"bare":        func(s Spec) Spec { s.Control = ControlBare; return s },
-	"native":      func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
+	"fewshot":       func(s Spec) Spec { s.Control = ControlFewShot; return s },
+	"base-nocall":   func(s Spec) Spec { s.Control = ControlBaseNoCall; return s },
+	"greeting":      func(s Spec) Spec { s.Control = ControlGreeting; return s },
+	"bare":          func(s Spec) Spec { s.Control = ControlBare; return s },
+	"concise":       func(s Spec) Spec { s.Control = ControlConcise; return s },
+	"concise-paths": func(s Spec) Spec { s.Control = ControlConcisePaths; return s },
+	"native":        func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
 
 	"align-qwen36": func(s Spec) Spec { s.Align = AlignQwen36; return s },
 	"hermes":       func(s Spec) Spec { s.Align = AlignHermes; return s },

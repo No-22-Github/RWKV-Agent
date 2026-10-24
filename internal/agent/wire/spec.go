@@ -136,6 +136,13 @@ const (
 	ControlGreeting Control = "greeting"
 	// ControlBare removes the example block entirely. R3 few-shot cut.
 	ControlBare Control = "bare"
+	// ControlConcise is the official G1x function-calling layout: the system
+	// block opens with "Tools:" and the catalog, followed by two short call
+	// rules and no examples ("The key is to keep it concise.").
+	ControlConcise Control = "concise"
+	// ControlConcisePaths adds one sentence on workspace-relative paths and
+	// listing before guessing a file name.
+	ControlConcisePaths Control = "concise-paths"
 )
 
 // Feedback is the tool-result rendering policy.
@@ -559,7 +566,8 @@ func (s Spec) Validate() error {
 			"set prefill=none")
 	}
 	if (s.Control == ControlFewShot || s.Control == ControlBaseNoCall ||
-		s.Control == ControlGreeting || s.Control == ControlBare) && s.Format != FormatXML {
+		s.Control == ControlGreeting || s.Control == ControlBare ||
+		s.Control == ControlConcise || s.Control == ControlConcisePaths) && s.Format != FormatXML {
 		return fail("control.unsupported", fmt.Sprintf("control=%s requires format=xml", s.Control), "use control=base")
 	}
 	// The no_tool pseudo-action is only offered by the product transcripts.
@@ -687,7 +695,7 @@ var (
 	TerminalValues         = []string{string(TerminalNone), string(TerminalSubmit)}
 	RouteValues            = []string{string(RouteNone), string(RouteRespondInspect), string(RouteProgressive)}
 	CatalogValues          = []string{string(CatalogFull), string(CatalogProgressive)}
-	ControlValues          = []string{string(ControlBase), string(ControlBaseNoCall), string(ControlGreeting), string(ControlBare), string(ControlFewShot)}
+	ControlValues          = []string{string(ControlBase), string(ControlBaseNoCall), string(ControlGreeting), string(ControlBare), string(ControlFewShot), string(ControlConcise), string(ControlConcisePaths)}
 	FeedbackValues         = []string{string(FeedbackRaw), string(FeedbackCompressFetch)}
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
 	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36), string(AlignHermes)}

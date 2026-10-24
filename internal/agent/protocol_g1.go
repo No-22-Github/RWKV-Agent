@@ -44,6 +44,9 @@ type G1Protocol struct {
 	// over GreetingExamples; the control axis keeps the two from combining
 	// with the few-shot trajectory block.
 	BareExamples bool
+	// ConciseControl selects the official G1x "Tools:" layout ("concise" or
+	// "concise-paths"); empty keeps the standard control prompt.
+	ConciseControl string
 	// OneStage merges the answer stage into the decision transcript: the
 	// forced-answer preparation appends only the plain-text nudge user turn —
 	// no answer-control system block, no <answer> prefill. The runner still
@@ -113,6 +116,9 @@ func (protocol G1Protocol) Instructions(
 ) string {
 	if protocol.Hermes {
 		return protocol.hermesSystemPrompt(specs)
+	}
+	if protocol.ConciseControl != "" {
+		return protocol.conciseInstructions(specs)
 	}
 	var prompt strings.Builder
 	prompt.WriteString("You are a local-first assistant with " + toolAccessDescription(specs) + ". " + PolicyUntrustedData + "\n")
@@ -440,6 +446,22 @@ func (protocol G1Protocol) renderToolsJSON(specs []ToolSpec) string {
 		appendEntry(protocol.exitName(), "Reply to the user and end the turn. Use it when no tool is needed, when the tool results already contain the answer, or when the task cannot be completed. Put only the final answer in answer.", `{"answer":"the final answer only"}`)
 	}
 	return "[\n" + strings.Join(entries, ",\n") + "\n]"
+}
+
+// conciseInstructions is the official G1x function-calling layout: "Tools:"
+// and the catalog first, then the tool policy and two call rules. There are
+// no examples and no thinking-control sentence.
+func (protocol G1Protocol) conciseInstructions(specs []ToolSpec) string {
+	var prompt strings.Builder
+	prompt.WriteString("Tools:\n" + protocol.renderToolsJSON(specs) + "\n")
+	prompt.WriteString(toolChoiceGuidance(specs, "\n"))
+	if protocol.ConciseControl == string(wire.ControlConcisePaths) && hasToolSpec(specs, "list_files") {
+		prompt.WriteString("File paths are relative to the workspace root. If you do not know a file's exact path, call list_files first instead of guessing.\n")
+	}
+	prompt.WriteString(`To call a tool, output only <tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call> and nothing else.
+Otherwise answer the user directly in plain text.
+` + PolicyUntrustedData + " " + PolicyNoInvention)
+	return prompt.String()
 }
 
 func thinkingControl(mode inference.ThinkingMode) string {
