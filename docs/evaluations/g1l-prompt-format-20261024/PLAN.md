@@ -22,7 +22,7 @@ G1L 预览版（`rwkv-g1l-7b-temp-3797`，无 State / MiSS）在 Agent 场景下
 | `rp` | `agent-wire-v1.0+recover-preamble` | 参照组：接受"一句说明 + 调用"（10-20 已知 +8 点） |
 | `sp` | `rp+gen-space` | 反例：生成点 `Assistant:` 后多一个空格 |
 | `tf` | `rp+think-fast` | 官方"假思考" `Assistant: <think></think` |
-| `tF` | `agent-wire-think-v1.0+recover-preamble` | 完整思考 `Assistant: <think` |
+| `tfull` | `agent-wire-think-v1.0+recover-preamble` | 完整思考 `Assistant: <think` |
 | `mu` | `rp+merge-users` | 连续 User 合并（结果 + 提醒放同一条），贴近官方严格轮替 |
 | `md` | `md-fence-v1+prefill-none` | 官方函数调用写法：`System: Tools:`、```` ```json ```` 围栏、`User: Function output:` |
 | `nn` | `rp+merge-users-no-nudge` | 去掉每步提醒，工具结果直接挨着生成点（补充组，见下） |
