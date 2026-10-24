@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"strings"
+
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
@@ -84,6 +86,9 @@ func (r *Runner) compileStep(input stepPromptInput) (CompiledPrompt, error) {
 			request.Prompt,
 			input.prefix,
 		)
+	}
+	if r.wire.Experiments.GenPoint == "space" && strings.HasSuffix(request.Prompt, "Assistant:") {
+		request.Prompt += " "
 	}
 	tracePrefix := ""
 	if compiled.InjectedPrefix {

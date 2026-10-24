@@ -17,6 +17,7 @@ var overrideSetters = map[string]func(*Spec, string){
 	"nudge":        func(s *Spec, v string) { s.Experiments.Nudge = v },
 	"duplicate":    func(s *Spec, v string) { s.Experiments.Duplicate = v },
 	"answeropen":   func(s *Spec, v string) { s.Experiments.AnswerOpen = v },
+	"genpoint":     func(s *Spec, v string) { s.Experiments.GenPoint = v },
 
 	"format":     func(s *Spec, v string) { s.Format = Format(v) },
 	"transcript": func(s *Spec, v string) { s.Transcript = Transcript(v) },

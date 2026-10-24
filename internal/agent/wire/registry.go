@@ -231,7 +231,11 @@ var modifiers = map[string]func(Spec) Spec{
 	"recover-json":     func(s Spec) Spec { s.Experiments.Recovery = "json"; return s },
 	// tool-role puts aligned tool results on their own Tool: line, the
 	// ShareGPT "tool" turn of Hermes trajectories (experiment toolrole=tool).
-	"tool-role":    func(s Spec) Spec { s.Experiments.ToolRole = "tool"; return s },
+	"tool-role": func(s Spec) Spec { s.Experiments.ToolRole = "tool"; return s },
+	// gen-space appends a space to a bare "Assistant:" generation point, the
+	// tokenization mistake the official G1x templates warn against (experiment
+	// genpoint=space). Negative control only.
+	"gen-space":    func(s Spec) Spec { s.Experiments.GenPoint = "space"; return s },
 	"align-legacy": func(s Spec) Spec { s.Align = AlignLegacy; return s },
 	"one-stage":    func(s Spec) Spec { s.Stages = StagesOne; return s },
 	"two-stage":    func(s Spec) Spec { s.Stages = StagesTwo; return s },
@@ -423,6 +427,8 @@ func setExperiment(e *Experiments, key, value string) {
 		e.AnswerOpen = value
 	case "toolrole":
 		e.ToolRole = value
+	case "genpoint":
+		e.GenPoint = value
 	}
 }
 

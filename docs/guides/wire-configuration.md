@@ -172,11 +172,11 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `dup-continue`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `hermes`, `hermes-think`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-abstain`, `no-nudge`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `recover-json`, `recover-preamble`, `recover-salvage`, `route-progressive`, `route-respond`, `src-hint`, `submit`, `think-fast`, `think-full`, `think-off`, `tool-role`, `two-stage`
+`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `dup-continue`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `gen-space`, `greeting`, `hermes`, `hermes-think`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-abstain`, `no-nudge`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `recover-json`, `recover-preamble`, `recover-salvage`, `route-progressive`, `route-respond`, `src-hint`, `submit`, `think-fast`, `think-full`, `think-off`, `tool-role`, `two-stage`
 
 ## Override keys
 
-`abstain`, `align`, `answeropen`, `catalog`, `control`, `duplicate`, `exit`, `feedback`, `firstcall`, `format`, `history`, `nudge`, `prefill`, `recovery`, `route`, `stages`, `subagent`, `terminal`, `thinkcontrol`, `thinking`, `transcript`, `transport`, `usermsg`
+`abstain`, `align`, `answeropen`, `catalog`, `control`, `duplicate`, `exit`, `feedback`, `firstcall`, `format`, `genpoint`, `history`, `nudge`, `prefill`, `recovery`, `route`, `stages`, `subagent`, `terminal`, `thinkcontrol`, `thinking`, `transcript`, `transport`, `usermsg`
 <!-- END GENERATED: wire-profiles -->
 
 ---
