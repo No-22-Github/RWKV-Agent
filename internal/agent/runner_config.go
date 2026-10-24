@@ -3,6 +3,7 @@ package agent
 import (
 	"errors"
 	"strings"
+	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
@@ -30,7 +31,9 @@ func retryEcho(modelAction string, err error) string {
 	if errors.Is(err, ErrOutputTokenLimit) {
 		return ""
 	}
-	return string(runes[:retryEchoBudget]) + "\n[truncated]"
+	// Trim the cut first: a cut right after a newline would otherwise put a
+	// blank line, the RWKV block separator, inside the Assistant block.
+	return strings.TrimRightFunc(string(runes[:retryEchoBudget]), unicode.IsSpace) + "\n[truncated]"
 }
 
 func directResponseControl(mode inference.ThinkingMode) string {
