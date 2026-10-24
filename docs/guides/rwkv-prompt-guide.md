@@ -94,13 +94,12 @@ Assistant:
 
 ## 4. 思考模式
 
-只有三种合法写法（小写、逐字）：
+用这两种写法（小写、逐字；`<think>\n</think` 已废弃，不要用）：
 
 | 写法 | 用途 |
 | --- | --- |
 | `Assistant: <think` | 完整思考 |
 | `Assistant: <think></think` | 官方"假思考"：快、效果不错 |
-| `Assistant: <think>\n</think` | 同上的另一种写法 |
 
 注意都**不带最后的 `>`**：`></`、`>{`、`>\n` 会合成一个 token，把 `>` 写进 prompt 就把模型推到训练里没见过的边界。
 本仓库 `inference.ThinkBlockFast/Full` 就是按这个规则扣下 `>`，输出后再补回。
