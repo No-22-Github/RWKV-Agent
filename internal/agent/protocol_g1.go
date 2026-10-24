@@ -280,10 +280,15 @@ func toolAccessDescription(specs []ToolSpec) string {
 	return "read-only tools"
 }
 
+const (
+	toolResponseOpen  = "<tool_response>"
+	toolResponseClose = "</tool_response>"
+)
+
 // toolResponseEnvelope wraps a tool-result payload in the aligned tag. The
 // legacy tag lives inline in FormatToolResult and the example strings.
 func (protocol G1Protocol) toolResponseEnvelope(payload string) string {
-	return "<tool_response>" + payload + "</tool_response>"
+	return toolResponseOpen + payload + toolResponseClose
 }
 
 // hermesSystemPromptTemplate is Hermes Agent's _TRAJECTORY_SYSTEM_PROMPT

@@ -311,7 +311,7 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 		// messages; fold every run so at most one consecutive User message
 		// precedes the answer generation. turnMessages (committed history)
 		// keeps the unmerged record; workbank cases are single-turn.
-		turn.messages = foldConsecutiveUserMessages(turn.messages)
+		turn.messages = foldConsecutiveUserMessages(turn.messages, turn.r.options.UserMerge == "lead")
 	}
 	if turn.r.wire.Experiments.AnswerOpen == "answer" {
 		prefix = "<answer>"
@@ -365,7 +365,7 @@ func (turn *runnerTurn) prepareRewriteAnswerStage() error {
 // merged, no-nudge and rewrite variants).
 func (turn *runnerTurn) mergeUsers() bool {
 	switch turn.r.options.UserMerge {
-	case "merged", "no-nudge", "rewrite":
+	case "merged", "no-nudge", "rewrite", "lead":
 		return true
 	default:
 		return false
@@ -387,7 +387,7 @@ func (turn *runnerTurn) appendUserMessage(content string) {
 	if turn.mergeUsers() && len(turn.messages) > 0 {
 		last := &turn.messages[len(turn.messages)-1]
 		if last.Role == RoleUser {
-			last.Content += "\n\n" + content
+			last.Content = joinUserContent(last.Content, content, turn.r.options.UserMerge == "lead")
 			return
 		}
 	}
@@ -425,17 +425,34 @@ func (turn *runnerTurn) appendAssistantReceipt(message Message) {
 }
 
 // foldConsecutiveUserMessages folds every run of consecutive User messages
-// into one, order-preserving and joined by a blank line.
-func foldConsecutiveUserMessages(messages []Message) []Message {
+// into one, joined by a blank line. Order is preserved unless evidenceLast
+// keeps a trailing tool response at the end (see joinUserContent).
+func foldConsecutiveUserMessages(messages []Message, evidenceLast bool) []Message {
 	folded := make([]Message, 0, len(messages))
 	for _, message := range messages {
 		if message.Role == RoleUser && len(folded) > 0 && folded[len(folded)-1].Role == RoleUser {
-			folded[len(folded)-1].Content += "\n\n" + message.Content
+			folded[len(folded)-1].Content = joinUserContent(folded[len(folded)-1].Content, message.Content, evidenceLast)
 			continue
 		}
 		folded = append(folded, message)
 	}
 	return folded
+}
+
+// joinUserContent appends next to a User message. With evidenceLast, a
+// message that ends in a tool response gets next inserted before that
+// response instead, so the evidence stays right before the generation point.
+func joinUserContent(previous, next string, evidenceLast bool) string {
+	if evidenceLast && strings.HasSuffix(strings.TrimSpace(previous), toolResponseClose) {
+		if index := strings.LastIndex(previous, toolResponseOpen); index >= 0 {
+			head := strings.TrimSpace(previous[:index])
+			if head != "" {
+				head += "\n\n"
+			}
+			return head + next + "\n\n" + previous[index:]
+		}
+	}
+	return previous + "\n\n" + next
 }
 
 func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {

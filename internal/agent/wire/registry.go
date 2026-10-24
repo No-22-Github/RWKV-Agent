@@ -244,6 +244,7 @@ var modifiers = map[string]func(Spec) Spec{
 	"merge-users":          func(s Spec) Spec { s.UserMerge = UserMergeMerged; return s },
 	"merge-users-no-nudge": func(s Spec) Spec { s.UserMerge = UserMergeNoNudge; return s },
 	"merge-users-rewrite":  func(s Spec) Spec { s.UserMerge = UserMergeRewrite; return s },
+	"merge-users-lead":     func(s Spec) Spec { s.UserMerge = UserMergeLead; return s },
 
 	"src-hint": func(s Spec) Spec { s.SourceHint = SourceHintOn; return s },
 

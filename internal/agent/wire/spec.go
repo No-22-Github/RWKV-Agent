@@ -200,6 +200,10 @@ const (
 	// back out of the transcript at answer-stage entry and replaces the system
 	// control with a plain no-catalog answer control. Requires stages=one.
 	UserMergeRewrite UserMerge = "rewrite"
+	// UserMergeLead folds like merged but keeps the tool response last: the
+	// nudge and answer instructions are placed before it, so the evidence is
+	// the text right before the Assistant generation point.
+	UserMergeLead UserMerge = "lead"
 )
 
 // SourceHint is the control-prompt information-source locator sentence. The
@@ -454,7 +458,7 @@ func (s Spec) Validate() error {
 		return fail("firstcall.unknown", fmt.Sprintf("unknown first call policy %q", s.FirstCall), "required, auto")
 	}
 	if !known(UserMergeValues, s.UserMerge) {
-		return fail("usermsg.unknown", fmt.Sprintf("unknown user message policy %q", s.UserMerge), "split, merged, no-nudge, rewrite")
+		return fail("usermsg.unknown", fmt.Sprintf("unknown user message policy %q", s.UserMerge), "split, merged, no-nudge, rewrite, lead")
 	}
 	if !known(SourceHintValues, s.SourceHint) {
 		return fail("srchint.unknown", fmt.Sprintf("unknown source hint policy %q", s.SourceHint), "off, on")
@@ -652,6 +656,8 @@ func (s Spec) Short() string {
 		parts = append(parts, "merge-users-no-nudge")
 	case UserMergeRewrite:
 		parts = append(parts, "merge-users-rewrite")
+	case UserMergeLead:
+		parts = append(parts, "merge-users-lead")
 	}
 	add(s.SourceHint != base.SourceHint, "src-hint")
 	if !s.Loop.Zero() {
@@ -687,7 +693,7 @@ var (
 	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36), string(AlignHermes)}
 	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
 	FirstCallValues        = []string{string(FirstCallRequired), string(FirstCallAuto)}
-	UserMergeValues        = []string{string(UserMergeSplit), string(UserMergeMerged), string(UserMergeNoNudge), string(UserMergeRewrite)}
+	UserMergeValues        = []string{string(UserMergeSplit), string(UserMergeMerged), string(UserMergeNoNudge), string(UserMergeRewrite), string(UserMergeLead)}
 	SourceHintValues       = []string{string(SourceHintOff), string(SourceHintOn)}
 )
 
