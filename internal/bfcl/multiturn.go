@@ -846,7 +846,9 @@ func routeMultiTurn(ctx context.Context, transcript []multiTurnTranscript, entry
 		}
 		prompt += message.Role + ": " + content + "\n"
 	}
-	prompt += "Assistant: "
+	// The generation point carries no trailing space: ":" and " " are separate
+	// tokens, and a trailing " " forces a first word without its leading space.
+	prompt += "Assistant:"
 	var events []MultiTurnEvent
 	for attempt := 0; attempt <= options.RouteRetries; attempt++ {
 		completion, err := options.Generator.Continue(ctx, continuation.Request{Model: options.Model, Prompt: prompt, MaxOutputTokens: options.RouteMaxTokens, Stops: protocol.Stops(), Sampling: continuation.Sampling{Temperature: options.Temperature, TopK: 1, TopP: 1, PenaltyDecay: 1}}, nil)
@@ -874,7 +876,7 @@ func routeMultiTurn(ctx context.Context, transcript []multiTurnTranscript, entry
 			return narrowed, string(decision.Route), attempt + 1, events, nil
 		}
 		events = append(events, MultiTurnEvent{Kind: "route_retry", Turn: turn, Reason: parseErr.Error(), Retry: attempt + 1, Generated: strings.TrimSpace(completion.Text)})
-		prompt += completion.Text + "\nUser: " + protocol.Correction(parseErr, bundles) + "\nAssistant: "
+		prompt += completion.Text + "\nUser: " + protocol.Correction(parseErr, bundles) + "\nAssistant:"
 	}
 	return nil, "", options.RouteRetries + 1, events, fmt.Errorf("BFCL multi-turn route retries exhausted")
 }
