@@ -90,6 +90,7 @@
   --animate-menu-down-in: menu-down-in .16s cubic-bezier(.2, 0, 0, 1) both;
   --animate-sheet-in: sheet-in .2s cubic-bezier(.2, 0, 0, 1) both;
   --animate-toast-in: toast-in .24s cubic-bezier(.2, 0, 0, 1) both;
+  --animate-toast-result: toast-result .2s ease-out both;
   --animate-toast-out: toast-out .16s ease-in both;
   --animate-toast-progress: toast-progress 4s linear forwards;
   --animate-fade-in: stream-fade .16s ease-out both;
@@ -105,6 +106,7 @@
   @keyframes sheet-in { from { opacity: 0; transform: translateY(8px) scale(.985); } }
   @keyframes toast-in { from { opacity: 0; transform: translateY(8px) scale(.97); } }
   @keyframes toast-out { to { opacity: 0; transform: translateX(12px); } }
+  @keyframes toast-result { from { opacity: 0; transform: translateY(3px); } }
   @keyframes toast-progress { to { transform: scaleX(0); } }
   @keyframes wordmark-blink { 50% { opacity: 0; } }
   @keyframes stream-fade { from { opacity: 0; } }

@@ -148,7 +148,7 @@ export default function App() {
       setActivity((current) => [...current, { ...data, at: Date.now() }])
     })
     // 后端给用户的提示（例如记住的 State 已被服务端清空、这次没用上）。
-    const offNotice = Events.On('app:notice', (event) => notify(String(event.data ?? ''), 'info'))
+    const offNotice = Events.On('app:notice', (event) => notify(String(event.data ?? ''), 'warning'))
     const offChanges = Events.On('workspace:changes', (event) => setFileChanges((event.data || []) as FileChange[]))
     const offChangesError = Events.On('workspace:changes-error', (event) => reportError(event.data))
     void Backend.FileChanges().then(setFileChanges).catch(reportError)
@@ -209,17 +209,24 @@ export default function App() {
   async function activateProviderNow(id: string) {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
-    try { await manager.activateProvider(id) } catch (error) { reportError(error) } finally { setBusy(false) }
+    try { await manager.activateProvider(id) } catch { /* manager 已通知 */ } finally { setBusy(false) }
   }
   async function toggleCapabilityNow(key: 'enableWeb' | 'enableSubagents', value: boolean) {
     if (busy) return
     setBusy(true)
-    try { await patchAgentSettings({ [key]: value }); await manager.refreshProviders() } catch (error) { reportError(error) } finally { setBusy(false) }
+    const name = key === 'enableWeb' ? '网页搜索' : '子 Agent'
+    const toast = { key: `capability-${key}` }
+    notify(`正在${value ? '开启' : '关闭'}${name}…`, 'loading', toast)
+    try {
+      await patchAgentSettings({ [key]: value })
+      await manager.refreshProviders()
+      notify(`${name}已${value ? '开启' : '关闭'}，所有连接下一轮生效`, 'success', toast)
+    } catch (error) { notify(`${name}设置失败：${errorText(error)}`, 'error', toast) } finally { setBusy(false) }
   }
   async function setFormatNow(presetId: string) {
     if (busy) return
     setBusy(true)
-    try { await manager.setRuntimeFormat(presetId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
+    try { await manager.setRuntimeFormat(presetId) } finally { setBusy(false) }
   }
   // 导出当前会话所有轮次的原始 trace，每行一轮（JSONL）。
   async function exportTrajectory() {
@@ -235,22 +242,22 @@ export default function App() {
   async function setStateNow(stateId: string) {
     if (busy) return
     setBusy(true)
-    try { await manager.setRuntimeState(stateId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
+    try { await manager.setRuntimeState(stateId) } finally { setBusy(false) }
   }
   async function unloadModelNow() {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
-    try { await manager.unloadModel() } catch (error) { reportError(error) } finally { setBusy(false) }
+    try { await manager.unloadModel() } catch { /* manager 已通知 */ } finally { setBusy(false) }
   }
   async function setAdapterNow(adapterId: string) {
     if (busy) return
     setBusy(true)
-    try { await manager.setRuntimeAdapter(adapterId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
+    try { await manager.setRuntimeAdapter(adapterId) } finally { setBusy(false) }
   }
   async function deleteProviderNow(id: string) {
     if (busy) return
     setBusy(true)
-    try { await manager.deleteProvider(id) } catch (error) { reportError(error) } finally { setBusy(false) }
+    try { await manager.deleteProvider(id) } catch { /* manager 已通知 */ } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
     liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0)

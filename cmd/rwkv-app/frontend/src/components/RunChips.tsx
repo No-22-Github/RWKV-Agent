@@ -170,13 +170,13 @@ type ChipProps = { config: Config; current: string; busy: boolean; onSelect: (id
 
 /** State 标签：点开列出部署上的 State，选中即对运行中的连接生效。 */
 function StateChip(props: ChipProps) {
-  return <RemotePickerChip {...props} icon={<Layers size={13} className="flex-none" />} kind="State" noneLabel="不使用 State" chipNone="无 State" manageLabel="上传或管理 State…" searchPlaceholder="搜索名称或 State ID…"
+  return <RemotePickerChip {...props} icon={<Layers size={13} className="flex-none" />} kind="State" noneLabel="恢复默认状态" chipNone="默认状态" manageLabel="上传或管理 State…" searchPlaceholder="搜索名称或 State ID…"
     load={async (config) => ((await Backend.ListStates(config)).states || []).map((entry) => ({ id: entry.id, label: entry.filename && entry.filename !== entry.id ? entry.filename : entry.id, hint: entry.filename && entry.filename !== entry.id ? entry.id : undefined }))} />
 }
 
 /** MiSS 适配器标签：和 State 并列、互不影响；选中即对运行中的连接生效。 */
 function AdapterChip(props: ChipProps) {
-  return <RemotePickerChip {...props} icon={<Puzzle size={13} className="flex-none" />} kind="MiSS 适配器" noneLabel="基模（不使用适配器）" chipNone="基模" manageLabel="注册或管理适配器…" searchPlaceholder="搜索适配器 ID…"
+  return <RemotePickerChip {...props} icon={<Puzzle size={13} className="flex-none" />} kind="MiSS 适配器" noneLabel="恢复基模（不使用 MiSS）" chipNone="基模" manageLabel="注册或管理适配器…" searchPlaceholder="搜索适配器 ID…"
     load={async (config) => ((await Backend.ListAdapters(config)).adapters || []).map((entry) => ({ id: entry.id, label: entry.id, hint: [entry.rank ? `rank ${entry.rank}` : '', entry.version ? entry.version.slice(0, 8) : ''].filter(Boolean).join(' · ') || undefined }))} />
 }
 

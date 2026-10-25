@@ -174,7 +174,7 @@ func (s *AppService) verifyAdapterAvailable(ctx context.Context, config agentapi
 	defer cancel()
 	adapters, err := s.currentService().ListAdapters(ctx, config)
 	if errors.Is(err, agentapi.ErrAdaptersUnsupported) {
-		return fmt.Errorf("%w；已选的适配器 %s 用不上，请改回基模或换一台支持 MiSS 的部署", adapterError(err), id)
+		return fmt.Errorf("%w；已选的适配器 %s 用不上，请恢复基模或换一台支持 MiSS 的部署", adapterError(err), id)
 	}
 	if err != nil {
 		return nil
@@ -184,7 +184,7 @@ func (s *AppService) verifyAdapterAvailable(ctx context.Context, config agentapi
 			return nil
 		}
 	}
-	return fmt.Errorf("MiSS 适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的 MiSS 分组里重新上传，或改回基模", id)
+	return fmt.Errorf("MiSS 适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的 MiSS 分组里重新上传，或恢复基模", id)
 }
 
 // runtimeAdapterID is the MiSS adapter the running provider generates with.

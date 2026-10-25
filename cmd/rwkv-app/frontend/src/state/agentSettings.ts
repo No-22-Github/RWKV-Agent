@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AgentSettings } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
+import { useSnackbar } from '../snackbar'
 import type { SaveState } from './providerManager'
 import { matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
 
@@ -13,6 +14,7 @@ const AUTOSAVE_DELAY_MS = 600
  * 挂在 App 上而不是设置页里，关掉设置时还在防抖中的改动照样会存下去。
  */
 export function useAgentSettings(open: boolean) {
+  const { show: notify } = useSnackbar()
   const [value, setValue] = useState(() => new AgentSettings())
   const [loaded, setLoaded] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' })
@@ -50,8 +52,12 @@ export function useAgentSettings(open: boolean) {
         .then(() => {
           savedRef.current = signature
           setSaveState({ kind: 'saved', message: '已保存，下一轮对话生效' })
+          notify('Agent 设置已保存，所有连接下一轮生效', 'success', { key: 'agent-settings' })
         })
-        .catch((error) => setSaveState({ kind: 'error', message: `保存失败：${errorText(error)}` }))
+        .catch((error) => {
+          setSaveState({ kind: 'error', message: `保存失败：${errorText(error)}` })
+          notify(`Agent 设置保存失败：${errorText(error)}`, 'error', { key: 'agent-settings' })
+        })
     }, AUTOSAVE_DELAY_MS)
     return () => clearTimeout(timer)
   }, [value, loaded])

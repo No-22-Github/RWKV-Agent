@@ -232,13 +232,18 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       setSaveState({ kind: 'saving', message: reconnect ? '正在应用…' : '正在自动保存…' })
       try {
         await Backend.SaveProvider(id, label, config)
-        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, config))
+        if (reconnect) {
+          await notifyOperation('apply-provider', '正在应用连接更改…', '连接更改已生效', async () => {
+            onStatus(await Backend.ConfigureProvider(id, label, config))
+          })
+        }
         snapshotRef.current = signature
         snapshotConfigRef.current = configSignature(config)
         failedSignatureRef.current = ''
         setDraftSnapshot(signature)
         const value = await refreshProviders()
         const outdated = Boolean(value?.runtimeOutdated && value.runtimeProviderId === id)
+        if (!reconnect) notify(outdated ? '连接更改已保存，重新加载模型后生效' : '连接档案已保存', outdated ? 'warning' : 'success', { key: 'apply-provider' })
         setSaveState({
           kind: 'saved',
           message: reconnect ? '已自动生效' : outdated ? '已自动保存；重新加载模型后生效' : '已自动保存',
@@ -247,6 +252,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       } catch (reason) {
         failedSignatureRef.current = signature
         setSaveState({ kind: 'error', message: `保存失败：${errorText(reason)}` })
+        notify(`连接更改未完成：${errorText(reason)}`, 'error', { key: 'apply-provider' })
         return false
       }
     })()
@@ -401,24 +407,44 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     }
   }
 
-  /** 切换运行中连接的 State（仅 Lightning CUDA）；空串表示不使用 State。记在这个连接上。 */
+  async function notifyOperation<T>(key: string, pending: string, success: string, operation: () => Promise<T>): Promise<T> {
+    notify(pending, 'loading', { key })
+    try {
+      const result = await operation()
+      notify(success, 'success', { key })
+      return result
+    } catch (error) {
+      notify(`${pending.replace(/^正在/, '').replace(/…$/, '')}失败：${errorText(error)}`, 'error', { key })
+      throw error
+    }
+  }
+
+  /** 切换运行中连接的 State（仅 Lightning CUDA）；空串表示使用默认状态。记在这个连接上。 */
   async function setRuntimeState(stateId: string) {
-    onStatus(await Backend.SetRuntimeState(stateId))
-    await refreshProviders()
+    await notifyOperation('runtime-state', stateId ? '正在使用 State…' : '正在停用 State…',
+      stateId ? `已使用 State：${stateId}` : '已恢复默认状态', async () => {
+        onStatus(await Backend.SetRuntimeState(stateId))
+        await refreshProviders()
+      })
   }
 
   /** 切换运行中连接的 MiSS 适配器（仅 Lightning CUDA）；空串表示用基模本身的权重。记在这个连接上。 */
   async function setRuntimeAdapter(adapterId: string) {
-    onStatus(await Backend.SetRuntimeAdapter(adapterId))
-    await refreshProviders()
+    await notifyOperation('runtime-adapter', adapterId ? '正在使用 MiSS 适配器…' : '正在停用 MiSS 适配器…',
+      adapterId ? `已使用 MiSS 适配器：${adapterId}` : '已恢复基模', async () => {
+        onStatus(await Backend.SetRuntimeAdapter(adapterId))
+        await refreshProviders()
+      })
   }
 
   /** 切换运行中连接的对话格式：不重连、本地模型也不重新加载，下一轮生效；记在这个连接上。 */
   async function setRuntimeFormat(presetId: string) {
     const preset = formatPresetById(presetId)
     if (!preset) return
-    onStatus(await Backend.SetRuntimeFormat(formatSelection(preset, runtimeConfig?.wire || '')))
-    await refreshProviders()
+    await notifyOperation('runtime-format', '正在切换对话格式…', `已切换为${preset.short}格式，下一轮对话生效`, async () => {
+      onStatus(await Backend.SetRuntimeFormat(formatSelection(preset, runtimeConfig?.wire || '')))
+      await refreshProviders()
+    })
   }
 
   /*
@@ -429,36 +455,44 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const adapterId = draftIsRunning ? runtimeConfig?.adapterId || '' : ''
   function setStateId(id: string) {
     if (!draftIsRunning) return
-    void setRuntimeState(id).catch((error) => notify(errorText(error), 'error'))
+    void setRuntimeState(id).catch(() => { /* notifyOperation 已报告失败。 */ })
   }
   function setAdapterId(id: string) {
     if (!draftIsRunning) return
-    void setRuntimeAdapter(id).catch((error) => notify(errorText(error), 'error'))
+    void setRuntimeAdapter(id).catch(() => { /* notifyOperation 已报告失败。 */ })
   }
 
   /* 释放当前运行的模型：本地模型卸载权重、归还内存；档案保留，可以再加载。 */
   async function unloadModel() {
     setSettingsBusy(true)
     try {
-      onStatus(await Backend.UnloadModel())
-      await refreshProviders()
-      if (settingsOpen) notify('模型已释放，内存已归还；档案保留，需要时再加载。', 'success')
+      const local = runtimeConfig?.provider === Provider.ProviderLocal
+      await notifyOperation('unload-provider', local ? '正在释放模型…' : '正在断开连接…',
+        local ? '模型已释放；连接档案已保留' : '已断开连接；连接档案已保留', async () => {
+          onStatus(await Backend.UnloadModel())
+          await refreshProviders()
+        })
     } catch (error) {
       if (!settingsOpen) throw error
-      notify(errorText(error), 'error')
     } finally {
       setSettingsBusy(false)
     }
   }
 
   async function activateProvider(id: string) {
-    const configured = await Backend.ActivateProvider(id)
-    onStatus(configured)
-    await refreshProviders()
+    const provider = providers.find((item) => item.id === id)
+    const local = provider?.config.provider === Provider.ProviderLocal
+    await notifyOperation('activate-provider', local ? '正在加载本地模型…' : '正在切换连接…',
+      `已${local ? '加载' : '切换到'}：${provider?.label || provider?.config.model || '所选连接'}`, async () => {
+        const configured = await Backend.ActivateProvider(id)
+        onStatus(configured)
+        await refreshProviders()
+      })
   }
 
   async function deleteProvider(id: string) {
-    const value = await Backend.DeleteProvider(id)
+    const name = providers.find((item) => item.id === id)?.label || '所选连接'
+    const value = await notifyOperation('delete-provider', '正在删除连接档案…', `已删除连接档案：${name}`, () => Backend.DeleteProvider(id))
     applyProviderBootstrapState(value)
     if (settingsOpen && id === editingProviderId) {
       const next = value.providers.find((provider) => provider.id === value.runtimeProviderId)

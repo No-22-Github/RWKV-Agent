@@ -32,7 +32,7 @@ it('stacks at most four toasts, dropping the oldest, and does not repeat the sam
   act(() => { for (const text of ['一', '二', '三', '四', '五']) show(text) })
   act(() => show('五'))
   expect(screen.queryByText('一')).not.toBeInTheDocument()
-  expect(screen.getAllByRole('status').map((item) => item.textContent)).toEqual(['二', '三', '四', '五'])
+  expect(screen.getAllByRole('status').map((item) => item.textContent)).toEqual(['提示二', '提示三', '提示四', '提示五'])
 })
 
 it('keeps an error up while hovered and closes it from its button', () => {
@@ -44,4 +44,30 @@ it('keeps an error up while hovered and closes it from its button', () => {
   fireEvent.click(screen.getByRole('button', { name: '关闭通知' }))
   act(() => { vi.advanceTimersByTime(200) })
   expect(screen.queryByText('保存失败')).not.toBeInTheDocument()
+})
+
+
+it('pauses the remaining timeout while the close button has keyboard focus', () => {
+  act(() => show('State 已使用', 'success'))
+  act(() => { vi.advanceTimersByTime(1000) })
+  fireEvent.focus(screen.getByRole('button', { name: '关闭通知' }))
+  act(() => { vi.advanceTimersByTime(20000) })
+  expect(screen.getByText('State 已使用')).toBeInTheDocument()
+  fireEvent.blur(screen.getByRole('button', { name: '关闭通知' }))
+  act(() => { vi.advanceTimersByTime(2999) })
+  expect(screen.getByText('State 已使用')).toBeInTheDocument()
+  act(() => { vi.advanceTimersByTime(1) })
+  act(() => { vi.advanceTimersByTime(200) })
+  expect(screen.queryByText('State 已使用')).not.toBeInTheDocument()
+})
+
+it('restarts a replaced toast after its previous message began exiting', () => {
+  act(() => show('旧结果', 'success', { key: 'operation' }))
+  act(() => { vi.advanceTimersByTime(4000) })
+  act(() => show('新结果', 'success', { key: 'operation' }))
+  act(() => { vi.advanceTimersByTime(200) })
+  expect(screen.getByText('新结果')).toBeInTheDocument()
+  act(() => { vi.advanceTimersByTime(3800) })
+  act(() => { vi.advanceTimersByTime(200) })
+  expect(screen.queryByText('新结果')).not.toBeInTheDocument()
 })

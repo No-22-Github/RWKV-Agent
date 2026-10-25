@@ -7,6 +7,7 @@ import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-
 import ConfirmDialog from '../ConfirmDialog'
 import { Button } from './ui'
 import { MissingCurrent, ServerFiles } from './ServerFiles'
+import { useSnackbar } from '../../snackbar'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -25,7 +26,15 @@ export default function StateSection({ manager }: Props) {
   const [listing, setListing] = useState<StateListing | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const { show: notify } = useSnackbar()
+  const actionToast = { key: 'upload-state' }
+  function reportError(reason: unknown) {
+    setError(errorText(reason))
+    notify(errorText(reason), 'error', actionToast)
+  }
+  function notifySuccess(message: string) {
+    if (message) notify(message, 'success', actionToast)
+  }
   const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
   const requestRef = useRef(0)
@@ -72,7 +81,7 @@ export default function StateSection({ manager }: Props) {
     if (picked.kind === 'path' && !picked.path) return
     setUploading({ name: picked.name, percent: 0 })
     setError('')
-    setNotice('')
+    notify('正在上传 State…', 'loading', actionToast)
     try {
       const entry = picked.kind === 'path'
         ? await Backend.UploadState(config, picked.path)
@@ -81,11 +90,13 @@ export default function StateSection({ manager }: Props) {
         // 旧 id 已随服务端重启失效，只清本机记录，不再请求服务器。
         await Backend.DeleteState(config, replacing, false).catch(() => undefined)
       }
-      if (!replacing || manager.stateId === replacing) manager.setStateId(entry.id)
-      setNotice(replacing ? `已重新上传，新 State：${entry.id}` : `上传完成并已选用：${entry.id}`)
+      notifySuccess(`State 已${replacing ? '重新' : ''}上传：${entry.id}`)
+      if (manager.draftIsRunning && (!replacing || manager.stateId === replacing)) {
+        await manager.setRuntimeState(entry.id).catch(() => { /* 应用结果已由 manager 通知；上传列表仍需刷新。 */ })
+      }
       await refresh()
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     } finally {
       setUploading(null)
     }
@@ -96,7 +107,7 @@ export default function StateSection({ manager }: Props) {
       const picked = await pickLocalFile(manager.browserUploads, Backend.ChooseStateFile)
       if (picked) await upload(picked)
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     }
   }
 
@@ -108,10 +119,10 @@ export default function StateSection({ manager }: Props) {
     try {
       await Backend.DeleteState(config, entry.id, serverSide)
       if (serverSide && manager.stateId === entry.id) manager.setStateId('')
-      setNotice(serverSide ? `已从服务器删除 ${entry.id}` : `已忘记 ${entry.id} 的本机记录`)
+      notifySuccess(serverSide ? `已从服务器删除 ${entry.id}` : `已忘记 ${entry.id} 的本机记录`)
       await refresh()
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     }
   }
 
@@ -141,14 +152,14 @@ export default function StateSection({ manager }: Props) {
             {currentRecord?.localAvailable && currentRecord.localPath && (
               <Button variant="primary" size="sm" icon={<RotateCcw size={12} />} disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>重新上传 {baseName(currentRecord.localPath)}</Button>
             )}
-            <Button size="sm" onClick={() => manager.setStateId('')}>改回零状态</Button>
+            <Button size="sm" onClick={() => manager.setStateId('')}>恢复默认状态</Button>
           </>}>正在用的 State 已不在服务器上（服务端重启会清空），连接时会被拒绝。</MissingCurrent>
         )}
         onUse={manager.setStateId}
         onDelete={(id) => { const entry = states.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: true }) }}
         onReupload={(id) => { const entry = missing.find((item) => item.id === id); if (entry?.localPath) void upload(entry.localPath, entry.id) }}
         onForget={(id) => { const entry = missing.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: false }) }}
-        upload={{ ready: endpointReady, busy, loading, uploading, error, notice, onUpload: () => void chooseAndUpload(), onRefresh: () => void refresh() }}
+        upload={{ ready: endpointReady, busy, loading, uploading, error, notice: '', onUpload: () => void chooseAndUpload(), onRefresh: () => void refresh() }}
       />
 
       <ConfirmDialog

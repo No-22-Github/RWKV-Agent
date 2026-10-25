@@ -47,6 +47,8 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   ActivateProvider: vi.fn(),
   SetRuntimeFormat: vi.fn(),
   SetRuntimeState: vi.fn(),
+  ListStates: vi.fn().mockResolvedValue({ states: [{ id: 'state-1', filename: 'test.pth' }] }),
+  ListAdapters: vi.fn().mockResolvedValue({ adapters: [{ id: 'miss-1' }] }),
   SetRuntimeAdapter: vi.fn(),
   DeleteProvider: vi.fn(),
   ListRemoteModels: vi.fn(),
@@ -711,6 +713,38 @@ describe('App', () => {
 
     await waitFor(() => expect(Backend.ActivateProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
+    expect(await screen.findByText('已切换到：Solo connection')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['State', '默认状态', 'test.pth', 'state-1', 'SetRuntimeState'],
+    ['MiSS 适配器', '基模', 'miss-1', 'miss-1', 'SetRuntimeAdapter'],
+  ] as const)('notifies %s only after the backend confirms applying it', async (noun, chip, option, id, method) => {
+    bootstrapWithRunningProvider()
+    let resolve!: (value: Status) => void
+    vi.mocked(Backend[method]).mockReturnValue(new Promise<Status>((done) => { resolve = done }) as ReturnType<typeof Backend.SetRuntimeState>)
+    renderApp()
+    await waitRuntimeReady()
+    fireEvent.click(screen.getByRole('button', { name: chip }))
+    fireEvent.click(await screen.findByRole('option', { name: new RegExp(option) }))
+    expect(await screen.findByText(`正在使用 ${noun}…`)).toBeInTheDocument()
+    expect(screen.queryByText(`已使用 ${noun}：${id}`)).not.toBeInTheDocument()
+    await act(async () => resolve(new Status({ state: ModelState.ModelReady })))
+    expect(await screen.findByText(`已使用 ${noun}：${id}`)).toBeInTheDocument()
+    expect(screen.queryByText(`正在使用 ${noun}…`)).not.toBeInTheDocument()
+  })
+
+  it('replaces a failed connection notification without claiming success', async () => {
+    const provider = savedRemoteProvider({}, { id: 'p1', label: 'Broken connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ providers: [provider], activeProviderId: provider.id }))
+    vi.mocked(Backend.ActivateProvider).mockRejectedValue(new Error('服务器不可用'))
+    renderApp()
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
+    fireEvent.click(screen.getByTitle('连接到此 Provider'))
+    expect(await screen.findByRole('alert')).toHaveTextContent('切换连接失败：服务器不可用')
+    expect(screen.queryByText('正在切换连接…')).not.toBeInTheDocument()
+    expect(screen.queryByText('已切换到：Broken connection')).not.toBeInTheDocument()
   })
 
   it('closes the run config dropdown when its chip is clicked again', async () => {
@@ -739,6 +773,7 @@ describe('App', () => {
     await waitFor(() => expect(Backend.SaveAgentSettings).toHaveBeenCalledOnce())
     // 只改这一项，其余共用设置原样存回去。
     expect(lastAgentSave()).toMatchObject({ enableWeb: false, enableSubagents: true, braveApiKey: 'kept' })
+    expect(await screen.findByText('网页搜索已关闭，所有连接下一轮生效')).toBeInTheDocument()
     expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
     expect(Backend.SaveProvider).not.toHaveBeenCalled()
   })

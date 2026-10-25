@@ -7,6 +7,7 @@ import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-
 import ConfirmDialog from '../ConfirmDialog'
 import { Button, TextInput } from './ui'
 import { MissingCurrent, ServerFiles } from './ServerFiles'
+import { useSnackbar } from '../../snackbar'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
 type Props = { manager: ProviderManager }
@@ -28,7 +29,15 @@ export default function AdapterSection({ manager }: Props) {
   const [listing, setListing] = useState<AdapterListing | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const { show: notify } = useSnackbar()
+  const actionToast = { key: 'upload-adapter' }
+  function reportError(reason: unknown) {
+    setError(errorText(reason))
+    notify(errorText(reason), 'error', actionToast)
+  }
+  function notifySuccess(message: string) {
+    if (message) notify(message, 'success', actionToast)
+  }
   const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null)
   const [pending, setPending] = useState<PendingUpload | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
@@ -76,17 +85,17 @@ export default function AdapterSection({ manager }: Props) {
     if (!trimmedID || (picked.kind === 'path' && !picked.path)) return
     setUploading({ name: picked.name, percent: 0 })
     setError('')
-    setNotice('')
+    notify('正在上传 MiSS 适配器…', 'loading', actionToast)
     try {
       const entry = picked.kind === 'path'
         ? await Backend.UploadAdapter(config, trimmedID, picked.path)
         : await Backend.UploadBrowserAdapter(config, trimmedID, await stageBrowserFile(picked.file))
-      manager.setAdapterId(entry.id)
       setPending(null)
-      setNotice(`上传完成并已选用：${entry.id}${entry.version ? `（版本 ${shortVersion(entry.version)}）` : ''}`)
+      notifySuccess(`MiSS 适配器已上传：${entry.id}${entry.version ? `（版本 ${shortVersion(entry.version)}）` : ''}`)
+      if (manager.draftIsRunning) await manager.setRuntimeAdapter(entry.id).catch(() => { /* 应用结果已由 manager 通知；上传列表仍需刷新。 */ })
       await refresh()
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     } finally {
       setUploading(null)
     }
@@ -97,7 +106,7 @@ export default function AdapterSection({ manager }: Props) {
       const picked = await pickLocalFile(manager.browserUploads, Backend.ChooseAdapterFile)
       if (picked) setPending({ file: picked, id: suggestID(picked.kind === 'path' ? picked.path : picked.name) })
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     }
   }
 
@@ -109,10 +118,10 @@ export default function AdapterSection({ manager }: Props) {
     try {
       await Backend.DeleteAdapter(config, entry.id, serverSide)
       if (serverSide && manager.adapterId === entry.id) manager.setAdapterId('')
-      setNotice(serverSide ? `已从服务器删除 ${entry.id}` : `已忘记 ${entry.id} 的本机记录`)
+      notifySuccess(serverSide ? `已从服务器删除 ${entry.id}` : `已忘记 ${entry.id} 的本机记录`)
       await refresh()
     } catch (reason) {
-      setError(errorText(reason))
+      reportError(reason)
     }
   }
 
@@ -142,14 +151,14 @@ export default function AdapterSection({ manager }: Props) {
             {currentRecord?.localAvailable && currentRecord.localPath && (
               <Button variant="primary" size="sm" icon={<RotateCcw size={12} />} disabled={busy} onClick={() => void upload(currentRecord.id, currentRecord.localPath!)}>重新上传 {baseName(currentRecord.localPath)}</Button>
             )}
-            <Button size="sm" onClick={() => manager.setAdapterId('')}>改回基模</Button>
+            <Button size="sm" onClick={() => manager.setAdapterId('')}>恢复基模</Button>
           </>}>正在用的适配器已不在服务器上（服务端重启会清空），连接时会被拒绝。</MissingCurrent>
         )}
         onUse={manager.setAdapterId}
         onDelete={(id) => { const entry = adapters.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: true }) }}
         onReupload={(id) => { const entry = missing.find((item) => item.id === id); if (entry?.localPath) void upload(entry.id, entry.localPath) }}
         onForget={(id) => { const entry = missing.find((item) => item.id === id); if (entry) setPendingDelete({ entry, serverSide: false }) }}
-        upload={{ ready: endpointReady, busy, loading, uploading, error, notice, onUpload: () => void chooseFile(), onRefresh: () => void refresh() }}
+        upload={{ ready: endpointReady, busy, loading, uploading, error, notice: '', onUpload: () => void chooseFile(), onRefresh: () => void refresh() }}
       />
       {pending && !uploading && (
         <div className="mt-[10px] border-t border-line-soft pt-[10px]">

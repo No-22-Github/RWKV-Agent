@@ -24,7 +24,7 @@ it('keeps a long menu within available space and searches filenames and IDs', as
   expect(screen.getByText('Model-79.pth')).toBeInTheDocument()
   fireEvent.change(input, { target: { value: 'missing' } })
   expect(screen.getByText('没有匹配的 State')).toBeInTheDocument()
-  expect(screen.getByText('不使用 State')).toBeInTheDocument()
+  expect(screen.getByText('恢复默认状态')).toBeInTheDocument()
   fireEvent.change(input, { target: { value: 'state-42' } })
   fireEvent.mouseDown(screen.getByText('Model-42.pth'))
   fireEvent.click(screen.getByText('Model-42.pth'))

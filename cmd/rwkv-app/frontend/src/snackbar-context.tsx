@@ -42,7 +42,7 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
   return (
     <SnackbarContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-[18px] right-[18px] z-[1100] flex w-[min(340px,calc(100vw-36px))] flex-col items-stretch gap-[8px]" aria-live="polite">
+      <div className="pointer-events-none fixed bottom-[18px] right-[18px] z-[1100] flex w-[min(360px,calc(100vw-36px))] flex-col items-stretch gap-[8px]" aria-live="polite">
         {toasts.map((toast) => <Snackbar key={toast.id} toast={toast} onClose={remove} />)}
       </div>
     </SnackbarContext.Provider>

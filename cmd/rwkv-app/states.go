@@ -189,7 +189,7 @@ func (s *AppService) verifyStateAvailable(ctx context.Context, config agentapi.C
 			return nil
 		}
 	}
-	return fmt.Errorf("State %s 已不在服务器上（服务端重启会清空已上传的 State）。请在连接设置的 State 分组里重新上传，或改回零状态", id)
+	return fmt.Errorf("State %s 已不在服务器上（服务端重启会清空已上传的 State）。请在连接设置的 State 分组里重新上传，或恢复默认状态", id)
 }
 
 func (s *AppService) currentService() *agentapi.Service {
