@@ -91,7 +91,7 @@
 | 文档或证据 | 结论定位 |
 | --- | --- |
 | [`docs/workbank/reports/state-steps-vs-capability-20260921.md`](docs/workbank/reports/state-steps-vs-capability-20260921.md) | **主报告**：三轮 state 训练（37 行 / 700 行共 20 个评测点）的「训练步数 → 状态幅度 → 能力」曲线；结论：跨轮决定成败的是状态漂移幅度（RMS ≥0.84 全 0/40，0.13–0.18 才可用），且"焊接首步"与"能力"解耦 |
-| [`docs/workbank/reports/state-final-round-20260920.md`](docs/workbank/reports/state-final-round-20260920.md) | 单轮完整记录：state-final 1/40 vs 零 state 3/40、网页偏置归因（非数据偏向）、多步段提醒缺口、`nudge=none` 消融、A/A2/B 三批 state 体检、高分轮轨迹体检、DeepSeek 既有成绩对照 |
+| [`docs/workbank/reports/state-final-round-20260920.md`](docs/workbank/reports/state-final-round-20260920.md) | 单轮完整记录：state-final 1/40 vs 默认状态 3/40、网页偏置归因（非数据偏向）、多步段提醒缺口、`nudge=none` 消融、A/A2/B 三批 state 体检、高分轮轨迹体检、DeepSeek 既有成绩对照 |
 | [`bench/workbank/reports-data/state-step-vs-capability-20260921.json`](bench/workbank/reports-data/state-step-vs-capability-20260921.json) | 20 个评测点的机器可读曲线数据（RMS / 通过 / 协议有效 / canary / 焊接率） |
 | [`bench/workbank/reports-data/state-passing-trajectories-20260921.json`](bench/workbank/reports-data/state-passing-trajectories-20260921.json) | 29 道通过题的工具序列与绕路 delta（对语料参考轨迹） |
 | `local/bin/rwkv-lab state sanity` | state 幅度闸门：直接解析 bf16 张量，三档 ok ≤0.05 / WARN ≤2.0 / FAIL >2.0 或含 NaN/Inf（原 Python 实现，见 [removed-tools](docs/archive/removed-tools.md)） |

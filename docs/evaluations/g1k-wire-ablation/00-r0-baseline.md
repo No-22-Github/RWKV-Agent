@@ -14,7 +14,7 @@ wire 原封不动跑 bfcl-product 60 题三遍，拿三类拆项分数和三遍�
   与 api-7b 同样只能 `none`，停止全靠客户端截断）
 - `--suite bfcl-product --profile xml-v1`（canonical
   `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;...`）
-- 无 state（基模零状态）；`--case-parallelism 60`；二进制在 HEAD f87c89f 重编
+- 无 state（基模、默认状态）；`--case-parallelism 60`；二进制在 HEAD f87c89f 重编
 - 产物：`runs/ablation-g1k/r0-baseline-run{1,2,3}`；分析脚本 `scripts/ablation-run-report.py`
 
 ## 结果：三遍完全一致，波动 = 0

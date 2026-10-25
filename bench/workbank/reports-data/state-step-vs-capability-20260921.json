@@ -321,7 +321,7 @@
       "seconds": 233
     },
     {
-      "label": "零 state",
+      "label": "默认状态",
       "run": "zero-s0-20260920-workbank",
       "median_rms": null,
       "rms_source": null,
@@ -341,8 +341,8 @@
     "B-234 bfcl": "13/60",
     "B-final bfcl": "7/60",
     "B-final boundary": "4/18",
-    "零 state bfcl": "47/60",
-    "零 state boundary": "0/18",
+    "默认状态 bfcl": "47/60",
+    "默认状态 boundary": "0/18",
     "上一枚 bfcl": "49/60",
     "上一枚 boundary": "1/18"
   }

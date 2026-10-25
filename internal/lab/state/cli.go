@@ -69,7 +69,7 @@ func runRunCmd(argv []string) int {
 	args := RunArgs{Suites: "workbank,boundary,bfcl", Root: DefaultRoot}
 	fs := lab.NewFlagSet("state run",
 		"Run a state evaluation with serial before/after fingerprints and file identity.")
-	fs.StringVar(&args.StateID, "state-id", "", "uploaded state ID; empty uses zero state")
+	fs.StringVar(&args.StateID, "state-id", "", "uploaded state ID; empty uses the default initial state")
 	fs.BoolVar(&args.Fast, "fast", false, "use the think-fast wire (sets its own history overrides)")
 	fs.BoolVar(&args.LegacyHistory, "legacy-history", false, "keep the default history wire with --fast")
 	fs.StringVar(&args.Wire, "wire", "", "extra wire overrides, e.g. nudge=none; incompatible with --fast")

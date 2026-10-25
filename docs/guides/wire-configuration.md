@@ -270,7 +270,7 @@ suite 默认差异：
   - **实测 api-7b.rwkvos.com 对任何 `stop_tokens` 都返回 HTTP 500**，必须 `--api-stop-tokens none`。
   连通性排查顺序：`none` → `text` → `cuda`。
 - `--api-stream=false` 返回一次性 JSON，评测更稳；`true` 走 SSE。
-- state：不传 `--state-id` 即基模零状态；传 `--state-id <id>` 复用上传的 state。
+- state：不传 `--state-id` 即使用默认状态；传 `--state-id <id>` 复用上传的 state。
   **带 state 的 run 与基模 run 不能直接比较。**
 - 并发：`--case-parallelism` 设成题目数即可一波跑完；同一时刻的请求会被合并成一次
   `contents[]`。批推理下贪心解码仍可能有几个 case 的结果抖动，比较两组配置时注意这点。

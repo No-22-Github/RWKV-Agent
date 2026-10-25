@@ -135,7 +135,7 @@ internal/inference/
 - 每个 Session 独占其逻辑 State。
 - 同一 Session 同时最多有一个修改 State 的操作。
 - 对同一 Session 并发调用 `Generate` 返回 `ErrBusy`，而不是产生数据竞争。
-- `Reset` 回到零 State 或该 Session 配置的初始 State。
+- `Reset` 回到默认状态或该 Session 配置的初始 State。
 - Session 记录自己当前对应的 token 前缀指纹和 State revision。
 - Session 不把 C 指针、backend state tree 节点或平台文件路径暴露给 Agent。
 
@@ -452,7 +452,7 @@ State 不能被当作可读对话记录，也不能从 State 可靠还原原始�
 - 将历史前缀 State、token IDs 和 logits 保存到磁盘；
 - 将历史 State 加载回内存；
 - 按 token 前缀匹配最深 checkpoint；
-- 清零 State；
+- 恢复默认状态；
 - 为已知 prompt 做预填充缓存。
 
 统一接口不应照搬这些函数名，而应把它们组织为 Session、checkpoint 和 cache 三套清晰语义。
@@ -513,7 +513,7 @@ state_status = clean | generating | dirty | closed
 3. 若与当前 Session revision 匹配，直接继续。
 4. 若请求是当前前缀的扩展，恢复 checkpoint 并只 prefill 后缀。
 5. 若历史被编辑或分叉，查找最长 prefix cache。
-6. 没有兼容 cache 时，从零 State 或 Initial State 重新 prefill。
+6. 没有兼容 cache 时，从默认状态或 Initial State 重新 prefill。
 
 这样 Session 不会因为上层少传或多传一条消息而静默使用错误 State。
 
@@ -543,8 +543,8 @@ Initial State 是 Session 的起点，而不是普通聊天消息。
 
 - 在 `NewSession` 时选择，Session 建立后不能静默替换。
 - 其指纹是所有 runtime checkpoint 兼容性的一部分。
-- `Reset` 回到 Initial State；没有 Initial State 时回到零 State。
-- Initial State 加载失败不得退化为零 State 后继续运行。
+- `Reset` 回到 Initial State；没有 Initial State 时回到默认状态。
+- Initial State 加载失败不得退化为默认状态后继续运行。
 - `.pth` 和 `.rmpack` 是输入格式细节，不进入 Agent API；核心通过 `StateSource` 表达。
 
 ### 7.7 Prefix cache

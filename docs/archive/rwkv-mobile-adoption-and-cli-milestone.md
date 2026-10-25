@@ -116,7 +116,7 @@ saved: ./sessions/demo
 | `/history` | 输出当前 transcript，不包含 native 日志 |
 | `/save [path]` | 原子保存会话；没有 path 时保存到启动时的 `--session` |
 | `/load <path>` | 校验并载入另一个会话 |
-| `/reset` | 清空 transcript，并将 recurrent State 恢复到 Initial State 或零 State |
+| `/reset` | 清空 transcript，并将 recurrent State 恢复到 Initial State 或默认状态 |
 | `/new` | `/reset` 的别名，开始新会话 |
 | `/help` | 显示可用命令 |
 | `/exit` | 安全停止生成、保存可选的自动存档并退出 |

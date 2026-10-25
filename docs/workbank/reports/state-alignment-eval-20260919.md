@@ -4,7 +4,7 @@
 
 ## 研究设计
 
-用户提供 agent_state_none.pth 与 agent_state_fast_think.pth，均已上传至指定备用 G1K 服务。采用 raw `/v1/batch/completions` 接口（`contents` 字段），显式指定 state_id，不使用 chat 接口的自动 think 模板。四组主实验分别是零 state/none、none state/none、零 state/完整 fast-think、fast-think state/完整 fast-think。每组三套件：Workbank 40、Boundary 18、BFCL product 60。后者不是官方完整 BFCL 榜单。
+用户提供 agent_state_none.pth 与 agent_state_fast_think.pth，均已上传至指定备用 G1K 服务。采用 raw `/v1/batch/completions` 接口（`contents` 字段），显式指定 state_id，不使用 chat 接口的自动 think 模板。四组主实验分别是默认状态/none、none state/none、默认状态/完整 fast-think、fast-think state/完整 fast-think。每组三套件：Workbank 40、Boundary 18、BFCL product 60。后者不是官方完整 BFCL 榜单。
 
 用户随后明确指定集群高并发，正式主对照改为同套件全部 case 并发：Workbank 40、Boundary 18、BFCL 60，使用 -high 目录名，四组同条件。此前并发 4/串行运行保留为补充诊断，不与高并发主表混算。采用同一套 Agent 执行逻辑、非流式、top_k=1、temperature/top_p=1、penalty 0/0/1、max_steps=10、rescue 关闭。保留默认实际阶段预算（512/1024），不叠加上轮已无端到端收益的 2048 改动。每个套件前后各做两个固定 raw 请求；保留响应和哈希、服务端 state 登记，网络错误或指纹不稳定的 run 不作为可靠模型比较。
 
@@ -41,9 +41,9 @@
 
 | 组别 | Workbank 40 | Boundary 18 | BFCL product 60 |
 |---|---:|---:|---:|
-| 零 state / none | 3† | 0 | 49† |
+| 默认状态 / none | 3† | 0 | 49† |
 | none state / none | 0 | 0 | 23 |
-| 零 state / fast 完整对齐 | 1† | 1† | 29 |
+| 默认状态 / fast 完整对齐 | 1† | 1† | 29 |
 | fast state / fast 完整对齐 | 1 | 2† | 33 |
 
 这是原始判据的实测通过数，不是重新判分。BFCL product 是项目的 60 题产品适配子集，不是官方完整 BFCL 榜单。所有 12 组传输错误均为 0，服务端 state 登记稳定；所有固定探针在实际客户端停止边界之前的有效文本一致。
@@ -54,7 +54,7 @@
 
 ### Workbank：所有 36 道需要工具的任务仍然失败
 
-零 state / none 通过 nt-0002、nt-0003、nt-0004；两组 fast 均只通过 nt-0003。none state 四道 no-tool 题都调用了工具，全部失败。fast state 虽四道都不调用工具，但 nt-0001 输出 90（期望 9000），nt-0002 输出 https（期望 443），nt-0004 输出不满足答案契约的 “I cannot determine”；只有允许弃权的 nt-0003 通过。
+默认状态 / none 通过 nt-0002、nt-0003、nt-0004；两组 fast 均只通过 nt-0003。none state 四道 no-tool 题都调用了工具，全部失败。fast state 虽四道都不调用工具，但 nt-0001 输出 90（期望 9000），nt-0002 输出 https（期望 443），nt-0004 输出不满足答案契约的 “I cannot determine”；只有允许弃权的 nt-0003 通过。
 
 同格式 fast A/B 没有任何通过/失败翻转。重复调用拒绝 20→13、强制收尾触发 26→14，看似改善；但 36 道需要工具的题中完全没有实际工具调用的题数 10→19。工具尝试后自主终止仅 2/29→2/17。减少重复的一部分代价是提前放弃，不能将其当作成功率提升。
 
@@ -62,7 +62,7 @@ none state 的首步来源机械正确率为 26/40，28 道纯本地题首步误
 
 ### BFCL：fast 的净 +4 来自哪些题
 
-| 子集 | 零 state / none | none state | 零 state / fast | fast state |
+| 子集 | 默认状态 / none | none state | 默认状态 / fast | fast state |
 |---|---:|---:|---:|---:|
 | 不相关工具，应不调用（20） | 12 | 2 | 1 | 6 |
 | 缺参，应澄清（10） | 10 | 0 | 2 | 2 |
@@ -127,8 +127,8 @@ none 缺参 0/10 也不能解释为完全不会识别缺参：部分回答用英
 
 复测判读：
 
-- 零 state / none 的 Workbank 3/40、BFCL 49/60 通过集合都未变化；原始 canary 尾部仍变化，保留严格无效标记，不以复测相同成绩抵消。
-- 零 state / fast 的 Workbank 复测通过严格校验；与 fast-state-high-workbank 比较，两组同 binary、wire、采样及 40/40 首步 prompt，仍 1/40→1/40、零翻转。这是严格校验成立的 Workbank state 对照。
+- 默认状态 / none 的 Workbank 3/40、BFCL 49/60 通过集合都未变化；原始 canary 尾部仍变化，保留严格无效标记，不以复测相同成绩抵消。
+- 默认状态 / fast 的 Workbank 复测通过严格校验；与 fast-state-high-workbank 比较，两组同 binary、wire、采样及 40/40 首步 prompt，仍 1/40→1/40、零翻转。这是严格校验成立的 Workbank state 对照。
 - Boundary 两组复测均严格有效，1/18→2/18；唯一新增仍为 pb_avoid_forbidden_tool，无退步。此前两组均通过的 pb_read_only_repo_explain 保持通过。
 - BFCL 两组首次与两组复测均严格有效。首次 29→33（11 新通过、7 新失败），复测 28→34（12 新通过、6 新失败），局部增益方向复现，但仍远低于 none 基线的重复观察值 49/60。
 - BFCL 子集复测：irrelevance 1/20→6/20，缺参 1/10→3/10，参数齐全 10/10→8/10，多轮状态 6/10→8/10，恢复 10/10→9/10。无关工具 +5 与两个退步子集保持不变。

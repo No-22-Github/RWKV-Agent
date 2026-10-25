@@ -4,7 +4,7 @@
 
 ## workbank
 
-| Case | 零 state / none | none state | 零 state / fast 对齐 | fast state 对齐 |
+| Case | 默认状态 / none | none state | 默认状态 / fast 对齐 | fast state 对齐 |
 |---|---|---|---|---|
 | cfg-0001 | 失败† | 失败 | 失败† | 失败 |
 | cfg-0002 | 失败† | 失败 | 失败† | 失败 |
@@ -2554,7 +2554,7 @@ I cannot determine the answer.
 
 ## boundary
 
-| Case | 零 state / none | none state | 零 state / fast 对齐 | fast state 对齐 |
+| Case | 默认状态 / none | none state | 默认状态 / fast 对齐 | fast state 对齐 |
 |---|---|---|---|---|
 | pb_find_read_submit | 失败 | 失败 | 失败† | 失败† |
 | pb_search_read_submit | 失败 | 失败 | 失败† | 失败† |
@@ -3416,7 +3416,7 @@ The migration flag for version 2.4.0 is required.
 
 ## bfcl
 
-| Case | 零 state / none | none state | 零 state / fast 对齐 | fast state 对齐 |
+| Case | 默认状态 / none | none state | 默认状态 / fast 对齐 | fast state 对齐 |
 |---|---|---|---|---|
 | bfcl_irrelevance_0 | 失败† | 通过 | 失败 | 通过 |
 | bfcl_irrelevance_1 | 通过† | 失败 | 失败 | 失败 |

@@ -1,7 +1,7 @@
 # G1L 基模 Agent 提示词、工具格式与采样消融报告
 
 - 日期：2026-10-24
-- 被测模型：RWKV-7 G1L 预览版 `rwkv-g1l-7b-temp-3797`（无 State、无 MiSS 适配器）
+- 被测模型：RWKV-7 G1L 预览版 `rwkv-g1l-7b-temp-3797`（默认状态、基模）
 - 计划：[PLAN.md](PLAN.md)
 - 配套经验文档：[docs/guides/rwkv-prompt-guide.md](../../guides/rwkv-prompt-guide.md)
 

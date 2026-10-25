@@ -2,7 +2,7 @@
 
 ## 要回答的问题
 
-G1L 预览版（`rwkv-g1l-7b-temp-3797`，无 State / MiSS）在 Agent 场景下，哪种提示词和工具格式最好？
+G1L 预览版（`rwkv-g1l-7b-temp-3797`，默认状态、基模）在 Agent 场景下，哪种提示词和工具格式最好？
 结论用来写 RWKV prompt 经验文档（`docs/guides/rwkv-prompt-guide.md`），并决定是否改 `agent-wire-v1.0` 的默认值。
 改默认值后重跑分、重渲染训练数据都可以接受。
 
