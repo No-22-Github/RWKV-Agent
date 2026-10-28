@@ -19,7 +19,7 @@ RWKV 对 prompt **字节**极其敏感：多一个空格、少一个空行、大
 3. **预填（种子）的最后一个 token 必须是训练里独立出现过的 token。** `<think>`、`<tool_call>` 这种 `>` 结尾的不安全，要扣掉 `>` 让模型自己补：`<think`、`<think></think`。
 4. **思考用 `Assistant: <think`（完整）或 `Assistant: <think></think`（假思考）。** 开思考就给足 token 预算（≥1024，最好 2048–4096），否则测到的是截断。thinking=off 时模型也会自发写 `<think>`，解析器必须能剥。
 5. **采样**：Agent 用 `T=0.3, top_p=0.5, top_k 不截断, presence 0.5, frequency 0.1, decay 0.996`。截断（top_p）比温度重要；`top_k=1` 时温度失效；presence ≥1.0 会掉分；T=1（官方 demo 参数）最差。→ [sampling-stop-loop.md](references/sampling-stop-loop.md)
-6. **停止条件同时给 EOS(0) 和 `User`(24281)**，或文本停止串 `\n\nUser:`。基模调完工具经常不发 EOS，会自己编下一轮。
+6. **停止条件同时给 EOS(0) 和 `User`(24281)**，或文本停止串 `\n\nUser:`。基模调完工具经常不发 EOS，会自己编下一轮。注意：裸 `User` 会在 `User(r)` 这类代码/正文处静默截断，思考块不闭合；带思考的场景只给 EOS + 客户端文本停止串更稳。
 7. **客户端做复读检测**：最近 768 字符里 24 字窗口的"新鲜率" <5% 就截断。惩罚参数压不住整段循环。
 8. **工具调用会照抄上一回合**，这是 Agent 头号死因。harness 要拦截重复调用、不要把被拒的调用回显进上下文、到阈值强制收尾。→ [agent-tools.md](references/agent-tools.md)
 9. **工具目录用扁平可读占位符，不用 JSON Schema，不放示例块。** 模型会把 schema 对象、示例值逐字抄进参数。保留一个 `no_tool` 之类的"结束出口"。

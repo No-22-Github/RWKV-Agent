@@ -207,6 +207,8 @@ func TestClientStopTokensAreConfigurable(t *testing.T) {
 		{name: "omitted", mode: StopTokenNone, want: ""},
 		{name: "legacy EOS", mode: StopTokenEOS, want: "[0]"},
 		{name: "explicit ID list", mode: StopTokenEOS, tokenIDs: []int{0, 261}, want: "[0,261]"},
+		{name: "bare User token is not forwarded", mode: StopTokenEOS, tokenIDs: []int{0, 24281}, want: "[0]"},
+		{name: "only the User token omits the field", mode: StopTokenEOS, tokenIDs: []int{24281}, want: ""},
 	} {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()

@@ -3,6 +3,7 @@ package rwkvlightning
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,40 @@ import (
 // (a build older than MiSS inference). Such a server also ignores adapter_id
 // in generation requests, silently running the base model.
 var ErrAdaptersUnsupported = errors.New("rwkv_lightning deployment has no /v1/adapters route")
+
+// MaxAdapterUploadBytes is the largest adapter upload the client attempts.
+// Cloudflare rejects request bodies over 100 MB with HTTP 413, so a larger
+// file fails fast with an explanation instead of after a long transfer.
+const MaxAdapterUploadBytes = 100 << 20
+
+// uploadHTTPClient returns the client used for multipart adapter uploads. A
+// large streamed body sent over HTTP/2 through Cloudflare fails with
+// "stream error: PROTOCOL_ERROR", while HTTP/1.1 succeeds, so uploads never
+// negotiate h2. A caller-supplied client whose transport is not an
+// *http.Transport is used as is.
+func (c *Client) uploadHTTPClient() *http.Client {
+	var base *http.Transport
+	switch transport := c.httpClient.Transport.(type) {
+	case nil:
+		base, _ = http.DefaultTransport.(*http.Transport)
+	case *http.Transport:
+		base = transport
+	}
+	if base == nil {
+		return c.httpClient
+	}
+	clone := base.Clone()
+	clone.ForceAttemptHTTP2 = false
+	clone.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	clone.TLSClientConfig = clone.TLSClientConfig.Clone()
+	if clone.TLSClientConfig == nil {
+		clone.TLSClientConfig = &tls.Config{}
+	}
+	clone.TLSClientConfig.NextProtos = []string{"http/1.1"}
+	client := *c.httpClient
+	client.Transport = clone
+	return &client
+}
 
 // AdapterInfo describes one registered version of a MiSS adapter. The server
 // keeps registrations in process RAM, so a restart forgets all of them.
@@ -82,7 +117,7 @@ func (c *Client) RegisterAdapterPath(ctx context.Context, adapterID, path string
 		return "", err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	return c.registerAdapter(request)
+	return c.registerAdapter(request, c.httpClient)
 }
 
 // UploadAdapter uploads a local MiSS package and registers it under
@@ -101,6 +136,12 @@ func (c *Client) UploadAdapter(ctx context.Context, adapterID, path string, prog
 	info, err := file.Stat()
 	if err != nil {
 		return "", fmt.Errorf("%w: stat adapter file: %v", ErrRemote, err)
+	}
+	if info.Size() > MaxAdapterUploadBytes {
+		return "", fmt.Errorf(
+			"%w: adapter file is %d MB, over the %d MB request limit of Cloudflare-fronted endpoints (HTTP 413); upload the adapter package, not the full training checkpoint",
+			continuation.ErrInvalidRequest, info.Size()>>20, MaxAdapterUploadBytes>>20,
+		)
 	}
 
 	// Render the form envelope (everything before and after the file bytes)
@@ -131,7 +172,7 @@ func (c *Client) UploadAdapter(ctx context.Context, adapterID, path string, prog
 	}
 	request.ContentLength = total
 	request.Header.Set("Content-Type", writer.FormDataContentType())
-	return c.registerAdapter(request)
+	return c.registerAdapter(request, c.uploadHTTPClient())
 }
 
 // DeleteAdapter removes every version of adapterID, or only version when it
@@ -157,9 +198,9 @@ func (c *Client) DeleteAdapter(ctx context.Context, adapterID, version string) e
 	return c.doAdapterRequest(request, "delete adapter", &ignored)
 }
 
-func (c *Client) registerAdapter(request *http.Request) (string, error) {
+func (c *Client) registerAdapter(request *http.Request, httpClient *http.Client) (string, error) {
 	var registered adapterRegisterBody
-	if err := c.doAdapterRequest(request, "register adapter", &registered); err != nil {
+	if err := c.doAdapterRequestWith(httpClient, request, "register adapter", &registered); err != nil {
 		return "", err
 	}
 	if strings.TrimSpace(registered.Version) == "" {
@@ -169,7 +210,11 @@ func (c *Client) registerAdapter(request *http.Request) (string, error) {
 }
 
 func (c *Client) doAdapterRequest(request *http.Request, action string, target any) error {
-	response, err := c.httpClient.Do(request)
+	return c.doAdapterRequestWith(c.httpClient, request, action, target)
+}
+
+func (c *Client) doAdapterRequestWith(httpClient *http.Client, request *http.Request, action string, target any) error {
+	response, err := httpClient.Do(request)
 	if err != nil {
 		if ctx := request.Context(); ctx.Err() != nil {
 			return ctx.Err()

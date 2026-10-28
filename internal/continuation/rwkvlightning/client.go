@@ -45,6 +45,10 @@ var ErrRemote = fmt.Errorf(
 	continuation.ErrUpstream,
 )
 
+// userTokenID is the World-vocab id of the bare word "User" (the "\n\nUser:"
+// turn marker tokenizes as 261, 24281, 59).
+const userTokenID = 24281
+
 type StopTokenMode string
 
 const (
@@ -673,10 +677,20 @@ func inferFinishReason(
 func (c *Client) serverStopTokens(stops []string) any {
 	switch c.stopTokenMode {
 	case StopTokenEOS:
-		if len(c.stopTokenIDs) == 0 {
+		ids := make([]int, 0, len(c.stopTokenIDs))
+		for _, id := range c.stopTokenIDs {
+			// The bare "User" token also matches inside code and prose
+			// ("User(r)"), where the server stops silently and leaves an
+			// unclosed think block. The turn-boundary "\nUser:" is already cut
+			// client-side (stream close or truncation), so it is not forwarded.
+			if id != userTokenID {
+				ids = append(ids, id)
+			}
+		}
+		if len(ids) == 0 {
 			return nil
 		}
-		return c.stopTokenIDs
+		return ids
 	case StopTokenNone:
 		return nil
 	default:
