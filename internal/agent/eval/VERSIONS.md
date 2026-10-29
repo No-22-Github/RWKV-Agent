@@ -44,7 +44,7 @@
 | `rwkv-agent-eval-v22` | 2026-09-25 | `1d92d15d` | md-fence 解析器不再把终答从第一个围栏处截断 | 未知（未记录） |
 | `rwkv-agent-eval-v23` | 2026-10-23 | `57f55c66` | 没有 `<tool_call>` 包裹的 JSON 一律当正文：不再报"缺信封"协议错，作答阶段不再当工具调用，终答不再被当成 JSON 违规换成兜底话术 | 42 遍旧 run 里触发过 json_payload 9 次、缺信封 4 次；需新跑分才能看到 |
 | `rwkv-agent-eval-v24` | 2026-10-29 | `6109780e` | `<tool_call>` 里接受 OpenAI 外壳 `{"type":"function","function":{…}}` 和完整对象后多出的 `}`（含"思考后先说话"兜底路径） | G1L 思考两遍（irwkv-think-20261029）里两类合计约 229 步被拒；v24 重跑两遍 166/174 vs 166/171（+32/−32、+30/−27），被拒步 228→8，分数无显著变化：受影响题多为写文件题，放行后仍做错 |
-| `rwkv-agent-eval-v25` | 2026-10-29 | 待提交 | recover-preamble 改为默认：思考后/调用前多说一句话时照常执行那个调用（`recovery=none` 恢复旧的严格解析）；wire 的 canonical 与 hash 不变 | 10-24 G1L 不带思考 +52 题（rp 对 base）；之前未显式开兜底的 run 与 v25 不可直接比 |
+| `rwkv-agent-eval-v25` | 2026-10-29 | `ae50df30` | recover-preamble 改为默认：思考后/调用前多说一句话时照常执行那个调用（`recovery=none` 恢复旧的严格解析）；wire 的 canonical 与 hash 不变 | 10-24 G1L 不带思考 +52 题（rp 对 base）；之前未显式开兜底的 run 与 v25 不可直接比 |
 
 考古命令（不限文件路径：早期常量定义在别的文件里，只搜 `types.go` 会漏掉 v4–v17）：
 `git log --reverse -G '"rwkv-agent-eval-v[0-9]+"' -- '*.go' ':!*_test.go'`，再看每个提交新增的常量定义行。
