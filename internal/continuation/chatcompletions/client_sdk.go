@@ -424,7 +424,11 @@ func decodeSDKToolCalls(
 		if !functionNamePattern.MatchString(call.Function.Name) {
 			return nil, fmt.Errorf("%w: function tool call %d has an invalid name", ErrRemote, index)
 		}
-		if index < executable && !isJSONObject(json.RawMessage(call.Function.Arguments)) {
+		arguments := call.Function.Arguments
+		if index < executable {
+			arguments = trimStrayClosingBraces(arguments)
+		}
+		if index < executable && !isJSONObject(json.RawMessage(arguments)) {
 			// The payload is named in full: a provider that returns a spurious
 			// trailing call with empty arguments and one that truncates a real
 			// call produce the same error class, and the raw value is the only
@@ -448,10 +452,29 @@ func decodeSDKToolCalls(
 			continue
 		}
 		result = append(result, toolchat.ToolCall{
-			ID: call.ID, Name: call.Function.Name, Arguments: call.Function.Arguments,
+			ID: call.ID, Name: call.Function.Name, Arguments: arguments,
 		})
 	}
 	return result, nil
+}
+
+// trimStrayClosingBraces repairs one provider defect seen on 2026-10-30
+// (Qwen3.7/3.8 Flash through Command Code): a complete arguments object
+// followed by one or more extra "}". Only trailing braces are removed, and only
+// when what remains is a JSON object; anything else is returned unchanged and
+// still fails validation.
+func trimStrayClosingBraces(arguments string) string {
+	if isJSONObject(json.RawMessage(arguments)) {
+		return arguments
+	}
+	trimmed := strings.TrimRight(arguments, " \t\r\n")
+	for strings.HasSuffix(trimmed, "}}") {
+		trimmed = strings.TrimRight(trimmed[:len(trimmed)-1], " \t\r\n")
+		if isJSONObject(json.RawMessage(trimmed)) {
+			return trimmed
+		}
+	}
+	return arguments
 }
 
 func firstSDKChoice(response *openai.ChatCompletion) (openai.ChatCompletionChoice, bool) {

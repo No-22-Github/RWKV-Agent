@@ -791,6 +791,30 @@ func TestDecodeSDKToolCallsErrorNamesThePayload(t *testing.T) {
 	}
 }
 
+// A complete arguments object with extra trailing "}" (a provider defect seen
+// 2026-10-30) is repaired; other malformed payloads still fail.
+func TestDecodeSDKToolCallsTrimsStrayClosingBraces(t *testing.T) {
+	calls, err := decodeSDKToolCalls([]openai.ChatCompletionMessageToolCallUnion{
+		{ID: "call_1", Type: "function", Function: openai.ChatCompletionMessageFunctionToolCallFunction{
+			Name: "list_files", Arguments: `{"path": "", "max_depth": "3"}}`,
+		}},
+		{ID: "call_2", Type: "function", Function: openai.ChatCompletionMessageFunctionToolCallFunction{
+			Name: "read_file", Arguments: `{"path": "a", "x": {"y": 1}}}} `,
+		}},
+	}, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls[0].Arguments != `{"path": "", "max_depth": "3"}` || calls[1].Arguments != `{"path": "a", "x": {"y": 1}}` {
+		t.Fatalf("not repaired: %q %q", calls[0].Arguments, calls[1].Arguments)
+	}
+	for _, bad := range []string{`{"path": "a"`, `{"path": "a"} x`, `}}`} {
+		if got := trimStrayClosingBraces(bad); got != bad {
+			t.Fatalf("%q changed to %q", bad, got)
+		}
+	}
+}
+
 // The teacher suffix is appended to the system message of both transports and
 // is absent when unset, so student-facing runs send byte-identical requests.
 func TestClientAppendsSystemSuffixToBothTransports(t *testing.T) {
