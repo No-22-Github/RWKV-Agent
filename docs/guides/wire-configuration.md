@@ -167,7 +167,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 | transcript | recoveries |
 | --- | --- |
-| `xml` | `think_stripped`, `array_envelope`, `envelope_recovered`, `json_repaired`, `function_wrapper`, `key_alias`, `arguments_hoisted`, `stringified_arguments`, `nested_name`, `name_inferred`, `tool_renamed`, `path_argument`, `legacy_xml_call`, `xml_path_alias` |
+| `xml` | `think_stripped`, `array_envelope`, `envelope_recovered`, `json_repaired`, `function_wrapper`, `key_alias`, `arguments_hoisted`, `stringified_arguments`, `nested_name`, `name_inferred`, `preamble_stripped`, `tool_renamed`, `path_argument`, `legacy_xml_call`, `xml_path_alias` |
 | `md-fence` | `think_stripped`, `array_envelope`, `envelope_recovered`, `json_repaired`, `function_wrapper`, `key_alias`, `arguments_hoisted`, `stringified_arguments`, `nested_name`, `name_inferred` |
 
 ## Modifiers

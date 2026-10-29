@@ -1589,7 +1589,7 @@ func TestRunManifestRecordsActuallySentSampling(t *testing.T) {
 	if manifest.Sampling["temperature"] != float32(0.3) || manifest.Sampling["seed"] != int64(7) {
 		t.Fatalf("sampling values = %v", manifest.Sampling)
 	}
-	if HarnessVersion != "rwkv-agent-eval-v24" || ScorerVersion != "rwkv-agent-eval-scorer-v4" {
+	if HarnessVersion != "rwkv-agent-eval-v25" || ScorerVersion != "rwkv-agent-eval-scorer-v4" {
 		t.Fatalf("versions = %q/%q", HarnessVersion, ScorerVersion)
 	}
 }

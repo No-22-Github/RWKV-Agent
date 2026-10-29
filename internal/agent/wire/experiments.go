@@ -5,7 +5,7 @@ import "strings"
 // Experiments groups opt-in axes used for the G1K wire replication study.
 // Empty values preserve all existing product behavior and canonical hashes.
 type Experiments struct {
-	Recovery     string // preamble, salvage, json (cumulative parser recovery)
+	Recovery     string // none, salvage, json (cumulative parser recovery; empty means preamble, see RecoveryMode)
 	Exit         string // no_tool, submit, final_answer, reply; all use answer payload
 	History      string // preserve, think-fast (default records canonical action only)
 	ThinkControl string // off (training export's instruction with fast prefill)
@@ -14,6 +14,21 @@ type Experiments struct {
 	AnswerOpen   string // answer (restore just the answer prefill)
 	ToolRole     string // tool (aligned tool results on a Tool: line instead of the user turn)
 	GenPoint     string // space (negative control: a stray space after the bare "Assistant:" generation point)
+}
+
+// RecoveryMode is the parser recovery level in effect. Preamble recovery —
+// executing a lone call that follows a sentence of commentary — is on by
+// default since harness v25: every G1 checkpoint writes that shape, and
+// rejecting it cost G1L +52 cases on the 2026-10-24 exam. "none" restores the
+// strict pre-v25 parser for reproducing old runs.
+func (e Experiments) RecoveryMode() string {
+	switch e.Recovery {
+	case "":
+		return "preamble"
+	case "none":
+		return ""
+	}
+	return e.Recovery
 }
 
 func (e Experiments) entries() [][2]string {
@@ -38,7 +53,7 @@ func (s Spec) validateExperiments() error {
 		return fail("experiment.unsupported", "wire experiments require product XML text transport", "")
 	}
 	allowed := map[string][]string{
-		"recovery": {"", "preamble", "salvage", "json"},
+		"recovery": {"", "none", "preamble", "salvage", "json"},
 		"exit":     {"", "no_tool", "submit", "final_answer", "reply"},
 		"history":  {"", "preserve", "think-fast"}, "nudge": {"", "none", "think", "exit"},
 		"thinkcontrol": {"", "off"},

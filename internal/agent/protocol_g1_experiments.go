@@ -25,7 +25,7 @@ func (p G1Protocol) recoverExperimentalCall(value string, finish continuation.Fi
 	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(value))
 	candidate = wire.TrimWithheldOpening(candidate)
 	unclosed := strings.HasPrefix(candidate, "<think>")
-	if unclosed && p.Experiments.Recovery == "preamble" {
+	if unclosed && p.Experiments.RecoveryMode() == "preamble" {
 		return Action{}, false
 	}
 	if strings.Count(candidate, "<tool_call>") != 1 {
@@ -66,7 +66,7 @@ func (p G1Protocol) recoverExperimentalCall(value string, finish continuation.Fi
 		return Action{}, false
 	}
 	plain := p
-	plain.Experiments.Recovery = ""
+	plain.Experiments.Recovery = "none"
 	action, err := plain.Parse(callText, finish)
 	if err != nil || (action.Type != ActionTypeTool && action.Type != ActionTypeNoTool) {
 		return Action{}, false

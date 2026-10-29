@@ -17,7 +17,8 @@ func TestExperimentalRecoveryBoundaries(t *testing.T) {
 		recovered       bool
 	}{
 		{"preamble", "<think>read</think>\nI'll read it.\n" + call, "preamble", true},
-		{"off", "<think>read</think>\nI'll read it.\n" + call, "", false},
+		{"default", "<think>read</think>\nI'll read it.\n" + call, "", true},
+		{"off", "<think>read</think>\nI'll read it.\n" + call, "none", false},
 		{"salvage", "<think>I need the file.\n" + call, "salvage", true},
 		{"no implicit salvage", "<think>I need the file.\n" + call, "preamble", false},
 		{"inline quote", "Here is an example: " + call, "salvage", false},

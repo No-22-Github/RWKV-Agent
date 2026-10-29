@@ -476,7 +476,7 @@ func thinkingControl(mode inference.ThinkingMode) string {
 }
 
 func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
-	if protocol.Experiments.Recovery != "" {
+	if protocol.Experiments.RecoveryMode() != "" {
 		if action, ok := protocol.recoverExperimentalCall(value, finish); ok {
 			return action, nil
 		}

@@ -93,9 +93,9 @@ func (s Spec) ParseRepairs() []Repair {
 	if s.Format != FormatXML {
 		return fenced
 	}
-	if s.Experiments.Recovery != "" {
+	if mode := s.Experiments.RecoveryMode(); mode != "" {
 		fenced = append(fenced, Repair("preamble_stripped"))
-		if s.Experiments.Recovery != "preamble" {
+		if mode != "preamble" {
 			fenced = append(fenced, Repair("think_salvaged"))
 		}
 	}
