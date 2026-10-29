@@ -40,6 +40,8 @@
 - **recover-preamble**：先写一句"我先查一下……"，换行，再一个完整调用。G1 系列很爱这样写，严格解析会判成终答。
   接受后 G1L 通过题 +42%，是单项最大收益。限制：调用另起一行、前文不含 ```` ``` ````、只有一个调用、生成没撞顶。
 - 剥掉思考块（包括没闭合 `</think>` 就开始写调用的情况）。
+- **OpenAI 外壳**：`<tool_call>` 里写 `{"type":"function","function":{"name":…,"arguments":…}}` → 拆成 `{"name","arguments"}`。G1L **开思考后**很爱这样写（不开思考少见），严格解析器报 `unknown field "type"`；"先说话 + 外壳"要和 recover-preamble 共用同一套拆壳逻辑，否则兜底救不回来。
+- **完整对象后多出 `}`**（`…}}}`）：去掉多余右括号再解析。G1L 思考模式下与外壳同样高频。
 - 裸 JSON 或另一种信封（```` ```json ````、`<tool_call>` 互换）。
 - `arguments` 是字符串化 JSON → 再解析一次。
 - 键名别名：`cmd/tool/args/parameters` → `name/arguments`；参数被提到顶层 → 收回 arguments；嵌套 name；缺 name 时按参数推断。
