@@ -35,7 +35,25 @@ const REMOTE_BACKENDS = {
   openai: { provider: Provider.ProviderChatCompletions, stops: undefined },
   python: { provider: Provider.ProviderRWKVLightningPython, stops: 'text' },
   cuda: { provider: Provider.ProviderRWKVLightningCUDA, stops: 'eos' },
+  irwkv: { provider: Provider.ProviderIRWKV, stops: 'text' },
 } as const
+
+export type RemoteProtocol = keyof typeof REMOTE_BACKENDS
+
+/* 连接列表和运行配置里显示的协议名。 */
+export function remoteProtocolLabel(provider: Config['provider']): string {
+  switch (provider) {
+    case Provider.ProviderChatCompletions: return 'OpenAI 兼容'
+    case Provider.ProviderRWKVLightningPython: return 'Lightning Python'
+    case Provider.ProviderIRWKV: return 'iRWKV'
+    default: return 'Lightning CUDA'
+  }
+}
+
+/* OpenAI 兼容和 iRWKV 用 Bearer API Key；Lightning 用请求体里的服务密码。 */
+function usesAPIKey(protocol: RemoteProtocol): boolean {
+  return protocol === 'openai' || protocol === 'irwkv'
+}
 
 export type HeaderRow = { id: number; name: string; value: string }
 
@@ -121,7 +139,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [tokenizerPath, setTokenizerPath] = useState('')
   const [remoteEndpoint, setRemoteEndpoint] = useState('')
   const [remoteModel, setRemoteModel] = useState('')
-  const [remoteProtocol, setRemoteProtocol] = useState<keyof typeof REMOTE_BACKENDS>('cuda')
+  const [remoteProtocol, setRemoteProtocol] = useState<RemoteProtocol>('cuda')
   const [apiKey, setAPIKey] = useState('')
   /* 网页版（server 模式）没有系统文件对话框，上传改走浏览器的文件选择框。 */
   const [browserUploads, setBrowserUploads] = useState(false)
@@ -167,8 +185,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: backend.provider,
       model: remoteModel.trim() || availableModels[0]?.id || '',
       endpoint: remoteEndpoint.trim(),
-      apiKey: remoteProtocol === 'openai' ? apiKey.trim() || undefined : undefined,
-      password: remoteProtocol !== 'openai' ? apiKey.trim() || undefined : undefined,
+      apiKey: usesAPIKey(remoteProtocol) ? apiKey.trim() || undefined : undefined,
+      password: usesAPIKey(remoteProtocol) ? undefined : apiKey.trim() || undefined,
       headers: headerMap, tokenizerPath: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
       // 流式由后端统一决定（App 一律流式显示回答），旧档案里的 stream:false 不再带出去。
@@ -300,10 +318,11 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       : saveState.kind === 'error' ? saveState.message : ''
 
   function applyConfig(config: Config) {
-    const remote = config.provider === Provider.ProviderRWKVLightningPython || config.provider === Provider.ProviderRWKVLightningCUDA || config.provider === Provider.ProviderChatCompletions
+    const remote = config.provider !== Provider.ProviderLocal
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
-    setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
+    const protocol = (Object.keys(REMOTE_BACKENDS) as RemoteProtocol[]).find((key) => REMOTE_BACKENDS[key].provider === config.provider) || 'cuda'
+    setRemoteProtocol(protocol); setAPIKey(usesAPIKey(protocol) ? config.apiKey || '' : config.password || '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setMaxActiveBatch(config.maxActiveBatch || DEFAULT_CONNECTION_LIMITS.maxActiveBatch)
     setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS)

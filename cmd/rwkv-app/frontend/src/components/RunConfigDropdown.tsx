@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Check, Cpu, Plus } from 'lucide-react'
 import { Provider, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
-import type { SettingsSection } from '../state/providerManager'
+import { remoteProtocolLabel, type SettingsSection } from '../state/providerManager'
 
 type Props = {
   open: boolean
@@ -133,7 +133,7 @@ function providerMeta(provider: SavedProvider): string {
   const config = provider.config
   if (config.provider === Provider.ProviderLocal) return '本地模型'
   const host = hostOf(config.endpoint)
-  const kind = config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA'
+  const kind = remoteProtocolLabel(config.provider)
   return host ? `${kind} · ${host}` : kind
 }
 

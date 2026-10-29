@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, Plus, Trash2 } from 'lucide-react'
-import type { ProviderManager } from '../../state/providerManager'
+import type { ProviderManager, RemoteProtocol } from '../../state/providerManager'
 import { Button, Disclosure, Notice, NumberRow, PANE_WIDTH, Row, RunningBadge, SaveStatus, Section, SettingsPane, TextInput, TextRow } from './ui'
 import { Select } from './Select'
 import AdapterSection from './AdapterSection'
@@ -108,7 +108,7 @@ function LocalSource({ manager, isNew, onRequestDelete }: { manager: ProviderMan
 }
 
 function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manager: ProviderManager; isNew: boolean; onTestRemote: () => void; onRequestDelete: () => void }) {
-  const lightning = manager.remoteProtocol !== 'openai'
+  const lightning = manager.remoteProtocol === 'python' || manager.remoteProtocol === 'cuda'
   const cuda = manager.remoteProtocol === 'cuda'
   // 从对话页「管理 State / 适配器」进来时直接展开对应项。
   const [open, setOpen] = useState<Record<string, boolean>>(() => ({ state: manager.settingsFocus === 'state', adapter: manager.settingsFocus === 'adapter' }))
@@ -124,9 +124,10 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
     <>
       <Section title="服务">
         <Row label="接口协议">
-          <Select label="远端协议" className="w-[300px]" value={manager.remoteProtocol} onChange={(value) => manager.setRemoteProtocol(value as 'python' | 'cuda' | 'openai')} options={[
+          <Select label="远端协议" className="w-[300px]" value={manager.remoteProtocol} onChange={(value) => manager.setRemoteProtocol(value as RemoteProtocol)} options={[
             { value: 'python', label: 'RWKV Lightning Python' },
             { value: 'cuda', label: 'RWKV Lightning CUDA' },
+            { value: 'irwkv', label: 'iRWKV（不支持 State / MiSS）' },
             { value: 'openai', label: 'OpenAI 兼容' },
           ]} />
         </Row>
@@ -134,7 +135,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
         <TextRow label="API 地址" width="w-[212px]" value={manager.remoteEndpoint} onChange={manager.setRemoteEndpoint} placeholder="https://example.com" error={isNew && !manager.remoteEndpoint.trim() ? undefined : manager.draftErrors.endpoint}
           trailing={<Button onClick={onTestRemote} disabled={manager.settingsBusy || !manager.remoteEndpoint.trim()} title="请求 /v1/models，成功后模型 ID 可从下拉里选">测试连接</Button>} />
         <TextRow label="模型 ID" value={manager.remoteModel} onChange={manager.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={manager.availableModels.map((model) => model.id)} error={isNew ? undefined : manager.draftErrors.model} />
-        <TextRow label={lightning ? '服务密码' : 'API Key'} value={manager.apiKey} onChange={manager.setAPIKey} type="password" placeholder={lightning ? '未设置' : 'sk-…'} />
+        <TextRow label={lightning ? '服务密码' : 'API Key'} value={manager.apiKey} onChange={manager.setAPIKey} type="password" placeholder={manager.remoteProtocol === 'openai' ? 'sk-…' : '未设置'} />
       </Section>
 
       <Section title="高级">

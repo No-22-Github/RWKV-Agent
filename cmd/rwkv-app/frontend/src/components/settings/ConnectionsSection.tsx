@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronRight, Plus } from 'lucide-react'
 import { Provider } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
-import { kindOf, type ProviderKind, type ProviderManager } from '../../state/providerManager'
+import { kindOf, remoteProtocolLabel, type ProviderKind, type ProviderManager } from '../../state/providerManager'
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
@@ -146,7 +146,7 @@ function ProviderRow({ provider, running, attention, onEdit }: {
   const isLocal = provider.config.provider === Provider.ProviderLocal
   const meta = isLocal
     ? provider.config.model.split(/[\\/]/).at(-1) || provider.config.model
-    : [provider.config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : provider.config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA', hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
+    : [remoteProtocolLabel(provider.config.provider), hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
   const name = provider.label || provider.config.model || '未命名连接'
   // 自动命名的连接名里已经带了主机名，副标题只留协议，不把同一个地址念两遍。
   const host = hostOf(provider.config.endpoint)

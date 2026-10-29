@@ -275,6 +275,7 @@ describe('App', () => {
     ['python', Provider.ProviderRWKVLightningPython, 'text'],
     ['cuda', Provider.ProviderRWKVLightningCUDA, 'eos'],
     ['openai', Provider.ProviderChatCompletions, undefined],
+    ['irwkv', Provider.ProviderIRWKV, 'text'],
   ] as const)('saves a new %s connection with its own backend identity', async (protocol, provider, stops) => {
     renderApp()
     openSettings()
@@ -282,13 +283,15 @@ describe('App', () => {
     chooseOption('远端协议', protocol)
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'test-model' } })
-    fireEvent.change(screen.getByLabelText(protocol === 'openai' ? 'API Key' : '服务密码'), { target: { value: 'test-secret' } })
+    const bearer = protocol === 'openai' || protocol === 'irwkv'
+    fireEvent.change(screen.getByLabelText(bearer ? 'API Key' : '服务密码'), { target: { value: 'test-secret' } })
     fireEvent.click(screen.getByRole('button', { name: '保存并连接' }))
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config.provider).toBe(provider)
     expect(config.rwkvStopTokens).toBe(stops)
-    expect(protocol === 'openai' ? config.apiKey : config.password).toBe('test-secret')
+    expect(bearer ? config.apiKey : config.password).toBe('test-secret')
+    expect(bearer ? config.password : config.apiKey).toBeUndefined()
     expect(config.agentProtocol).toBe('xml')
   })
 
