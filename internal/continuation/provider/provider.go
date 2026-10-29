@@ -13,6 +13,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
+	"github.com/no22/RWKV-Agent/internal/continuation/irwkv"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 )
 
@@ -21,13 +22,20 @@ const (
 	ChatCompletions = "chat-completions"
 	LightningPython = "rwkv-lightning-python"
 	LightningCUDA   = "rwkv-lightning-cuda"
+	// IRWKV is an iRWKV server (rwkv-org/irwkv, a vLLM fork) driven through
+	// raw text Completions with the harness's own RWKV prompt.
+	IRWKV = "irwkv"
 )
 
 func IsLightning(kind string) bool {
 	return kind == LightningPython || kind == LightningCUDA
 }
-func IsRemote(kind string) bool { return kind == ChatCompletions || IsLightning(kind) }
-func Valid(kind string) bool    { return kind == Local || IsRemote(kind) }
+
+// IsRawRWKV reports a remote RWKV backend that continues the harness's own
+// rendered prompt and takes the RWKV stop-token setting.
+func IsRawRWKV(kind string) bool { return IsLightning(kind) || kind == IRWKV }
+func IsRemote(kind string) bool  { return kind == ChatCompletions || IsRawRWKV(kind) }
+func Valid(kind string) bool     { return kind == Local || IsRemote(kind) }
 
 // Endpoint replaces recognized API suffixes, retaining deployment prefixes and
 // URL queries. Explicit custom completion endpoints remain usable.
@@ -60,8 +68,11 @@ func Endpoint(value, route string) string {
 }
 
 func CompletionEndpoint(kind, value string) string {
-	if kind == LightningCUDA {
+	switch kind {
+	case LightningCUDA:
 		return Endpoint(value, "batch/completions")
+	case IRWKV:
+		return Endpoint(value, "completions")
 	}
 	return Endpoint(value, "chat/completions")
 }
@@ -105,7 +116,7 @@ type Config struct {
 
 func DefaultStopTokens(kind string) string {
 	switch kind {
-	case LightningPython:
+	case LightningPython, IRWKV:
 		return "text"
 	case LightningCUDA:
 		return "eos"
@@ -128,6 +139,8 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			ChatTemplateEnableThinking: config.ChatTemplateEnableThinking,
 			IncludeTopK:                config.ChatIncludeTopK,
 		})
+	case IRWKV:
+		return newIRWKV(config, endpoint)
 	case LightningPython, LightningCUDA:
 		stops := config.StopTokens
 		if stops == "" {
@@ -167,6 +180,32 @@ func NewRemote(config Config) (continuation.Generator, error) {
 	default:
 		return nil, fmt.Errorf("unsupported remote provider %q", config.Kind)
 	}
+}
+
+// newIRWKV maps the shared stop-token setting onto iRWKV: text forwards the
+// request's decoded-text stops, an id list (or eos) is sent as stop_token_ids
+// alongside them, and none leaves stopping to the client and EOS.
+func newIRWKV(config Config, endpoint string) (continuation.Generator, error) {
+	if strings.TrimSpace(config.StateID) != "" {
+		return nil, fmt.Errorf("iRWKV does not support uploaded state_id")
+	}
+	if strings.TrimSpace(config.AdapterID) != "" {
+		return nil, fmt.Errorf("iRWKV does not support MiSS adapter_id")
+	}
+	stops := config.StopTokens
+	if stops == "" {
+		stops = DefaultStopTokens(IRWKV)
+	}
+	mode, ids, err := ParseStopTokens(stops)
+	if err != nil {
+		return nil, err
+	}
+	return irwkv.New(irwkv.Config{
+		Endpoint: endpoint, Model: config.Model, APIKey: config.Credential,
+		Headers: config.Headers, HTTPClient: config.HTTPClient,
+		ForwardStops: mode != rwkvlightning.StopTokenNone, StopTokenIDs: ids,
+		Stream: config.Stream, LoopGuard: config.LoopGuard,
+	})
 }
 
 // Python's raw route ignores state_id; reject it instead of silently generating

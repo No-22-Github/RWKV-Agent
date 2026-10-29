@@ -73,6 +73,10 @@ cuda 后端：`--api-url` 只写到 `/v1`，**不传** `--api-stop-tokens`（客
 
 API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-tokens`；对话模板由推理端负责。
 
+iRWKV（rwkv-org/irwkv，vLLM 分叉，如 rwkv-115 = `100.64.0.5:8101–8104`，需 `NO_PROXY`）：`--completion irwkv --model rwkv-7.2b --api-url http://100.64.0.5:8103/v1`，
+其余同 RWKV（照传 `--profile agent-wire-v1.0`），打裸 `/v1/completions`、客户端固定 `add_special_tokens:false`。不支持 `--state-id` / MiSS；服务端连续批处理，客户端不合批，并发只看 `--case-parallelism`。
+115 部署的 WKV 状态是 fp16、前缀缓存关闭，和 rwkv_lightning 的 run 混比要注明。
+
 **决策预算与单题超时已是默认值**（2026-10-15 起）：`--profile agent-wire-v1.0` 不给 `--decision-max-tokens` 时取 2048（`agent-wire-think-v1.0` 取 4096），
 `--case-timeout` 默认 30m。模板里照写也无妨；旧二进制（2026-10-15 之前）必须显式给，否则落到 512 / 2 分钟。
 **合批用默认值，不要再给 `--remote-batch-wait 0s`**：agent-eval 默认 `--remote-batch-wait 20ms --remote-batch-max 64 --remote-batch-inflight 4`。

@@ -494,7 +494,7 @@ func readBatchStreamResponse(
 				state.deltas++
 			}
 			state.pending += choice.Delta.Content
-			text, tail, stop := splitAtStop(state.pending, calls[choice.Index].request.Stops)
+			text, tail, stop := httputil.SplitAtStop(state.pending, calls[choice.Index].request.Stops)
 			if err := emitBatchText(state, calls[choice.Index].emit, text); err != nil {
 				state.err = err
 				state.finish = continuation.FinishCancelled

@@ -492,7 +492,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.completion,
 			"completion",
 			"local",
-			"continuation provider: local, chat-completions (optional build), rwkv-lightning-python, rwkv-lightning-cuda",
+			"continuation provider: local, chat-completions (optional build), rwkv-lightning-python, rwkv-lightning-cuda, irwkv",
 		)
 		fs.StringVar(&options.apiURL, "api-url", "", "full remote continuation endpoint URL")
 		fs.StringVar(
@@ -888,7 +888,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	options.thinkingMode = string(mode)
 	options.reasoning = mode != inference.ThinkingOff
-	if !apiStopsExplicit && completionprovider.IsLightning(options.completion) {
+	if !apiStopsExplicit && completionprovider.IsRawRWKV(options.completion) {
 		options.apiStopTokens = completionprovider.DefaultStopTokens(options.completion)
 	}
 	if options.modelPath == "" && options.evalScript == "" {
@@ -1320,11 +1320,11 @@ func newAgentGeneratorSource(
 			return nil, err
 		}
 		credential := os.Getenv(options.apiPasswordEnv)
-		if options.completion == completionprovider.ChatCompletions {
+		if options.completion == completionprovider.ChatCompletions || options.completion == completionprovider.IRWKV {
 			credential = os.Getenv(options.apiKeyEnv)
 		}
 		batchWait := time.Duration(0)
-		if options.evalCaseParallelism > 1 {
+		if options.evalCaseParallelism > 1 && completionprovider.IsLightning(options.completion) {
 			batchWait = options.remoteBatchWait
 		}
 		batchMax, batchInflight := 0, 0
@@ -2828,8 +2828,7 @@ func runConcurrent(args []string) error {
 // it only applies to a remote RWKV Lightning client with more than one case in
 // flight, and is recorded so a run's transport is visible in run.json.
 func evalRemoteBatchWait(options runOptions) time.Duration {
-	if options.completion == "local" || options.completion == completionprovider.ChatCompletions ||
-		options.evalCaseParallelism <= 1 {
+	if !completionprovider.IsLightning(options.completion) || options.evalCaseParallelism <= 1 {
 		return 0
 	}
 	return options.remoteBatchWait

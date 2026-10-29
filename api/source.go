@@ -67,7 +67,7 @@ func buildSource(ctx context.Context, config Config, progress func(Status)) (gen
 	switch config.Provider {
 	case ProviderLocal:
 		return buildLocalSource(ctx, config, progress)
-	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA:
+	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA, ProviderIRWKV:
 		return buildRemoteSource(config)
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", config.Provider)
@@ -126,7 +126,7 @@ func buildRemoteSource(config Config) (generatorSource, error) {
 		return nil, err
 	}
 	credential := config.Password
-	if config.Provider == ProviderChatCompletions {
+	if config.Provider == ProviderChatCompletions || config.Provider == ProviderIRWKV {
 		credential = config.APIKey
 	}
 	client, err := provider.NewRemote(provider.Config{

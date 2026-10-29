@@ -453,7 +453,7 @@ func InfrastructureFailure(failure string) bool {
 		return false
 	}
 	for _, marker := range []string{
-		"rwkv_lightning continuation error:", "http 4", "http 5",
+		"rwkv_lightning continuation error:", "irwkv continuation error:", "http 4", "http 5",
 		"connection refused", "context deadline exceeded", "no such host",
 		"timeout", "connection reset", "unexpected eof", "broken pipe",
 	} {

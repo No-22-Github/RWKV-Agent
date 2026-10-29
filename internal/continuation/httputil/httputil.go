@@ -69,3 +69,31 @@ func SafeResponseMessage(body []byte, secrets ...string) string {
 	}
 	return value
 }
+
+// SplitAtStop is the incremental form of TruncateAtStopMatch for streamed
+// text: it returns the text safe to emit, the tail that may still grow into a
+// stop, and the stop sequence that matched ("" when none did).
+func SplitAtStop(value string, stops []string) (string, string, string) {
+	stopIndex := len(value)
+	matched := ""
+	for _, stop := range stops {
+		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
+			stopIndex = index
+			matched = stop
+		}
+	}
+	if matched != "" {
+		return value[:stopIndex], "", matched
+	}
+	tailBytes := 0
+	for _, stop := range stops {
+		limit := min(len(value), len(stop)-1)
+		for length := 1; length <= limit; length++ {
+			if length > tailBytes && strings.HasSuffix(value, stop[:length]) {
+				tailBytes = length
+			}
+		}
+	}
+	safeBytes := len(value) - tailBytes
+	return value[:safeBytes], value[safeBytes:], ""
+}

@@ -561,7 +561,7 @@ func readStreamResponse(
 				deltas++
 			}
 			pending += choice.Delta.Content
-			text, tail, stop := splitAtStop(pending, stops)
+			text, tail, stop := httputil.SplitAtStop(pending, stops)
 			if err := emit(text); err != nil {
 				return continuation.Result{
 					Text:         result.String(),
@@ -699,33 +699,6 @@ func (c *Client) serverStopTokens(stops []string) any {
 		}
 		return stops
 	}
-}
-
-// splitAtStop returns the text safe to emit, the tail that may still grow
-// into a stop, and the stop sequence that matched ("" when none did).
-func splitAtStop(value string, stops []string) (string, string, string) {
-	stopIndex := len(value)
-	matched := ""
-	for _, stop := range stops {
-		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
-			stopIndex = index
-			matched = stop
-		}
-	}
-	if matched != "" {
-		return value[:stopIndex], "", matched
-	}
-	tailBytes := 0
-	for _, stop := range stops {
-		limit := min(len(value), len(stop)-1)
-		for length := 1; length <= limit; length++ {
-			if length > tailBytes && strings.HasSuffix(value, stop[:length]) {
-				tailBytes = length
-			}
-		}
-	}
-	safeBytes := len(value) - tailBytes
-	return value[:safeBytes], value[safeBytes:], ""
 }
 
 func finishReason(value string) continuation.FinishReason {

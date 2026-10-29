@@ -12,6 +12,7 @@ const (
 	ProviderChatCompletions     Provider = "chat-completions"
 	ProviderRWKVLightningPython Provider = "rwkv-lightning-python"
 	ProviderRWKVLightningCUDA   Provider = "rwkv-lightning-cuda"
+	ProviderIRWKV               Provider = "irwkv"
 )
 
 // AgentProtocol selects the product-facing tool transcript. The zero value

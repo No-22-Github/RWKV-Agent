@@ -624,7 +624,7 @@ func resolveProviderConfig(config *Config) error {
 			return err
 		}
 		config.TokenizerPath = tokenizerPath
-	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA:
+	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA, ProviderIRWKV:
 		parsed, err := url.Parse(config.Endpoint)
 		if err != nil || parsed.Scheme == "" || parsed.Host == "" ||
 			(parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.User != nil {
@@ -643,7 +643,7 @@ func publicEndpoint(config Config) string {
 	if config.Provider == ProviderChatCompletions && strings.TrimSpace(config.Endpoint) != "" {
 		return provider.CompletionEndpoint(provider.ChatCompletions, config.Endpoint)
 	}
-	if provider.IsLightning(string(config.Provider)) && strings.TrimSpace(config.Endpoint) != "" {
+	if provider.IsRawRWKV(string(config.Provider)) && strings.TrimSpace(config.Endpoint) != "" {
 		return provider.CompletionEndpoint(string(config.Provider), config.Endpoint)
 	}
 	return strings.TrimSpace(config.Endpoint)
