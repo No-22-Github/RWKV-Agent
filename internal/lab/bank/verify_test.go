@@ -69,6 +69,8 @@ func TestVerifySandboxTimesOut(t *testing.T) {
 		t.Skip("skipping 10s sandbox timeout test in short mode")
 	}
 	requirePython3(t)
+	defer func(old time.Duration) { verifyTimeout = old }(verifyTimeout)
+	verifyTimeout = time.Second
 	caseDir := makeLintCase(t, t.TempDir(), lintTestBody, lintCaseOptions{})
 	writeFile(t, filepath.Join(caseDir, "verify.py"),
 		"import json, time\ncase = json.load(open(\"case.json\"))\ntime.sleep(60)\nprint(json.dumps({\"expected_number\": 9000.0}))\n")
@@ -80,7 +82,7 @@ func TestVerifySandboxTimesOut(t *testing.T) {
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
 	}
-	if elapsed := time.Since(start); elapsed > 45*time.Second {
+	if elapsed := time.Since(start); elapsed > 8*time.Second {
 		t.Errorf("verify took %s; the timeout did not fire", elapsed)
 	}
 }

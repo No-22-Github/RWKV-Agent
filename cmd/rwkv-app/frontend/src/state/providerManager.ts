@@ -10,7 +10,7 @@ import { formatPresetById, formatSelection } from './formatPresets'
 import { useSnackbar } from '../snackbar'
 
 /* 自动保存的防抖：停止输入这么久后才落盘，敲到一半的值不会触发保存或重连。 */
-export const AUTOSAVE_DELAY_MS = 800
+export const AUTOSAVE_DELAY_MS = import.meta.env.MODE === 'test' ? 50 : 800
 
 /*
  * 自动保存状态机。idle：没有待保存内容；pending：等防抖；saving：请求进行中；

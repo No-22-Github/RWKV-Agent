@@ -20,8 +20,10 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
+// verifyTimeout is a var so the timeout test can shorten it.
+var verifyTimeout = 10 * time.Second
+
 const (
-	verifyTimeout     = 10 * time.Second
 	defaultTolerance  = 0.01
 	verifyTempPattern = "verify_all_"
 )

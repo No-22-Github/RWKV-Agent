@@ -5,7 +5,8 @@ import { useSnackbar } from '../snackbar'
 import type { SaveState } from './providerManager'
 import { matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
 
-const AUTOSAVE_DELAY_MS = 600
+// 测试里缩短防抖，免得每个自动保存用例白等大半秒。
+const AUTOSAVE_DELAY_MS = import.meta.env.MODE === 'test' ? 50 : 600
 
 /*
  * 所有连接共用的 Agent 设置：采样、预算、工具开关与调度、提示词，以及搜索 Key、搜索路由、
