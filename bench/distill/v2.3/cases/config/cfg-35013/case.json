@@ -1,0 +1,88 @@
+{
+  "id": "cfg-35013",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-8b385169",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-013",
+    "ref_calls": 5,
+    "fixture_bytes": 208,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青岚云",
+      "url": "https://www.qinglan-cloud.com/lightweight",
+      "url_match": "www.qinglan-cloud.com/lightweight",
+      "title": "轻量应用服务器 - 青岚云",
+      "snippet": "轻量服务器套餐。",
+      "content": "# 轻量应用服务器\n\n标准款：2 核 4G，带宽 100 Mbps，月付 68 元。\n高配款：4 核 8G，带宽 200 Mbps，月付 128 元。\n",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "files": {
+    "运维/青岚云资源清单.yaml": "provider: 青岚云\nregion: 华北2\ninstances:\n  - name: web-gw-01\n    bandwidth_mbps: 200\n    disk_gb: 200\n  - name: batch-02\n    bandwidth_mbps: 10\n    disk_gb: 500\n",
+    "运维/续费提醒.txt": "青岚云 web-gw-01 到期日 2026-12-08\n"
+  },
+  "turns": [
+    {
+      "prompt": "咱们在青岚云上买的公网带宽是多少兆？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "200"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "100 兆",
+          "100M",
+          "100Mbps",
+          "100 Mbps",
+          "100兆"
+        ]
+      }
+    },
+    {
+      "prompt": "那他们官网上标准款现在月付多少？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "68"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

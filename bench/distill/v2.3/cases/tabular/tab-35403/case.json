@@ -1,0 +1,64 @@
+{
+  "id": "tab-35403",
+  "description": "Group revenue by region over two turns when no table-query tool is offered (shell awk). DISTILL-CANARY-38be9071",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "second-highest region total"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35403",
+    "ref_calls": 2,
+    "fixture_bytes": 887,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/regional-roll-2026h1.csv": "month,region,units,revenue\n2026-01,Northgate,2048,84677\n2026-01,Eastmere,2281,94056\n2026-01,Southfork,1755,71709\n2026-01,Westbrook,2431,99612\n2026-01,Highland,1566,64779\n2026-02,Northgate,2046,84265\n2026-02,Eastmere,2239,91601\n2026-02,Southfork,1736,70539\n2026-02,Westbrook,2380,97163\n2026-02,Highland,1599,65651\n2026-03,Northgate,2033,83730\n2026-03,Eastmere,2267,92195\n2026-03,Southfork,1778,72062\n2026-03,Westbrook,2455,100989\n2026-03,Highland,1618,65700\n2026-04,Northgate,1975,81788\n2026-04,Eastmere,2236,92524\n2026-04,Southfork,1716,69967\n2026-04,Westbrook,2358,97091\n2026-04,Highland,1540,63784\n2026-05,Northgate,1973,80215\n2026-05,Eastmere,2208,90726\n2026-05,Southfork,1743,71079\n2026-05,Westbrook,2458,101330\n2026-05,Highland,1563,64656\n2026-06,Northgate,2034,82800\n2026-06,Eastmere,2230,90827\n2026-06,Southfork,1688,69458\n2026-06,Westbrook,2452,99775\n2026-06,Highland,1622,65784\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which region brought in the most revenue in sales/regional-roll-2026h1.csv, and what was its six-month total?",
+      "expect": {
+        "expected_number": 595960.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.5,
+        "output_contains": [
+          "Westbrook"
+        ]
+      }
+    },
+    {
+      "prompt": "And what was that region's average monthly revenue, to the nearest dollar?",
+      "expect": {
+        "expected_number": 99327.0,
+        "expected_number_in_text": true,
+        "tolerance": 0.51
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "data_query"
+    ]
+  }
+}

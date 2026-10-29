@@ -1,0 +1,63 @@
+{
+  "id": "hyb-35026",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-53d0fba8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-026",
+    "ref_calls": 3,
+    "fixture_bytes": 183,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [],
+  "files": {
+    "office/office-handbook-2026.md": "# Office handbook\n\n## Equipment support\n- Halvorsen copiers (2nd and 4th floor): support line 555-0147, weekdays 8-18.\n- Badge printer: ask reception.\n",
+    "office/floor-plan.txt": "2F: copier room next to kitchen\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the support phone line for the Halvorsen copiers listed in our office handbook?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "555-0147"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "555-0100"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

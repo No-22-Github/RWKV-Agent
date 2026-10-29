@@ -1,0 +1,83 @@
+{
+  "id": "hyb-35201",
+  "description": "Read two timeouts, double one, then recap every change with the old values. DISTILL-CANARY-a0a8d42c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35201",
+    "ref_calls": 5,
+    "fixture_bytes": 88,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/harborview-gateway.toml": "[gateway]\nname = \"harborview\"\nconnect_timeout_s = 4\nread_timeout_s = 30\nmax_retries = 2\n"
+  },
+  "turns": [
+    {
+      "prompt": "What are the connect and read timeouts in config/harborview-gateway.toml?",
+      "expect": {
+        "output_contains": [
+          "4",
+          "30"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Double the read timeout, and tell me the new value.",
+      "expect": {
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Now set max_retries to 5. Then give me a short recap of every change made today, with the value each setting had before.",
+      "expect": {
+        "output_contains": [
+          "30",
+          "60",
+          "2",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/harborview-gateway.toml": {
+        "equals": "[gateway]\nname = \"harborview\"\nconnect_timeout_s = 4\nread_timeout_s = 60\nmax_retries = 5\n"
+      }
+    }
+  }
+}

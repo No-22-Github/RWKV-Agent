@@ -1,0 +1,85 @@
+{
+  "id": "doc-35035",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-c8ee2ecd",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-035",
+    "ref_calls": 5,
+    "fixture_bytes": 210,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "朗致会议",
+      "url": "https://www.langzhi-meeting.com/help/recording",
+      "url_match": "www.langzhi-meeting.com/help/recording",
+      "title": "云录制说明 - 朗致会议",
+      "snippet": "录制文件保存规则。",
+      "content": "# 云录制说明\n\n云录制文件默认保存 30 天，到期自动清理。\n",
+      "published_at": "2026-06-30"
+    }
+  ],
+  "files": {
+    "信息安全/会议录制管理规定.md": "# 会议录制管理规定\n\n- 朗致会议系统的录制文件保存 90 天后自动删除。\n- 涉及客户数据的会议不得录制。\n- 如需长期保存须经部门负责人批准。\n",
+    "信息安全/会议室预约规则.txt": "提前一天预约\n"
+  },
+  "turns": [
+    {
+      "prompt": "按我们的内部规定，使用朗致会议系统开周会，录制文件要保留多久？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "90"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "30 天",
+          "30天"
+        ]
+      }
+    },
+    {
+      "prompt": "涉及客户数据的会议能录吗？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "不得"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

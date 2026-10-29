@@ -1,0 +1,58 @@
+{
+  "id": "hyb-35413",
+  "description": "Add a line to the end of a log file when only the append tool can write. DISTILL-CANARY-97bf5b9a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "existing lines overwritten"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35413",
+    "ref_calls": 1,
+    "fixture_bytes": 84,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/release-log-orbit.txt": "v3.8.0 - 2026-08-26 - new export wizard\nv3.8.1 - 2026-09-09 - fixed locale fallback\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add this line at the end of notes/release-log-orbit.txt: v3.8.2 - 2026-09-30 - fixed token refresh race",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "append_file",
+      "read_file"
+    ],
+    "never_offer": [
+      "write_file",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "notes/release-log-orbit.txt": {
+        "equals": "v3.8.0 - 2026-08-26 - new export wizard\nv3.8.1 - 2026-09-09 - fixed locale fallback\nv3.8.2 - 2026-09-30 - fixed token refresh race\n"
+      }
+    }
+  }
+}

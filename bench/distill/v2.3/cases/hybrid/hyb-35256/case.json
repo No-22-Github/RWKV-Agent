@@ -1,0 +1,92 @@
+{
+  "id": "hyb-35256",
+  "description": "Two JSON edits over two turns and a recap of before and after. DISTILL-CANARY-1dc57caf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35256",
+    "ref_calls": 5,
+    "fixture_bytes": 63,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "settings/editor-prefs.json": "{\n  \"tabSize\": 4,\n  \"wordWrap\": \"on\",\n  \"theme\": \"solarized\"\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "What are tabSize and wordWrap in settings/editor-prefs.json?",
+      "expect": {
+        "output_contains": [
+          "4",
+          "on"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Set tabSize to 2.",
+      "expect": {
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Turn wordWrap off.",
+      "expect": {
+        "output_contains": [
+          "off"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Give me a before/after list for everything I had you change today.",
+      "expect": {
+        "output_contains": [
+          "4",
+          "2",
+          "on",
+          "off"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "settings/editor-prefs.json": {
+        "equals": "{\n  \"tabSize\": 2,\n  \"wordWrap\": \"off\",\n  \"theme\": \"solarized\"\n}\n"
+      }
+    }
+  }
+}

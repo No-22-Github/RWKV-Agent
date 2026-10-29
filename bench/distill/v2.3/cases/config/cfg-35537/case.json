@@ -1,0 +1,67 @@
+{
+  "id": "cfg-35537",
+  "description": "INI header maintainer, legacy contact far below. DISTILL-CANARY-8a3f3229",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "contact: ops-legacy@lumenstack.io"
+    },
+    "axes": [
+      "OBS",
+      "LNG",
+      "STP"
+    ],
+    "level": "L1",
+    "family": "b23g-G0-35537",
+    "ref_calls": 3,
+    "fixture_bytes": 6771,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23g",
+    "subtype": "G0"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/kiln-agent.ini": "; kiln agent settings\n; maintainer: platform-infra@lumenstack.io\n; last reviewed 2026-07-02\n\n[logging]\npath = /var/lib/app/out\nprefix = app_\nflush_every = 8\nworkers = 1\nenabled = true\n\n[search]\nlevel = info\npath = /var/lib/app/cache\nbuffer_kb = 704\nmax_items = 975\nworkers = 3\nflush_every = 3\n\n[static]\nprefix = app_\nworkers = 1\nmax_items = 75\nenabled = true\n\n[export]\npath = /var/lib/app/spool\nbuffer_kb = 576\nprefix = app_\nflush_every = 6\n\n[imaging]\nmax_items = 625\npath = /var/lib/app/tmp\nenabled = false\nprefix = x_\nworkers = 5\n\n[metrics]\nenabled = true\nbuffer_kb = 128\nmax_items = 300\nlevel = warn\n\n[static_6]\nworkers = 2\nmax_items = 550\nbuffer_kb = 64\nlevel = warn\n\n[logging_7]\nlevel = error\npath = /var/lib/app/tmp\nenabled = false\nmax_items = 475\nflush_every = 21\nbuffer_kb = 640\n\n[scheduler]\nenabled = false\nprefix = app_\nmax_items = 250\nworkers = 2\n\n[static_9]\nworkers = 1\nenabled = false\npath = /var/lib/app/cache\nmax_items = 850\nlevel = error\n\n[uploads]\nenabled = false\nmax_items = 250\nlevel = info\nworkers = 8\n\n[metrics_11]\nmax_items = 375\nworkers = 4\nenabled = true\nbuffer_kb = 128\n\n[ratelimit]\nflush_every = 26\nmax_items = 200\nenabled = true\nlevel = info\nprefix = x_\n\n[scheduler_13]\nlevel = warn\nflush_every = 7\nworkers = 3\nprefix = x_\nenabled = true\n\n[cors]\nlevel = info\nprefix = svc-\npath = /var/lib/app/spool\nworkers = 2\nenabled = true\n\n[scheduler_15]\nmax_items = 300\npath = /var/lib/app/spool\nlevel = warn\nworkers = 8\n\n[mailer]\nworkers = 6\nlevel = info\npath = /var/lib/app/out\nflush_every = 19\nmax_items = 325\nenabled = false\n\n[mailer_17]\nenabled = false\nworkers = 1\nbuffer_kb = 768\nflush_every = 17\n\n[uploads_18]\nflush_every = 25\nworkers = 6\nenabled = false\npath = /var/lib/app/tmp\nbuffer_kb = 192\n\n[mailer_19]\npath = /var/lib/app/out\nflush_every = 2\nworkers = 3\nbuffer_kb = 192\nmax_items = 925\n\n[tracing]\nflush_every = 7\nbuffer_kb = 448\nenabled = true\nprefix = x_\nmax_items = 975\npath = /var/lib/app/cache\n\n[search_21]\npath = /var/lib/app/spool\nmax_items = 125\nenabled = false\nflush_every = 21\nbuffer_kb = 576\n\n[mailer_22]\nworkers = 6\nprefix = app_\nmax_items = 1000\nenabled = false\npath = /var/lib/app/tmp\n\n[ratelimit_23]\nworkers = 7\nprefix = app_\nenabled = false\nbuffer_kb = 896\n\n[search_24]\nenabled = true\nbuffer_kb = 384\nlevel = error\nmax_items = 50\n\n[cors_25]\nflush_every = 15\nlevel = warn\nenabled = true\nmax_items = 600\n\n[tracing_26]\nenabled = false\nlevel = error\nmax_items = 650\nbuffer_kb = 640\nflush_every = 7\n\n[locale]\nlevel = error\nenabled = false\nbuffer_kb = 256\npath = /var/lib/app/tmp\nflush_every = 10\nworkers = 5\n\n[uploads_28]\nworkers = 2\nenabled = true\nflush_every = 26\nlevel = error\nbuffer_kb = 384\nmax_items = 800\n\n[imaging_29]\nworkers = 8\nenabled = false\nprefix = x_\nmax_items = 675\n\n[export_30]\nflush_every = 28\npath = /var/lib/app/tmp\nenabled = false\nbuffer_kb = 704\nmax_items = 350\n\n[uploads_31]\nenabled = true\npath = /var/lib/app/spool\nflush_every = 21\nlevel = warn\nmax_items = 525\nprefix = app_\n\n[logging_32]\npath = /var/lib/app/tmp\nbuffer_kb = 832\nenabled = false\nflush_every = 13\nworkers = 3\n\n[tracing_33]\nlevel = info\nprefix = x_\nflush_every = 4\nbuffer_kb = 512\n\n[metrics_34]\nbuffer_kb = 320\nworkers = 4\npath = /var/lib/app/spool\nprefix = x_\nlevel = info\n\n[scheduler_35]\nmax_items = 625\nflush_every = 13\nenabled = false\npath = /var/lib/app/tmp\nbuffer_kb = 448\n\n[mailer_36]\nprefix = app_\nworkers = 5\nenabled = true\nmax_items = 100\n\n[uploads_37]\npath = /var/lib/app/tmp\nworkers = 3\nmax_items = 825\nflush_every = 26\nprefix = x_\nbuffer_kb = 768\n\n[tracing_38]\nlevel = warn\nworkers = 3\npath = /var/lib/app/spool\nbuffer_kb = 192\n\n[sessions]\nlevel = error\nenabled = true\npath = /var/lib/app/out\nbuffer_kb = 192\nprefix = app_\nflush_every = 16\n\n[logging_40]\npath = /var/lib/app/cache\nbuffer_kb = 832\nlevel = info\nmax_items = 650\n\n[mailer_41]\nbuffer_kb = 832\nlevel = info\nworkers = 4\nprefix = svc-\npath = /var/lib/app/spool\nmax_items = 975\n\n[uploads_42]\nmax_items = 700\nworkers = 2\npath = /var/lib/app/cache\nenabled = true\n\n[logging_43]\nflush_every = 29\nworkers = 3\nenabled = false\npath = /var/lib/app/out\n\n[cors_44]\npath = /var/lib/app/cache\nprefix = app_\nenabled = false\nmax_items = 425\nbuffer_kb = 64\n\n[logging_45]\nflush_every = 29\nlevel = warn\nenabled = true\nmax_items = 150\nworkers = 7\nbuffer_kb = 704\n\n[legacy]\n; contact: ops-legacy@lumenstack.io\n\n[locale_46]\nmax_items = 925\nbuffer_kb = 448\nprefix = app_\npath = /var/lib/app/tmp\nenabled = true\nflush_every = 12\n\n[metrics_47]\nlevel = error\nprefix = svc-\nworkers = 2\npath = /var/lib/app/cache\nflush_every = 23\nenabled = false\n\n[locale_48]\nmax_items = 525\nbuffer_kb = 512\nlevel = warn\nworkers = 3\nflush_every = 8\nprefix = svc-\n\n[export_49]\nmax_items = 575\nprefix = x_\npath = /var/lib/app/out\nlevel = info\nbuffer_kb = 640\nworkers = 8\n\n[logging_50]\npath = /var/lib/app/tmp\nmax_items = 850\nflush_every = 23\nworkers = 5\nlevel = warn\n\n[export_51]\nflush_every = 19\nworkers = 5\nmax_items = 675\nprefix = app_\npath = /var/lib/app/spool\n\n[export_52]\nbuffer_kb = 1024\nenabled = true\nworkers = 4\nlevel = info\nprefix = x_\n\n[search_53]\nworkers = 7\nlevel = info\nmax_items = 400\nenabled = true\npath = /var/lib/app/cache\n\n[logging_54]\nmax_items = 450\nenabled = true\nworkers = 7\nlevel = info\n\n[ratelimit_55]\nflush_every = 28\nworkers = 5\npath = /var/lib/app/out\nenabled = false\nmax_items = 175\n\n[locale_56]\nlevel = warn\nprefix = app_\nmax_items = 750\nbuffer_kb = 640\nworkers = 8\nflush_every = 5\n\n[scheduler_57]\nworkers = 8\nprefix = x_\nlevel = warn\nbuffer_kb = 640\n\n[imaging_58]\npath = /var/lib/app/tmp\nworkers = 2\nbuffer_kb = 128\nlevel = error\n\n[locale_59]\nflush_every = 11\nbuffer_kb = 1024\nlevel = info\npath = /var/lib/app/spool\n\n[export_60]\nworkers = 2\npath = /var/lib/app/tmp\nlevel = warn\nbuffer_kb = 768\nflush_every = 18\nmax_items = 475\n\n[uploads_61]\nenabled = true\nprefix = x_\nlevel = error\npath = /var/lib/app/out\n\n[metrics_62]\npath = /var/lib/app/out\nprefix = app_\nenabled = false\nworkers = 3\nflush_every = 9\n\n[search_63]\nbuffer_kb = 1024\nenabled = false\nprefix = app_\nflush_every = 2\nworkers = 5\nlevel = warn\n\n[ratelimit_64]\nlevel = warn\nmax_items = 800\nworkers = 6\nenabled = false\nbuffer_kb = 832\nflush_every = 4\n\n[sessions_65]\nworkers = 8\nflush_every = 15\nmax_items = 125\nenabled = false\nbuffer_kb = 640\npath = /var/lib/app/spool\n\n[uploads_66]\nworkers = 1\nflush_every = 15\nprefix = app_\nmax_items = 650\n\n[locale_67]\nworkers = 1\nflush_every = 12\nmax_items = 275\nenabled = true\nprefix = app_\npath = /var/lib/app/spool\n\n[ratelimit_68]\nlevel = error\nmax_items = 775\nprefix = x_\nworkers = 7\npath = /var/lib/app/spool\nbuffer_kb = 704\n\n[cors_69]\nworkers = 3\nmax_items = 925\nflush_every = 13\nlevel = error\n\n[mailer_70]\nmax_items = 375\nworkers = 6\nflush_every = 14\nlevel = info\npath = /var/lib/app/spool\n\n[tracing_71]\nworkers = 5\nlevel = error\nbuffer_kb = 256\npath = /var/lib/app/cache\nmax_items = 600\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who is listed as the maintainer in the header comments of conf/kiln-agent.ini?",
+      "expect": {
+        "output_contains": [
+          "platform-infra@lumenstack.io"
+        ],
+        "output_excludes": [
+          "ops-legacy@lumenstack.io"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

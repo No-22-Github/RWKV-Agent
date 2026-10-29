@@ -1,0 +1,101 @@
+{
+  "id": "hyb-35259",
+  "description": "Weekly report built from a ticket table, extended, then corrected after one ticket is resolved. DISTILL-CANARY-811f8b5c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35259",
+    "ref_calls": 7,
+    "fixture_bytes": 176,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据/本周工单.csv": "编号,状态\nT-301,已解决\nT-302,已解决\nT-303,已解决\nT-304,未解决\nT-305,已解决\nT-306,已解决\nT-307,未解决\nT-308,未解决\n",
+    "文档/周报-第41周.md": "已解决 4 个，未解决 2 个\n"
+  },
+  "turns": [
+    {
+      "prompt": "本周工单里有几个已解决？表在 数据/本周工单.csv。",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "照上周周报的格式，写一份 文档/周报-第42周.md，一行：已解决 n 个，未解决 m 个。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "再追加一行：“未解决编号：”后面跟编号，用顿号隔开。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "T-307 其实已经解决了，把周报改对。然后告诉我现在已解决几个、原来几个。",
+      "expect": {
+        "output_contains": [
+          "6",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "append_file",
+      "replace_lines",
+      "search_text"
+    ]
+  },
+  "expect": {
+    "files": {
+      "数据/本周工单.csv": {
+        "unchanged": true
+      },
+      "文档/周报-第41周.md": {
+        "unchanged": true
+      },
+      "文档/周报-第42周.md": {
+        "contains": [
+          "已解决 6 个",
+          "未解决 2 个",
+          "T-304",
+          "T-308"
+        ]
+      }
+    }
+  }
+}

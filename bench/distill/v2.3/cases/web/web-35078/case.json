@@ -1,0 +1,67 @@
+{
+  "id": "web-35078",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-21a81ea1",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-018",
+    "ref_calls": 2,
+    "fixture_bytes": 59,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云砚",
+      "url": "https://help.yunyan-docs.com/trash",
+      "url_match": "help.yunyan-docs.com/trash",
+      "title": "回收站 - 云砚文档帮助中心",
+      "snippet": "删除与恢复。",
+      "content": "# 回收站\n\n删除的文档在回收站保留 60 天，之后自动清除且无法恢复。企业版管理员可延长到 180 天。\n",
+      "published_at": "2026-08-15"
+    }
+  ],
+  "files": {
+    "信息安全/文档外发管理办法-v2.md": "# 文档外发管理办法\n\n链接有效期最长 7 天。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云砚文档帮助中心写的回收站文件保留多久？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

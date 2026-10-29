@@ -1,0 +1,55 @@
+{
+  "id": "hyb-35416",
+  "description": "Read one config key when the single-file reader is not offered. DISTILL-CANARY-3e290fb4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "450"
+    },
+    "axes": [
+      "DEC",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35416",
+    "ref_calls": 1,
+    "fixture_bytes": 174,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "service/gateway.toml": "[server]\nlisten = \"0.0.0.0:8443\"\nworkers = 6\n\n[timeouts]\nconnect_timeout = 5\nidle_timeout = 450\nrequest_timeout = 45\nupstream_request_timeout = 120\n\n[logging]\nlevel = \"info\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "service/gateway.toml 里的 request_timeout 现在是多少？",
+      "expect": {
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "search_text"
+    ],
+    "never_offer": [
+      "read_file"
+    ]
+  }
+}

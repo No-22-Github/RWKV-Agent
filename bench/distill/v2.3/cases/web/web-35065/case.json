@@ -1,0 +1,67 @@
+{
+  "id": "web-35065",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-40ab3ca2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-005",
+    "ref_calls": 2,
+    "fixture_bytes": 42,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Pinecrest",
+      "url": "https://www.pinecrestmutual.com/claims/how-to-file",
+      "url_match": "www.pinecrestmutual.com/claims/how-to-file",
+      "title": "How to file a claim - Pinecrest Mutual",
+      "snippet": "Claim steps and deadlines.",
+      "content": "# How to file a claim\n\nReport the loss within 60 days of discovering it. Claims reported later may be reduced or declined. For theft, also file a police report within 48 hours.\n",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "files": {
+    "insurance/claims-log-2025.csv": "date,peril,status\n2025-11-04,theft,closed\n"
+  },
+  "turns": [
+    {
+      "prompt": "By when does Pinecrest Mutual say a claim has to be filed after a loss, currently?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "60"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

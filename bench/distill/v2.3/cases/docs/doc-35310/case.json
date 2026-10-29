@@ -1,0 +1,72 @@
+{
+  "id": "doc-35310",
+  "description": "Prepend a release section. DISTILL-CANARY-728fd081",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23e-E1-35310",
+    "ref_calls": 5,
+    "fixture_bytes": 135,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "发布/更新说明.md": "# 更新说明\n\n## v3.2.0（2026-08-20）\n- 新增批量导出\n- 修复登录页闪退\n\n## v3.1.0（2026-07-02）\n- 新增暗色主题\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 发布/更新说明.md 最上面（标题下面）加一节 v3.3.0，日期写今天的，三条：新增离线草稿、导出支持 CSV 与 JSON、修复通知角标不清零。写完读回来，告诉我 v3.2.0 那一节现在从第几行开始。",
+      "expect": {
+        "output_contains": [
+          "8"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "再往 v3.3.0 这一节的最后补一条：- 优化冷启动速度。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "datetime"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "发布/更新说明.md": {
+        "equals": "# 更新说明\n\n## v3.3.0（2026-09-16）\n- 新增离线草稿\n- 导出支持 CSV 与 JSON\n- 修复通知角标不清零\n- 优化冷启动速度\n\n## v3.2.0（2026-08-20）\n- 新增批量导出\n- 修复登录页闪退\n\n## v3.1.0（2026-07-02）\n- 新增暗色主题\n"
+      }
+    }
+  }
+}

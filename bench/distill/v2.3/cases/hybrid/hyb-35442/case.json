@@ -1,0 +1,57 @@
+{
+  "id": "hyb-35442",
+  "description": "Average of the electricity lines only with the calculator offered. DISTILL-CANARY-9c48a764",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "gas lines"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F0-35442",
+    "ref_calls": 2,
+    "fixture_bytes": 390,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F0"
+  },
+  "web_fixture": [],
+  "files": {
+    "家庭/水电气账单-2026.txt": "四月 电费 129 度 68.30 元\n四月 燃气 8 立方 26.80 元\n五月 电费 117 度 61.75 元\n五月 燃气 6 立方 22.15 元\n六月 电费 104 度 55.20 元\n六月 燃气 5 立方 17.60 元\n七月 电费 121 度 63.90 元\n七月 燃气 4 立方 13.25 元\n八月 电费 156 度 82.45 元\n八月 燃气 3 立方 12.40 元\n九月 电费 165 度 87.10 元\n九月 燃气 4 立方 13.90 元\n"
+  },
+  "turns": [
+    {
+      "prompt": "家庭/水电气账单-2026.txt 里这六个月，我平均每月电费是多少？保留两位小数。",
+      "expect": {
+        "expected_number": 69.78,
+        "expected_number_in_text": true,
+        "tolerance": 0.011,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "calculator",
+      "read_file"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  }
+}

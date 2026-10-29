@@ -1,0 +1,78 @@
+{
+  "id": "hyb-35221",
+  "description": "Turn a flag on, revert it, enable another, recall the first request. DISTILL-CANARY-544ce2ff",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35221",
+    "ref_calls": 5,
+    "fixture_bytes": 56,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "flags/checkout-rollout.yaml": "new_checkout: false\nexpress_pay: true\ngift_cards: false\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which flags are on in flags/checkout-rollout.yaml?",
+      "expect": {
+        "output_contains": [
+          "express_pay"
+        ]
+      }
+    },
+    {
+      "prompt": "Turn on new_checkout.",
+      "expect": {
+        "output_contains": [
+          "new_checkout"
+        ]
+      }
+    },
+    {
+      "prompt": "That was premature: turn it back off and enable gift_cards instead. Then tell me which flags are on now, and which one I asked you to turn on first.",
+      "expect": {
+        "output_contains": [
+          "express_pay",
+          "gift_cards",
+          "new_checkout"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "flags/checkout-rollout.yaml": {
+        "equals": "new_checkout: false\nexpress_pay: true\ngift_cards: true\n"
+      }
+    }
+  }
+}

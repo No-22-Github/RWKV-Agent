@@ -1,0 +1,80 @@
+{
+  "id": "web-35067",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-5cf79ae5",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-007",
+    "ref_calls": 4,
+    "fixture_bytes": 101,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Orbitly",
+      "url": "https://developers.orbitly.dev/pricing",
+      "url_match": "developers.orbitly.dev/pricing",
+      "title": "Pricing - Orbitly Developers",
+      "snippet": "Plan quotas.",
+      "content": "# Pricing\n\nFree: 25,000 requests per month, 30 requests per minute.\nGrowth: 2 million requests per month.\n",
+      "published_at": "2026-09-04"
+    }
+  ],
+  "files": {
+    "vendors/orbitly-order-form-2026.md": "# Orbitly - order form\n\nPlan: Scale (custom)\nProduction API key rate limit: 600 requests per minute.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's Orbitly's free-tier monthly request quota these days?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "25,000"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "What rate limit did we agree for our own production key?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "600"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "id": "hyb-35208",
+  "description": "Chinese budget: total, raise one item, then cut another to stay under a cap. DISTILL-CANARY-699c650c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35208",
+    "ref_calls": 5,
+    "fixture_bytes": 63,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/春游预算.md": "- 大巴：2400\n- 午餐：1800\n- 门票：1500\n- 保险：300\n"
+  },
+  "turns": [
+    {
+      "prompt": "文档/春游预算.md 里的总预算是多少？",
+      "expect": {
+        "output_contains_any": [
+          "6000",
+          "6,000"
+        ]
+      }
+    },
+    {
+      "prompt": "门票改成 1650，其他不变，再告诉我新总额。",
+      "expect": {
+        "output_contains_any": [
+          "6150",
+          "6,150"
+        ]
+      }
+    },
+    {
+      "prompt": "老板说总额不能超过 6000，把午餐压缩来补，改好后告诉我午餐的新金额，以及它原来是多少。",
+      "expect": {
+        "output_contains": [
+          "1650",
+          "1800"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/春游预算.md": {
+        "equals": "- 大巴：2400\n- 午餐：1650\n- 门票：1650\n- 保险：300\n"
+      }
+    }
+  }
+}

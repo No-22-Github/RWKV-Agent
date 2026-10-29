@@ -1,0 +1,78 @@
+{
+  "id": "hyb-35207",
+  "description": "Patch bump replaced by minor bump after user changes mind. DISTILL-CANARY-4cba21aa",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35207",
+    "ref_calls": 5,
+    "fixture_bytes": 66,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "pkg/lumen-agent/Cargo.toml": "[package]\nname = \"lumen-agent\"\nversion = \"0.8.3\"\nedition = \"2021\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "What version is lumen-agent at, per its Cargo.toml in pkg/lumen-agent?",
+      "expect": {
+        "output_contains": [
+          "0.8.3"
+        ]
+      }
+    },
+    {
+      "prompt": "Bump the patch number and tell me the new version.",
+      "expect": {
+        "output_contains": [
+          "0.8.4"
+        ]
+      }
+    },
+    {
+      "prompt": "Actually this is a feature release, so make it the next minor instead (patch back to 0). Then list the three versions we've talked about.",
+      "expect": {
+        "output_contains": [
+          "0.8.3",
+          "0.8.4",
+          "0.9.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pkg/lumen-agent/Cargo.toml": {
+        "equals": "[package]\nname = \"lumen-agent\"\nversion = \"0.9.0\"\nedition = \"2021\"\n"
+      }
+    }
+  }
+}

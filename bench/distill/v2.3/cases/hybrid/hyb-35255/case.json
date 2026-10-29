@@ -1,0 +1,92 @@
+{
+  "id": "hyb-35255",
+  "description": "Shift two milestones by 7 days, compute the gap, recall the original launch date. DISTILL-CANARY-e5128e4f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35255",
+    "ref_calls": 6,
+    "fixture_bytes": 72,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/项目里程碑.txt": "需求冻结：2026-11-02\n开发完成：2026-11-20\n上线：2026-12-01\n"
+  },
+  "turns": [
+    {
+      "prompt": "项目上线日期是哪天？文件是 文档/项目里程碑.txt。",
+      "expect": {
+        "output_contains": [
+          "2026-12-01"
+        ]
+      }
+    },
+    {
+      "prompt": "上线推迟 7 天，改一下，告诉我新日期。",
+      "expect": {
+        "output_contains": [
+          "2026-12-08"
+        ]
+      }
+    },
+    {
+      "prompt": "开发完成也推迟 7 天。",
+      "expect": {
+        "output_contains": [
+          "2026-11-27"
+        ]
+      }
+    },
+    {
+      "prompt": "现在从开发完成到上线隔几天？另外上线最初定在哪天？",
+      "expect": {
+        "output_contains": [
+          "2026-12-01"
+        ],
+        "output_contains_any": [
+          "11 天",
+          "11天",
+          "十一天",
+          "11 days"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "datetime",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/项目里程碑.txt": {
+        "equals": "需求冻结：2026-11-02\n开发完成：2026-11-27\n上线：2026-12-08\n"
+      }
+    }
+  }
+}

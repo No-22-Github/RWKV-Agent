@@ -1,0 +1,87 @@
+{
+  "id": "hyb-35224",
+  "description": "Order two requirements by priority into a new file, then re-rank after a priority change. DISTILL-CANARY-72c9b819",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35224",
+    "ref_calls": 5,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/需求-登录.txt": "标题：短信登录\n优先级：P1\n负责人：韩雪\n",
+    "文档/需求-支付.txt": "标题：分期支付\n优先级：P0\n负责人：罗斌\n"
+  },
+  "turns": [
+    {
+      "prompt": "文档 目录下的 需求-登录.txt 和 需求-支付.txt，优先级各是什么？",
+      "expect": {
+        "output_contains": [
+          "P1",
+          "P0"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "按优先级从高到低，把两项需求的标题和负责人写进 文档/排期.md，一行一项，格式：标题（负责人）。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "产品把登录升成 P0 了，登录排到支付前面，把排期改好。然后告诉我登录原来的优先级和负责人是谁。",
+      "expect": {
+        "output_contains": [
+          "P1",
+          "韩雪"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "replace_lines"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/需求-登录.txt": {
+        "unchanged": true
+      },
+      "文档/需求-支付.txt": {
+        "unchanged": true
+      },
+      "文档/排期.md": {
+        "equals": "短信登录（韩雪）\n分期支付（罗斌）\n"
+      }
+    }
+  }
+}

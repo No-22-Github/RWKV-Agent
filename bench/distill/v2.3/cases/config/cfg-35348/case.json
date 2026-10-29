@@ -1,0 +1,69 @@
+{
+  "id": "cfg-35348",
+  "description": "Two appends over two turns. DISTILL-CANARY-b8fed287",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35348",
+    "ref_calls": 2,
+    "fixture_bytes": 27,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/gateway-flags.env": "FEATURE_A=on\nFEATURE_B=off\n"
+  },
+  "turns": [
+    {
+      "prompt": "Append FEATURE_C=on to deploy/gateway-flags.env.",
+      "expect": {}
+    },
+    {
+      "prompt": "And FEATURE_D=off after it.",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/gateway-flags.env": {
+        "equals": "FEATURE_A=on\nFEATURE_B=off\nFEATURE_C=on\nFEATURE_D=off\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 2,
+      "append_file": 3,
+      "list_files": 1,
+      "write_file": 1,
+      "replace_lines": 1
+    }
+  }
+}

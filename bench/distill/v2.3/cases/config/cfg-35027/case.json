@@ -1,0 +1,85 @@
+{
+  "id": "cfg-35027",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-f390c1af",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-027",
+    "ref_calls": 5,
+    "fixture_bytes": 135,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Redwick",
+      "url": "https://docs.redwickcdn.com/caching/defaults",
+      "url_match": "docs.redwickcdn.com/caching/defaults",
+      "title": "Caching defaults - Redwick Docs",
+      "snippet": "Default TTLs.",
+      "content": "# Caching defaults\n\nHTML responses are cached for 3600 seconds by default; static assets for 7 days.\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "files": {
+    "web/redwick-cache-rules.toml": "[rules.product_pages]\npath = \"/p/*\"\nttl_seconds = 900\n\n[rules.static]\npath = \"/assets/*\"\nttl_seconds = 86400\n",
+    "web/deploy-log.txt": "2026-09-01 rules reloaded\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Redwick cache TTL did we set for product pages in our config?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "900"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "3600"
+        ]
+      }
+    },
+    {
+      "prompt": "And the static assets TTL?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "86400"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

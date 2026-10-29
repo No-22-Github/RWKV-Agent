@@ -1,0 +1,86 @@
+{
+  "id": "hyb-35034",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-1e2989b1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-034",
+    "ref_calls": 5,
+    "fixture_bytes": 178,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "山岚度假村",
+      "url": "https://www.shanlan-resort.com/packages/team",
+      "url_match": "www.shanlan-resort.com/packages/team",
+      "title": "团队套餐 - 山岚度假村",
+      "snippet": "团建套餐价格。",
+      "content": "# 团队套餐\n\n两天一夜团建套餐：人均 980 元起，30 人以上可咨询优惠。\n",
+      "published_at": "2026-08-07"
+    }
+  ],
+  "files": {
+    "行政/团建预算表-Q4.md": "# 团建预算 Q4\n\n- 山岚度假村两天一夜：人均 860 元（含住宿、两餐、门票），共 32 人。\n- 市内桌游：人均 120 元。\n",
+    "行政/报名名单.csv": "姓名,部门\n陈晨,研发\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们团建预算表里，山岚度假村的人均标准是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "860"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "980",
+          "1080"
+        ]
+      }
+    },
+    {
+      "prompt": "一共多少人参加？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "32"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

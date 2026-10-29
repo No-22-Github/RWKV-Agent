@@ -1,0 +1,87 @@
+{
+  "id": "doc-35007",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-1d34a039",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-007",
+    "ref_calls": 5,
+    "fixture_bytes": 209,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Orbitly",
+      "url": "https://developers.orbitly.dev/rate-limits",
+      "url_match": "developers.orbitly.dev/rate-limits",
+      "title": "Rate limits - Orbitly Developers",
+      "snippet": "Public rate limits per plan.",
+      "content": "# Rate limits\n\nFree: 30 requests per minute.\nGrowth: 120 requests per minute.\nScale: custom limits agreed in the order form.\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "files": {
+    "vendors/orbitly-order-form-2026.md": "# Orbitly - order form\n\nPlan: Scale (custom)\nProduction API key rate limit: 600 requests per minute, burst 900.\nSandbox key: 60 requests per minute.\nSupport tier: priority, 4h response.\n",
+    "vendors/orbitly-incident-contacts.txt": "pager: platform-oncall\n"
+  },
+  "turns": [
+    {
+      "prompt": "What request rate did we agree with Orbitly for our production key?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "600"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "120 requests",
+          "120 per minute",
+          "120/min",
+          "120 req"
+        ]
+      }
+    },
+    {
+      "prompt": "And the public Growth plan limit on their developer site?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

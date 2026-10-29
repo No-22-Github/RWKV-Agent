@@ -1,0 +1,75 @@
+{
+  "id": "doc-35003",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-f1fe38f1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-003",
+    "ref_calls": 3,
+    "fixture_bytes": 198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Brightloop",
+      "url": "https://brightloop.app/pricing",
+      "url_match": "brightloop.app/pricing",
+      "title": "Pricing - Brightloop",
+      "snippet": "Plans and per-seat pricing.",
+      "content": "# Pricing\n\nTeam: 12 dollars per seat per month.\nBusiness: 19 dollars per seat per month (billed annually).\nEnterprise: contact sales.\n",
+      "published_at": "2026-07-15"
+    }
+  ],
+  "files": {
+    "vendors/brightloop-renewal-2026-redline.md": "# Brightloop renewal (redline v3)\n\nSeats: 60\nNegotiated price: 14.50 per seat per month, annual billing.\nPrevious price: 17.00.\nAuto-renew: yes, 60-day notice.\n",
+    "vendors/renewal-calendar.txt": "Brightloop - Nov 30\nMailpath - Jan 12\n"
+  },
+  "turns": [
+    {
+      "prompt": "What per-seat monthly price did we negotiate with Brightloop for the renewal?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "14.50"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "19 per seat",
+          "$19",
+          "19 dollars",
+          "19.00"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

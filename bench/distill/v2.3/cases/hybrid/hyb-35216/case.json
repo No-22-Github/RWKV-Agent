@@ -1,0 +1,81 @@
+{
+  "id": "hyb-35216",
+  "description": "A staged edit is rejected by the user, then a different edit is requested; recall the rejected target. DISTILL-CANARY-ccff263e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35216",
+    "ref_calls": 5,
+    "fixture_bytes": 59,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/直播间-弹幕.json": "{\n  \"room\": 1042,\n  \"delay_ms\": 150,\n  \"max_per_sec\": 20\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 配置/直播间-弹幕.json 里的 delay_ms 改成 300。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "我没保存这个改动。现在文件里 delay_ms 是多少？",
+      "expect": {
+        "output_contains": [
+          "150"
+        ],
+        "output_contains_token": true
+      },
+      "review_before": "reject"
+    },
+    {
+      "prompt": "好，这次改 max_per_sec 到 35，delay_ms 保持原样。然后告诉我第一次让你改的 delay_ms 目标值，以及现在两项各是多少。",
+      "expect": {
+        "output_contains": [
+          "300",
+          "150",
+          "35"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "配置/直播间-弹幕.json": {
+        "equals": "{\n  \"room\": 1042,\n  \"delay_ms\": 150,\n  \"max_per_sec\": 35\n}\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "code-35530",
+  "description": "订单状态机，自动确认收货时长在后部. DISTILL-CANARY-123c646e",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-TRUNC"
+    ],
+    "trap_decoys": {
+      "TR-TRUNC": "AUTO_CANCEL_MINUTES = 30"
+    },
+    "axes": [
+      "OBS",
+      "LNG"
+    ],
+    "level": "L1",
+    "family": "b23g-G1-35530",
+    "ref_calls": 3,
+    "fixture_bytes": 10103,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23g",
+    "subtype": "G1"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/订单/状态机.js": "// 订单状态机\n'use strict';\n\nconst AUTO_CANCEL_MINUTES = 30; // 未支付自动取消（分钟）\n\nconst rewriteCursor = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.cursor = String(y.cursor || \"\").trim();\n  return y;\n};\n\nfunction splitManifest(list, opts = {}) {\n  const max = opts.max || 200;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.record) out.push(it);\n  }\n  return out;\n}\n\nfunction splitInvoice(list, opts = {}) {\n  const max = opts.max || 70;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.segment) out.push(it);\n  }\n  return out;\n}\n\nconst annotateSegment = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.segment = String(y.segment || \"\").trim();\n  return y;\n};\n\nconst flattenPayload = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.payload = String(y.payload || \"\").trim();\n  return y;\n};\n\nfunction annotateDigest(list, opts = {}) {\n  const max = opts.max || 120;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.ticket) out.push(it);\n  }\n  return out;\n}\n\nconst normalizeDigest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.digest = String(y.digest || \"\").trim();\n  return y;\n};\n\nconst tallyManifest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.manifest = String(y.manifest || \"\").trim();\n  return y;\n};\n\nfunction flattenManifest(list, opts = {}) {\n  const max = opts.max || 100;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.cursor) out.push(it);\n  }\n  return out;\n}\n\nfunction annotateDigest9(list, opts = {}) {\n  const max = opts.max || 130;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.invoice) out.push(it);\n  }\n  return out;\n}\n\nconst pruneSession = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.session = String(y.session || \"\").trim();\n  return y;\n};\n\nconst flattenCursor = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.cursor = String(y.cursor || \"\").trim();\n  return y;\n};\n\nconst annotateInvoice = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.invoice = String(y.invoice || \"\").trim();\n  return y;\n};\n\nconst splitEntry = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.entry = String(y.entry || \"\").trim();\n  return y;\n};\n\nconst splitSegment = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.segment = String(y.segment || \"\").trim();\n  return y;\n};\n\nconst annotateTicket = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.ticket = String(y.ticket || \"\").trim();\n  return y;\n};\n\nconst splitPayload = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.payload = String(y.payload || \"\").trim();\n  return y;\n};\n\nfunction mergeProfile(list, opts = {}) {\n  const max = opts.max || 120;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.profile) out.push(it);\n  }\n  return out;\n}\n\nconst prunePayload = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.payload = String(y.payload || \"\").trim();\n  return y;\n};\n\nfunction flattenRecord(list, opts = {}) {\n  const max = opts.max || 170;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.profile) out.push(it);\n  }\n  return out;\n}\n\nconst normalizeEntry = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.entry = String(y.entry || \"\").trim();\n  return y;\n};\n\nfunction splitRecord(list, opts = {}) {\n  const max = opts.max || 70;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.ticket) out.push(it);\n  }\n  return out;\n}\n\nconst collectSession = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.session = String(y.session || \"\").trim();\n  return y;\n};\n\nfunction pruneSession23(list, opts = {}) {\n  const max = opts.max || 170;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.cursor) out.push(it);\n  }\n  return out;\n}\n\nconst rewriteSession = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.session = String(y.session || \"\").trim();\n  return y;\n};\n\nconst pruneRecord = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.record = String(y.record || \"\").trim();\n  return y;\n};\n\nconst indexEntry = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.entry = String(y.entry || \"\").trim();\n  return y;\n};\n\nfunction flattenProfile(list, opts = {}) {\n  const max = opts.max || 60;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.payload) out.push(it);\n  }\n  return out;\n}\n\nfunction normalizeSegment(list, opts = {}) {\n  const max = opts.max || 200;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.invoice) out.push(it);\n  }\n  return out;\n}\n\nconst pruneDigest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.digest = String(y.digest || \"\").trim();\n  return y;\n};\n\nfunction rewritePayload(list, opts = {}) {\n  const max = opts.max || 30;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.segment) out.push(it);\n  }\n  return out;\n}\n\nconst tallyDigest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.digest = String(y.digest || \"\").trim();\n  return y;\n};\n\nfunction normalizeBatch(list, opts = {}) {\n  const max = opts.max || 110;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.payload) out.push(it);\n  }\n  return out;\n}\n\nfunction normalizeBatch33(list, opts = {}) {\n  const max = opts.max || 70;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.ticket) out.push(it);\n  }\n  return out;\n}\n\nconst annotateBatch = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.batch = String(y.batch || \"\").trim();\n  return y;\n};\n\nfunction splitTicket(list, opts = {}) {\n  const max = opts.max || 170;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.invoice) out.push(it);\n  }\n  return out;\n}\n\nconst AUTO_CONFIRM_HOURS = 168; // 发货后自动确认收货（小时）\n\nfunction rewriteInvoice(list, opts = {}) {\n  const max = opts.max || 60;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.ticket) out.push(it);\n  }\n  return out;\n}\n\nfunction rewriteRecord(list, opts = {}) {\n  const max = opts.max || 30;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.entry) out.push(it);\n  }\n  return out;\n}\n\nfunction tallyInvoice(list, opts = {}) {\n  const max = opts.max || 40;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.record) out.push(it);\n  }\n  return out;\n}\n\nconst collectManifest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.manifest = String(y.manifest || \"\").trim();\n  return y;\n};\n\nconst flattenDigest = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.digest = String(y.digest || \"\").trim();\n  return y;\n};\n\nconst mergeBatch = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.batch = String(y.batch || \"\").trim();\n  return y;\n};\n\nfunction normalizeInvoice(list, opts = {}) {\n  const max = opts.max || 120;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.profile) out.push(it);\n  }\n  return out;\n}\n\nfunction collectTicket(list, opts = {}) {\n  const max = opts.max || 100;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.entry) out.push(it);\n  }\n  return out;\n}\n\nconst flattenPayload44 = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.payload = String(y.payload || \"\").trim();\n  return y;\n};\n\nfunction splitPayload45(list, opts = {}) {\n  const max = opts.max || 30;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.digest) out.push(it);\n  }\n  return out;\n}\n\nconst tallyProfile = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.profile = String(y.profile || \"\").trim();\n  return y;\n};\n\nconst tallyManifest47 = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.manifest = String(y.manifest || \"\").trim();\n  return y;\n};\n\nfunction normalizeTicket(list, opts = {}) {\n  const max = opts.max || 80;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.segment) out.push(it);\n  }\n  return out;\n}\n\nfunction flattenTicket(list, opts = {}) {\n  const max = opts.max || 40;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.profile) out.push(it);\n  }\n  return out;\n}\n\nfunction splitManifest50(list, opts = {}) {\n  const max = opts.max || 90;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.session) out.push(it);\n  }\n  return out;\n}\n\nconst mergeProfile51 = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.profile = String(y.profile || \"\").trim();\n  return y;\n};\n\nconst mergeInvoice = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.invoice = String(y.invoice || \"\").trim();\n  return y;\n};\n\nconst splitInvoice53 = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.invoice = String(y.invoice || \"\").trim();\n  return y;\n};\n\nfunction splitRecord54(list, opts = {}) {\n  const max = opts.max || 190;\n  const out = [];\n  for (const it of list) {\n    if (out.length >= max) break;\n    if (it && it.entry) out.push(it);\n  }\n  return out;\n}\n\nconst prunePayload55 = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.payload = String(y.payload || \"\").trim();\n  return y;\n};\n\nconst splitSession = (x) => {\n  if (x == null) return null;\n  const y = { ...x };\n  y.session = String(y.session || \"\").trim();\n  return y;\n};\n"
+  },
+  "turns": [
+    {
+      "prompt": "src/订单/状态机.js 里，发货后多少小时会自动确认收货？",
+      "expect": {
+        "output_contains": [
+          "168"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "AUTO_CANCEL_MINUTES = 30"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "read_file": 4
+    }
+  }
+}

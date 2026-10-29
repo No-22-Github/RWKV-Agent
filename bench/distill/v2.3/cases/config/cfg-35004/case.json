@@ -1,0 +1,74 @@
+{
+  "id": "cfg-35004",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-138acca7",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-004",
+    "ref_calls": 3,
+    "fixture_bytes": 161,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Halcyon",
+      "url": "https://help.halcyoncloud.io/backups/retention",
+      "url_match": "help.halcyoncloud.io/backups/retention",
+      "title": "Snapshot retention - Halcyon Cloud Help",
+      "snippet": "How long snapshots are kept.",
+      "content": "# Snapshot retention\n\nBy default Halcyon Cloud keeps automatic snapshots for 7 days. You can extend retention in the backup policy.\n",
+      "published_at": "2026-05-09"
+    }
+  ],
+  "files": {
+    "infra/halcyon-backup-policy.toml": "[backup]\nprovider = \"halcyon\"\nschedule = \"0 2 * * *\"\nretention_days = 35\nencrypt = true\n\n[restore]\ntest_every_days = 90\n",
+    "infra/halcyon-regions.toml": "primary = \"eu-north\"\nreplica = \"eu-west\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many days of snapshot retention have we configured for Halcyon Cloud backups?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "35"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "7 days",
+          "7-day",
+          "seven days"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

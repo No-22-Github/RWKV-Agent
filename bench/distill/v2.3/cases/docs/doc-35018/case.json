@@ -1,0 +1,86 @@
+{
+  "id": "doc-35018",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-4c9156b7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-018",
+    "ref_calls": 5,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "云砚",
+      "url": "https://help.yunyan-docs.com/share/link",
+      "url_match": "help.yunyan-docs.com/share/link",
+      "title": "分享链接设置 - 云砚文档帮助中心",
+      "snippet": "链接有效期说明。",
+      "content": "# 分享链接设置\n\n默认有效期 30 天，可改为 1 天、7 天或永久有效。\n",
+      "published_at": "2026-07-21"
+    }
+  ],
+  "files": {
+    "信息安全/文档外发管理办法-v2.md": "# 文档外发管理办法\n\n三、外部分享\n1. 云砚文档的外部分享链接必须设置密码。\n2. 链接有效期最长 7 天，到期自动失效。\n3. 涉密文档禁止外部分享。\n",
+    "信息安全/培训签到.csv": "日期,人数\n2026-06-10,41\n"
+  },
+  "turns": [
+    {
+      "prompt": "按公司规定，云砚文档的外部分享链接最长能设多少天有效期？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "30 天",
+          "30天",
+          "永久"
+        ]
+      }
+    },
+    {
+      "prompt": "云砚帮助中心里说的默认有效期是多久？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "30"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

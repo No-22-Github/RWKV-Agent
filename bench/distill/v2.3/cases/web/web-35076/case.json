@@ -1,0 +1,80 @@
+{
+  "id": "web-35076",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-1251c497",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-016",
+    "ref_calls": 4,
+    "fixture_bytes": 38,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "星桥支付",
+      "url": "https://www.xingqiao-pay.com/help/refund",
+      "url_match": "www.xingqiao-pay.com/help/refund",
+      "title": "退款说明 - 星桥支付",
+      "snippet": "退款到账规则。",
+      "content": "# 退款说明\n\n原路退回的款项一般在 3 个工作日内到账，银行处理较慢时最长 7 个工作日。\n",
+      "published_at": "2026-08-09"
+    }
+  ],
+  "files": {
+    "财务/星桥支付-商户协议补充条款.md": "# 补充条款\n\n结算周期：T+1。\n"
+  },
+  "turns": [
+    {
+      "prompt": "星桥支付官网现在写的退款到账时间是几个工作日？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "我们协议里的结算周期是什么？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "T+1"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

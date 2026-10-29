@@ -1,0 +1,67 @@
+{
+  "id": "cfg-35538",
+  "description": "TOML 文件头的配置负责人，后部有备选联系人. DISTILL-CANARY-e25f6d5b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "备选联系人：吕建国"
+    },
+    "axes": [
+      "OBS",
+      "LNG",
+      "STP"
+    ],
+    "level": "L1",
+    "family": "b23g-G0-35538",
+    "ref_calls": 3,
+    "fixture_bytes": 7579,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23g",
+    "subtype": "G0"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/调度器基线.toml": "# 调度器基线配置\n# 配置负责人：韩晓梅\n\n\n[modules.scheduler_0]\nprefix = \"x_\"\npath = \"/var/lib/app/tmp\"\nenabled = true\nworkers = 2\n\n[modules.static_1]\nworkers = 2\nbuffer_kb = 64\nmax_items = 100\nprefix = \"app_\"\npath = \"/var/lib/app/cache\"\n\n[modules.export_2]\nworkers = 2\nenabled = false\nprefix = \"app_\"\nbuffer_kb = 768\n\n[modules.locale_3]\nmax_items = 325\npath = \"/var/lib/app/cache\"\nenabled = true\nbuffer_kb = 576\nlevel = \"info\"\n\n[modules.search_4]\nlevel = \"info\"\npath = \"/var/lib/app/spool\"\nenabled = false\nbuffer_kb = 960\nmax_items = 900\nflush_every = 5\n\n[modules.sessions_5]\npath = \"/var/lib/app/out\"\nprefix = \"svc-\"\nflush_every = 30\nmax_items = 300\nenabled = false\nbuffer_kb = 320\n\n[modules.search_6]\nprefix = \"svc-\"\nmax_items = 950\npath = \"/var/lib/app/out\"\nflush_every = 22\n\n[modules.search_7]\nprefix = \"x_\"\nbuffer_kb = 448\nflush_every = 21\nlevel = \"warn\"\npath = \"/var/lib/app/out\"\n\n[modules.mailer_8]\nflush_every = 15\npath = \"/var/lib/app/out\"\nworkers = 6\nenabled = false\nmax_items = 350\n\n[modules.scheduler_9]\nbuffer_kb = 704\nlevel = \"info\"\nmax_items = 725\npath = \"/var/lib/app/cache\"\nprefix = \"svc-\"\nflush_every = 14\n\n[modules.static_10]\nmax_items = 725\nflush_every = 26\nenabled = true\nprefix = \"svc-\"\nlevel = \"warn\"\n\n[modules.mailer_11]\nprefix = \"x_\"\nlevel = \"warn\"\nflush_every = 19\nbuffer_kb = 704\nworkers = 8\n\n[modules.tracing_12]\nmax_items = 175\nworkers = 3\nflush_every = 15\nbuffer_kb = 192\nprefix = \"svc-\"\n\n[modules.tracing_13]\nworkers = 8\nenabled = false\nflush_every = 18\nmax_items = 525\npath = \"/var/lib/app/spool\"\nprefix = \"app_\"\n\n[modules.scheduler_14]\nbuffer_kb = 960\nflush_every = 19\nenabled = true\nmax_items = 200\npath = \"/var/lib/app/tmp\"\nlevel = \"warn\"\n\n[modules.imaging_15]\nenabled = true\nmax_items = 175\nprefix = \"app_\"\npath = \"/var/lib/app/spool\"\n\n[modules.sessions_16]\nflush_every = 12\npath = \"/var/lib/app/tmp\"\nmax_items = 250\nlevel = \"warn\"\n\n[modules.uploads_17]\npath = \"/var/lib/app/tmp\"\nworkers = 5\nlevel = \"warn\"\nenabled = false\n\n[modules.cors_18]\nprefix = \"x_\"\nworkers = 1\nlevel = \"info\"\npath = \"/var/lib/app/out\"\nflush_every = 11\nenabled = false\n\n[modules.search_19]\nmax_items = 175\nworkers = 4\nlevel = \"info\"\nprefix = \"x_\"\nbuffer_kb = 768\n\n[modules.uploads_20]\nmax_items = 725\nprefix = \"svc-\"\nenabled = false\nworkers = 7\nbuffer_kb = 64\n\n[modules.ratelimit_21]\npath = \"/var/lib/app/spool\"\nflush_every = 15\nlevel = \"warn\"\nenabled = true\nbuffer_kb = 576\nmax_items = 575\n\n[modules.search_22]\nlevel = \"info\"\nbuffer_kb = 768\nworkers = 8\nflush_every = 4\npath = \"/var/lib/app/out\"\nmax_items = 500\n\n[modules.mailer_23]\npath = \"/var/lib/app/cache\"\nflush_every = 24\nworkers = 5\nenabled = true\nlevel = \"info\"\n\n[modules.static_24]\nenabled = true\npath = \"/var/lib/app/tmp\"\nflush_every = 21\nbuffer_kb = 896\nmax_items = 500\nprefix = \"svc-\"\n\n[modules.locale_25]\nlevel = \"info\"\nmax_items = 950\nenabled = false\nflush_every = 9\npath = \"/var/lib/app/out\"\nworkers = 1\n\n[modules.sessions_26]\nbuffer_kb = 960\nworkers = 2\nlevel = \"info\"\nflush_every = 7\nmax_items = 250\npath = \"/var/lib/app/spool\"\n\n[modules.static_27]\nmax_items = 300\nenabled = false\nprefix = \"svc-\"\nflush_every = 2\nworkers = 6\nlevel = \"warn\"\n\n[modules.search_28]\npath = \"/var/lib/app/tmp\"\nflush_every = 30\nworkers = 8\nlevel = \"info\"\nprefix = \"x_\"\nmax_items = 950\n\n[modules.cors_29]\nworkers = 6\npath = \"/var/lib/app/out\"\nflush_every = 27\nprefix = \"x_\"\n\n[modules.imaging_30]\nworkers = 5\nflush_every = 16\nbuffer_kb = 320\nlevel = \"warn\"\npath = \"/var/lib/app/cache\"\nmax_items = 100\n\n[modules.metrics_31]\nflush_every = 8\nlevel = \"info\"\nenabled = true\nmax_items = 750\nprefix = \"x_\"\n\n[modules.locale_32]\nmax_items = 800\nenabled = false\nbuffer_kb = 704\nlevel = \"error\"\n\n[modules.search_33]\nflush_every = 15\nworkers = 2\npath = \"/var/lib/app/tmp\"\nmax_items = 75\nlevel = \"warn\"\n\n[modules.locale_34]\nbuffer_kb = 640\nprefix = \"app_\"\nenabled = false\nlevel = \"error\"\n\n[modules.uploads_35]\nbuffer_kb = 576\nworkers = 8\nlevel = \"error\"\nenabled = true\n\n[modules.locale_36]\nbuffer_kb = 576\nlevel = \"warn\"\nworkers = 5\nenabled = false\nprefix = \"x_\"\n\n[modules.scheduler_37]\nenabled = true\nmax_items = 475\nflush_every = 2\npath = \"/var/lib/app/out\"\nworkers = 7\nlevel = \"warn\"\n\n[modules.logging_38]\nenabled = true\nbuffer_kb = 512\nflush_every = 27\nlevel = \"warn\"\nprefix = \"x_\"\n\n[modules.cors_39]\nflush_every = 8\npath = \"/var/lib/app/tmp\"\nenabled = false\nmax_items = 950\n\n[modules.mailer_40]\nmax_items = 600\nflush_every = 7\nlevel = \"error\"\nbuffer_kb = 192\n\n[modules.sessions_41]\npath = \"/var/lib/app/cache\"\nbuffer_kb = 1024\nflush_every = 26\nenabled = true\nworkers = 5\n\n[modules.logging_42]\npath = \"/var/lib/app/cache\"\nworkers = 1\nlevel = \"error\"\nbuffer_kb = 704\nenabled = true\n\n[modules.locale_43]\nbuffer_kb = 320\nenabled = true\nflush_every = 13\nprefix = \"app_\"\nmax_items = 950\n\n[legacy.contact]\n# 备选联系人：吕建国\n\n[modules.cors_44]\nbuffer_kb = 448\nlevel = \"warn\"\nmax_items = 175\nflush_every = 25\n\n[modules.ratelimit_45]\npath = \"/var/lib/app/spool\"\nprefix = \"svc-\"\nworkers = 3\nenabled = true\nlevel = \"warn\"\nflush_every = 9\n\n[modules.export_46]\nprefix = \"svc-\"\nbuffer_kb = 576\npath = \"/var/lib/app/spool\"\nlevel = \"info\"\nenabled = false\nflush_every = 24\n\n[modules.imaging_47]\nenabled = true\nmax_items = 300\nlevel = \"warn\"\nbuffer_kb = 832\nworkers = 2\nflush_every = 22\n\n[modules.metrics_48]\nbuffer_kb = 576\nlevel = \"error\"\nmax_items = 175\nflush_every = 8\n\n[modules.static_49]\nenabled = true\nmax_items = 875\nprefix = \"x_\"\nflush_every = 6\n\n[modules.tracing_50]\nworkers = 1\nenabled = false\nbuffer_kb = 320\nmax_items = 675\n\n[modules.static_51]\nlevel = \"info\"\npath = \"/var/lib/app/out\"\nenabled = false\nworkers = 2\n\n[modules.search_52]\nbuffer_kb = 1024\nworkers = 1\nmax_items = 250\npath = \"/var/lib/app/tmp\"\n\n[modules.uploads_53]\npath = \"/var/lib/app/spool\"\nflush_every = 17\nmax_items = 350\nworkers = 2\n\n[modules.ratelimit_54]\npath = \"/var/lib/app/spool\"\nprefix = \"svc-\"\nmax_items = 75\nflush_every = 22\nlevel = \"error\"\nbuffer_kb = 768\n\n[modules.locale_55]\nlevel = \"info\"\nbuffer_kb = 704\nflush_every = 11\nmax_items = 975\nenabled = false\nprefix = \"svc-\"\n\n[modules.cors_56]\nbuffer_kb = 512\nflush_every = 30\nworkers = 6\nmax_items = 650\nenabled = true\n\n[modules.mailer_57]\nworkers = 3\npath = \"/var/lib/app/out\"\nprefix = \"app_\"\nflush_every = 5\nmax_items = 850\nbuffer_kb = 896\n\n[modules.uploads_58]\npath = \"/var/lib/app/tmp\"\nenabled = false\nmax_items = 475\nworkers = 3\nlevel = \"info\"\n\n[modules.export_59]\nmax_items = 900\nprefix = \"svc-\"\nenabled = true\nworkers = 6\nbuffer_kb = 320\n\n[modules.static_60]\nflush_every = 28\nenabled = true\nmax_items = 250\npath = \"/var/lib/app/cache\"\n\n[modules.mailer_61]\nbuffer_kb = 576\nflush_every = 9\nlevel = \"warn\"\nenabled = true\npath = \"/var/lib/app/out\"\n\n[modules.static_62]\nlevel = \"error\"\nworkers = 4\nprefix = \"x_\"\npath = \"/var/lib/app/spool\"\nflush_every = 19\nbuffer_kb = 320\n\n[modules.tracing_63]\nlevel = \"warn\"\nflush_every = 21\nmax_items = 875\nbuffer_kb = 640\n\n[modules.imaging_64]\nmax_items = 75\nflush_every = 26\nbuffer_kb = 576\nenabled = false\n\n[modules.locale_65]\nbuffer_kb = 320\nlevel = \"info\"\nflush_every = 28\nprefix = \"x_\"\n\n[modules.cors_66]\nenabled = false\nmax_items = 100\nprefix = \"svc-\"\nlevel = \"error\"\nworkers = 2\nbuffer_kb = 832\n\n[modules.export_67]\nbuffer_kb = 640\nprefix = \"app_\"\nflush_every = 3\nlevel = \"info\"\npath = \"/var/lib/app/spool\"\n\n[modules.tracing_68]\nlevel = \"info\"\nenabled = true\nbuffer_kb = 384\npath = \"/var/lib/app/out\"\nmax_items = 525\nprefix = \"svc-\"\n\n[modules.logging_69]\nprefix = \"x_\"\nmax_items = 600\npath = \"/var/lib/app/spool\"\nbuffer_kb = 384\nworkers = 8\nenabled = false\n\n[modules.uploads_70]\nlevel = \"error\"\nenabled = false\nmax_items = 425\nflush_every = 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "配置/调度器基线.toml 文件开头写的配置负责人是谁？",
+      "expect": {
+        "output_contains": [
+          "韩晓梅"
+        ],
+        "output_excludes": [
+          "吕建国"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

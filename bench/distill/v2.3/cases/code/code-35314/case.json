@@ -1,0 +1,66 @@
+{
+  "id": "code-35314",
+  "description": "Replace a six-line body with a guarded three-liner. DISTILL-CANARY-68ceacf9",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35314",
+    "ref_calls": 4,
+    "fixture_bytes": 382,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/proration.py": "\"\"\"Proration helpers for mid-cycle plan changes.\"\"\"\n\n\ndef prorate(amount_cents, days_used, days_in_cycle):\n    ratio = days_used / days_in_cycle\n    value = amount_cents * ratio\n    value = round(value)\n    if value < 0:\n        value = 0\n    return value\n\n\ndef refund_due(paid_cents, days_used, days_in_cycle):\n    return paid_cents - prorate(paid_cents, days_used, days_in_cycle)\n"
+  },
+  "turns": [
+    {
+      "prompt": "prorate() in billing/proration.py blows up with a ZeroDivisionError when days_in_cycle is 0. Replace its body so it returns 0 in that case and otherwise returns the rounded, non-negative prorated amount, in as few lines as is still readable. Leave refund_due alone. Read the file back and tell me which line refund_due now starts on.",
+      "expect": {
+        "output_contains": [
+          "10"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "billing/proration.py": {
+        "equals": "\"\"\"Proration helpers for mid-cycle plan changes.\"\"\"\n\n\ndef prorate(amount_cents, days_used, days_in_cycle):\n    if days_in_cycle <= 0:\n        return 0\n    return max(0, round(amount_cents * days_used / days_in_cycle))\n\n\ndef refund_due(paid_cents, days_used, days_in_cycle):\n    return paid_cents - prorate(paid_cents, days_used, days_in_cycle)\n"
+      }
+    }
+  }
+}

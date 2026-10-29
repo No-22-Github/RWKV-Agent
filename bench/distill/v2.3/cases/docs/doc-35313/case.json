@@ -1,0 +1,71 @@
+{
+  "id": "doc-35313",
+  "description": "Table edits over two turns. DISTILL-CANARY-b7f64215",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35313",
+    "ref_calls": 4,
+    "fixture_bytes": 159,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "pricing/plan-sheet-2026.md": "# Plan sheet 2026\n\n| Plan | Seats | Monthly |\n|---|---:|---:|\n| Starter | 3 | 29 |\n| Team | 15 | 119 |\n| Business | 60 | 399 |\n\nPrices in USD, billed monthly.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Raise Team to 129 a month in pricing/plan-sheet-2026.md and add an Enterprise row after Business: 250 seats, 1,490. Read the table back when you're done.",
+      "expect": {
+        "output_contains": [
+          "129"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "Now put one more line at the very end of that file: 'Enterprise pricing includes a dedicated support contact.'",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pricing/plan-sheet-2026.md": {
+        "equals": "# Plan sheet 2026\n\n| Plan | Seats | Monthly |\n|---|---:|---:|\n| Starter | 3 | 29 |\n| Team | 15 | 129 |\n| Business | 60 | 399 |\n| Enterprise | 250 | 1,490 |\n\nPrices in USD, billed monthly.\nEnterprise pricing includes a dedicated support contact.\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": "hyb-35323",
+  "description": "Add a row dated this coming Friday. DISTILL-CANARY-a2ae387d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23e-E1-35323",
+    "ref_calls": 5,
+    "fixture_bytes": 168,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/maintenance-windows.md": "# Maintenance windows\n\n| Date | System | Owner |\n|---|---|---|\n| 2026-09-04 | billing-db | Reyes |\n| 2026-09-11 | search-index | Okafor |\n\nWindows run 01:00-03:00 UTC.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Schedule an auth-gateway window in ops/maintenance-windows.md for this coming Friday, owner Lindqvist, as a new last row of the table. Check the file afterwards and tell me the date you used.",
+      "expect": {
+        "output_contains": [
+          "2026-09-18"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "datetime"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "ops/maintenance-windows.md": {
+        "equals": "# Maintenance windows\n\n| Date | System | Owner |\n|---|---|---|\n| 2026-09-04 | billing-db | Reyes |\n| 2026-09-11 | search-index | Okafor |\n| 2026-09-18 | auth-gateway | Lindqvist |\n\nWindows run 01:00-03:00 UTC.\n"
+      }
+    }
+  }
+}

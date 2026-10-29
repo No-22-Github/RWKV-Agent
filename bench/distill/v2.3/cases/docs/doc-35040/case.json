@@ -1,0 +1,86 @@
+{
+  "id": "doc-35040",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-c3867926",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-040",
+    "ref_calls": 5,
+    "fixture_bytes": 172,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "百川翻译社",
+      "url": "https://www.baichuan-translation.cn/price",
+      "url_match": "www.baichuan-translation.cn/price",
+      "title": "翻译报价 - 百川翻译社",
+      "snippet": "公开报价。",
+      "content": "# 翻译报价\n\n中译英：千字 350 元起。英译中：千字 260 元起。\n",
+      "published_at": "2026-07-11"
+    }
+  ],
+  "files": {
+    "采购/百川翻译社-服务确认单.md": "# 服务确认单\n\n服务方：百川翻译社\n中译英：千字 280 元；英译中：千字 220 元。\n交付：5000 字以内 3 天。\n",
+    "采购/稿件登记.csv": "稿件,字数\n产品手册,12000\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们和百川翻译社约定的千字翻译单价是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "280"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "350 元",
+          "350元"
+        ]
+      }
+    },
+    {
+      "prompt": "英译中的呢？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "220"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

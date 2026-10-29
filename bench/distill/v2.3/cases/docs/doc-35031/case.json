@@ -1,0 +1,72 @@
+{
+  "id": "doc-35031",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-bdbe3d2b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-031",
+    "ref_calls": 3,
+    "fixture_bytes": 224,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Corvid",
+      "url": "https://developers.corvidapi.io/v2-sunset",
+      "url_match": "developers.corvidapi.io/v2-sunset",
+      "title": "v2 sunset - Corvid API",
+      "snippet": "Retirement schedule.",
+      "content": "# v2 sunset\n\nCorvid v2 shuts down on 2027-04-30.\n",
+      "published_at": "2026-06-01"
+    }
+  ],
+  "files": {
+    "adr/adr-0017-corvid-api-migration.md": "# ADR-0017: Corvid API migration\n\nStatus: accepted 2026-07-09\n\nDecision: migrate all callers to Corvid v3 by 2026-12-15, with the v2 fallback removed in January.\nOwner: payments team.\n",
+    "adr/adr-0016-queue-choice.md": "Status: accepted\nUse the managed queue.\n"
+  },
+  "turns": [
+    {
+      "prompt": "By what date did we say we'd move everything off the Corvid v2 API, per our architecture decision record?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "2026-12-15"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "2027-04-30"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

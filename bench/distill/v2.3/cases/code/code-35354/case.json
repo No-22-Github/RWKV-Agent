@@ -1,0 +1,64 @@
+{
+  "id": "code-35354",
+  "description": "Append an export line. DISTILL-CANARY-c9570eb7",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35354",
+    "ref_calls": 2,
+    "fixture_bytes": 65,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/flags-edge.ts": "export const EDGE_CACHE = true;\nexport const EDGE_DEBUG = false;\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add `export const BUILD_FLAG = true;` as the last line of src/flags-edge.ts.",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/flags-edge.ts": {
+        "equals": "export const EDGE_CACHE = true;\nexport const EDGE_DEBUG = false;\nexport const BUILD_FLAG = true;\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 1,
+      "list_files": 1,
+      "append_file": 2,
+      "write_file": 1,
+      "replace_lines": 1
+    }
+  }
+}

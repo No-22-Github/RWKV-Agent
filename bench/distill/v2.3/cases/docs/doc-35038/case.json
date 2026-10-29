@@ -1,0 +1,87 @@
+{
+  "id": "doc-35038",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-f3579b67",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23b-B1-038",
+    "ref_calls": 5,
+    "fixture_bytes": 169,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "采芝林",
+      "url": "https://www.caizhilin-foods.cn/service/warranty",
+      "url_match": "www.caizhilin-foods.cn/service/warranty",
+      "title": "售后与质保 - 采芝林食品",
+      "snippet": "质保政策。",
+      "content": "# 售后与质保\n\n标准质保期 12 个月。\n",
+      "published_at": "2026-05-05"
+    }
+  ],
+  "files": {
+    "采购/采芝林-供货合同-2026.md": "# 供货合同\n\n供方：采芝林食品\n质保期：自收货之日起 18 个月。\n退换货：开箱 7 日内凭质检报告办理。\n",
+    "采购/验收记录.csv": "日期,批次\n2026-06-01,B-0601\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们和采芝林的供货合同，质保期写的多久？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "12 个月",
+          "12个月",
+          "一年"
+        ]
+      }
+    },
+    {
+      "prompt": "退换货的时限呢？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

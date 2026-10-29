@@ -1,0 +1,72 @@
+{
+  "id": "web-35061",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-5c0f0262",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-001",
+    "ref_calls": 2,
+    "fixture_bytes": 106,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Lumen",
+      "url": "https://docs.lumenstack.io/gateway/limits",
+      "url_match": "docs.lumenstack.io/gateway/limits",
+      "title": "Request limits - Lumenstack Gateway Docs",
+      "snippet": "Body size, header size and connection limits.",
+      "content": "# Request limits\n\nDefault maximum request body: 12 MB (raised from 4 MB in release 3.8).\nMaximum header size: 32 KB.\nConcurrent connections per listener: 20,000.\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "files": {
+    "infra/gateway-sizing-2025.md": "# Gateway sizing (2025 draft)\n\nAssumed body limit for the Lumen gateway: 4 MB, from the docs at the time.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the maximum request body size the Lumen gateway accepts by default these days?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "12"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "only 4 MB",
+          "is 4 MB",
+          "of 4 MB"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "id": "cfg-35154",
+  "description": "Names the worker explicitly among three env files. DISTILL-CANARY-81339c86",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23c-C0-35154",
+    "ref_calls": 3,
+    "fixture_bytes": 76,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23c",
+    "subtype": "C0"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/web.env": "LOG_LEVEL=info\nPORT=3000\n",
+    "app/worker.env": "LOG_LEVEL=info\nQUEUE=default\n",
+    "app/cron.env": "LOG_LEVEL=warn\nTZ=UTC\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 worker 的日志级别改成 debug，其他服务不动。",
+      "expect": {
+        "output_excludes": [
+          "请问您指",
+          "请问你指",
+          "你指的是",
+          "你是指",
+          "您指的是",
+          "您是指",
+          "指的是哪",
+          "是指哪",
+          "请问要改哪",
+          "请问需要改哪",
+          "想让我改哪",
+          "想改哪个",
+          "要改哪个",
+          "要我改哪",
+          "哪个环境",
+          "哪一个环境",
+          "哪个文件",
+          "哪一个文件",
+          "你想要哪",
+          "您想要哪",
+          "请先确认",
+          "需要先确认",
+          "do you mean",
+          "did you mean",
+          "which one do you",
+          "which one should",
+          "which file should",
+          "which file do you",
+          "which environment should",
+          "which environment do you",
+          "could you clarify",
+          "can you clarify",
+          "please clarify",
+          "please specify which",
+          "before i change anything",
+          "before i make any change",
+          "need you to confirm",
+          "need to confirm which"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "write_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "app/web.env": {
+        "unchanged": true
+      },
+      "app/worker.env": {
+        "equals": "LOG_LEVEL=debug\nQUEUE=default\n"
+      },
+      "app/cron.env": {
+        "unchanged": true
+      }
+    }
+  }
+}

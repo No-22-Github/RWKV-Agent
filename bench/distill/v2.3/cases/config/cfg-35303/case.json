@@ -1,0 +1,66 @@
+{
+  "id": "cfg-35303",
+  "description": "Three edits in one ini file, two of them add lines. DISTILL-CANARY-6e2d0d99",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35303",
+    "ref_calls": 4,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/lumen-scheduler.ini": "; lumen scheduler tuning\n[pool]\nworkers = 8\nqueue_depth = 200\n\n[retry]\nmax_attempts = 3\nbackoff = linear\n\n[alerts]\nchannel = ops-lumen\nthreshold = 0.85\n\n[paths]\nspool = /var/spool/lumen\n"
+  },
+  "turns": [
+    {
+      "prompt": "In conf/lumen-scheduler.ini: raise workers to 12 and add prefetch = 4 under it; set max_attempts to 5 and backoff to exponential; set the alert threshold to 0.9 and add quiet_hours = 22-06 below it. Check the file afterwards and tell me what line spool is on.",
+      "expect": {
+        "output_contains": [
+          "17"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "conf/lumen-scheduler.ini": {
+        "equals": "; lumen scheduler tuning\n[pool]\nworkers = 12\nprefetch = 4\nqueue_depth = 200\n\n[retry]\nmax_attempts = 5\nbackoff = exponential\n\n[alerts]\nchannel = ops-lumen\nthreshold = 0.9\nquiet_hours = 22-06\n\n[paths]\nspool = /var/spool/lumen\n"
+      }
+    }
+  }
+}

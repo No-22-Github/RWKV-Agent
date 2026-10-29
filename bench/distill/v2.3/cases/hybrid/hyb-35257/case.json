@@ -1,0 +1,91 @@
+{
+  "id": "hyb-35257",
+  "description": "Delete a name, restore it in place after the user realises the mistake, rename another. DISTILL-CANARY-f9dff579",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35257",
+    "ref_calls": 6,
+    "fixture_bytes": 35,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/客户名单.txt": "张伟\n李娜\n黄涛\n周梅\n吴刚\n"
+  },
+  "turns": [
+    {
+      "prompt": "客户名单里有几个人？文件是 文档/客户名单.txt。",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "把“黄涛”删掉。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "糟了，黄涛是我误删的，请恢复到他原来的位置。并告诉我名单里谁排在他后面。",
+      "expect": {
+        "output_contains": [
+          "周梅"
+        ]
+      }
+    },
+    {
+      "prompt": "再把“周梅”改成“周美”。告诉我名单现在的完整内容和人数。",
+      "expect": {
+        "output_contains": [
+          "张伟",
+          "李娜",
+          "黄涛",
+          "周美",
+          "吴刚",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/客户名单.txt": {
+        "equals": "张伟\n李娜\n黄涛\n周美\n吴刚\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "tab-35401",
+  "description": "Invoice total with sales tax when no calculator is offered (shell awk). DISTILL-CANARY-0ca47ccc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "subtotal without the tax"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35401",
+    "ref_calls": 1,
+    "fixture_bytes": 493,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/inv-halden-0924.csv": "sku,description,qty,unit_price\nHX-1042,Torque driver set,3,48.90\nHX-2210,Cable duct 2m,40,3.75\nHX-0987,Safety goggles,25,6.40\nHX-3315,LED work lamp,6,27.15\nHX-1180,Anchor bolts M10,120,0.62\nHX-4402,Nitrile gloves box,18,9.95\nHX-2761,Tape measure 8m,12,11.30\nHX-5023,Cordless drill,2,139.00\nHX-0634,Marker pens 12pk,9,5.85\nHX-3908,Respirator filters,30,4.20\nHX-1555,Step ladder 3-tread,4,52.50\nHX-2096,Zip ties 500pc,15,7.45\nHX-4871,Extension lead 5m,10,14.60\nHX-0312,Spirit level 60cm,5,16.80\n"
+  },
+  "turns": [
+    {
+      "prompt": "Can you total up the invoice in billing/inv-halden-0924.csv? Add 8.25% sales tax on top of the subtotal and give me the grand total to the cent.",
+      "expect": {
+        "expected_number": 2183.51,
+        "expected_number_in_text": true,
+        "tolerance": 0.015
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator"
+    ]
+  }
+}

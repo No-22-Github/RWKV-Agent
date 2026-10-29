@@ -1,0 +1,67 @@
+{
+  "id": "code-35318",
+  "description": "Rename a function in four places. DISTILL-CANARY-182c0708",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23e-E1-35318",
+    "ref_calls": 6,
+    "fixture_bytes": 320,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/checkout/totals.ts": "export function calcTotal(items: Item[]): number {\n  return items.reduce((s, i) => s + i.price * i.qty, 0);\n}\n\nexport function summary(items: Item[]) {\n  const t = calcTotal(items);\n  return { total: t, label: `Total: ${calcTotal(items)}` };\n}\n\nexport function isFree(items: Item[]) {\n  return calcTotal(items) === 0;\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rename calcTotal to computeTotal in src/checkout/totals.ts — the definition and every place it's called in that file. Afterwards search or read the file back to make sure no calcTotal is left, and tell me how many places you changed.",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/checkout/totals.ts": {
+        "equals": "export function computeTotal(items: Item[]): number {\n  return items.reduce((s, i) => s + i.price * i.qty, 0);\n}\n\nexport function summary(items: Item[]) {\n  const t = computeTotal(items);\n  return { total: t, label: `Total: ${computeTotal(items)}` };\n}\n\nexport function isFree(items: Item[]) {\n  return computeTotal(items) === 0;\n}\n"
+      }
+    }
+  }
+}

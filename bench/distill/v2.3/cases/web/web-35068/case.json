@@ -1,0 +1,70 @@
+{
+  "id": "web-35068",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-90f96e94",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-008",
+    "ref_calls": 2,
+    "fixture_bytes": 20,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Marlowe",
+      "url": "https://marlowe-auth.dev/releases",
+      "url_match": "marlowe-auth.dev/releases",
+      "title": "Releases - Marlowe Auth",
+      "snippet": "Stable and pre-release versions.",
+      "content": "# Releases\n\nLatest stable: 4.2.0 (2026-09-10)\nSecurity support: 4.x and 3.4+\nPre-release: 4.3.0-beta.1\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "files": {
+    "services/billing/requirements-pins.txt": "marlowe-auth==3.2.4\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Marlowe Auth release is the newest stable one right now?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "4.2.0"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "only 3.2.4"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

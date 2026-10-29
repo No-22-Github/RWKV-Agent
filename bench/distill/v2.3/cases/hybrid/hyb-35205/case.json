@@ -1,0 +1,78 @@
+{
+  "id": "hyb-35205",
+  "description": "Swap two on-call weeks and then ask who was originally on week 45. DISTILL-CANARY-df75074e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35205",
+    "ref_calls": 4,
+    "fixture_bytes": 108,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "oncall/2026-q4-rota.txt": "Week 44: Priya Nair\nWeek 45: Tomasz Wrona\nWeek 46: Dana Whitfield\nWeek 47: Lena Okafor\nWeek 48: Marcus Hale\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who is on call in week 45 according to oncall/2026-q4-rota.txt?",
+      "expect": {
+        "output_contains": [
+          "Tomasz Wrona"
+        ]
+      }
+    },
+    {
+      "prompt": "Tomasz is out sick that week. Swap him with whoever has week 47 and tell me the two names affected.",
+      "expect": {
+        "output_contains": [
+          "Lena Okafor",
+          "Tomasz Wrona"
+        ]
+      }
+    },
+    {
+      "prompt": "Now who covers week 45 and who covers week 47? And remind me who was originally on week 45.",
+      "expect": {
+        "output_contains": [
+          "Lena Okafor",
+          "Tomasz Wrona"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "oncall/2026-q4-rota.txt": {
+        "equals": "Week 44: Priya Nair\nWeek 45: Lena Okafor\nWeek 46: Dana Whitfield\nWeek 47: Tomasz Wrona\nWeek 48: Marcus Hale\n"
+      }
+    }
+  }
+}

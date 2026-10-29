@@ -1,0 +1,97 @@
+{
+  "id": "hyb-35250",
+  "description": "Find configs on an old host, migrate them, check the one already migrated, recap old hosts. DISTILL-CANARY-8195d6c1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35250",
+    "ref_calls": 8,
+    "fixture_bytes": 148,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/svc-orders.toml": "[cache]\ncache_url = \"redis-old-1.corp.local:6379\"\n",
+    "config/svc-billing.toml": "[cache]\ncache_url = \"redis-old-2.corp.local:6380\"\n",
+    "config/svc-search.toml": "[cache]\ncache_url = \"redis-new.corp.local:6379\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which files in config/ point cache_url at a host starting with redis-old?",
+      "expect": {
+        "output_contains": [
+          "svc-orders",
+          "svc-billing"
+        ]
+      }
+    },
+    {
+      "prompt": "Point those at redis-new.corp.local and keep each file's port as it is.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "What does svc-search point at? Does it need changing?",
+      "expect": {
+        "output_contains": [
+          "redis-new.corp.local"
+        ]
+      }
+    },
+    {
+      "prompt": "Recap which files changed and the old host of each.",
+      "expect": {
+        "output_contains": [
+          "svc-orders",
+          "svc-billing",
+          "redis-old-1",
+          "redis-old-2"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/svc-search.toml": {
+        "unchanged": true
+      },
+      "config/svc-orders.toml": {
+        "equals": "[cache]\ncache_url = \"redis-new.corp.local:6379\"\n"
+      },
+      "config/svc-billing.toml": {
+        "equals": "[cache]\ncache_url = \"redis-new.corp.local:6380\"\n"
+      }
+    }
+  }
+}

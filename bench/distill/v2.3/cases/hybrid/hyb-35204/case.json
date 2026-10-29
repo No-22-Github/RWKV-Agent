@@ -1,0 +1,82 @@
+{
+  "id": "hyb-35204",
+  "description": "Chinese price list: read a price, raise it 10 percent, lower another, recap old and new. DISTILL-CANARY-3b9b0341",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35204",
+    "ref_calls": 5,
+    "fixture_bytes": 128,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/社区团购-价目.md": "| 品名 | 单价 | 单位 |\n| --- | --- | --- |\n| 土鸡蛋 | 18 | 盒 |\n| 五常大米 | 56 | 袋 |\n| 山茶油 | 128 | 瓶 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "社区团购-价目里五常大米现在多少钱一袋？文件在 文档 文件夹里。",
+      "expect": {
+        "output_contains": [
+          "56"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "涨价 10%，改完告诉我新价格。",
+      "expect": {
+        "output_contains": [
+          "61.6"
+        ]
+      }
+    },
+    {
+      "prompt": "再把山茶油降 8 块。最后告诉我这两样今天各改了多少，改之前分别是多少。",
+      "expect": {
+        "output_contains": [
+          "56",
+          "61.6",
+          "128",
+          "120"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/社区团购-价目.md": {
+        "equals": "| 品名 | 单价 | 单位 |\n| --- | --- | --- |\n| 土鸡蛋 | 18 | 盒 |\n| 五常大米 | 61.6 | 袋 |\n| 山茶油 | 120 | 瓶 |\n"
+      }
+    }
+  }
+}

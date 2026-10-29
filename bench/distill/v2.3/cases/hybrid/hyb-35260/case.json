@@ -1,0 +1,90 @@
+{
+  "id": "hyb-35260",
+  "description": "Bump a version in two files, append a bullet, recall the previous version and heading. DISTILL-CANARY-b1ea8dcd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35260",
+    "ref_calls": 7,
+    "fixture_bytes": 43,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "pkg/version.txt": "2.7.1\n",
+    "docs/release-notes-draft.md": "## 2.7.1 (draft)\n\n- Added CSV export\n"
+  },
+  "turns": [
+    {
+      "prompt": "What version does pkg/version.txt say, and does the heading in docs/release-notes-draft.md match it?",
+      "expect": {
+        "output_contains": [
+          "2.7.1"
+        ]
+      }
+    },
+    {
+      "prompt": "Bump both to 2.8.0.",
+      "expect": {
+        "output_contains": [
+          "2.8.0"
+        ]
+      }
+    },
+    {
+      "prompt": "Append the bullet '- Fixed timezone parsing' to the very end of the release notes draft.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Tell me the version and heading as they stand now, and what they said before.",
+      "expect": {
+        "output_contains": [
+          "2.7.1",
+          "2.8.0"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "pkg/version.txt": {
+        "equals": "2.8.0\n"
+      },
+      "docs/release-notes-draft.md": {
+        "equals": "## 2.8.0 (draft)\n\n- Added CSV export\n- Fixed timezone parsing\n"
+      }
+    }
+  }
+}

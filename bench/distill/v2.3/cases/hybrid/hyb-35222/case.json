@@ -1,0 +1,77 @@
+{
+  "id": "hyb-35222",
+  "description": "Update a phone number and a contact name, then recall the original phone. DISTILL-CANARY-f4ff0f76",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35222",
+    "ref_calls": 4,
+    "fixture_bytes": 108,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/供应商联系人.txt": "华达包装 | 王建国 | 13800001111\n顺丰仓 | 赵磊 | 13700003333\n联盛纸业 | 钱敏 | 13600004444\n"
+  },
+  "turns": [
+    {
+      "prompt": "华达包装的联系人是谁、电话多少？",
+      "expect": {
+        "output_contains": [
+          "王建国",
+          "13800001111"
+        ]
+      }
+    },
+    {
+      "prompt": "电话换成 13900002222，告诉我改后的整行。",
+      "expect": {
+        "output_contains": [
+          "13900002222"
+        ]
+      }
+    },
+    {
+      "prompt": "再把顺丰仓的联系人改成李娜。然后告诉我华达包装原来的电话是多少。",
+      "expect": {
+        "output_contains": [
+          "13800001111"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/供应商联系人.txt": {
+        "equals": "华达包装 | 王建国 | 13900002222\n顺丰仓 | 李娜 | 13700003333\n联盛纸业 | 钱敏 | 13600004444\n"
+      }
+    }
+  }
+}

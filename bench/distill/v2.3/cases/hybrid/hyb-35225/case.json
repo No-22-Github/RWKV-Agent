@@ -1,0 +1,86 @@
+{
+  "id": "hyb-35225",
+  "description": "Read stock in two warehouses, then transfer units between the files and report the unchanged total. DISTILL-CANARY-ff2419fb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35225",
+    "ref_calls": 6,
+    "fixture_bytes": 54,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "inventory/warehouse-east.csv": "sku,qty\nK-204,120\nK-310,75\n",
+    "inventory/warehouse-west.csv": "sku,qty\nK-204,55\nK-117,200\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many units of SKU K-204 does the east warehouse hold?",
+      "expect": {
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "And the west warehouse?",
+      "expect": {
+        "output_contains": [
+          "55"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Move 40 units of K-204 from east to west by updating the two stock files. Give me the new counts and the combined total.",
+      "expect": {
+        "output_contains": [
+          "80",
+          "95",
+          "175"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "inventory/warehouse-east.csv": {
+        "equals": "sku,qty\nK-204,80\nK-310,75\n"
+      },
+      "inventory/warehouse-west.csv": {
+        "equals": "sku,qty\nK-204,95\nK-117,200\n"
+      }
+    }
+  }
+}

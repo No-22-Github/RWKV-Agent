@@ -1,0 +1,64 @@
+{
+  "id": "cfg-35346",
+  "description": "Append one line. DISTILL-CANARY-7d93265c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35346",
+    "ref_calls": 2,
+    "fixture_bytes": 56,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/stack-tuning.ini": "; stack tuning\n[web]\nworkers = 4\n[jobs]\nconcurrency = 2\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add the line `retry_limit = 5` at the end of deploy/stack-tuning.ini.",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/stack-tuning.ini": {
+        "equals": "; stack tuning\n[web]\nworkers = 4\n[jobs]\nconcurrency = 2\nretry_limit = 5\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 1,
+      "list_files": 1,
+      "append_file": 2,
+      "write_file": 1,
+      "replace_lines": 1
+    }
+  }
+}

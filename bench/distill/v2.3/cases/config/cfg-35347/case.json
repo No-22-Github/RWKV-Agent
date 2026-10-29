@@ -1,0 +1,66 @@
+{
+  "id": "cfg-35347",
+  "description": "Create a small yaml file. DISTILL-CANARY-e29ede40",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35347",
+    "ref_calls": 2,
+    "fixture_bytes": 40,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/README-夜间.txt": "夜间任务配置放在这个目录。\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 配置 目录下新建 夜间任务.yaml，内容三行：job: nightly-compact、schedule: \"0 2 * * *\"、enabled: true。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "write_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "配置/README-夜间.txt": {
+        "unchanged": true
+      },
+      "配置/夜间任务.yaml": {
+        "equals": "job: nightly-compact\nschedule: \"0 2 * * *\"\nenabled: true\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 1,
+      "list_files": 1,
+      "write_file": 1,
+      "append_file": 1
+    }
+  }
+}

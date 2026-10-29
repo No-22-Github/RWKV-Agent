@@ -1,0 +1,80 @@
+{
+  "id": "web-35073",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-9817b52a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-013",
+    "ref_calls": 4,
+    "fixture_bytes": 75,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青岚云",
+      "url": "https://www.qinglan-cloud.com/lightweight",
+      "url_match": "www.qinglan-cloud.com/lightweight",
+      "title": "轻量应用服务器 - 青岚云",
+      "snippet": "轻量服务器套餐。",
+      "content": "# 轻量应用服务器\n\n入门款：1 核 2G，带宽 50 Mbps，月付 39 元。\n标准款：2 核 4G，月付 72 元。\n",
+      "published_at": "2026-09-06"
+    }
+  ],
+  "files": {
+    "运维/青岚云资源清单.yaml": "provider: 青岚云\ninstances:\n  - name: web-gw-01\n    bandwidth_mbps: 200\n"
+  },
+  "turns": [
+    {
+      "prompt": "青岚云官网上轻量服务器最低配套餐，现在一个月多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "39"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "我们自己那台 web-gw-01 买的是多少带宽？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "200"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

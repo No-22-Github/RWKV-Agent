@@ -1,0 +1,118 @@
+{
+  "id": "web-35048",
+  "description": "Web search comes back empty or the page cannot be opened; a local saved copy exists. DISTILL-CANARY-d0e06638",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "invented page content"
+    },
+    "axes": [
+      "ERR",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B2-008",
+    "ref_calls": 4,
+    "fixture_bytes": 103,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B2"
+  },
+  "web_fixture": [],
+  "files": {
+    "云资源/鲸落云价目表-存档.md": "（2026-02 从官网存档）\n\n对象存储：0.12 元/GB/月\n流量：0.5 元/GB\n",
+    "云资源/账单-8月.txt": "存储费用 306 元\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我查一下鲸落云现在的对象存储每 GB 每月多少钱。",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "0.12"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "本地",
+          "文件",
+          "副本",
+          "存档",
+          "保存",
+          "旧",
+          "过期",
+          "最新",
+          "截至",
+          "笔记",
+          "记录",
+          "当时",
+          "local",
+          "Local",
+          "file",
+          "File",
+          "copy",
+          "Copy",
+          "saved",
+          "Saved",
+          "archive",
+          "Archive",
+          "outdated",
+          "Outdated",
+          "out of date",
+          "Out of date",
+          "latest",
+          "Latest",
+          "as of",
+          "As of",
+          "older",
+          "Older",
+          "stored",
+          "Stored",
+          "your notes",
+          "Your notes",
+          "record",
+          "Record"
+        ]
+      }
+    },
+    {
+      "prompt": "我 8 月账单里存储费用是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "306"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "web_search": 2,
+      "web_fetch": 2
+    }
+  }
+}

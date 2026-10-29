@@ -1,0 +1,68 @@
+{
+  "id": "cfg-35522",
+  "description": "网关路由 INI，灰度段在后部. DISTILL-CANARY-cf66d3d2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-TRUNC"
+    ],
+    "trap_decoys": {
+      "TR-TRUNC": "upstream_timeout = 60"
+    },
+    "axes": [
+      "OBS",
+      "LNG"
+    ],
+    "level": "L1",
+    "family": "b23g-G1-35522",
+    "ref_calls": 3,
+    "fixture_bytes": 7019,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23g",
+    "subtype": "G1"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/网关路由.ini": "; 网关路由配置\n; 单位：秒\n\n[scheduler]\nworkers = 7\nenabled = false\nprefix = x_\nlevel = warn\nbuffer_kb = 512\n\n[logging]\nprefix = app_\nmax_items = 725\nlevel = info\nbuffer_kb = 576\npath = /var/lib/app/tmp\nenabled = true\n\n[search]\npath = /var/lib/app/spool\nenabled = false\nmax_items = 1000\nbuffer_kb = 448\nflush_every = 2\nprefix = svc-\n\n[locale]\npath = /var/lib/app/tmp\nlevel = error\nprefix = app_\nbuffer_kb = 640\nmax_items = 625\n\n[imaging]\nenabled = true\nflush_every = 26\nworkers = 3\nprefix = x_\nmax_items = 975\nlevel = warn\n\n[logging_5]\npath = /var/lib/app/tmp\nenabled = true\nprefix = svc-\nlevel = info\n\n[static]\nprefix = x_\nworkers = 8\nlevel = warn\nmax_items = 150\nenabled = true\npath = /var/lib/app/spool\n\n[tracing]\nworkers = 5\nlevel = warn\nmax_items = 250\nenabled = false\nprefix = x_\n\n[prod]\nupstream_timeout = 60\n\n[export]\nflush_every = 26\nenabled = false\nprefix = svc-\nbuffer_kb = 896\nworkers = 8\n\n[tracing_9]\nmax_items = 50\nbuffer_kb = 448\nprefix = app_\npath = /var/lib/app/spool\nworkers = 8\n\n[cors]\nworkers = 5\nmax_items = 200\nenabled = true\nbuffer_kb = 704\n\n[static_11]\nbuffer_kb = 640\nflush_every = 24\npath = /var/lib/app/out\nlevel = info\n\n[uploads]\nprefix = app_\nlevel = warn\nbuffer_kb = 768\npath = /var/lib/app/cache\nmax_items = 225\nenabled = false\n\n[cors_13]\nlevel = info\npath = /var/lib/app/tmp\nenabled = true\nprefix = svc-\n\n[tracing_14]\nworkers = 3\nenabled = false\npath = /var/lib/app/spool\nflush_every = 15\nbuffer_kb = 896\n\n[search_15]\nenabled = true\npath = /var/lib/app/cache\nflush_every = 28\nprefix = x_\n\n[uploads_16]\nworkers = 2\nbuffer_kb = 256\nenabled = false\nlevel = info\npath = /var/lib/app/tmp\n\n[static_17]\nbuffer_kb = 640\nmax_items = 450\npath = /var/lib/app/cache\nflush_every = 3\nlevel = info\nworkers = 2\n\n[search_18]\nmax_items = 275\nflush_every = 14\nbuffer_kb = 64\nenabled = false\nprefix = svc-\npath = /var/lib/app/tmp\n\n[search_19]\npath = /var/lib/app/tmp\nflush_every = 18\nprefix = x_\nmax_items = 825\nbuffer_kb = 576\nlevel = warn\n\n[scheduler_20]\nflush_every = 14\nworkers = 8\npath = /var/lib/app/tmp\nprefix = x_\n\n[scheduler_21]\npath = /var/lib/app/out\nenabled = false\nprefix = svc-\nbuffer_kb = 128\n\n[metrics]\nmax_items = 775\npath = /var/lib/app/tmp\nenabled = false\nlevel = error\nworkers = 6\nbuffer_kb = 320\n\n[scheduler_23]\nworkers = 2\npath = /var/lib/app/out\nbuffer_kb = 384\nlevel = error\n\n[uploads_24]\nflush_every = 24\nenabled = false\nbuffer_kb = 128\nlevel = info\n\n[scheduler_25]\nbuffer_kb = 256\nprefix = app_\nlevel = warn\nflush_every = 13\nworkers = 7\npath = /var/lib/app/out\n\n[scheduler_26]\npath = /var/lib/app/out\nbuffer_kb = 384\nlevel = error\nprefix = app_\nmax_items = 525\n\n[search_27]\nprefix = app_\npath = /var/lib/app/tmp\nlevel = warn\nflush_every = 7\nworkers = 6\nenabled = false\n\n[uploads_28]\nenabled = false\nlevel = info\npath = /var/lib/app/cache\nbuffer_kb = 64\nmax_items = 375\nflush_every = 29\n\n[static_29]\npath = /var/lib/app/spool\nlevel = warn\nbuffer_kb = 960\nenabled = false\n\n[export_30]\nenabled = true\nflush_every = 26\npath = /var/lib/app/cache\nprefix = x_\n\n[mailer]\nprefix = x_\nworkers = 5\nbuffer_kb = 512\nlevel = error\nflush_every = 22\nmax_items = 975\n\n[locale_32]\npath = /var/lib/app/cache\nbuffer_kb = 896\nworkers = 1\nprefix = svc-\nmax_items = 850\nlevel = warn\n\n[ratelimit]\nlevel = warn\nprefix = x_\nenabled = false\nworkers = 4\npath = /var/lib/app/spool\nbuffer_kb = 448\n\n[imaging_34]\nworkers = 6\npath = /var/lib/app/spool\nflush_every = 16\nbuffer_kb = 448\nenabled = true\n\n[logging_35]\nprefix = app_\nbuffer_kb = 64\nmax_items = 75\nworkers = 8\nenabled = true\npath = /var/lib/app/cache\n\n[scheduler_36]\nenabled = false\nlevel = error\nbuffer_kb = 768\nworkers = 3\nflush_every = 2\n\n[metrics_37]\nenabled = false\npath = /var/lib/app/cache\nlevel = error\nworkers = 5\n\n[static_38]\nflush_every = 10\nmax_items = 275\nprefix = x_\npath = /var/lib/app/out\n\n[cors_39]\npath = /var/lib/app/spool\nlevel = info\nworkers = 2\nmax_items = 500\n\n[sessions]\nprefix = app_\nbuffer_kb = 256\npath = /var/lib/app/out\nworkers = 7\nmax_items = 500\n\n[search_41]\nlevel = error\nworkers = 7\npath = /var/lib/app/spool\nmax_items = 575\n\n[sessions_42]\nenabled = false\nmax_items = 800\npath = /var/lib/app/tmp\nbuffer_kb = 384\n\n[imaging_43]\nlevel = warn\nworkers = 3\nflush_every = 21\nmax_items = 775\n\n[export_44]\nbuffer_kb = 768\nprefix = svc-\nflush_every = 24\nworkers = 5\nlevel = warn\npath = /var/lib/app/cache\n\n[scheduler_45]\nprefix = app_\nlevel = error\nbuffer_kb = 1024\nmax_items = 125\nworkers = 6\npath = /var/lib/app/out\n\n[scheduler_46]\nworkers = 6\nflush_every = 29\nprefix = app_\nmax_items = 375\n\n[ratelimit_47]\nflush_every = 15\nenabled = false\nworkers = 7\nprefix = svc-\nlevel = warn\nbuffer_kb = 704\n\n[logging_48]\nbuffer_kb = 960\nflush_every = 8\nmax_items = 375\nprefix = x_\nlevel = warn\n\n[ratelimit_49]\nflush_every = 15\nlevel = warn\nenabled = false\nprefix = svc-\nmax_items = 725\n\n[gray]\nupstream_timeout = 27\n\n[export_50]\nbuffer_kb = 1024\nlevel = error\nworkers = 6\nprefix = app_\n\n[locale_51]\nflush_every = 8\nenabled = true\nbuffer_kb = 704\nworkers = 2\nmax_items = 550\n\n[metrics_52]\nprefix = app_\npath = /var/lib/app/tmp\nflush_every = 23\nmax_items = 750\nworkers = 1\nbuffer_kb = 640\n\n[tracing_53]\npath = /var/lib/app/tmp\nbuffer_kb = 256\nprefix = svc-\nmax_items = 150\nenabled = false\n\n[search_54]\nmax_items = 725\nflush_every = 5\nenabled = true\nbuffer_kb = 256\nprefix = svc-\npath = /var/lib/app/tmp\n\n[ratelimit_55]\nworkers = 3\nflush_every = 16\nprefix = x_\nbuffer_kb = 320\nlevel = info\n\n[scheduler_56]\nbuffer_kb = 448\nflush_every = 24\npath = /var/lib/app/tmp\nlevel = info\nenabled = false\nworkers = 3\n\n[ratelimit_57]\nbuffer_kb = 448\nworkers = 4\nflush_every = 17\npath = /var/lib/app/out\n\n[static_58]\nbuffer_kb = 832\npath = /var/lib/app/spool\nmax_items = 325\nenabled = false\n\n[locale_59]\nbuffer_kb = 640\nworkers = 6\nenabled = true\npath = /var/lib/app/spool\nlevel = warn\nmax_items = 600\n\n[scheduler_60]\npath = /var/lib/app/tmp\nlevel = warn\nworkers = 3\nenabled = false\n\n[ratelimit_61]\nbuffer_kb = 512\npath = /var/lib/app/tmp\nmax_items = 550\nlevel = info\nworkers = 8\nenabled = false\n\n[metrics_62]\nbuffer_kb = 960\nflush_every = 4\nlevel = error\nworkers = 4\npath = /var/lib/app/spool\n\n[scheduler_63]\nenabled = true\npath = /var/lib/app/tmp\nworkers = 6\nprefix = x_\n\n[static_64]\nlevel = error\nenabled = false\nflush_every = 13\nbuffer_kb = 512\n\n[export_65]\nlevel = info\nmax_items = 425\nworkers = 6\nflush_every = 30\n\n[tracing_66]\nflush_every = 19\nbuffer_kb = 512\nmax_items = 975\nprefix = x_\npath = /var/lib/app/cache\n\n[scheduler_67]\nenabled = false\nflush_every = 28\nmax_items = 225\nbuffer_kb = 384\npath = /var/lib/app/tmp\nworkers = 4\n\n[uploads_68]\npath = /var/lib/app/tmp\nmax_items = 575\nenabled = true\nworkers = 3\n\n[sessions_69]\nbuffer_kb = 384\nmax_items = 500\nlevel = error\nworkers = 4\n\n[tracing_70]\nenabled = true\nflush_every = 4\npath = /var/lib/app/out\nprefix = svc-\n\n[locale_71]\npath = /var/lib/app/cache\nworkers = 5\nbuffer_kb = 192\nenabled = true\n\n[ratelimit_72]\nmax_items = 475\nbuffer_kb = 704\nenabled = true\nprefix = x_\n\n[scheduler_73]\npath = /var/lib/app/cache\nbuffer_kb = 192\nflush_every = 8\nmax_items = 200\nenabled = true\nworkers = 4\n"
+  },
+  "turns": [
+    {
+      "prompt": "配置/网关路由.ini 里，[gray] 灰度段的 upstream_timeout 是多少秒？",
+      "expect": {
+        "output_contains": [
+          "27"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "upstream_timeout = 60"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "read_file": 4
+    }
+  }
+}

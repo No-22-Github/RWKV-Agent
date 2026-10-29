@@ -1,0 +1,81 @@
+{
+  "id": "hyb-35219",
+  "description": "Subtotal, fix the tax rate, drop a line, compare the new total to the original one. DISTILL-CANARY-2a00be80",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35219",
+    "ref_calls": 6,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/inv-7731.txt": "Item: Hosting 3 mo x 120 = 360\nItem: Support 1 x 450 = 450\nItem: Domain 2 x 15 = 30\nTax rate: 8%\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the subtotal on billing/inv-7731.txt before tax?",
+      "expect": {
+        "output_contains": [
+          "840"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "The tax rate should be 10%, not 8%. Fix that and tell me the total with tax.",
+      "expect": {
+        "output_contains": [
+          "924"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Also drop the Domain line entirely. Give me the new total with tax and compare it with the very first total (the one at 8% tax).",
+      "expect": {
+        "output_contains": [
+          "891",
+          "907.2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "billing/inv-7731.txt": {
+        "equals": "Item: Hosting 3 mo x 120 = 360\nItem: Support 1 x 450 = 450\nTax rate: 10%\n"
+      }
+    }
+  }
+}

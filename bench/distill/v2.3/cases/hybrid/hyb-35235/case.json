@@ -1,0 +1,88 @@
+{
+  "id": "hyb-35235",
+  "description": "Find files mentioning an endpoint, rewrite the mentions, verify nothing is left. DISTILL-CANARY-6b939c36",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35235",
+    "ref_calls": 8,
+    "fixture_bytes": 217,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/api-reference/orders.md": "# Orders API\nPOST /v1/orders creates an order.\nGET /v1/orders/{id} fetches one order.\n",
+    "docs/api-reference/refunds.md": "# Refunds API\nRefunds hang off an order: POST /v1/orders/{id}/refunds\n",
+    "docs/api-reference/customers.md": "# Customers API\nGET /v1/customers/{id} fetches one customer.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which files in docs/api-reference mention the /v1/orders endpoint?",
+      "expect": {
+        "output_contains": [
+          "orders.md",
+          "refunds.md"
+        ]
+      }
+    },
+    {
+      "prompt": "We're moving to /v2/orders. Update every mention in those files and tell me how many lines you changed.",
+      "expect": {
+        "output_contains_any": [
+          "3",
+          "three"
+        ]
+      }
+    },
+    {
+      "prompt": "Check that nothing in docs still points at /v1/orders, and remind me which two files you touched.",
+      "expect": {
+        "output_contains": [
+          "orders.md",
+          "refunds.md"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "search_text",
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "docs/api-reference/customers.md": {
+        "unchanged": true
+      },
+      "docs/api-reference/orders.md": {
+        "equals": "# Orders API\nPOST /v2/orders creates an order.\nGET /v2/orders/{id} fetches one order.\n"
+      },
+      "docs/api-reference/refunds.md": {
+        "equals": "# Refunds API\nRefunds hang off an order: POST /v2/orders/{id}/refunds\n"
+      }
+    }
+  }
+}

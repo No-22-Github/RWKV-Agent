@@ -1,0 +1,82 @@
+{
+  "id": "hyb-35233",
+  "description": "Two staged edits rejected, then only one redone; recall the dropped intention. DISTILL-CANARY-09485edf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35233",
+    "ref_calls": 5,
+    "fixture_bytes": 61,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/mailer.ini": "smtp_host = mail.brightpath.io\nsmtp_port = 587\nsmtp_tls = on\n"
+  },
+  "turns": [
+    {
+      "prompt": "Change smtp_port in conf/mailer.ini to 2525 and set smtp_tls to off.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "I rejected those edits. Which smtp_port and smtp_tls values are in the file now?",
+      "expect": {
+        "output_contains": [
+          "587",
+          "on"
+        ],
+        "output_contains_token": true
+      },
+      "review_before": "reject"
+    },
+    {
+      "prompt": "OK, just change smtp_port to 2525 and leave TLS alone. Then tell me what TLS is set to, and what I first wanted it to be.",
+      "expect": {
+        "output_contains": [
+          "on",
+          "off",
+          "2525"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "conf/mailer.ini": {
+        "equals": "smtp_host = mail.brightpath.io\nsmtp_port = 2525\nsmtp_tls = on\n"
+      }
+    }
+  }
+}

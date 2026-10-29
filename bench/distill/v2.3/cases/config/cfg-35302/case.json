@@ -1,0 +1,66 @@
+{
+  "id": "cfg-35302",
+  "description": "Delete the whole [legacy] section. DISTILL-CANARY-be1330ad",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35302",
+    "ref_calls": 4,
+    "fixture_bytes": 269,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/汇率服务.toml": "# 汇率服务配置\n[service]\nname = \"fx-rates\"\nport = 7410\n\n[legacy]\n# 旧版接口，已于 8 月下线\nendpoint = \"/v1/rates\"\nsunset = \"2026-08-31\"\nfallback = true\n\n[cache]\nttl_seconds = 300\nmax_entries = 5000\n\n[upstream]\nprovider = \"nordbank\"\nrefresh_minutes = 15\n"
+  },
+  "turns": [
+    {
+      "prompt": "汇率服务配置里的 legacy 那一段已经下线了，整段删掉（包括它上面那行注释和后面的空行），其他保持原样。删完告诉我 [cache] 现在在第几行。",
+      "expect": {
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "配置/汇率服务.toml": {
+        "equals": "# 汇率服务配置\n[service]\nname = \"fx-rates\"\nport = 7410\n\n[cache]\nttl_seconds = 300\nmax_entries = 5000\n\n[upstream]\nprovider = \"nordbank\"\nrefresh_minutes = 15\n"
+      }
+    }
+  }
+}

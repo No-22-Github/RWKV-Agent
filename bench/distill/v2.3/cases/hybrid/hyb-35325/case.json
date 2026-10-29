@@ -1,0 +1,71 @@
+{
+  "id": "hyb-35325",
+  "description": "Tick two boxes and add an item, then add a note. DISTILL-CANARY-9f408265",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35325",
+    "ref_calls": 4,
+    "fixture_bytes": 147,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "release/checklist-v7.md": "# Release checklist v7\n\n- [ ] Freeze main branch\n- [ ] Run full regression\n- [ ] Update the status page\n- [ ] Tag the release\n- [ ] Notify support\n"
+  },
+  "turns": [
+    {
+      "prompt": "In release/checklist-v7.md tick off 'Freeze main branch' and 'Run full regression', and add a new item 'Publish the release notes' right after 'Tag the release'. Read it back and tell me how many items are still unticked.",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "Add a blank line and then 'Note: regression passed on 2026-09-16.' at the bottom.",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "release/checklist-v7.md": {
+        "equals": "# Release checklist v7\n\n- [x] Freeze main branch\n- [x] Run full regression\n- [ ] Update the status page\n- [ ] Tag the release\n- [ ] Publish the release notes\n- [ ] Notify support\n\nNote: regression passed on 2026-09-16.\n"
+      }
+    }
+  }
+}

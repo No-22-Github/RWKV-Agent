@@ -1,0 +1,54 @@
+{
+  "id": "tab-35402",
+  "description": "Order total with a 92% discount when no calculator is offered. DISTILL-CANARY-7a51eef7",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "total before the 92% discount"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35402",
+    "ref_calls": 1,
+    "fixture_bytes": 203,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "采购/2026q3-办公耗材申购.csv": "品名,数量,单价\n复印纸A4,40,23.5\n中性笔,120,1.8\n便利贴,60,3.2\n订书钉,30,2.6\n文件袋,80,1.15\n白板笔,36,4.5\n打孔机,5,28.0\n回形针,50,1.4\n计算器贴纸,10,6.75\n档案盒,24,9.9\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 采购/2026q3-办公耗材申购.csv 里每一项的金额（数量乘单价）加起来，再打 92 折，应付多少钱？保留两位小数。",
+      "expect": {
+        "expected_number": 2019.49,
+        "expected_number_in_text": true,
+        "tolerance": 0.015
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash",
+      "read_file"
+    ],
+    "never_offer": [
+      "calculator"
+    ]
+  }
+}

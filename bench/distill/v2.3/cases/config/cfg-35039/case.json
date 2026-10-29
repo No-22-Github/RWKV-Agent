@@ -1,0 +1,66 @@
+{
+  "id": "cfg-35039",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-ad8ada92",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-039",
+    "ref_calls": 3,
+    "fixture_bytes": 170,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [],
+  "files": {
+    "存储/云杉存储桶-生命周期.json": "{\n  \"bucket\": \"logs-archive\",\n  \"rules\": [\n    {\"id\": \"to-cold\", \"after_days\": 45, \"class\": \"cold\"},\n    {\"id\": \"expire\", \"after_days\": 400}\n  ]\n}\n",
+    "存储/桶清单.txt": "logs-archive\nmedia-raw\n"
+  },
+  "turns": [
+    {
+      "prompt": "咱们的云杉对象存储桶，生命周期规则设的是多少天转冷存储？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "30 天",
+          "30天",
+          "60 天",
+          "60天"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

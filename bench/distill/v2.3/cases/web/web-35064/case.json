@@ -1,0 +1,67 @@
+{
+  "id": "web-35064",
+  "description": "Control: prompt names an outside company/product and asks for its public, current information; go online. DISTILL-CANARY-fc33a35b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "invented value"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23b-B0-004",
+    "ref_calls": 2,
+    "fixture_bytes": 81,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B0"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Halcyon",
+      "url": "https://help.halcyoncloud.io/backups/deleted",
+      "url_match": "help.halcyoncloud.io/backups/deleted",
+      "title": "Deleted snapshots - Halcyon Cloud Help",
+      "snippet": "Recovering and purging deleted snapshots.",
+      "content": "# Deleted snapshots\n\nDeleted snapshots stay recoverable for 14 days, then they are purged permanently. Support cannot restore them after that.\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "infra/halcyon-cleanup-todo.txt": "- review orphaned Halcyon snapshots monthly\n- ask support about the purge window\n"
+  },
+  "turns": [
+    {
+      "prompt": "How long does Halcyon Cloud keep deleted snapshots before purging them, as things stand now?",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "output_contains": [
+          "14"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

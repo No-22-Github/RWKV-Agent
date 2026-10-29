@@ -1,0 +1,83 @@
+{
+  "id": "hyb-35217",
+  "description": "Extract failed order ids into a new file, then remove one and recall its error code. DISTILL-CANARY-aed842fa",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35217",
+    "ref_calls": 5,
+    "fixture_bytes": 221,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/payments-edge-1002.log": "10:01 INFO charge ok order=A-1001 ms=210\n10:02 INFO charge ok order=A-1002 ms=190\n10:05 ERROR charge declined order=A-1003 code=51\n10:09 ERROR gateway timeout order=A-1004 ms=5000\n10:14 INFO charge ok order=A-1005 ms=240\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many ERROR lines are in logs/payments-edge-1002.log, and which orders do they involve?",
+      "expect": {
+        "output_contains": [
+          "A-1003",
+          "A-1004"
+        ]
+      }
+    },
+    {
+      "prompt": "Write those failed order ids, one per line and nothing else, to logs/failed-orders-1002.txt.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "Order A-1003 was retried successfully by the customer. Remove it from that file, then tell me what is left in the file and what error code A-1003 originally failed with.",
+      "expect": {
+        "output_contains": [
+          "A-1004",
+          "51"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "replace_lines",
+      "search_text"
+    ]
+  },
+  "expect": {
+    "files": {
+      "logs/payments-edge-1002.log": {
+        "unchanged": true
+      },
+      "logs/failed-orders-1002.txt": {
+        "equals": "A-1004\n"
+      }
+    }
+  }
+}

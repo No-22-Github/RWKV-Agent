@@ -1,0 +1,62 @@
+{
+  "id": "hyb-35446",
+  "description": "Change one date line with the line-replace tool offered. DISTILL-CANARY-3660a7eb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "freeze note with the same date"
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F0-35446",
+    "ref_calls": 2,
+    "fixture_bytes": 209,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F0"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/发布说明-2.6.md": "# 版本 2.6 发布说明\n\n发布日期：2026-10-11\n\n## 变更\n- 新增导出模板\n- 修复同步失败\n\n## 注意\n- 2026-10-11 起主分支冻结，只收严重缺陷修复\n- 升级前请备份配置目录\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 文档/发布说明-2.6.md 里的发布日期从 2026-10-11 改成 2026-10-18，其他内容不要动。",
+      "expect": {
+        "required_tools": [
+          "replace_lines"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "replace_lines",
+      "read_file"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/发布说明-2.6.md": {
+        "equals": "# 版本 2.6 发布说明\n\n发布日期：2026-10-18\n\n## 变更\n- 新增导出模板\n- 修复同步失败\n\n## 注意\n- 2026-10-11 起主分支冻结，只收严重缺陷修复\n- 升级前请备份配置目录\n"
+      }
+    }
+  }
+}

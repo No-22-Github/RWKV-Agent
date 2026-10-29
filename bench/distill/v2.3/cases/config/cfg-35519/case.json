@@ -1,0 +1,68 @@
+{
+  "id": "cfg-35519",
+  "description": "TOML pools, batch pool limit deep in the file. DISTILL-CANARY-24642d2f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-TRUNC"
+    ],
+    "trap_decoys": {
+      "TR-TRUNC": "max_concurrent_jobs = 16"
+    },
+    "axes": [
+      "OBS",
+      "LNG"
+    ],
+    "level": "L1",
+    "family": "b23g-G1-35519",
+    "ref_calls": 3,
+    "fixture_bytes": 8252,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23g",
+    "subtype": "G1"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/scheduler-limits.toml": "# scheduler limits\n# one table per pool\n\n[modules.scheduler_0]\nworkers = 7\npath = \"/var/lib/app/spool\"\nlevel = \"info\"\nflush_every = 6\nenabled = true\n\n[modules.static_1]\nbuffer_kb = 128\nlevel = \"info\"\npath = \"/var/lib/app/tmp\"\nflush_every = 3\n\n[modules.metrics_2]\nflush_every = 10\npath = \"/var/lib/app/spool\"\nenabled = true\nworkers = 8\n\n[modules.sessions_3]\nflush_every = 16\nlevel = \"info\"\nbuffer_kb = 960\nprefix = \"svc-\"\nmax_items = 100\npath = \"/var/lib/app/cache\"\n\n[modules.uploads_4]\nenabled = false\nworkers = 8\nbuffer_kb = 960\nflush_every = 5\n\n[modules.uploads_5]\nbuffer_kb = 192\nmax_items = 825\nlevel = \"warn\"\nflush_every = 15\n\n[modules.uploads_6]\nenabled = true\nlevel = \"error\"\nflush_every = 9\nbuffer_kb = 576\nworkers = 7\n\n[modules.ratelimit_7]\nworkers = 6\nflush_every = 12\nbuffer_kb = 192\nmax_items = 300\nenabled = false\n\n[pools.interactive]\nmax_concurrent_jobs = 16\nqueue_timeout_s = 20\n\n[modules.mailer_8]\nlevel = \"info\"\nworkers = 4\nmax_items = 800\nbuffer_kb = 320\nenabled = true\nprefix = \"svc-\"\n\n[modules.ratelimit_9]\nflush_every = 28\nlevel = \"info\"\nprefix = \"svc-\"\npath = \"/var/lib/app/tmp\"\n\n[modules.tracing_10]\nprefix = \"svc-\"\npath = \"/var/lib/app/cache\"\nworkers = 8\nflush_every = 21\n\n[modules.sessions_11]\nprefix = \"x_\"\nmax_items = 625\npath = \"/var/lib/app/spool\"\nlevel = \"warn\"\nworkers = 6\n\n[modules.sessions_12]\npath = \"/var/lib/app/spool\"\nflush_every = 24\nenabled = false\nmax_items = 775\nlevel = \"info\"\n\n[modules.uploads_13]\nprefix = \"svc-\"\nmax_items = 750\nworkers = 1\nenabled = false\n\n[modules.tracing_14]\nlevel = \"error\"\nmax_items = 275\nworkers = 3\nenabled = false\n\n[modules.metrics_15]\nenabled = false\nbuffer_kb = 960\nlevel = \"info\"\npath = \"/var/lib/app/tmp\"\nmax_items = 300\nprefix = \"svc-\"\n\n[modules.cors_16]\npath = \"/var/lib/app/cache\"\nprefix = \"app_\"\nenabled = false\nflush_every = 3\n\n[modules.imaging_17]\npath = \"/var/lib/app/cache\"\nbuffer_kb = 1024\nprefix = \"app_\"\nlevel = \"error\"\nworkers = 7\n\n[modules.imaging_18]\nlevel = \"error\"\nmax_items = 750\nenabled = true\nworkers = 5\n\n[modules.imaging_19]\nbuffer_kb = 704\nlevel = \"warn\"\nprefix = \"x_\"\nenabled = false\nmax_items = 575\nflush_every = 14\n\n[modules.imaging_20]\nlevel = \"info\"\nprefix = \"x_\"\npath = \"/var/lib/app/out\"\nbuffer_kb = 128\nenabled = false\nworkers = 4\n\n[modules.cors_21]\nenabled = true\nbuffer_kb = 832\nlevel = \"error\"\nmax_items = 450\nprefix = \"app_\"\n\n[modules.search_22]\nbuffer_kb = 576\npath = \"/var/lib/app/spool\"\nenabled = true\nmax_items = 825\nflush_every = 13\n\n[modules.ratelimit_23]\npath = \"/var/lib/app/cache\"\nenabled = true\nprefix = \"x_\"\nworkers = 6\nlevel = \"warn\"\nbuffer_kb = 320\n\n[modules.locale_24]\nprefix = \"app_\"\npath = \"/var/lib/app/out\"\nflush_every = 7\nmax_items = 125\nworkers = 4\nbuffer_kb = 704\n\n[modules.export_25]\nflush_every = 15\npath = \"/var/lib/app/spool\"\nenabled = true\nbuffer_kb = 1024\n\n[modules.tracing_26]\nworkers = 8\nlevel = \"error\"\nprefix = \"x_\"\nbuffer_kb = 896\n\n[modules.logging_27]\nprefix = \"x_\"\nbuffer_kb = 896\nenabled = true\nmax_items = 75\nworkers = 7\n\n[modules.locale_28]\nprefix = \"svc-\"\nenabled = true\nmax_items = 500\nworkers = 4\n\n[modules.tracing_29]\npath = \"/var/lib/app/spool\"\nbuffer_kb = 704\nmax_items = 625\nworkers = 7\nlevel = \"info\"\n\n[modules.tracing_30]\nbuffer_kb = 384\nenabled = false\nprefix = \"svc-\"\nmax_items = 775\npath = \"/var/lib/app/spool\"\nlevel = \"warn\"\n\n[modules.mailer_31]\nworkers = 8\nlevel = \"info\"\nenabled = true\npath = \"/var/lib/app/out\"\n\n[modules.uploads_32]\npath = \"/var/lib/app/spool\"\nworkers = 8\nflush_every = 2\nenabled = false\nprefix = \"svc-\"\n\n[modules.uploads_33]\nworkers = 6\nbuffer_kb = 384\nlevel = \"warn\"\nflush_every = 15\nmax_items = 700\nenabled = false\n\n[modules.static_34]\nbuffer_kb = 832\nlevel = \"error\"\nflush_every = 19\nworkers = 8\nprefix = \"x_\"\n\n[modules.export_35]\nlevel = \"error\"\nbuffer_kb = 896\nmax_items = 775\npath = \"/var/lib/app/cache\"\nprefix = \"svc-\"\nenabled = true\n\n[modules.sessions_36]\npath = \"/var/lib/app/spool\"\nworkers = 4\nbuffer_kb = 704\nflush_every = 6\n\n[modules.export_37]\nenabled = true\nmax_items = 825\nlevel = \"error\"\nprefix = \"x_\"\nflush_every = 16\npath = \"/var/lib/app/out\"\n\n[modules.logging_38]\nbuffer_kb = 448\nmax_items = 125\nlevel = \"warn\"\nworkers = 1\n\n[modules.scheduler_39]\nlevel = \"error\"\nmax_items = 925\npath = \"/var/lib/app/out\"\nflush_every = 13\n\n[modules.search_40]\nmax_items = 175\nprefix = \"svc-\"\nworkers = 7\nenabled = false\n\n[modules.sessions_41]\nworkers = 8\nbuffer_kb = 768\nenabled = true\nflush_every = 26\nmax_items = 975\n\n[modules.export_42]\nflush_every = 28\npath = \"/var/lib/app/out\"\nenabled = true\nworkers = 6\nlevel = \"info\"\nbuffer_kb = 768\n\n[modules.ratelimit_43]\nmax_items = 425\nenabled = true\nflush_every = 25\npath = \"/var/lib/app/tmp\"\nlevel = \"warn\"\nprefix = \"app_\"\n\n[modules.uploads_44]\nmax_items = 700\nlevel = \"error\"\nprefix = \"x_\"\nenabled = false\npath = \"/var/lib/app/out\"\nbuffer_kb = 640\n\n[modules.ratelimit_45]\npath = \"/var/lib/app/cache\"\nlevel = \"error\"\nflush_every = 13\nenabled = false\nprefix = \"x_\"\nbuffer_kb = 832\n\n[modules.export_46]\npath = \"/var/lib/app/tmp\"\nmax_items = 550\nflush_every = 24\nprefix = \"app_\"\n\n[modules.metrics_47]\nbuffer_kb = 832\nmax_items = 175\npath = \"/var/lib/app/spool\"\nprefix = \"svc-\"\nenabled = true\nworkers = 8\n\n[modules.scheduler_48]\nenabled = false\nlevel = \"error\"\nbuffer_kb = 448\nprefix = \"x_\"\nflush_every = 7\npath = \"/var/lib/app/tmp\"\n\n[modules.metrics_49]\nenabled = true\nflush_every = 8\nworkers = 3\nlevel = \"info\"\n\n[pools.batch]\nmax_concurrent_jobs = 48\nqueue_timeout_s = 600\n\n[modules.search_50]\nbuffer_kb = 256\nworkers = 1\nenabled = true\npath = \"/var/lib/app/out\"\nflush_every = 23\n\n[modules.mailer_51]\nenabled = false\nflush_every = 18\nlevel = \"warn\"\nprefix = \"svc-\"\n\n[modules.imaging_52]\nlevel = \"info\"\nflush_every = 29\npath = \"/var/lib/app/out\"\nmax_items = 275\nprefix = \"svc-\"\nenabled = true\n\n[modules.metrics_53]\npath = \"/var/lib/app/spool\"\nlevel = \"info\"\nbuffer_kb = 1024\nmax_items = 350\n\n[modules.export_54]\nlevel = \"error\"\nbuffer_kb = 768\nworkers = 8\nmax_items = 275\n\n[modules.imaging_55]\nbuffer_kb = 256\nflush_every = 27\npath = \"/var/lib/app/tmp\"\nworkers = 2\nmax_items = 1000\nlevel = \"error\"\n\n[modules.search_56]\nprefix = \"x_\"\npath = \"/var/lib/app/cache\"\nenabled = true\nworkers = 4\nlevel = \"info\"\n\n[modules.imaging_57]\nflush_every = 6\nlevel = \"warn\"\nenabled = false\nmax_items = 400\n\n[modules.logging_58]\nworkers = 2\nlevel = \"warn\"\nflush_every = 20\nmax_items = 375\nprefix = \"svc-\"\n\n[modules.export_59]\npath = \"/var/lib/app/tmp\"\nworkers = 6\nenabled = false\nlevel = \"warn\"\nmax_items = 100\n\n[modules.locale_60]\nenabled = true\nprefix = \"app_\"\nbuffer_kb = 768\npath = \"/var/lib/app/cache\"\n\n[modules.sessions_61]\npath = \"/var/lib/app/tmp\"\nlevel = \"warn\"\nprefix = \"x_\"\nenabled = false\nworkers = 7\nflush_every = 22\n\n[modules.logging_62]\nbuffer_kb = 896\nlevel = \"error\"\nenabled = true\npath = \"/var/lib/app/cache\"\nflush_every = 6\nprefix = \"app_\"\n\n[modules.uploads_63]\nmax_items = 175\nlevel = \"warn\"\npath = \"/var/lib/app/cache\"\nflush_every = 15\n\n[modules.metrics_64]\nbuffer_kb = 384\npath = \"/var/lib/app/spool\"\nflush_every = 28\nprefix = \"svc-\"\n\n[modules.export_65]\nlevel = \"error\"\nmax_items = 450\nbuffer_kb = 256\nworkers = 5\nprefix = \"app_\"\n\n[modules.logging_66]\nflush_every = 6\nbuffer_kb = 768\nenabled = false\nmax_items = 250\npath = \"/var/lib/app/out\"\nlevel = \"warn\"\n\n[modules.locale_67]\nflush_every = 7\npath = \"/var/lib/app/cache\"\nbuffer_kb = 384\nworkers = 7\nmax_items = 500\n\n[modules.logging_68]\nflush_every = 6\nworkers = 8\npath = \"/var/lib/app/cache\"\nlevel = \"error\"\n\n[modules.logging_69]\nenabled = false\nbuffer_kb = 1024\nflush_every = 22\npath = \"/var/lib/app/tmp\"\n\n[modules.metrics_70]\nenabled = true\nmax_items = 150\nprefix = \"app_\"\nflush_every = 5\n\n[modules.logging_71]\nprefix = \"x_\"\nlevel = \"info\"\nmax_items = 875\nflush_every = 4\nbuffer_kb = 512\npath = \"/var/lib/app/cache\"\n\n[modules.imaging_72]\npath = \"/var/lib/app/out\"\nenabled = false\nlevel = \"warn\"\nworkers = 6\n\n[modules.metrics_73]\nenabled = true\nworkers = 6\nbuffer_kb = 448\nlevel = \"warn\"\nprefix = \"x_\"\nmax_items = 725\n\n[modules.ratelimit_74]\nenabled = true\nflush_every = 8\nlevel = \"warn\"\npath = \"/var/lib/app/out\"\nworkers = 8\nbuffer_kb = 768\n\n[modules.logging_75]\nlevel = \"info\"\nbuffer_kb = 640\nenabled = false\nprefix = \"x_\"\npath = \"/var/lib/app/cache\"\nflush_every = 7\n\n[modules.uploads_76]\nlevel = \"warn\"\nbuffer_kb = 576\nprefix = \"app_\"\nflush_every = 15\nenabled = false\n"
+  },
+  "turns": [
+    {
+      "prompt": "In config/scheduler-limits.toml, what is max_concurrent_jobs for the [pools.batch] table?",
+      "expect": {
+        "output_contains": [
+          "48"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "max_concurrent_jobs = 16"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "search_text"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch",
+      "bash"
+    ]
+  },
+  "expect": {
+    "max_calls": {
+      "read_file": 4
+    }
+  }
+}

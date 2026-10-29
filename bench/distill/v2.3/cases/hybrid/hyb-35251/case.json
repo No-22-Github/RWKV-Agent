@@ -1,0 +1,99 @@
+{
+  "id": "hyb-35251",
+  "description": "Pick the cheaper quote into an order file, switch supplier after a price drop, compute savings. DISTILL-CANARY-89f209cc",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35251",
+    "ref_calls": 6,
+    "fixture_bytes": 72,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/报价-恒通.txt": "供应商：恒通\nA4纸 每箱 168\n",
+    "文档/报价-明辉.txt": "供应商：明辉\nA4纸 每箱 159\n"
+  },
+  "turns": [
+    {
+      "prompt": "两家的 A4 纸报价各是多少？文件在 文档 目录。",
+      "expect": {
+        "output_contains": [
+          "168",
+          "159"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "选便宜的那家，写到 文档/采购单.txt，就一行，格式“供应商：单价”。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "恒通说可以降到每箱 150，那就改选恒通，更新采购单。",
+      "expect": {
+        "output_contains": [
+          "恒通"
+        ]
+      }
+    },
+    {
+      "prompt": "这次要买 20 箱，总价多少？比一开始选的那家省了多少钱？",
+      "expect": {
+        "output_contains": [
+          "180"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "3000",
+          "3,000"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "write_file",
+      "replace_lines",
+      "calculator"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/报价-恒通.txt": {
+        "unchanged": true
+      },
+      "文档/报价-明辉.txt": {
+        "unchanged": true
+      },
+      "文档/采购单.txt": {
+        "equals": "恒通：150\n"
+      }
+    }
+  }
+}

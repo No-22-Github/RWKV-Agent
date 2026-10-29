@@ -1,5 +1,7 @@
 # v2.3 计划：以 v2.1 为底重新配平，定向补 G1L 的死因
 
+> **10-30 已出包** [v2.3-pack-20261030](reports/v2.3-pack-20261030.md)（2213 条）。
+>
 > 2026-10-29 起草，10-30 用户拍板（§8）：NoRA 先训、MiSS 后训；b23c 老师用 Command Code 上的 DeepSeek；10-30 不开训练。
 >
 > 背景：v2.2 在 G1L、G1K 两个基模上都比 v2.1 低（G1K 同日 286.5 vs 298.0，考卷 v1.1 口径），退步来自数据：b22a 把"题面带公司/产品名就先上网"教给了本地题，8K→16K 补全的 99 道老轨迹试错味重，见 [exam-v22-g1k 报告](../../../docs/evaluations/exam-v22-g1k-20261022/REPORT.md) §4–§7。G1L 基模开思考后的死因排序见 [G1L 原生思考报告](../../../docs/evaluations/irwkv-think-20261029/g1l-7b-temp3797-native-think-exam-report-20261029.md) §2。

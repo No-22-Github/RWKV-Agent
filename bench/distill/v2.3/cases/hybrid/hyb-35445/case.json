@@ -1,0 +1,62 @@
+{
+  "id": "hyb-35445",
+  "description": "Change one env value with the line-replace tool offered. DISTILL-CANARY-8e58987e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "MAX_CONNECTIONS_PER_IP line"
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F0-35445",
+    "ref_calls": 2,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F0"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/edge-tuning.env": "# edge tuning, edited by ops\nWORKER_THREADS=8\nMAX_CONNECTIONS=250\nMAX_CONNECTIONS_PER_IP=250\nKEEPALIVE_SECONDS=30\nREAD_TIMEOUT_MS=4000\nLOG_LEVEL=info\nACCESS_LOG=/var/log/edge/access.log\n"
+  },
+  "turns": [
+    {
+      "prompt": "In deploy/edge-tuning.env, change MAX_CONNECTIONS from 250 to 400. Leave everything else exactly as it is.",
+      "expect": {
+        "required_tools": [
+          "replace_lines"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "replace_lines",
+      "read_file"
+    ],
+    "never_offer": [
+      "bash"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/edge-tuning.env": {
+        "equals": "# edge tuning, edited by ops\nWORKER_THREADS=8\nMAX_CONNECTIONS=400\nMAX_CONNECTIONS_PER_IP=250\nKEEPALIVE_SECONDS=30\nREAD_TIMEOUT_MS=4000\nLOG_LEVEL=info\nACCESS_LOG=/var/log/edge/access.log\n"
+      }
+    }
+  }
+}

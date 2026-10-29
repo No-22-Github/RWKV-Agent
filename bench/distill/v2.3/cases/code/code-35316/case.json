@@ -1,0 +1,66 @@
+{
+  "id": "code-35316",
+  "description": "Struct gets two fields, constructor changes below. DISTILL-CANARY-c26b6614",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35316",
+    "ref_calls": 4,
+    "fixture_bytes": 198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "internal/queue/worker.go": "package queue\n\ntype Worker struct {\n\tID   int\n\tName string\n}\n\nfunc NewWorker(id int, name string) *Worker {\n\treturn &Worker{ID: id, Name: name}\n}\n\nfunc (w *Worker) Label() string {\n\treturn w.Name\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add two fields to the Worker struct in internal/queue/worker.go: Retries (int) and Paused (bool). NewWorker should start every worker with Retries set to 3. After editing, read the file back and tell me which line Label() is on.",
+      "expect": {
+        "output_contains": [
+          "14"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "internal/queue/worker.go": {
+        "equals": "package queue\n\ntype Worker struct {\n\tID   int\n\tName string\n\tRetries int\n\tPaused  bool\n}\n\nfunc NewWorker(id int, name string) *Worker {\n\treturn &Worker{ID: id, Name: name, Retries: 3}\n}\n\nfunc (w *Worker) Label() string {\n\treturn w.Name\n}\n"
+      }
+    }
+  }
+}

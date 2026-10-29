@@ -1,0 +1,71 @@
+{
+  "id": "hyb-35414",
+  "description": "Two successive edits through the shell when no file-writing tool is offered. DISTILL-CANARY-81f5fdb4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "warn changed in the wrong section"
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "b23f-F1-35414",
+    "ref_calls": 2,
+    "fixture_bytes": 69,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23f",
+    "subtype": "F1"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/监控阈值.ini": "[cpu]\nwarn=70\ncrit=90\n\n[disk]\nwarn=70\ncrit=95\n\n[mem]\nwarn=75\ncrit=92\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 配置/监控阈值.ini 里 [disk] 段的 warn 改成 80，其他都别动。",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ]
+      }
+    },
+    {
+      "prompt": "好，再在文件最后加一行注释：# reviewed 2026-09-30",
+      "expect": {
+        "required_tools": [
+          "bash"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "bash"
+    ],
+    "never_offer": [
+      "write_file",
+      "replace_lines",
+      "append_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "配置/监控阈值.ini": {
+        "equals": "[cpu]\nwarn=70\ncrit=90\n\n[disk]\nwarn=80\ncrit=95\n\n[mem]\nwarn=75\ncrit=92\n# reviewed 2026-09-30\n"
+      }
+    }
+  }
+}

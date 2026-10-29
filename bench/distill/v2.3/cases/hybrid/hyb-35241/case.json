@@ -1,0 +1,94 @@
+{
+  "id": "hyb-35241",
+  "description": "Three price changes over three turns, then a recap of ups and downs with the original flagship price. DISTILL-CANARY-cc6ca245",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35241",
+    "ref_calls": 6,
+    "fixture_bytes": 45,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据/会员价目.csv": "套餐,月费\n基础,29\n标准,59\n旗舰,129\n"
+  },
+  "turns": [
+    {
+      "prompt": "旗舰套餐月费多少？表在 数据/会员价目.csv。",
+      "expect": {
+        "output_contains": [
+          "129"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "基础涨到 35。",
+      "expect": {
+        "output_contains": [
+          "35"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "标准涨到 69，旗舰降到 119。",
+      "expect": {
+        "output_contains": [
+          "69",
+          "119"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "这三个套餐里几个涨价、几个降价？各变了多少？旗舰原来是多少？",
+      "expect": {
+        "output_contains": [
+          "129",
+          "119"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "10",
+          "6"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "数据/会员价目.csv": {
+        "equals": "套餐,月费\n基础,35\n标准,69\n旗舰,119\n"
+      }
+    }
+  }
+}

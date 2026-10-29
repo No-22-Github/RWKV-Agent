@@ -1,0 +1,89 @@
+{
+  "id": "hyb-35249",
+  "description": "Move kanban items between sections over several turns, then recap sections and the original backlog size. DISTILL-CANARY-eb95540b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35249",
+    "ref_calls": 6,
+    "fixture_bytes": 86,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/任务板.md": "## 待办\n- 写接口文档\n- 压测\n## 进行中\n- 登录改版\n## 完成\n- 搭建CI\n"
+  },
+  "turns": [
+    {
+      "prompt": "任务板里“进行中”现在有什么？文件是 文档/任务板.md。",
+      "expect": {
+        "output_contains": [
+          "登录改版"
+        ]
+      }
+    },
+    {
+      "prompt": "把“压测”从待办移到进行中。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "“登录改版”做完了，移到完成里。",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "现在三栏各有什么？另外最开始待办里有几项？",
+      "expect": {
+        "output_contains": [
+          "写接口文档",
+          "压测",
+          "登录改版",
+          "搭建CI",
+          "2"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "文档/任务板.md": {
+        "equals": "## 待办\n- 写接口文档\n## 进行中\n- 压测\n## 完成\n- 搭建CI\n- 登录改版\n"
+      }
+    }
+  }
+}

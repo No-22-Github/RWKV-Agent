@@ -1,0 +1,95 @@
+{
+  "id": "hyb-35239",
+  "description": "Read a threshold from a log, derive a config edit, adjust again, recap the history. DISTILL-CANARY-74946e25",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "compound_request",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35239",
+    "ref_calls": 7,
+    "fixture_bytes": 86,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "日志/推送服务.log": "10:21 ERROR 推送超时 阈值=4s\n10:25 INFO 重试成功\n",
+    "配置/推送服务.conf": "[push]\ntimeout=4\nretries=2\n"
+  },
+  "turns": [
+    {
+      "prompt": "推送服务日志里报错说的超时阈值是几秒？",
+      "expect": {
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "把 配置/推送服务.conf 里的 timeout 调成日志里那个值的两倍，告诉我调成了多少。",
+      "expect": {
+        "output_contains": [
+          "8"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "调完之后又报了 8 秒才响应，所以直接改到 10 吧。",
+      "expect": {
+        "output_contains": [
+          "10"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "总结一下 timeout 的变化过程，从多少到多少再到多少，另外日志里最初说的阈值是几秒。",
+      "expect": {
+        "output_contains": [
+          "4",
+          "8",
+          "10"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file",
+      "search_text"
+    ]
+  },
+  "expect": {
+    "files": {
+      "日志/推送服务.log": {
+        "unchanged": true
+      },
+      "配置/推送服务.conf": {
+        "equals": "[push]\ntimeout=10\nretries=2\n"
+      }
+    }
+  }
+}

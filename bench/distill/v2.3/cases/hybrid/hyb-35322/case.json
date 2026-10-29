@@ -1,0 +1,67 @@
+{
+  "id": "hyb-35322",
+  "description": "Add three rows with subtotals and a new total. DISTILL-CANARY-d86656e6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "b23e-E1-35322",
+    "ref_calls": 5,
+    "fixture_bytes": 188,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "采购/办公用品清单.md": "# 办公用品清单\n\n| 品名 | 数量 | 单价 | 小计 |\n|---|---:|---:|---:|\n| 笔记本 | 40 | 6 | 240 |\n| 白板笔 | 25 | 4 | 100 |\n| **合计** | | | **340** |\n\n审批人：吴桐\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 采购/办公用品清单.md 里加三行：订书机 12 个每个 15、文件夹 60 个每个 3、便利贴 30 个每个 5，小计算好，合计也改对。读回来确认，告诉我新的合计。",
+      "expect": {
+        "output_contains": [
+          "850"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "calculator"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "采购/办公用品清单.md": {
+        "equals": "# 办公用品清单\n\n| 品名 | 数量 | 单价 | 小计 |\n|---|---:|---:|---:|\n| 笔记本 | 40 | 6 | 240 |\n| 白板笔 | 25 | 4 | 100 |\n| 订书机 | 12 | 15 | 180 |\n| 文件夹 | 60 | 3 | 180 |\n| 便利贴 | 30 | 5 | 150 |\n| **合计** | | | **850** |\n\n审批人：吴桐\n"
+      }
+    }
+  }
+}

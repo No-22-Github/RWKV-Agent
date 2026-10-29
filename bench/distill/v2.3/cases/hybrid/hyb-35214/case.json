@@ -1,0 +1,88 @@
+{
+  "id": "hyb-35214",
+  "description": "Find the file by a port number, change it, then check the others and recall the old port. DISTILL-CANARY-7c465fad",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35214",
+    "ref_calls": 6,
+    "fixture_bytes": 115,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/订单服务.env": "SERVICE=order\nPORT=8443\nLOG_LEVEL=info\n",
+    "部署/支付服务.env": "SERVICE=pay\nPORT=8444\nLOG_LEVEL=warn\n",
+    "部署/库存服务.env": "SERVICE=stock\nPORT=8445\nLOG_LEVEL=info\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署目录里哪个服务用的是 8443 端口？",
+      "expect": {
+        "output_contains": [
+          "订单服务"
+        ]
+      }
+    },
+    {
+      "prompt": "把它改成 9443，改完说一下文件名和新端口。",
+      "expect": {
+        "output_contains": [
+          "订单服务.env",
+          "9443"
+        ]
+      }
+    },
+    {
+      "prompt": "再看看有没有别的服务也用了 9443，顺便告诉我支付服务现在用哪个端口，以及你刚改的那个服务原来是多少。",
+      "expect": {
+        "output_contains": [
+          "8444",
+          "8443"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "search_text",
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "部署/支付服务.env": {
+        "unchanged": true
+      },
+      "部署/库存服务.env": {
+        "unchanged": true
+      },
+      "部署/订单服务.env": {
+        "equals": "SERVICE=order\nPORT=9443\nLOG_LEVEL=info\n"
+      }
+    }
+  }
+}

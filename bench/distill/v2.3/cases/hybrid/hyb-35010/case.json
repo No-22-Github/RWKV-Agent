@@ -1,0 +1,73 @@
+{
+  "id": "hyb-35010",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-0fcbca76",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-010",
+    "ref_calls": 3,
+    "fixture_bytes": 197,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Fenwick",
+      "url": "https://www.fenwicktelecom.com/mobile/plans",
+      "url_match": "www.fenwicktelecom.com/mobile/plans",
+      "title": "Mobile plans - Fenwick Telecom",
+      "snippet": "SIM and handset plans.",
+      "content": "# Mobile plans\n\nEssential: 5 GB, 9 dollars per month.\nPlus: 20 GB, 18 dollars per month.\nUnlimited: 40 dollars per month.\n",
+      "published_at": "2026-08-01"
+    }
+  ],
+  "files": {
+    "telecom/fenwick-business-plan-agreement.md": "# Fenwick Telecom - business mobile agreement\n\nLines: 14\nData per line: 50 GB per month, then throttled to 1 Mbps.\nRoaming: EU included.\nTerm: 24 months from 2026-02-01.\n",
+    "telecom/line-assignments.csv": "line,user\n01,Rosa\n02,Imran\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much data does each line on our Fenwick Telecom business plan get per month?",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "50"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "20 GB",
+          "20GB"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "code-35357",
+  "description": "Create a sample env file, then append. DISTILL-CANARY-b312eabd",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35357",
+    "ref_calls": 2,
+    "fixture_bytes": 22,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/说明.txt": "示例环境变量。\n"
+  },
+  "turns": [
+    {
+      "prompt": "新建 deploy/env-staging.sample，两行：API_URL=https://staging.hengtai-logistics.cn 和 LOG_LEVEL=debug。",
+      "expect": {}
+    },
+    {
+      "prompt": "再在最后加一行 CACHE_TTL=120。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "write_file",
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "deploy/说明.txt": {
+        "unchanged": true
+      },
+      "deploy/env-staging.sample": {
+        "equals": "API_URL=https://staging.hengtai-logistics.cn\nLOG_LEVEL=debug\nCACHE_TTL=120\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 1,
+      "list_files": 1,
+      "write_file": 2,
+      "append_file": 2
+    }
+  }
+}

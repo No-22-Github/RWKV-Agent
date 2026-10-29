@@ -1,0 +1,71 @@
+{
+  "id": "code-35317",
+  "description": "Replace a five-line if-block with one line. DISTILL-CANARY-537f0222",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23e-E1-35317",
+    "ref_calls": 4,
+    "fixture_bytes": 185,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E1"
+  },
+  "web_fixture": [],
+  "files": {
+    "scripts/打包发布.sh": "#!/usr/bin/env bash\nset -e\nVERSION=$(cat VERSION)\n\nif [ -d dist ]; then\n  echo \"cleaning dist\"\n  rm -rf dist\n  mkdir dist\nfi\n\ntar czf \"dist/app-$VERSION.tgz\" src\necho \"packed $VERSION\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "scripts/打包发布.sh 里清理 dist 的那个 if 块（五行）太啰嗦了，换成一行 mkdir -p dist，后面的空行保留一个就行。改完读回来看一眼，说一下 tar 那行现在是第几行。",
+      "expect": {
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "prompt": "最后再加一行 echo \"done\"。",
+      "expect": {},
+      "review_before": "accept"
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "scripts/打包发布.sh": {
+        "equals": "#!/usr/bin/env bash\nset -e\nVERSION=$(cat VERSION)\n\nmkdir -p dist\n\ntar czf \"dist/app-$VERSION.tgz\" src\necho \"packed $VERSION\"\necho \"done\"\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "doc-35012",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-e3fd1c1e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "the web page's different value"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-012",
+    "ref_calls": 3,
+    "fixture_bytes": 293,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [
+    {
+      "query_match": "华达",
+      "url": "https://www.hengtai-logistics.cn/service/terms",
+      "url_match": "www.hengtai-logistics.cn/service/terms",
+      "title": "服务条款 - 华达物流",
+      "snippet": "华达物流标准服务条款。",
+      "content": "# 标准服务条款\n\n新客户默认账期为 30 天，自对账单确认之日起算。大客户可另行签订协议约定。\n",
+      "published_at": "2026-05-18"
+    }
+  ],
+  "files": {
+    "合同/华达物流-年度运输合同-2026.md": "# 年度运输服务合同\n\n甲方：本公司  乙方：华达物流\n签订日期：2026-02-26\n\n第四条 结算\n4.1 每月 5 日前出具上月对账单。\n4.2 甲方应在对账单确认后 45 日内付款。\n4.3 逾期按日万分之五计息。\n",
+    "合同/供应商联系人.csv": "供应商,联系人\n华达物流,调度台\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们和华达的合同里写的付款期限是多少天？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "30 天",
+          "30天",
+          "30 日",
+          "30日"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}

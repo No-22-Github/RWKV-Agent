@@ -1,0 +1,84 @@
+{
+  "id": "hyb-35211",
+  "description": "Append a key, user accepts, then edit another key and describe before and after. DISTILL-CANARY-7318a1bb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D1-35211",
+    "ref_calls": 6,
+    "fixture_bytes": 74,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D1"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/orbit-collector.ini": "[collector]\nport = 9410\n\n[logging]\nlevel = info\nfile = /var/log/orbit.log\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add a line 'retention_days = 45' at the end of the [logging] section in conf/orbit-collector.ini.",
+      "expect": {
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    },
+    {
+      "prompt": "I accepted that. Now read the file again and tell me the retention setting and the other keys under [logging].",
+      "expect": {
+        "output_contains": [
+          "45",
+          "level",
+          "file"
+        ],
+        "output_contains_token": true
+      },
+      "review_before": "accept"
+    },
+    {
+      "prompt": "Change level from info to warn. Then describe in one sentence what the [logging] section looked like at the very beginning versus now.",
+      "expect": {
+        "output_contains": [
+          "warn",
+          "info",
+          "45"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "append_file",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "conf/orbit-collector.ini": {
+        "equals": "[collector]\nport = 9410\n\n[logging]\nlevel = warn\nfile = /var/log/orbit.log\nretention_days = 45\n"
+      }
+    }
+  }
+}

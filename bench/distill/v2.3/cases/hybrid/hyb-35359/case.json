@@ -1,0 +1,64 @@
+{
+  "id": "hyb-35359",
+  "description": "Append a line with a simple sum. DISTILL-CANARY-f68a0c2e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "b23e-E0-35359",
+    "ref_calls": 2,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23e",
+    "subtype": "E0"
+  },
+  "web_fixture": [],
+  "files": {
+    "预算/杂项.md": "# 杂项开支\n\n- 打印：180\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 预算/杂项.md 末尾加一行，格式「- 合计：数字」，数字是 3480 加 1260 的和。",
+      "expect": {}
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "append_file"
+    ],
+    "never_offer": [
+      "web_search",
+      "web_fetch"
+    ]
+  },
+  "expect": {
+    "files": {
+      "预算/杂项.md": {
+        "equals": "# 杂项开支\n\n- 打印：180\n- 合计：4740\n"
+      }
+    },
+    "max_calls": {
+      "read_file": 1,
+      "list_files": 1,
+      "append_file": 2,
+      "write_file": 1,
+      "replace_lines": 1
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": "hyb-35242",
+  "description": "Toggle two gates, revert only the first, list final state and everything touched. DISTILL-CANARY-07c606e5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35242",
+    "ref_calls": 6,
+    "fixture_bytes": 87,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/feature_gates.ts": "export const gates = {\n  newSearch: false,\n  legacyExport: true,\n  betaChat: false,\n};\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which gates are currently off in src/feature_gates.ts?",
+      "expect": {
+        "output_contains": [
+          "newSearch",
+          "betaChat"
+        ]
+      }
+    },
+    {
+      "prompt": "Enable newSearch.",
+      "expect": {
+        "output_contains": [
+          "newSearch"
+        ]
+      }
+    },
+    {
+      "prompt": "Disable legacyExport.",
+      "expect": {
+        "output_contains": [
+          "legacyExport"
+        ]
+      }
+    },
+    {
+      "prompt": "I changed my mind about the first one, so revert only newSearch. Then list the final state of all gates and everything I asked you to touch.",
+      "expect": {
+        "output_contains": [
+          "newSearch",
+          "legacyExport",
+          "betaChat"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "src/feature_gates.ts": {
+        "equals": "export const gates = {\n  newSearch: false,\n  legacyExport: false,\n  betaChat: false,\n};\n"
+      }
+    }
+  }
+}

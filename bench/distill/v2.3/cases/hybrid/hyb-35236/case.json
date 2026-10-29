@@ -1,0 +1,91 @@
+{
+  "id": "hyb-35236",
+  "description": "Two edits, then revert only the first and recap with originals. DISTILL-CANARY-bf8842c4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "undo_change",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "VER"
+    ],
+    "level": "L3",
+    "family": "b23d-D2-35236",
+    "ref_calls": 6,
+    "fixture_bytes": 70,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23d",
+    "subtype": "D2"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/atlas-queue.yaml": "queue: atlas\nworkers: 4\nvisibility_timeout_s: 30\ndead_letter_after: 5\n"
+  },
+  "turns": [
+    {
+      "prompt": "What are workers and dead_letter_after in config/atlas-queue.yaml?",
+      "expect": {
+        "output_contains": [
+          "4",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Set workers to 8.",
+      "expect": {
+        "output_contains": [
+          "8"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Now set dead_letter_after to 3.",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "Change of plan: put workers back to what it was, but keep the dead-letter change. Give me the final values and tell me what dead_letter_after was originally.",
+      "expect": {
+        "output_contains": [
+          "4",
+          "3",
+          "5"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "read_file",
+      "replace_lines",
+      "write_file"
+    ]
+  },
+  "expect": {
+    "files": {
+      "config/atlas-queue.yaml": {
+        "equals": "queue: atlas\nworkers: 4\nvisibility_timeout_s: 30\ndead_letter_after: 3\n"
+      }
+    }
+  }
+}

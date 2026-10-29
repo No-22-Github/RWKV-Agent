@@ -1,0 +1,65 @@
+{
+  "id": "doc-35019",
+  "description": "Prompt names an outside company/product but asks about the user's own data in the workspace; look locally first. DISTILL-CANARY-3216ebee",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "neighbouring item value"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "b23b-B1-019",
+    "ref_calls": 3,
+    "fixture_bytes": 273,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-b23b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "agent-tool-v3.2",
+    "batch": "b23b",
+    "subtype": "B1"
+  },
+  "web_fixture": [],
+  "files": {
+    "行政/差旅报销政策-2026.md": "# 差旅报销政策 2026\n\n## 市内交通\n- 鸿雁出行（企业账户）：每单报销上限 80 元，超出部分个人承担。\n- 地铁公交：凭行程单据实报销。\n\n## 住宿\n- 一线城市每晚 600 元，其他城市 420 元。\n",
+    "行政/报销单样例.csv": "日期,金额\n2026-07-03,56\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们差旅政策里，鸿雁出行的市内打车每单报销上限是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "80"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "50 元",
+          "50元",
+          "100 元"
+        ]
+      }
+    }
+  ],
+  "tool_policy": {
+    "must_offer": [
+      "list_files",
+      "read_file",
+      "search_text",
+      "web_search",
+      "web_fetch"
+    ]
+  }
+}
