@@ -511,6 +511,10 @@ func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason)
 			Arguments json.RawMessage `json:"arguments"`
 		}
 		repairs := &repairLog{}
+		payload, normalized := normalizeG1CallPayload(payload)
+		for _, repair := range normalized {
+			repairs.mark(repair)
+		}
 		strictDecoded := true
 		decoder := json.NewDecoder(strings.NewReader(payload))
 		decoder.DisallowUnknownFields()

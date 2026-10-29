@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -56,6 +57,39 @@ func TestExperimentalExitAndNudge(t *testing.T) {
 		}
 		if !strings.Contains(p.PostToolReminder(), "call "+name) {
 			t.Fatal(p.PostToolReminder())
+		}
+	}
+}
+
+func TestG1CallPayloadNearMisses(t *testing.T) {
+	wrapped := "<tool_call>\n" + `{"type":"function","function":{"name":"read_file","arguments":{"path":"README.md"}}}` + "\n"
+	for _, tc := range []struct {
+		name, raw, mode string
+		repair          wire.Repair
+	}{
+		{"openai wrapper", wrapped, "", wire.RepairFunctionWrapper},
+		{"stringified wrapper", `<tool_call>{"type":"function","function":{"name":"read_file","arguments":"{\"path\":\"README.md\"}"}}</tool_call>`, "", wire.RepairFunctionWrapper},
+		{"extra brace", `<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}}</tool_call>`, "", wire.RepairJSONRepaired},
+		{"preamble and wrapper", "<think>read</think>\nI'll read it.\n" + wrapped, "preamble", wire.RepairFunctionWrapper},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			p := G1Protocol{Experiments: wire.Experiments{Recovery: tc.mode}}
+			a, err := p.Parse(tc.raw, continuation.FinishStop)
+			if err != nil || a.Type != ActionTypeTool || a.Name != "read_file" || string(a.Arguments) != `{"path":"README.md"}` {
+				t.Fatalf("action=%+v err=%v", a, err)
+			}
+			if !a.ProtocolRepaired || !strings.Contains(fmt.Sprint(a.Repairs), string(tc.repair)) {
+				t.Fatalf("repairs=%v", a.Repairs)
+			}
+		})
+	}
+	p := G1Protocol{}
+	for _, raw := range []string{
+		`<tool_call>{"type":"function","function":{"name":"read_file"},"extra":1}</tool_call>`,
+		`<tool_call>{"name":"list_files","arguments":{"max_results":"100}}</tool_call>`,
+	} {
+		if a, err := p.Parse(raw, continuation.FinishStop); err == nil {
+			t.Fatalf("accepted %s as %+v", raw, a)
 		}
 	}
 }

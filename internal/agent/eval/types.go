@@ -19,7 +19,7 @@ const (
 	// file simply has no tags / case-level web fixture / case-level expect.
 	caseSchemaVersionLegacy = 4
 	RunSchemaVersion        = 8
-	HarnessVersion          = "rwkv-agent-eval-v23"
+	HarnessVersion          = "rwkv-agent-eval-v24"
 	ScorerVersion           = "rwkv-agent-eval-scorer-v4"
 	OutcomeTaxonomyVersion  = "rwkv-agent-outcome-v2"
 

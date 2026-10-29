@@ -58,7 +58,8 @@ func (p G1Protocol) recoverExperimentalCall(value string, finish continuation.Fi
 		Name      string          `json:"name"`
 		Arguments json.RawMessage `json:"arguments"`
 	}
-	if json.Unmarshal([]byte(payload), &call) != nil || call.Name == "" || call.Name == "TOOL_NAME" || !isJSONObject(call.Arguments) {
+	normalized, _ := normalizeG1CallPayload(payload)
+	if json.Unmarshal([]byte(normalized), &call) != nil || call.Name == "" || call.Name == "TOOL_NAME" || !isJSONObject(call.Arguments) {
 		return Action{}, false
 	}
 	if index == 0 && !jsonRepair {
@@ -81,6 +82,41 @@ func (p G1Protocol) recoverExperimentalCall(value string, finish continuation.Fi
 	action.ProtocolRepaired = true
 	action.OriginalProtocolFailure = ProtocolFailureToolShapeInvalid
 	return action, true
+}
+
+// normalizeG1CallPayload accepts two near-misses G1L checkpoints emit inside
+// a <tool_call> envelope: stray closing braces after a complete object, and
+// the OpenAI {"type":"function","function":{…}} wrapper (harness v24).
+func normalizeG1CallPayload(payload string) (string, []wire.Repair) {
+	var repairs []wire.Repair
+	if !json.Valid([]byte(payload)) {
+		if fixed := repairExperimentalJSON(payload); fixed != payload {
+			payload = fixed
+			repairs = append(repairs, wire.RepairJSONRepaired)
+		}
+	}
+	object, ok := rawJSONObject(json.RawMessage(payload))
+	if !ok || object["name"] != nil {
+		return payload, repairs
+	}
+	for key := range object {
+		if key != "type" && key != "id" && key != "function" {
+			return payload, repairs
+		}
+	}
+	function, ok := rawJSONObject(object["function"])
+	name := rawJSONString(function["name"])
+	if !ok || name == "" {
+		return payload, repairs
+	}
+	flattened, err := json.Marshal(struct {
+		Name      string          `json:"name"`
+		Arguments json.RawMessage `json:"arguments"`
+	}{name, firstRaw(function, "arguments")})
+	if err != nil {
+		return payload, repairs
+	}
+	return string(flattened), append(repairs, wire.RepairFunctionWrapper)
 }
 
 // Deliberately narrow: extra closing braces after a complete JSON object only.
