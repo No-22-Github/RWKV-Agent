@@ -38,7 +38,7 @@ if [[ "$(uname -s)" != "Darwin" || "$(uname -m)" != "arm64" ]]; then
   exit 1
 fi
 
-echo "[1/5] Preparing the native RWKV runtime..."
+echo "[1/4] Preparing the native RWKV runtime..."
 # Fail before downloading frontend tools, including on a fresh checkout.
 if [[ ! -f "$repo_root/third_party/rwkv-mobile/CMakeLists.txt" ]]; then
   git -C "$repo_root" submodule update --init --recursive
@@ -52,13 +52,22 @@ source "$repo_root/scripts/lib/frontend-toolchain.sh"
 "$repo_root/scripts/build-macos.sh" --with-chat-completions &
 native_pid=$!
 trap 'wait "$native_pid" 2>/dev/null || true' EXIT
-echo "[2/5] Installing and building the React frontend..."
+echo "[2/4] Installing and building the React frontend..."
 "$pnpm_command" --dir "$frontend_dir" install --frozen-lockfile
 "$pnpm_command" --dir "$frontend_dir" run build
 wait "$native_pid"
 trap - EXIT
 
-echo "[3/5] Building the Wails V3 desktop executable..."
+echo "[3/4] Building the desktop app, headless server and bash sidecar..."
+# The bash tool's sidecar (native/justbash) is a Bun single-file binary; it
+# sits beside the executables, where tools.ResolveBashSidecar looks first.
+if ! command -v bun >/dev/null 2>&1; then
+  echo "Required workspace overlay build tool is missing: bun" >&2
+  exit 1
+fi
+# The three outputs are independent, so build them side by side and fail if
+# any one does.
+build_pids=()
 (
   cd "$repo_root"
   CGO_ENABLED=1 go build \
@@ -66,9 +75,8 @@ echo "[3/5] Building the Wails V3 desktop executable..."
     -trimpath \
     -o "$dist_dir/rwkv-app" \
     ./cmd/rwkv-app
-)
-
-echo "[4/5] Building the Wails V3 headless server executable..."
+) &
+build_pids+=($!)
 (
   cd "$repo_root"
   CGO_ENABLED=1 go build \
@@ -76,7 +84,18 @@ echo "[4/5] Building the Wails V3 headless server executable..."
     -trimpath \
     -o "$dist_dir/rwkv-app-server" \
     ./cmd/rwkv-app
-)
+) &
+build_pids+=($!)
+"$repo_root/scripts/build-justbash.sh" "$dist_dir/justbash-sidecar" >/dev/null &
+build_pids+=($!)
+build_failed=0
+for pid in "${build_pids[@]}"; do
+  wait "$pid" || build_failed=1
+done
+if (( build_failed )); then
+  echo "A parallel build step failed; see its output above." >&2
+  exit 1
+fi
 
 for executable in "$dist_dir/rwkv-app" "$dist_dir/rwkv-app-server"; do
   if ! otool -l "$executable" | grep -A2 LC_RPATH | grep -q '@executable_path'; then
@@ -84,15 +103,7 @@ for executable in "$dist_dir/rwkv-app" "$dist_dir/rwkv-app-server"; do
   fi
 done
 
-# The bash tool's sidecar (native/justbash) is a Bun single-file binary; it
-# sits beside the executables, where tools.ResolveBashSidecar looks first.
-if ! command -v bun >/dev/null 2>&1; then
-  echo "Required workspace overlay build tool is missing: bun" >&2
-  exit 1
-fi
-"$repo_root/scripts/build-justbash.sh" "$dist_dir/justbash-sidecar" >/dev/null
-
-echo "[5/5] Packaging the macOS application bundle..."
+echo "[4/4] Packaging the macOS application bundle..."
 rm -rf "$app_bundle"
 mkdir -p "$app_macos" "$app_resources"
 cp "$repo_root/cmd/rwkv-app/build/darwin/Info.plist" "$app_bundle/Contents/Info.plist"

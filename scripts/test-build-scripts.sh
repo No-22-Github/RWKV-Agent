@@ -70,7 +70,7 @@ case "${0##*/}" in
 esac
 EOF
 chmod +x "$mock_bin/driver"
-for command in uname xcrun pnpm npm cmake ninja go git xcodebuild swift otool vtool install_name_tool shasum nm; do
+for command in uname xcrun pnpm npm bun cmake ninja go git xcodebuild swift otool vtool install_name_tool shasum nm; do
   ln -s driver "$mock_bin/$command"
 done
 export PATH="$mock_bin:$PATH"
@@ -115,6 +115,14 @@ touch "$dist/librwkv_agent_runtime.dylib" \
   "$dist/assets/rwkv_vocab_v20230424.txt"
 printf 'native finished\n' >>"$MOCK_LOG"
 EOF
+
+# The real sidecar build needs Bun; the fixture only checks that it is invoked.
+cat >"$fixture/scripts/build-justbash.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+touch "$1"
+EOF
+chmod +x "$fixture/scripts/build-justbash.sh"
 
 expect_failure '' env MOCK_METAL_FAILURE=1 bash "$fixture/scripts/build-app.sh"
 test ! -s "$MOCK_LOG" # Native dependency checks must precede tool downloads.
