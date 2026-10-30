@@ -13,10 +13,10 @@
 #                                     the MiSS run instead
 #   ONLY="g1l-nora-r16-lr2e-5-e2 g1l-miss-r16-lr2e-5-e2" GPUS="0 1" ...
 #                                     both at once on two cards
-#   MICRO_BSZ=4 ...                   half the packed rows (16384, as in v2.2)
-#                                     if the smoke run runs out of memory
-#   MICRO_BSZ=1 CHUNK=16384 ...       the v2.2 layout (no packing), for a
-#                                     binary older than cedc073
+#   MICRO_BSZ=4 ...                   half the packed rows (4096) if the
+#                                     smoke run runs out of memory
+#   MICRO_BSZ=1 ...                   the v2.2 G1L layout (no packing, chunk
+#                                     1024), for a binary older than cedc073
 #
 # GPUS has no default: check nvidia-smi for a free card first.
 #
@@ -33,12 +33,17 @@
 #
 # Speed: --micro-bsz 8 runs the whole batch of 8 in one pass, rows packed
 # back to back without padding (results equal to one at a time up to FP32
-# summation order). Rows are short (median ~7.6K chars, a few thousand
-# tokens), so with chunk 4096 most samples finish in one chunk step and the
-# long ones run on alone. The binary rejects micro-bsz * chunk > 65535, so
-# 8 x 8192 and 4 x 16384 are both out; 8 x 4096 = 32768 rows per pass, twice
-# the 16384 the v2.2 run used on the same card. Activation memory scales with
-# micro-bsz * chunk; the smoke run (8 longest rows) is the worst case.
+# summation order); each lane walks its sample chunk by chunk.
+#
+# Memory: every layer keeps its own activation tape for micro-bsz * chunk
+# rows (about 21 BF16 vectors of width 4096 per row per layer, so ~5.5 MB a
+# row over 32 layers), on top of ~15 GB of weights. The v2.2 G1L run (chunk
+# 1024, one lane) sat at 22 GB of 96. 8 x 4096 = 32768 rows would need
+# ~180 GB and ran out of memory; 8 x 1024 = 8192 rows is ~45 GB of tape,
+# about 65 GB in all. Chunk size only costs per-step overhead (the PR #18
+# benchmarks use 256), so more lanes at a smaller chunk is the better trade.
+# The binary also rejects micro-bsz * chunk > 65535. The smoke run (8
+# longest rows) is the worst case.
 #
 # A finished run (adapter-final.pth present) is skipped, so rerunning the
 # script after an interruption only starts what is missing.
@@ -54,7 +59,7 @@ DATA_SHA256=f1abc80e74ac447e085e8c409293ad3619537fb1188eb4411eb7de2d308c346d
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
 OUT=${OUT:-train-2-3}
 BASE_OUT=$OUT
-CHUNK=${CHUNK:-4096}
+CHUNK=${CHUNK:-1024}
 MICRO_BSZ=${MICRO_BSZ:-8}
 SMOKE=${SMOKE:-0}
 ONLY=${ONLY:-g1l-nora-r16-lr2e-5-e2}
