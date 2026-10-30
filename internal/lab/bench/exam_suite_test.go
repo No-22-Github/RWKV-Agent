@@ -1,14 +1,19 @@
 package bench
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/no22/RWKV-Agent/internal/lab"
+	"github.com/no22/RWKV-Agent/internal/lab/labtest"
 )
 
 // The exam suites are recognised by their manifest, not their name: the 10-21
 // rename to agent-exam broke a "exam-" prefix test and sent exams to the bench
 // budget (380 cases, 16 steps) instead of the manifest's count and the App's.
 func TestExamSuitesUseTheManifest(t *testing.T) {
+	labtest.RequireBench(t, filepath.Join(lab.RepoRoot(), "bench", "exam"))
 	for _, suite := range []string{"agent-exam", "agent-exam-quick"} {
 		if !isExamSuite(suite) {
 			t.Fatalf("%s is not recognised as an exam suite", suite)
@@ -29,6 +34,7 @@ func TestExamSuitesUseTheManifest(t *testing.T) {
 }
 
 func TestResolveSuiteName(t *testing.T) {
+	labtest.RequireBench(t, filepath.Join(lab.RepoRoot(), "bench", "exam"))
 	for name, want := range map[string]string{
 		"exam-full": "agent-exam", "exam-quick": "agent-exam-quick",
 		"agent-exam": "agent-exam", "agent-exam-v1.2": "agent-exam",

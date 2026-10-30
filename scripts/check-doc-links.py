@@ -3,6 +3,9 @@
 
 Only tracked files count as targets: a link into gitignored runs/, datasets/
 or outputs/ resolves on one machine and 404s on GitHub, so it is reported too.
+The one exception is bench/, the data checkout (docs/guides/data.md): links
+into it are checked against the checkout when it is present and skipped when
+it is not.
 Usage: scripts/check-doc-links.py [--ignored-ok]
 """
 import os
@@ -13,8 +16,7 @@ import sys
 LINK = re.compile(r"\]\(([^)\s]+)\)")
 # Inline code is not rendered as a link: `[text](url)` documents the syntax.
 CODE_SPAN = re.compile(r"`[^`]*`")
-SKIP_PREFIXES = ("third_party/", "bench/workbank/cases")
-SKIP_DIRS = ("/cases/", "/cases-shelved/")  # case NOTES under bench/distill/<version>/
+SKIP_PREFIXES = ("third_party/",)
 
 
 def main() -> int:
@@ -29,8 +31,8 @@ def main() -> int:
             d = os.path.dirname(d)
             dirs.add(d)
     bad = 0
-    for md in sorted(p for p in tracked if p.endswith(".md") and not p.startswith(SKIP_PREFIXES)
-                     and not (p.startswith("bench/distill/") and any(d in p for d in SKIP_DIRS))):
+    have_bench = os.path.isdir("bench")
+    for md in sorted(p for p in tracked if p.endswith(".md") and not p.startswith(SKIP_PREFIXES)):
         with open(md, encoding="utf-8") as fh:
             for lineno, line in enumerate(fh, 1):
                 for target in LINK.findall(CODE_SPAN.sub("", line)):
@@ -41,6 +43,8 @@ def main() -> int:
                         continue
                     resolved = os.path.normpath(os.path.join(os.path.dirname(md), path))
                     if resolved in tracked or resolved in dirs:
+                        continue
+                    if resolved.startswith("bench/") and (not have_bench or os.path.exists(resolved)):
                         continue
                     print(f"{md}:{lineno}: {target}")
                     bad += 1

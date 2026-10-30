@@ -184,7 +184,7 @@ internal/
   lab/                   Implementation of the rwkv-lab subcommands
   cli/  tui/  appstorage/ …
 native/                  C ABI runtime (librwkv_agent_runtime)
-bench/                   Tracked data: workbank and distill case banks, teacher scripts, frozen baselines (see bench/README.md)
+bench/                   Data checkout, a separate git repository: case banks, exams, teacher scripts, frozen baselines (see docs/guides/data.md)
 docs/                    Docs: guides/ usage, design/ design and contracts, evaluations/, distill/, archive/
 scripts/                 Build, test, and BFCL scripts
 third_party/rwkv-mobile  Pinned tokenizer/sampler upstream (submodule)
@@ -205,7 +205,7 @@ Most documents are written in Chinese.
 | Continuation interface and agent protocol | [continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) |
 | Benchmark protocol and results | [benchmark-protocol.md](docs/evaluations/benchmark-protocol.md) · [docs/evaluations/](docs/evaluations/) |
 | Distillation corpus workflow | [distill-workflow.md](bench/distill/common/distill-workflow.md) |
-| Where the data lives | [bench/README.md](bench/README.md) |
+| Where the data lives | [docs/guides/data.md](docs/guides/data.md) (`bench/` is a separate data repository) |
 | All documents | [INDEX.md](INDEX.md) · [docs/README.md](docs/README.md) |
 
 ## License

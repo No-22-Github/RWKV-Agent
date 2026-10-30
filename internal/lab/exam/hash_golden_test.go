@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
+
+	"github.com/no22/RWKV-Agent/internal/lab/labtest"
 )
 
 // examHashes pins the hash of the committed manifests. The hash covers case
@@ -18,6 +20,7 @@ var examHashes = map[string]string{
 
 func TestExamHashesArePinned(t *testing.T) {
 	paths := DefaultPaths()
+	labtest.RequireBench(t, paths.ExamDir)
 	for rel, want := range examHashes {
 		manifest, err := eval.ReadExamManifest(filepath.Join(paths.Root, filepath.FromSlash(rel)))
 		if err != nil {

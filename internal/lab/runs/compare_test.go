@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/no22/RWKV-Agent/internal/lab/labtest"
 )
 
 // captureCompareRun runs fn with both streams captured. stderr is the package
@@ -96,6 +98,7 @@ func TestSeedListMatchesBase700Archive(t *testing.T) {
 		archivePath  = "../../../bench/archive/workspace-agent-700-20260920/generated/normalized/all.jsonl"
 		seedListPath = "../../../bench/workbank/seeded-base700.txt"
 	)
+	labtest.RequireBench(t, archivePath)
 	data, err := os.ReadFile(archivePath)
 	if err != nil {
 		t.Fatal(err)

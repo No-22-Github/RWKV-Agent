@@ -17,10 +17,8 @@ __pycache__/
 .zcodeignore
 .agent-teams/
 
-# b09 work dir: `v14_rewrite_finals.py prepare` regenerates the inputs; only the
-# rewritten finals (batch_*_out.json) are source.
-/bench/distill/v1.4/b09_work/*
-!/bench/distill/v1.4/b09_work/batch_*_out.json
+# bench/ is the data checkout, a separate git repository (docs/guides/data.md).
+/bench/
 
 # Claude 桌面 App 的本机预览配置（含绝对路径）
 .claude/launch.json

@@ -32,10 +32,14 @@ print(json.dumps({"expected_number": 9000.0}))
 `
 )
 
+// testVocab is a frozen copy of bench/workbank/tag-vocab.json, so the lint
+// tests run without the bench/ data checkout.
+var testVocab = filepath.Join("testdata", "tag-vocab.json")
+
 // lintTestContract is the mandated answer contract from the vocabulary.
 func lintTestContract(t *testing.T) string {
 	t.Helper()
-	raw, err := os.ReadFile(DefaultVocab())
+	raw, err := os.ReadFile(testVocab)
 	if err != nil {
 		t.Fatalf("read vocab: %v", err)
 	}
@@ -115,7 +119,7 @@ func makeLintCase(t *testing.T, root, promptBody string, opts lintCaseOptions) s
 // parsed violations, with stdout and stderr captured.
 func runLintCase(t *testing.T, caseDir string) (int, []map[string]any) {
 	t.Helper()
-	return runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab())
+	return runLintArgs(t, "--case", caseDir, "--vocab", testVocab)
 }
 
 // runLintArgs is runLintCase for tests that pass extra flags (--canary-prefix,
@@ -313,7 +317,7 @@ func TestLintFixBackfillsFixtureBytes(t *testing.T) {
 	writeJSON(t, path, caseObj)
 
 	captureOutput(t, func() int {
-		return runLint([]string{"--fix", "--case", caseDir, "--vocab", DefaultVocab()})
+		return runLint([]string{"--fix", "--case", caseDir, "--vocab", testVocab})
 	})
 	raw, err = os.ReadFile(path)
 	if err != nil {
@@ -387,7 +391,7 @@ func editCaseJSON(t *testing.T, caseDir string, edit func(map[string]any)) {
 func TestLintDistillSmalltalkCasesClean(t *testing.T) {
 	for _, id := range []string{"nt-5001", "nt-5002", "nt-5003", "nt-5004", "nt-5005"} {
 		code, violations := runLintArgs(t, "--case", distillCaseDir(t, id),
-			"--vocab", DefaultVocab(), "--canary-prefix", distillCanaryPrefix)
+			"--vocab", testVocab, "--canary-prefix", distillCanaryPrefix)
 		if code != 0 || len(violations) != 0 {
 			t.Errorf("%s: exit code = %d, violations = %v", id, code, violations)
 		}
@@ -402,7 +406,7 @@ func TestLintDistillCanaryWrongPrefixFailsBothRules(t *testing.T) {
 		desc, _ := caseObj["description"].(string)
 		caseObj["description"] = strings.Replace(desc, distillCanaryPrefix+"-", "WORKBANK-CANARY-", 1)
 	})
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
@@ -421,7 +425,7 @@ func TestLintForeignCanaryInVerifyPyOrNotes(t *testing.T) {
 		path := filepath.Join(caseDir, file)
 		existing, _ := os.ReadFile(path)
 		writeFile(t, path, string(existing)+"# WORKBANK-CANARY-xxxxxxxx leftover\n")
-		code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 			"--canary-prefix", distillCanaryPrefix)
 		if code != 1 {
 			t.Errorf("%s: exit code = %d, want 1", file, code)
@@ -443,7 +447,7 @@ func TestLintSmalltalkAnswerContractFails(t *testing.T) {
 		prompt, _ := last["prompt"].(string)
 		last["prompt"] = prompt + " " + contract
 	})
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
@@ -466,7 +470,7 @@ func TestLintSmalltalkMissingOutputContainsAnyFails(t *testing.T) {
 		expect, _ := turn["expect"].(map[string]any)
 		delete(expect, "output_contains_any")
 	})
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
@@ -488,7 +492,7 @@ func TestLintNaturalSmalltalkWithoutKeywordsPasses(t *testing.T) {
 		expect, _ := turn["expect"].(map[string]any)
 		delete(expect, "output_contains_any")
 	})
-	_, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	_, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if hasRule(violations, "expect.smalltalk") {
 		t.Errorf("natural smalltalk without keywords reported: %v", violations)
@@ -502,7 +506,7 @@ func TestLintWorkbankDefaultCanaryClean(t *testing.T) {
 	if _, err := os.Stat(casesRoot); err != nil {
 		t.Skip("workbank cases not present")
 	}
-	code, violations := runLintArgs(t, "--cases", casesRoot, "--vocab", DefaultVocab())
+	code, violations := runLintArgs(t, "--cases", casesRoot, "--vocab", testVocab)
 	if code != 0 || len(violations) != 0 {
 		t.Errorf("workbank lint: exit code = %d, %d violation(s): %v", code, len(violations), violations)
 	}
@@ -513,7 +517,7 @@ func TestLintWorkbankDefaultCanaryClean(t *testing.T) {
 // shape the first batch shipped, so it is the negative fixture.
 func TestLintRefusalCaseRulesFireOnDistillBanks(t *testing.T) {
 	caseDir := copyCaseDir(t, distillCaseDir(t, "cfg-5006"))
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if code != 1 {
 		t.Errorf("exit code = %d, want 1", code)
@@ -530,7 +534,7 @@ func TestLintRefusalCaseRulesFireOnDistillBanks(t *testing.T) {
 // frozen, and its refusal cases predate this rule.
 func TestLintRefusalCaseRulesDoNotReachTheTestBank(t *testing.T) {
 	caseDir := copyCaseDir(t, distillCaseDir(t, "cfg-5006"))
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab())
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab)
 	if code != 1 {
 		// The default prefix still rejects the distill canary in the
 		// description, which is the point of the prefix gate.
@@ -561,7 +565,7 @@ func TestLintRefusalCaseAcceptsTheNewShape(t *testing.T) {
 		expect["output_excludes"] = []any{"UNKNOWN"}
 		expect["forbidden_tools"] = []any{"write_file", "append_file", "replace_lines"}
 	})
-	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 	if code != 0 {
 		t.Errorf("exit code = %d, want 0; violations: %v", code, violations)
@@ -590,7 +594,7 @@ func makeStyleCase(t *testing.T, root, promptTail, style string, expect map[stri
 
 func runStyleLint(t *testing.T, caseDir string) (int, []map[string]any) {
 	t.Helper()
-	return runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+	return runLintArgs(t, "--case", caseDir, "--vocab", testVocab,
 		"--canary-prefix", distillCanaryPrefix)
 }
 
@@ -651,12 +655,12 @@ func TestLintAnswerStyleOnDistillBanks(t *testing.T) {
 	// violation, and the English contracts are.
 	t.Run("the test bank honors the natural style", func(t *testing.T) {
 		_, violations := runLintArgs(t, "--case",
-			makeStyleCase(t, t.TempDir(), "", "natural", nil), "--vocab", DefaultVocab())
+			makeStyleCase(t, t.TempDir(), "", "natural", nil), "--vocab", testVocab)
 		if hasRule(violations, "answer_contract") || hasRule(violations, "answer_style") {
 			t.Errorf("natural test-bank case without a contract flagged: %v", violations)
 		}
 		_, violations = runLintArgs(t, "--case",
-			makeStyleCase(t, t.TempDir(), valueContract, "natural", nil), "--vocab", DefaultVocab())
+			makeStyleCase(t, t.TempDir(), valueContract, "natural", nil), "--vocab", testVocab)
 		if !hasRule(violations, "answer_style") {
 			t.Errorf("natural test-bank case keeping the value contract not flagged: %v", violations)
 		}

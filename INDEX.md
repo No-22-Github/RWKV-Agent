@@ -18,7 +18,7 @@
 | **蒸馏语料流程（现行）** | [`bench/distill/common/distill-workflow.md`](bench/distill/common/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；各版本计划与报告见 [`docs/distill/`](bench/distill/README.md) |
 | **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |
 | 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | agent-wire-v1.0（原名 g1k）格式、统一预算、采样预设、`run check` 闸门 |
-| **数据在哪** | [`bench/README.md`](bench/README.md) | 入库数据清单（题库、老师脚本、账本、冻结证据）、仓库外本地目录与迁移 HF 的边界 |
+| **数据在哪** | [`docs/guides/data.md`](docs/guides/data.md) | `bench/` 是独立的数据仓库（2026-10-31 起）：怎么拿、各目录公开到哪个 HF 仓库；数据清单在 `bench/README.md` |
 | **工具调用与对话格式总览** | [`docs/design/tool-and-wire-formats.md`](docs/design/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、agent-wire-v1.0（原名 G1K）推荐格式、矩阵对比与演进 |
 | **agent-wire-v1.0 对齐语料格式契约** | [`docs/design/agent-wire-v1-format.md`](docs/design/agent-wire-v1-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
 | **Wire 运行时配置指南** | [`docs/guides/wire-configuration.md`](docs/guides/wire-configuration.md) | Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
@@ -186,7 +186,7 @@
 
 1. 新增正式文档、长报告、已提交基线或主评测线时，同步更新本文档。
 2. `docs/README.md` 必须覆盖 `docs/` 下的全部文档；本文档只保留有用途说明的仓库级入口。
-3. 文档只放 `docs/`（`guides/` 使用、`design/` 设计与契约、`distill/`、`workbank/`、`evaluations/` 评测结论、`reports/` 长 HTML、`archive/` 停更材料）；数据只放 `bench/`，登记在 [`bench/README.md`](bench/README.md)。
+3. 文档只放 `docs/`（`guides/` 使用、`design/` 设计与契约、`distill/`、`workbank/`、`evaluations/` 评测结论、`reports/` 长 HTML、`archive/` 停更材料）；数据只放 `bench/`（独立的数据仓库，见 [`docs/guides/data.md`](docs/guides/data.md)），登记在 `bench/README.md`。
 8. 提交前跑 `scripts/check-doc-links.py`，CI 也会跑：相对链接必须指向已入库的文件。
 4. `local/runs/` 仅保存本地可再生成证据；不要把只存在于 `local/runs/` 的路径当作公共永久链接。
 5. 提升新基线时，明确标注日期、模型、Harness 或 parser 版本、数据集、结果、证据路径和不可比较项。

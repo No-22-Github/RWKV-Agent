@@ -1,2 +1,0 @@
-BUILDERS = []
-SPEC = {}

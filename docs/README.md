@@ -12,6 +12,7 @@
 | [getting-started-macos.md](guides/getting-started-macos.md) | macOS 从零上手：环境、构建、模型准备、运行、更新与常见问题 |
 | [cli.md](guides/cli.md) | `rwkv-cli` 参考手册：各子命令参数、Session、Agent、远程 Provider、评测与并发 dashboard（原 README 第 3–10 节） |
 | [app.md](guides/app.md) | Wails V3 桌面 App 与 headless server：构建、公开 API、持久化存储、配置与开发 |
+| [data.md](guides/data.md) | 数据仓库 `bench/`：2026-10-31 起独立成仓，怎么拿、各目录公开到哪、没有数据时测试怎么办 |
 
 ## 工具调用与对话格式 (Wire & Protocols)
 
@@ -130,7 +131,7 @@
 ## 约定
 
 - 文档只放 `docs/`：`guides/` 使用说明、`design/` 设计与契约、`distill/` 蒸馏流程与批次报告、`workbank/` 题库规则与报告、`evaluations/` 评测结论、`archive/` 停更材料。
-- 数据只放 `bench/`：题目、老师脚本、账本、冻结的跑分证据和报告附带的 json，清单见 [`../bench/README.md`](../bench/README.md)。
+- 数据只放 `bench/`：题目、老师脚本、账本、冻结的跑分证据和报告附带的 json。`bench/` 是独立的数据仓库，见 [`guides/data.md`](guides/data.md)，清单在 `bench/README.md`。
 - `docs/evaluations/` 存放实测数据、Benchmark 规范与消融报告；各专题以独立子目录归档。
 - `docs/reports/` 存放长报告（HTML/PDF 等）。
 - `docs/archive/` 只归档、不再维护；其中过时的协议描述不应作为当前行为依据。

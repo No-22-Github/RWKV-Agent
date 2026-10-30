@@ -148,11 +148,11 @@ GitHub 放**源**，Hugging Face 放**发布物**：
 
 | 放在哪 | 内容 |
 | --- | --- |
-| 本仓库 `bench/` | 蒸馏题目、老师动作脚本、考卷、冻结证据——要跟代码版本一起走，能按任意对话格式重新渲染 |
+| `bench/`（独立的数据仓库） | 蒸馏题目、老师动作脚本、考卷、冻结证据，能按任意对话格式重新渲染；考卷公开在 [No-22/rwkv-agent-exam](https://huggingface.co/datasets/No-22/rwkv-agent-exam) |
 | [No-22/rwkv-agent-distill](https://huggingface.co/datasets/No-22/rwkv-agent-distill) | 实际训练过的打包训练集（v1.41 不带思考、v2.1 带思考），与训练时逐字节一致 |
 | [No-22/rwkv-agent-weights](https://huggingface.co/No-22/rwkv-agent-weights) | 训出的 State / MiSS 权重，按基模分目录，`index.json` 记录基模、数据版本、超参与跑分 |
 
-划分规则和各目录说明见 [bench/README.md](bench/README.md#hugging-face-上的训练包与权重)。
+数据怎么拿、各目录去向见 [docs/guides/data.md](docs/guides/data.md)。
 
 ## 测试
 
@@ -183,7 +183,7 @@ internal/
   lab/                   rwkv-lab 各子命令的实现
   cli/  tui/  appstorage/ …
 native/                  C ABI runtime（librwkv_agent_runtime）
-bench/                   入库数据：workbank 与蒸馏题库、老师脚本、冻结基线（见 bench/README.md）
+bench/                   数据仓库（独立 git 仓库，不随本仓库提交）：题库、考卷、老师脚本、冻结基线（见 docs/guides/data.md）
 docs/                    文档：guides/ 使用、design/ 设计与契约、evaluations/ 评测、distill/ 蒸馏、archive/ 停更
 scripts/                 构建、测试、BFCL 脚本
 third_party/rwkv-mobile  固定 revision 的 tokenizer/sampler 上游（submodule）
@@ -202,7 +202,7 @@ local/                   本机产物（构建、模型、runs），不入库
 | 续写接口与 Agent 协议 | [continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) |
 | 跑分规程与评测结论 | [benchmark-protocol.md](docs/evaluations/benchmark-protocol.md) · [docs/evaluations/](docs/evaluations/) |
 | 蒸馏语料流程 | [distill-workflow.md](bench/distill/common/distill-workflow.md) |
-| 数据放在哪 | [bench/README.md](bench/README.md) |
+| 数据放在哪 | [docs/guides/data.md](docs/guides/data.md) |
 | 全部文档 | [INDEX.md](INDEX.md) · [docs/README.md](docs/README.md) |
 
 ## 许可证

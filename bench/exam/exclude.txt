@@ -1,4 +1,0 @@
-# Cases kept in their source banks but left out of the exam. One id per line, "# reason" after it.
-# Every line needs a reason; rwkv-lab exam build rejects ids that do not exist.
-nt-0011  # 题意过时：原来考「删除做不到」，App 现在有 bash 能删文件；删除类任务按 gap-fill-spec G1 重出
-nt-8001  # 题意过时：同 nt-0011（p13 的中文版）

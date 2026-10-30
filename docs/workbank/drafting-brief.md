@@ -4,7 +4,7 @@
 > `bench/workbank/cases/<scenario>/<id>/`，内含 `case.json`、`verify.py`、`NOTES.md`。
 > 这三份文件的契约在 `HANDOFF.md` §2，出题法则在 `authoring-guide.md`（最高权威），
 > 工具真实行为在 `M0-findings.md` §1/§2/§9。开工前先通读这三份。
-> 机器可读枚举：`bench/workbank/tag-vocab.json`。合法样例：`tools/testdata/tabular/tab-9001/`、`tools/testdata/web/web-9001/`。
+> 机器可读枚举：`bench/workbank/tag-vocab.json`。合法样例：`internal/lab/bank/testdata/tabular/tab-9001/`、`internal/lab/bank/testdata/web/web-9001/`。
 
 ## 1. 硬规则（lint.py 会逐一检查，违反即打回）
 

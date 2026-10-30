@@ -18,7 +18,7 @@ import (
 // and a web case using the {"expected": ...} output shape.
 func TestVerifyTestdata(t *testing.T) {
 	requirePython3(t)
-	testdata := filepath.Join(lab.RepoRoot(), "bench", "workbank", "tools", "testdata")
+	testdata := "testdata"
 	out, code := captureOutput(t, func() int {
 		return runVerify([]string{"--cases", testdata})
 	})

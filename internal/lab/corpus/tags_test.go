@@ -7,6 +7,8 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/lab"
+
+	"github.com/no22/RWKV-Agent/internal/lab/labtest"
 )
 
 func strptr(s string) *string { return &s }
@@ -217,6 +219,7 @@ func TestScriptToolNameReadsTheCalledTool(t *testing.T) {
 // The tag map is reviewed data: the tests pin the two properties the spec
 // checks (39 overrides) and the drift guards (an unmapped label is an error).
 func TestTagMapCoversTheReviewedOverrides(t *testing.T) {
+	labtest.RequireBench(t, DefaultTagMap())
 	tagMap, err := LoadTagMap(DefaultTagMap())
 	if err != nil {
 		t.Fatal(err)
@@ -227,6 +230,7 @@ func TestTagMapCoversTheReviewedOverrides(t *testing.T) {
 }
 
 func TestTagMapREfusesUnmappedBehaviorTag(t *testing.T) {
+	labtest.RequireBench(t, DefaultTagMap())
 	tagMap, err := LoadTagMap(DefaultTagMap())
 	if err != nil {
 		t.Fatal(err)
@@ -244,6 +248,7 @@ func TestTagMapREfusesUnmappedBehaviorTag(t *testing.T) {
 // A record whose task type cannot be derived and has no override must fail:
 // an empty task_type would silently corrupt every downstream group-by.
 func TestNormalizeRecordRefusesUnresolvableTaskType(t *testing.T) {
+	labtest.RequireBench(t, DefaultTagMap())
 	tagMap, err := LoadTagMap(DefaultTagMap())
 	if err != nil {
 		t.Fatal(err)
@@ -261,6 +266,7 @@ func TestNormalizeRecordRefusesUnresolvableTaskType(t *testing.T) {
 // The reviewed overrides resolve exactly the records the automatic rule
 // cannot: one legal label passes through, several or none need the map.
 func TestNormalizeRecordUsesLegalLabelOrOverride(t *testing.T) {
+	labtest.RequireBench(t, DefaultTagMap())
 	tagMap, err := LoadTagMap(DefaultTagMap())
 	if err != nil {
 		t.Fatal(err)
