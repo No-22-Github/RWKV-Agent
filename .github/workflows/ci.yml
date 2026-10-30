@@ -54,6 +54,15 @@ jobs:
       - name: Verify BFCL data revision
         run: test "$(git -C third_party/gorilla rev-parse HEAD)" = "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
 
+      # bench/ is a separate data repository (docs/guides/data.md). Fetch only
+      # the public exams at a pinned revision; tests that need distill/ or
+      # archive/ skip.
+      - name: Fetch pinned exam data
+        run: |
+          python3 -m pip install --quiet "huggingface_hub>=1.0"
+          hf download No-22/rwkv-agent-exam --repo-type dataset \
+            --revision 52a2bad52a43d328c877242378fe64663adf3c81 --local-dir bench
+
       # API, library and CLI packages are pure Go and do not import Wails, so
       # they run with the race detector (cgo enabled) without needing GTK.
       - name: Test library and CLI packages (race)

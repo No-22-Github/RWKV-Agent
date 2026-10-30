@@ -3,9 +3,9 @@
 
 Only tracked files count as targets: a link into gitignored runs/, datasets/
 or outputs/ resolves on one machine and 404s on GitHub, so it is reported too.
-The one exception is bench/, the data checkout (docs/guides/data.md): links
-into it are checked against the checkout when it is present and skipped when
-it is not.
+The one exception is bench/, the data checkout (docs/guides/data.md): a link
+into bench/<dir>/ is checked against the checkout when that directory is
+present and skipped when it is not (CI fetches only the exams).
 Usage: scripts/check-doc-links.py [--ignored-ok]
 """
 import os
@@ -31,7 +31,6 @@ def main() -> int:
             d = os.path.dirname(d)
             dirs.add(d)
     bad = 0
-    have_bench = os.path.isdir("bench")
     for md in sorted(p for p in tracked if p.endswith(".md") and not p.startswith(SKIP_PREFIXES)):
         with open(md, encoding="utf-8") as fh:
             for lineno, line in enumerate(fh, 1):
@@ -44,7 +43,8 @@ def main() -> int:
                     resolved = os.path.normpath(os.path.join(os.path.dirname(md), path))
                     if resolved in tracked or resolved in dirs:
                         continue
-                    if resolved.startswith("bench/") and (not have_bench or os.path.exists(resolved)):
+                    if resolved.startswith("bench/") and (
+                            os.path.exists(resolved) or not os.path.isdir("/".join(resolved.split("/")[:2]))):
                         continue
                     print(f"{md}:{lineno}: {target}")
                     bad += 1

@@ -40,8 +40,9 @@ hf download No-22/rwkv-agent-distill --repo-type dataset --include 'source/*' --
 
 ## 没有 `bench/` 时
 
+- CI 只从 HF 拉考卷（`.github/workflows/ci.yml` 里钉了 `rwkv-agent-exam` 的提交号），考卷相关测试照跑。考卷改动上传 HF 后，要同步更新这个提交号。
 - `go test ./...` 能通过：读数据的测试会用 `t.Skip` 跳过（`internal/lab/labtest.RequireBench`）。lint 的规则测试用的是 `internal/lab/bank/testdata/` 里冻结的一份词表和 3 道样题，不依赖 `bench/`。
-- `scripts/check-doc-links.py` 在 `bench/` 存在时会检查指向它的链接，不存在时跳过。
+- `scripts/check-doc-links.py` 对指向 `bench/<目录>/` 的链接，该目录存在就检查，不存在就跳过。
 - 跑分、`rwkv-lab exam`、`corpus render` 这类命令需要 `bench/`。
 
 ## 上传规则
