@@ -13,10 +13,13 @@
 #                                     the MiSS run instead
 #   ONLY="g1l-nora-r16-lr2e-5-e2 g1l-miss-r16-lr2e-5-e2" GPUS="0 1" ...
 #                                     both at once on two cards
-#   MICRO_BSZ=4 ...                   half the packed rows (4096) if the
+#   MICRO_BSZ=4 ...                   half the packed rows (2048) if the
 #                                     smoke run runs out of memory
-#   MICRO_BSZ=1 ...                   the v2.2 G1L layout (no packing, chunk
-#                                     1024), for a binary older than cedc073
+#   CHUNK=1024 ...                    twice the rows (8192, ~65 GB est.) once
+#                                     the default has run and nvidia-smi
+#                                     shows the headroom
+#   MICRO_BSZ=1 ...                   the v2.2 layout (no packing, chunk
+#                                     512), for a binary older than cedc073
 #
 # GPUS has no default: check nvidia-smi for a free card first.
 #
@@ -37,11 +40,12 @@
 #
 # Memory: every layer keeps its own activation tape for micro-bsz * chunk
 # rows (about 21 BF16 vectors of width 4096 per row per layer, so ~5.5 MB a
-# row over 32 layers), on top of ~15 GB of weights. The v2.2 G1L run (chunk
-# 1024, one lane) sat at 22 GB of 96. 8 x 4096 = 32768 rows would need
-# ~180 GB and ran out of memory; 8 x 1024 = 8192 rows is ~45 GB of tape,
-# about 65 GB in all. Chunk size only costs per-step overhead (the PR #18
-# benchmarks use 256), so more lanes at a smaller chunk is the better trade.
+# row over 32 layers), on top of ~15 GB of weights. The v2.2 runs ended on
+# chunk 512 with one lane. 8 x 4096 = 32768 rows would need ~180 GB and ran
+# out of memory; 8 x 512 keeps v2.2's per-lane chunk with 8 lanes side by
+# side: 4096 rows, ~23 GB of tape, ~40 GB in all (an estimate, not
+# measured). Chunk size only costs per-step overhead (the PR #18 benchmarks
+# use 256), so more lanes at a small chunk is the better trade.
 # The binary also rejects micro-bsz * chunk > 65535. The smoke run (8
 # longest rows) is the worst case.
 #
@@ -59,7 +63,7 @@ DATA_SHA256=f1abc80e74ac447e085e8c409293ad3619537fb1188eb4411eb7de2d308c346d
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
 OUT=${OUT:-train-2-3}
 BASE_OUT=$OUT
-CHUNK=${CHUNK:-1024}
+CHUNK=${CHUNK:-512}
 MICRO_BSZ=${MICRO_BSZ:-8}
 SMOKE=${SMOKE:-0}
 ONLY=${ONLY:-g1l-nora-r16-lr2e-5-e2}
