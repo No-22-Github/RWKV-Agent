@@ -13,25 +13,32 @@
 #                                     the MiSS run instead
 #   ONLY="g1l-nora-r16-lr2e-5-e2 g1l-miss-r16-lr2e-5-e2" GPUS="0 1" ...
 #                                     both at once on two cards
-#   CHUNK=4096 ...                    lower state-passing chunk if the smoke
-#                                     run runs out of memory
-#   MICRO_BSZ=2 ...                   packed micro-batches (v1.8.7 cedc073
-#                                     and later); off by default, so older
-#                                     binaries still work
+#   MICRO_BSZ=4 ...                   half the packed rows (16384, as in v2.2)
+#                                     if the smoke run runs out of memory
+#   MICRO_BSZ=1 CHUNK=16384 ...       the v2.2 layout (no packing), for a
+#                                     binary older than cedc073
 #
 # GPUS has no default: check nvidia-smi for a free card first.
 #
-# Run it from /mnt/nvme0n1/no22/rwkv_lighting_cuda. rwkv_nora_tune needs a
-# build with NoRA (8ee9081, v1.8.7); rwkv_miss_tune from the same build is
-# fine. Upload
+# Run it from /mnt/nvme0n1/no22/rwkv_lighting_cuda, with binaries built from
+# Alic-Li/rwkv_lightning_cuda PR #18 (feat/wkv-checkpoint-recompute): NoRA
+# (8ee9081), packed micro-batches (cedc073, --micro-bsz) and the 16-row WKV
+# checkpoint tape (13-25% faster SFT, bit-identical results). Upload
 # local/runs/distill/v2.3/v2.3-pack-20261030/dataset/train/segments-shuffled.jsonl
 # as segments-2-3.jsonl: shuffled, ctx 16K pack.
 #
 # Why these settings: they are the v2.1/v2.2 MiSS settings (v2.1 lr sweep:
 # 1e-5 291.5, 2e-5 296.5, 3e-5 280.5), so C vs B compares the method only.
-# NoRA requires alpha = rank. CHUNK defaults to 8192 (the NoRA README
-# example) rather than 16384: NoRA trains A as well and its large-model memory
-# has not been measured. Smoke first.
+# NoRA requires alpha = rank.
+#
+# Speed: --micro-bsz 8 runs the whole batch of 8 in one pass, rows packed
+# back to back without padding (results equal to one at a time up to FP32
+# summation order). Rows are short (median ~7.6K chars, a few thousand
+# tokens), so with chunk 4096 most samples finish in one chunk step and the
+# long ones run on alone. The binary rejects micro-bsz * chunk > 65535, so
+# 8 x 8192 and 4 x 16384 are both out; 8 x 4096 = 32768 rows per pass, twice
+# the 16384 the v2.2 run used on the same card. Activation memory scales with
+# micro-bsz * chunk; the smoke run (8 longest rows) is the worst case.
 #
 # A finished run (adapter-final.pth present) is skipped, so rerunning the
 # script after an interruption only starts what is missing.
@@ -47,8 +54,8 @@ DATA_SHA256=f1abc80e74ac447e085e8c409293ad3619537fb1188eb4411eb7de2d308c346d
 VOCAB=${VOCAB:-rwkv_vocab_v20230424.txt}
 OUT=${OUT:-train-2-3}
 BASE_OUT=$OUT
-CHUNK=${CHUNK:-8192}
-MICRO_BSZ=${MICRO_BSZ:-}
+CHUNK=${CHUNK:-4096}
+MICRO_BSZ=${MICRO_BSZ:-8}
 SMOKE=${SMOKE:-0}
 ONLY=${ONLY:-g1l-nora-r16-lr2e-5-e2}
 if [[ -z ${GPUS:-} ]]; then
@@ -56,13 +63,16 @@ if [[ -z ${GPUS:-} ]]; then
   exit 1
 fi
 read -r -a GPU_LIST <<<"$GPUS"
+if (( MICRO_BSZ * (CHUNK < 16384 ? CHUNK : 16384) > 65535 )); then
+  echo "MICRO_BSZ * CHUNK = $((MICRO_BSZ * CHUNK)) > 65535; the binary rejects it" >&2
+  exit 1
+fi
 
 # 5878 rows / batch 8 = 735 updates per epoch. A checkpoint every 184
 # updates is about one per 1/4 epoch.
 COMMON=(--model "$MODEL" --vocab "$VOCAB"
   --targets all --ctx 16384 --chunk "$CHUNK" --wkv_tape
-  --batch-size 8 --warmup-steps 10 --save-every 184)
-if [[ -n $MICRO_BSZ ]]; then COMMON+=(--micro-bsz "$MICRO_BSZ"); fi
+  --batch-size 8 --micro-bsz "$MICRO_BSZ" --warmup-steps 10 --save-every 184)
 
 # name method rank alpha lr lr-final epochs; lr-final is always lr/10
 RUNS=(
@@ -166,7 +176,7 @@ if [[ $SMOKE == 1 ]]; then
     tail -n 5 "$OUT/logs/$name.log"
   done
   if (( fail )); then
-    echo "smoke failed; on out of memory retry with CHUNK=4096" >&2
+    echo "smoke failed; on out of memory retry with MICRO_BSZ=4" >&2
     exit 1
   fi
   echo "smoke ok; start the real runs with the same GPUS (and CHUNK/MICRO_BSZ)"
