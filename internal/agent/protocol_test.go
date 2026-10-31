@@ -781,3 +781,28 @@ func TestRWKVChatRendererDoesNotDoubleAssistantOpening(t *testing.T) {
 		t.Fatalf("framed = %q, injected = %v", framed, injected)
 	}
 }
+
+func TestRWKVChatRendererHistoryEmptyThinkMatchesThinkSFTCorpus(t *testing.T) {
+	t.Parallel()
+	prompt, err := (RWKVChatRenderer{ThinkingMode: inference.ThinkingFull, HistoryEmptyThink: true}).Render([]Message{
+		{Role: RoleUser, Content: "first question"},
+		{Role: RoleAssistant, Content: "Answer:  \n\n- one\n \n  - two\n"},
+		{Role: RoleUser, Content: "follow-up\n\n　\nmore"},
+		{Role: RoleAssistant, Content: `<tool_call>{"name":"list_files","arguments":{}}</tool_call>`},
+		{Role: RoleUser, Content: `<tool_response>{"ok":true}</tool_response>`},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Bytes as bench/distill/tools/think_sft/collapse_blank.py writes them:
+	// a blank line also swallows the next line's indentation.
+	want := "User: first question\n\n" +
+		"Assistant: <think></think>Answer:\n- one\n- two\n\n" +
+		"User: follow-up\nmore\n\n" +
+		"Assistant: <think></think><tool_call>{\"name\":\"list_files\",\"arguments\":{}}</tool_call>\n\n" +
+		"User: <tool_response>{\"ok\":true}</tool_response>\n\n" +
+		"Assistant: <think"
+	if prompt != want {
+		t.Fatalf("prompt =\n%q\nwant\n%q", prompt, want)
+	}
+}

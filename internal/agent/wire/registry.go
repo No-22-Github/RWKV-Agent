@@ -29,7 +29,15 @@ func Register(name string, spec Spec) {
 const (
 	AgentWireV1      = "agent-wire-v1.0"
 	AgentWireThinkV1 = "agent-wire-think-v1.0"
+	AgentWireThinkV2 = "agent-wire-think-v2.0"
 )
+
+// IsThinkingWire reports whether a canonical preset name is one of the
+// full-thinking product wires, which withhold "<think" and need the larger
+// decision budget.
+func IsThinkingWire(name string) bool {
+	return name == AgentWireThinkV1 || name == AgentWireThinkV2
+}
 
 // presetAliases maps retired preset names to their current name. A run.json,
 // App config or command written before 2026-10-21 says g1k; it resolves to the
@@ -326,6 +334,13 @@ func init() {
 	agentWireThink.Prefill = PrefillNone
 	agentWireThink.Experiments.Nudge = "think"
 	Register(AgentWireThinkV1, agentWireThink)
+
+	// agent-wire-think-v2.0 is the think-sft wire (2026-10-31): v1.0 with
+	// assistant history written as the think-sft corpus has it — an empty
+	// "<think></think>" before every past step and no blank line inside it.
+	agentWireThinkV2 := agentWireThink
+	agentWireThinkV2.Experiments.History = "think-empty"
+	Register(AgentWireThinkV2, agentWireThinkV2)
 }
 
 // parseCanonical decodes the exact string produced by Spec.Canonical. It is

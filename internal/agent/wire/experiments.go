@@ -7,7 +7,7 @@ import "strings"
 type Experiments struct {
 	Recovery     string // none, salvage, json (cumulative parser recovery; empty means preamble, see RecoveryMode)
 	Exit         string // no_tool, submit, final_answer, reply; all use answer payload
-	History      string // preserve, think-fast (default records canonical action only)
+	History      string // preserve, think-fast, think-empty (default records canonical action only)
 	ThinkControl string // off (training export's instruction with fast prefill)
 	Nudge        string // none, think, exit
 	Duplicate    string // continue (reject duplicates without forcing answer stage)
@@ -55,7 +55,7 @@ func (s Spec) validateExperiments() error {
 	allowed := map[string][]string{
 		"recovery": {"", "none", "preamble", "salvage", "json"},
 		"exit":     {"", "no_tool", "submit", "final_answer", "reply"},
-		"history":  {"", "preserve", "think-fast"}, "nudge": {"", "none", "think", "exit"},
+		"history":  {"", "preserve", "think-fast", "think-empty"}, "nudge": {"", "none", "think", "exit"},
 		"thinkcontrol": {"", "off"},
 		"duplicate":    {"", "continue"}, "answeropen": {"", "answer"},
 		"toolrole": {"", "tool"},
@@ -74,6 +74,9 @@ func (s Spec) validateExperiments() error {
 	}
 	if s.Experiments.History == "think-fast" && s.Thinking != ThinkingFast {
 		return fail("experiment.history", "history=think-fast requires thinking=fast", "")
+	}
+	if s.Experiments.History == "think-empty" && s.Thinking != ThinkingFull {
+		return fail("experiment.history", "history=think-empty requires thinking=full", "")
 	}
 	return nil
 }

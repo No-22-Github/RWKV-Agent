@@ -175,8 +175,9 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 			SourceHint:       spec.SourceHint == wire.SourceHintOn,
 		}
 		options.Renderer = RWKVChatRenderer{
-			ThinkingMode:     inference.ThinkingMode(spec.Thinking),
-			HistoryThinkFast: spec.Experiments.History == "think-fast",
+			ThinkingMode:      inference.ThinkingMode(spec.Thinking),
+			HistoryThinkFast:  spec.Experiments.History == "think-fast",
+			HistoryEmptyThink: spec.Experiments.History == "think-empty",
 		}
 	case wire.FormatMDFence:
 		options.Protocol = G1FunctionProtocol{

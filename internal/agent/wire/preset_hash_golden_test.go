@@ -8,6 +8,7 @@ import "testing"
 // the model sees — investigate the cause, do not update the expectation.
 var presetHashes = map[string]string{
 	"agent-wire-think-v1.0": "449ef2fa7eb0d018d1abdb0e91e96ef2bfb1d4476d41e032f49fe9585b7a2133",
+	"agent-wire-think-v2.0": "9817ca79688714a7bb5781c7bbd24098acf67a181de794ba92fcc64f3d4c0b87",
 	"agent-wire-v1.0":       "993fd7b0a09d3a6b90e0dc674857c22122d1d024414660e2b1b395d68f90ecc7",
 	"bfcl-md-v1":            "403ef7f1fec374d615c171a1a83521e5942afe45c83ec49a6993eefb6cec0abb",
 	"bfcl-xml-v1":           "fe195e3f56e8f6cfb0b2f1b98888c46a4f8854ecd4b34378f47be53cc548f295",

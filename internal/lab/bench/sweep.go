@@ -206,7 +206,7 @@ func (args *SweepArgs) profile() string {
 // the action.
 func (args *SweepArgs) decisionBudget() int {
 	base, _, _ := strings.Cut(wire.CanonicalProfile(args.profile()), "+")
-	if base == wire.AgentWireThinkV1 {
+	if wire.IsThinkingWire(base) {
 		return 4096
 	}
 	return 2048

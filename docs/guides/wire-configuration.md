@@ -130,6 +130,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | preset | canonical | short |
 | --- | --- | --- |
 | `agent-wire-think-v1.0` | `format=xml;transcript=product;transport=text;thinking=full;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off;nudge=think` | `think-full+no-tool+bare+align-qwen36+one-stage` |
+| `agent-wire-think-v2.0` | `format=xml;transcript=product;transport=text;thinking=full;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-empty;nudge=think` | `think-full+no-tool+bare+align-qwen36+one-stage` |
 | `agent-wire-v1.0` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `no-tool+bare+align-qwen36+one-stage` |
 | `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
 | `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `route-progressive+progressive` |
@@ -294,6 +295,18 @@ agent-eval --suite bfcl-product --wire "prefill=fence,abstain=no-tool+gate-evide
 agent --profile xml-v1 --completion rwkv-lightning-cuda --api-url ... --model ... \
       --api-stop-tokens none --api-stream=false --workspace /path/to/project --prompt "..."
 ```
+
+## think-sft 格式 `agent-wire-think-v2.0`（2026-10-31）
+
+`agent-wire-think-v1.0` 加 `history=think-empty`，给用 think-sft 包（`bench/distill/think-sft/`）训练的适配器跑分用。和 v1.0 的区别只在历史：
+
+- 每个历史 assistant 步骤前写空思考块 `<think></think>`；
+- 所有块（System、User、工具结果、历史回答）内部压掉空行和行尾空格，与 `bench/distill/tools/think_sft/collapse_blank.py` 逐字节一致，包括空行后那一行的行首缩进也会被吃掉。
+
+当前步仍停在 `Assistant: <think`，决策预算同 v1.0 取 4096。`history=think-empty` 要求 `thinking=full`。
+对拍：用 b23b、b23d 两批 v2.3 题按当前代码重放（`--harness app`，和 v2.3 出包时一样），与 think-sft-pack-20261031b 里这两批的 592 行比较，整段 prompt（含 System）逐字节相同，其中 222 行的历史里有多行回答。
+
+`corpus render` 不接受这个格式：它的回写检查假定历史就是原始动作。think-sft 包是在 v1.0 渲染结果上用脚本补思考块、压空行得到的。
 
 ## State 训练格式对齐实验（2026-09-19）
 

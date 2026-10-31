@@ -3,6 +3,7 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
@@ -37,6 +38,10 @@ type RWKVChatRenderer struct {
 	// HistoryThinkFast restores the empty think prefix on assistant history
 	// for opt-in evaluation of states trained with that prefix on every turn.
 	HistoryThinkFast bool
+	// HistoryEmptyThink writes the transcript the way the think-sft corpus
+	// does: an empty think block before every past assistant step, and no
+	// blank line or trailing space inside any block.
+	HistoryEmptyThink bool
 }
 
 func (RWKVChatRenderer) ID() string {
@@ -60,6 +65,12 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 		if message.Role == RoleAssistant && renderer.HistoryThinkFast && !strings.HasPrefix(strings.TrimSpace(content), "<think>") {
 			content = inference.ThinkBlockClosed + content
 		}
+		if renderer.HistoryEmptyThink {
+			content = collapseBlock(content)
+			if message.Role == RoleAssistant && !strings.HasPrefix(content, "<think>") {
+				content = inference.ThinkBlockClosed + content
+			}
+		}
 		if message.Role != RoleAssistant {
 			content = inference.CleanChatText(inference.Role(message.Role), content)
 		}
@@ -70,6 +81,24 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 	// parsing.
 	inference.AppendAssistantOpening(&prompt, renderer.thinkingMode())
 	return prompt.String(), nil
+}
+
+// Blank-line and trailing-space patterns of the think-sft corpus
+// (bench/distill/tools/think_sft/collapse_blank.py); collapseBlock must stay
+// byte-identical to it, including the indentation a blank line swallows from
+// the line after it.
+var (
+	blankLinesPattern    = regexp.MustCompile(`\n[ \t\x{3000}]*(?:\n[ \t\x{3000}]*)+`)
+	trailingSpacePattern = regexp.MustCompile(`[ \t\x{3000}]+\n`)
+)
+
+// collapseBlock keeps "\n\n" for separating turns only: blank lines fold
+// into one newline and trailing spaces are trimmed.
+func collapseBlock(text string) string {
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = blankLinesPattern.ReplaceAllString(text, "\n")
+	text = trailingSpacePattern.ReplaceAllString(text, "\n")
+	return strings.TrimSpace(text)
 }
 
 func (renderer RWKVChatRenderer) thinkingMode() inference.ThinkingMode {

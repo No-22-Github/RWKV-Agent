@@ -2851,10 +2851,10 @@ func evalRemoteBatchMax(options runOptions) int {
 // so the base name is canonicalised first.
 func agentWireDecisionBudget(profile string, fallback int) int {
 	base, _, _ := strings.Cut(wire.CanonicalProfile(profile), "+")
-	switch base {
-	case wire.AgentWireThinkV1:
+	switch {
+	case wire.IsThinkingWire(base):
 		return 4096
-	case wire.AgentWireV1:
+	case base == wire.AgentWireV1:
 		return 2048
 	}
 	return fallback
