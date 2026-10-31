@@ -31,7 +31,7 @@ usage: rwkv-lab <group> <command> [flags]
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
   state   run | probe | sanity
-  tokcount  count tokens with the RWKV World vocabulary
+  tokcount  count tokens with the RWKV World vocabulary (--jsonl: per-line string fields)
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
 Also: rwkv-lab --version | version
@@ -60,12 +60,18 @@ func run(args []string) int {
 	case "state":
 		return state.Run(args[1:])
 	case "tokcount":
-		vocab := ""
+		vocab, jsonl := "", false
 		rest := args[1:]
-		if len(rest) > 1 && rest[0] == "--vocab" {
-			vocab, rest = rest[1], rest[2:]
+		for len(rest) > 0 {
+			if len(rest) > 1 && rest[0] == "--vocab" {
+				vocab, rest = rest[1], rest[2:]
+			} else if rest[0] == "--jsonl" {
+				jsonl, rest = true, rest[1:]
+			} else {
+				break
+			}
 		}
-		return lab.RunTokcount(vocab, rest)
+		return lab.RunTokcount(vocab, jsonl, rest)
 	case "--version", "version":
 		buildversion.Print(os.Stdout, "rwkv-lab")
 		return 0
