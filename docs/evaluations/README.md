@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | [bfcl-v4-product-suite-20260826.md](bfcl-v4-product-suite-20260826.md) | **现行评测题库** | 60 题产品语义迁移测试集（bfcl-product），覆盖无工具直答、参数必填与多轮状态；G1K 消融主测试集 |
 | [primitive-bench-v12-baseline-2026-08-13.md](primitive-bench-v12-baseline-2026-08-13.md) | **持续演进基准** | Primitive Bench v12 基线，以及 v13–v21 持续追加的演进记录、负向实验与钩子政策 |
+| [general-eval-20261031/README.md](general-eval-20261031/README.md) | **通用能力评测** | IFEval 中英、MT-Bench 中英、GSM8K、MATH-500、C-Eval、CMMLU 共 2442 题（快测 814），think-sft 格式拼 prompt，`rwkv-lab geval`；含 G1L 基模快测基线 |
 
 ---
 

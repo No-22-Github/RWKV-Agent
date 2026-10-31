@@ -16,6 +16,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab/bench"
 	"github.com/no22/RWKV-Agent/internal/lab/corpus"
 	"github.com/no22/RWKV-Agent/internal/lab/exam"
+	"github.com/no22/RWKV-Agent/internal/lab/geval"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 	"github.com/no22/RWKV-Agent/internal/lab/state"
 	buildversion "github.com/no22/RWKV-Agent/internal/version"
@@ -28,6 +29,7 @@ usage: rwkv-lab <group> <command> [flags]
   bank    lint | dedup | build | coverage | calibrate | hitcheck | verify
   corpus  paths | render | rows | decontam
   exam    build | lint | import-builtin | select-quick | panel
+  geval   build | decontam | run | score | report  (general-ability eval)
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
   state   run | probe | sanity
@@ -53,6 +55,8 @@ func run(args []string) int {
 		return corpus.Run(args[1:])
 	case "exam":
 		return exam.Run(args[1:])
+	case "geval":
+		return geval.Run(args[1:])
 	case "run":
 		return runs.Run(args[1:])
 	case "bench":

@@ -105,6 +105,13 @@ API 模型只给 `--temperature` / `--top-p`。DeepSeek-flash 禁用 T=0。
 
 重复：采样档 k=3，`greedy` k=2。
 
+## 3.4 通用能力评测（考卷之外）
+
+think-sft 这类带日常对话的训练，考卷测不到通用能力，用 `rwkv-lab geval`（IFEval 中英、MT-Bench 中英、GSM8K、MATH-500、C-Eval、CMMLU）。
+prompt 是 think-sft 训练格式（`User: …\n\nAssistant: <think`，历史 `<think></think>`），不是 agent-eval 的 wire。
+跑法、判分偏差、基模基线见 `docs/evaluations/general-eval-20261031/README.md`；对照只和同端点、同 `items_sha256` 的 run 比，
+分数要和"复读率/思考闭合率"一起读。
+
 ## 3.5 批量扫描：用脚本，不要手拼命令
 
 ```bash
