@@ -15,7 +15,7 @@ RWKV 对 prompt **字节**极其敏感：多一个空格、少一个空行、大
 ## 十条铁律（先过一遍）
 
 1. **生成点以 `Assistant:` 结尾，冒号后不留空格。** 多一个空格：英文题大面积改用中文作答、自己续写下一轮 `User:`。中文题看不出来，所以容易漏。→ [prompt-format.md](references/prompt-format.md) §1–2
-2. **块结构**：`System: …\n\nUser: …\n\nAssistant:`。块间恰好一个 `\n\n`，块内不能有空行（先清洗 System/User 文本），标签大小写和半角冒号都要对，`System:` 只放一个、放最前。
+2. **块结构**：`System: …\n\nUser: …\n\nAssistant:`。块间恰好一个 `\n\n`，块内不能有空行（训练数据里 Assistant 回答和思考必须压空行；历史回答拼进 prompt 前也压），标签大小写和半角冒号都要对，`System:` 只放一个、放最前。
 3. **预填（种子）的最后一个 token 必须是训练里独立出现过的 token。** `<think>`、`<tool_call>` 这种 `>` 结尾的不安全，要扣掉 `>` 让模型自己补：`<think`、`<think></think`。
 4. **思考用 `Assistant: <think`（完整）或 `Assistant: <think></think`（假思考）。** 开思考就给足 token 预算（≥1024，最好 2048–4096），否则测到的是截断。thinking=off 时模型也会自发写 `<think>`，解析器必须能剥。
 5. **采样**：Agent 用 `T=0.3, top_p=0.5, top_k 不截断, presence 0.5, frequency 0.1, decay 0.996`。截断（top_p）比温度重要；`top_k=1` 时温度失效；presence ≥1.0 会掉分；T=1（官方 demo 参数）最差。→ [sampling-stop-loop.md](references/sampling-stop-loop.md)

@@ -45,9 +45,11 @@ Assistant:
 ```
 
 - 块之间恰好一个 `\n\n`；块内**不能有空行**（模型把 `\n\n` 当"本块结束"）。
-- 清洗 System/User 文本（官方做法），Assistant 文本是协议载荷不清洗：
+- **训练数据**：Assistant 的回答和思考块**必须压空行**（官方答复，2026-10-31；G1L 基模 374 次直接回答里正文 0 个空行）。System/User 按官方可以保留原格式，压了也无妨。推理拼 prompt 时，历史里的 Assistant 回答同样要压。清洗写法：
   ```python
-  re.sub(r'\n{2,}', '\n', txt.replace('\r\n', '\n')).strip()
+  txt = txt.replace('\r\n', '\n')
+  txt = re.sub(r'\n[ \t　]*(?:\n[ \t　]*)+', '\n', txt)  # 空行，含只有空格的行
+  txt = re.sub(r'[ \t　]+\n', '\n', txt).strip()             # 行尾空格（Markdown 硬换行）
   ```
 - 标签区分大小写，后跟一个半角空格：`System:` `User:` `Assistant:`。`user:`、`User :`、全角冒号都算错。
 - `System:` 只有一个，放最前面。
