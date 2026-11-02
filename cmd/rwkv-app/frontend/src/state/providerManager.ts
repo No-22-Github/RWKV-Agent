@@ -18,7 +18,7 @@ export const AUTOSAVE_DELAY_MS = import.meta.env.MODE === 'test' ? 50 : 800
  * 不会保存；error：后端拒绝（message 为原因，同一份草稿不会自动重试）。
  */
 /* 设置弹窗的分区；远端连接与本地推理各管一类档案。 */
-export type SettingsSection = '远端连接' | '本地推理' | 'Agent' | '外观' | '通用'
+export type SettingsSection = '远端连接' | '本地推理' | 'Agent' | '对话记录' | '外观' | '通用'
 export type SettingsFocus = 'state' | 'adapter' | null
 export type OpenSettingsOptions = { detail?: boolean; focus?: SettingsFocus }
 export type ProviderKind = 'remote' | 'local'
@@ -43,14 +43,14 @@ export type RemoteProtocol = keyof typeof REMOTE_BACKENDS
 /* 连接列表和运行配置里显示的协议名。 */
 export function remoteProtocolLabel(provider: Config['provider']): string {
   switch (provider) {
-    case Provider.ProviderChatCompletions: return 'OpenAI 兼容'
+    case Provider.ProviderChatCompletions: return 'OpenAI Chat Completions'
     case Provider.ProviderRWKVLightningPython: return 'Lightning Python'
     case Provider.ProviderIRWKV: return 'iRWKV'
     default: return 'Lightning CUDA'
   }
 }
 
-/* OpenAI 兼容和 iRWKV 用 Bearer API Key；Lightning 用请求体里的服务密码。 */
+/* OpenAI Chat Completions 和 iRWKV 用 Bearer API Key；Lightning 用请求体里的服务密码。 */
 function usesAPIKey(protocol: RemoteProtocol): boolean {
   return protocol === 'openai' || protocol === 'irwkv'
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 export type ConfirmAction = {
   label: string
@@ -20,7 +21,10 @@ const ACTION_CLASS: Record<NonNullable<ConfirmAction['variant']>, string> = {
   danger: 'border border-danger bg-transparent text-danger',
 }
 
-/* 轻量确认对话框：未保存离开、删除确认等场景共用。Esc / 点击遮罩 = 取消。 */
+/*
+ * 轻量确认对话框：未保存离开、删除确认等场景共用。Esc / 点击遮罩 = 取消。
+ * 挂到 body 上：侧栏带 transform，fixed 定位会以侧栏为参照，弹窗和遮罩只盖住侧栏那一条。
+ */
 export default function ConfirmDialog({ open, title, body, actions, onClose }: Props) {
   useEffect(() => {
     if (!open) return
@@ -35,7 +39,7 @@ export default function ConfirmDialog({ open, title, body, actions, onClose }: P
   }, [open, onClose])
 
   if (!open) return null
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[70] grid place-items-center bg-overlay" onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-label={title} className="w-[380px] rounded-xl border border-line bg-paper-wash p-[20px] shadow-pop" onClick={(event) => event.stopPropagation()}>
         <h2 className="m-0 text-md font-semibold text-ink">{title}</h2>
@@ -44,7 +48,7 @@ export default function ConfirmDialog({ open, title, body, actions, onClose }: P
           {actions.map((action) => (
             <button
               key={action.label}
-              className={`h-[32px] px-[13px] text-sm font-medium disabled:opacity-40 ${ACTION_CLASS[action.variant || 'default']}`}
+              className={`h-[32px] rounded-md px-[14px] text-sm font-medium disabled:opacity-40 ${ACTION_CLASS[action.variant || 'default']}`}
               onClick={action.onClick}
             >
               {action.label}
@@ -52,6 +56,7 @@ export default function ConfirmDialog({ open, title, body, actions, onClose }: P
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

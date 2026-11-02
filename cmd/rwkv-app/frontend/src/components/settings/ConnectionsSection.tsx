@@ -6,7 +6,7 @@ import { kindOf, remoteProtocolLabel, type ProviderKind, type ProviderManager } 
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
-import { Button, RunningBadge, Section, SettingsPane } from './ui'
+import { RunningBadge, Section, SettingsPane } from './ui'
 import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
@@ -84,13 +84,12 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
           onSaveAndUse={() => void manager.saveAndUseProviderDraft()}
           onUnload={() => void manager.unloadModel()}
           onRequestDelete={() => { if (manager.editingProviderId) setConfirm({ kind: 'delete', id: manager.editingProviderId }) }}
+          // 取消是明确的放弃：清空草稿回列表，不再问一遍。
+          onCancel={() => { manager.startNewDraft(kind); manager.setSettingsDetail(false) }}
         />
       ) : (
         <SettingsPane>
-          <Section
-            title={local ? '本地模型' : '远端连接'}
-            action={<Button size="sm" icon={<Plus size={14} />} onClick={() => void leaveDraft({ kind: 'new' })}>{local ? '添加模型' : '新建连接'}</Button>}
-          >
+          <Section title={local ? '本地模型' : '远端连接'}>
             <div role="list" aria-label={local ? '本地模型列表' : '远端连接列表'}>
             {listed.map((provider) => (
               <ProviderRow
@@ -104,8 +103,12 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
             ))}
             </div>
             {listed.length === 0 && (
-              <p className="m-0 py-[14px] text-sm text-ink-muted">{local ? '还没有本地模型。' : '还没有远端连接。'}</p>
+              <p className="m-0 border-b border-line-soft py-[14px] text-sm text-ink-muted">{local ? '还没有本地模型。' : '还没有远端连接。'}</p>
             )}
+            {/* 「添加」跟在列表末尾，和列表行一样高、一样对齐：加出来的那一条就出现在这里。 */}
+            <button className="flex min-h-[48px] w-full items-center gap-[8px] border-0 bg-transparent px-0 text-left text-base text-ink-soft transition-colors hover:text-ink" onClick={() => void leaveDraft({ kind: 'new' })}>
+              <Plus size={15} className="flex-none" />{local ? '添加模型' : '新建连接'}
+            </button>
           </Section>
         </SettingsPane>
       )}
@@ -116,9 +119,9 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
         body={`${manager.draftBlockReason || '当前连接档案的更改还没有保存。'}要如何处理？`}
         actions={[
           // 已有档案走到这里说明自动保存失败，再点"保存"也一样失败，只给放弃/取消。
-          ...(creating ? [{ label: '保存', variant: 'primary' as const, onClick: () => void resolveConfirm('save') }] : []),
-          { label: '放弃更改', onClick: () => void resolveConfirm('discard') },
           { label: '取消', onClick: () => void resolveConfirm('cancel') },
+          { label: '放弃更改', onClick: () => void resolveConfirm('discard') },
+          ...(creating ? [{ label: '保存', variant: 'primary' as const, onClick: () => void resolveConfirm('save') }] : []),
         ]}
         onClose={() => setConfirm(null)}
       />
@@ -127,8 +130,8 @@ export default function ConnectionsSection({ kind, manager, ready, onDeleteProvi
         title={local ? '删除模型' : '删除连接'}
         body={deleteTarget ? `将删除「${deleteTarget.label || deleteTarget.config.model || '未命名连接'}」，此操作不可撤销。` : '将删除该连接，此操作不可撤销。'}
         actions={[
-          { label: '删除', variant: 'danger', onClick: () => { const pending = confirm; setConfirm(null); if (pending?.kind === 'delete') onDeleteProvider(pending.id) } },
           { label: '取消', onClick: () => setConfirm(null) },
+          { label: '删除', variant: 'danger', onClick: () => { const pending = confirm; setConfirm(null); if (pending?.kind === 'delete') onDeleteProvider(pending.id) } },
         ]}
         onClose={() => setConfirm(null)}
       />
@@ -152,7 +155,7 @@ function ProviderRow({ provider, running, attention, onEdit }: {
   const host = hostOf(provider.config.endpoint)
   const subtitle = !isLocal && host && name.includes(host) ? meta.replace(` · ${host}`, '') : meta
   return (
-    <div role="listitem" className="border-b border-line-soft last:border-b-0">
+    <div role="listitem" className="border-b border-line-soft">
     <button
       className="group flex min-h-[56px] w-full items-center gap-[16px] border-0 bg-transparent px-0 py-[10px] text-left"
       onClick={onEdit}

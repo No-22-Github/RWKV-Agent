@@ -1,8 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowDown, Check, Copy, CornerDownLeft, Folder, ListTree, RotateCcw, FolderOpen,
-  Menu, MoreHorizontal, PenLine, Pin, Settings, Square, SquarePen,
-  Trash2, X,
+  ArrowDown, Check, Copy, CornerDownLeft, ListTree, PenLine, RotateCcw,
+  Menu, Square, X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
@@ -23,7 +22,7 @@ import type { ToolTrace } from './trajectory-types'
 import RunChips from './components/RunChips'
 import SettingsPage from './components/SettingsPage'
 import PixelLoader from './components/PixelLoader'
-import Wordmark from './components/Wordmark'
+import Sidebar from './components/Sidebar'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
 import { stepThoughts } from './components/LiveThought'
 import type { Thought } from './components/ToolActivity'
@@ -173,9 +172,6 @@ export default function App() {
       event.preventDefault()
       setRunConfigOpen(false)
       manager.openSettings()
-    } else if (event.key.toLowerCase() === 'k') {
-      event.preventDefault()
-      document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
     }
   }
   useEffect(() => {
@@ -184,7 +180,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
   // 运行标签（能力、State）的单一事实源：当前运行中档案的已保存配置，而非正在编辑的草稿。
   // 取实际运行的配置（bootstrap.config）：本地档案改了参数但未重新加载时，档案的
   // 已保存值并不是正在生效的值。
@@ -202,7 +197,7 @@ export default function App() {
   }, [themePreference])
 
   function applyBootstrap(value: AppBootstrap, options: { preserveDraft?: boolean } = {}) {
-    setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
+    setStatus(Status.createFrom(value.status)); applySidebar(value)
     manager.applyProviderBootstrapState(value)
     applyConversation(value.conversation || undefined, options); if (value.hasConfig && !settingsOpen) manager.applyConfig(value.config); if (value.warning) notify(value.warning, 'error')
   }
@@ -324,7 +319,7 @@ export default function App() {
       runningChat.current = null
       const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.adapterId && `适配器 ${status.adapterId}`, status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
-      const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
+      const persisted = await Backend.Bootstrap(); applySidebar(persisted); setActiveConversationID(persisted.conversation?.id || '')
       const savedFiles = persisted.conversation?.messages.at(-1)?.files
       if (savedFiles?.length) setMessages(current => current.map(m => m.id === assistant.id ? { ...m, files: savedFiles } : m))
     } catch (error) {
@@ -378,14 +373,30 @@ export default function App() {
     if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; try { await Backend.NewConversation(); liveAnswerRef.current = ''; setLiveAnswer(''); liveThoughtsRef.current = []; setLiveThoughts([]); setLiveModelStep(0); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
-  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
+  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); await refreshSidebar() } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) reportError(error) } finally { setBusy(false) } }
-  async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { reportError(error) } finally { setBusy(false) } }
+  // 侧栏点的对话：同一工作区直接打开；别的工作区先切过去再打开（id 为空是在那里新建对话）。
+  async function openSidebarConversation(workspace: WorkspaceItem, id: string) {
+    if (workspace.active) { if (id) void openConversation(id); else void newConversation(); return }
+    if (busy) return
+    setBusy(true)
+    try { applyBootstrap(await Backend.OpenWorkspaceConversation(workspace.path, id)) } catch (error) { reportError(error) } finally { setBusy(false) }
+  }
+  // 只刷新侧栏，不重载当前会话：移除的必然不是正在用的工作区。
+  async function removeWorkspace(path: string, deleteConversations: boolean) { if (busy) return; setBusy(true); try { applySidebar(await Backend.RemoveWorkspace(path, deleteConversations)) } catch (error) { reportError(error) } finally { setBusy(false) } }
+  // 侧栏只认这两份列表：会话增删改、工作区移除后都从后端重读，不在前端拼。
+  function applySidebar(value: AppBootstrap) { setConversations(value.conversations || []); setWorkspaces(value.workspaces || []) }
+  async function refreshSidebar() { applySidebar(await Backend.Bootstrap()) }
+  // 设置里批量清理对话后：刷新侧栏；当前对话被删了就换成后端给的（空的新对话）。
+  function applyConversationCleanup(value: AppBootstrap) {
+    applySidebar(value)
+    if ((value.conversation?.id || '') !== activeConversationID) applyConversation(value.conversation || undefined, { preserveDraft: true })
+  }
   async function renameConversation(id: string, title: string) {
-    try { await Backend.RenameConversation(id, title); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) }
+    try { await Backend.RenameConversation(id, title); await refreshSidebar() } catch (error) { reportError(error) }
   }
   async function togglePinConversation(id: string, pinned: boolean) {
-    try { await Backend.SetConversationPinned(id, pinned); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) }
+    try { await Backend.SetConversationPinned(id, pinned); await refreshSidebar() } catch (error) { reportError(error) }
   }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
@@ -398,96 +409,23 @@ export default function App() {
   return <div className="flex h-full w-full bg-paper">
     {/* 设置是浮在对话上的弹窗：对话照常渲染，弹窗开着时整块 inert，读屏与 Tab 键都只在弹窗里。 */}
     <div className="contents" inert={settingsOpen || undefined} aria-hidden={settingsOpen || undefined}>
-      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => { setSidebarOpen(false); void newConversation() }} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setSidebarOpen(false); manager.openSettings() }} onOpen={(id) => { setSidebarOpen(false); void openConversation(id) }} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
+      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => { setSidebarOpen(false); void newConversation() }} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setSidebarOpen(false); manager.openSettings() }} onOpen={(workspace, id) => { setSidebarOpen(false); void openSidebarConversation(workspace, id) }} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onRemoveWorkspace={removeWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
         <header className="app-header [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] wails-mac:pt-[22px] wails-mac:h-[74px] wails-mac:basis-[74px] relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
-          <button className="sidebar-toggle relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <button className="relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
           <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist">
             <button role="tab" aria-selected={activeTab === 'chat'} className={`relative border-0 border-b-2 bg-transparent pb-[9px] text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} localInference={manager.localInference} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetFormat={setFormatNow} onSetState={setStateNow} onSetAdapter={setAdapterNow} onChooseWorkspace={() => void chooseWorkspace()} onUnload={() => void unloadModelNow()} onOpenSettings={(section, options) => { setRunConfigOpen(false); manager.openSettings(section, options) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} localInference={manager.localInference} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetFormat={setFormatNow} onSetState={setStateNow} onSetAdapter={setAdapterNow} onUnload={() => void unloadModelNow()} onOpenSettings={(section, options) => { setRunConfigOpen(false); manager.openSettings(section, options) }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} liveThoughts={liveThoughts} liveModelStep={liveModelStep} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
       </AnimatePresence>
     </div>
-    {settingsOpen && <SettingsPage manager={manager} agent={agentSettings} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} themePreference={themePreference} onThemeChange={handleThemeChange} onDeleteProvider={(id) => void deleteProviderNow(id)} />}
+    {settingsOpen && <SettingsPage manager={manager} agent={agentSettings} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} themePreference={themePreference} onThemeChange={handleThemeChange} onDeleteProvider={(id) => void deleteProviderNow(id)} onConversationsChanged={applyConversationCleanup} />}
   </div>
-}
-
-function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSidebar, onNewChat, onChooseWorkspace, onOpenSettings, onOpen, onDelete, onRename, onTogglePin, onOpenWorkspace }: { conversations: ConversationSummary[]; workspaces: WorkspaceItem[]; activeId: string; busy: boolean; open: boolean; onCloseSidebar: () => void; onNewChat: () => void; onChooseWorkspace: () => void; onOpenSettings: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void; onRename: (id: string, title: string) => Promise<void>; onTogglePin: (id: string, pinned: boolean) => Promise<void>; onOpenWorkspace: (path: string) => void }) {
-  const [menu, setMenu] = useState<{ id: string; up: boolean } | null>(null)
-  const [renaming, setRenaming] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState('')
-  const [deleteTarget, setDeleteTarget] = useState<ConversationSummary | null>(null)
-  const sidebarRef = useRef<HTMLElement>(null)
-
-  // 点击侧栏空白处或按 Esc 时收起会话菜单/重命名（HIG：菜单可经外部交互关闭）。
-  useEffect(() => {
-    if (!menu && !renaming) return
-    function onPointerDown(event: PointerEvent) {
-      // 「…」按钮自己负责开合（toggleMenu）；这里也关的话，按下关、松开又开，菜单会闪一下又弹出来。
-      if (event.target instanceof Element && event.target.closest('[data-conversation-menu],.conversation-menu,input[aria-label="重命名会话"]')) return
-      setMenu(null); setRenaming(null)
-    }
-    function onKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === 'Escape') { setMenu(null); setRenaming(null) }
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => { document.removeEventListener('pointerdown', onPointerDown); document.removeEventListener('keydown', onKeyDown) }
-  }, [menu, renaming])
-
-  // 列表视口下方放不下菜单（约 128px 高）时向上弹出，避免末行菜单被裁剪。
-  function toggleMenu(id: string, event: React.MouseEvent<HTMLButtonElement>) {
-    if (menu?.id === id) { setMenu(null); return }
-    let up = false
-    const list = event.currentTarget.closest('section')
-    if (list) {
-      const listRect = list.getBoundingClientRect()
-      const buttonRect = event.currentTarget.getBoundingClientRect()
-      up = listRect.bottom - buttonRect.bottom < 132
-    }
-    setMenu({ id, up })
-  }
-  function startRename(conversation: ConversationSummary) {
-    setMenu(null); setRenaming(conversation.id); setRenameValue(conversation.title || '')
-  }
-  function commitRename(id: string) {
-    const title = renameValue.trim()
-    setRenaming(null)
-    if (title) void onRename(id, title)
-  }
-  return <>
-    {open && <div className="sidebar-scrim fixed inset-0 z-[40] bg-overlay lg:hidden" onClick={onCloseSidebar} />}
-    <aside ref={sidebarRef} data-open={open} className={`app-sidebar compact:w-[196px] compact:basis-[196px] max-lg:data-[open=true]:shadow-[0_12px_40px_rgba(60,50,35,.2)] [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] [&_input]:[--wails-draggable:no-drag] wails-mac:pt-[44px] fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-      <div className="flex items-center gap-[9px] px-[18px] pb-[18px] text-md font-semibold"><Wordmark /><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
-      <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 rounded-md border border-line bg-paper-wash px-[10px] text-sm font-medium text-ink shadow-hair transition-colors hover:bg-surface-active" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘N</kbd></button>
-      <button className="mx-[10px] mb-3 flex items-center gap-2 rounded-md border-0 bg-transparent p-[6px_8px] text-sm text-ink-soft transition-colors hover:bg-surface-active hover:text-ink" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
-      {workspaces.length > 0 && <section className="mb-[6px] flex flex-col"><div className="px-[18px] pb-[7px] text-2xs font-medium text-ink-muted">工作区</div>{workspaces.map((workspace) => (
-        <button key={workspace.path} className={`relative mx-[10px] flex items-center gap-[9px] rounded-md border-0 bg-transparent p-[6px_8px] text-left text-sm transition-colors ${workspace.active ? 'bg-surface-active font-medium text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`} onClick={() => onOpenWorkspace(workspace.path)} disabled={!workspace.available || busy} title={workspace.path}><Folder size={14} /><span className="truncate">{workspace.name}</span>{workspace.active && <span className="ml-auto h-[5px] w-[5px] rounded-full bg-brand-bright" />}</button>
-      ))}</section>}
-      <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-2xs font-medium text-ink-muted">近期</div>
-        {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
-          <div key={conversation.id} data-active={conversation.id === activeId} className={`conversation-row group/conversation relative mx-[10px] flex items-center rounded-md border-0 bg-transparent transition-colors ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`}>
-            {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 rounded-md border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}<span className="min-w-0 truncate">{conversation.title || '未命名会话'}</span></span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
-            <button className="conversation-menu invisible group-hover/conversation:visible group-focus-within/conversation:visible group-data-[active=true]/conversation:visible grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
-            {menu?.id === conversation.id && (
-              <div data-conversation-menu className={`absolute right-2 z-[5] flex min-w-[128px] flex-col rounded-lg border border-line bg-paper-wash p-1 shadow-pop ${menu.up ? 'bottom-[30px]' : 'top-[30px]'}`} role="menu" aria-label="会话操作">
-                <button role="menuitem" className="flex items-center gap-[7px] rounded-sm border-0 bg-transparent px-[8px] py-[6px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => { setMenu(null); void onTogglePin(conversation.id, !conversation.pinned) }}><Pin size={14} />{conversation.pinned ? '取消置顶' : '置顶'}</button>
-                <button role="menuitem" className="flex items-center gap-[7px] rounded-sm border-0 bg-transparent px-[8px] py-[6px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => startRename(conversation)}><PenLine size={14} />重命名</button>
-                <button role="menuitem" className="flex items-center gap-[7px] rounded-sm border-0 bg-transparent px-[8px] py-[6px] text-left text-sm text-danger hover:bg-surface-active" onClick={() => { setMenu(null); setDeleteTarget(conversation) }}><Trash2 size={14} />删除会话</button>
-              </div>
-            )}
-          </div>
-        ))}
-      </section>
-      <ConfirmDialog open={deleteTarget !== null} title="删除会话" body={deleteTarget ? `将删除“${deleteTarget.title || '未命名会话'}”及其全部消息，此操作无法撤销。` : ''} onClose={() => setDeleteTarget(null)} actions={[{ label: '取消', onClick: () => setDeleteTarget(null) }, { label: '删除', variant: 'danger', onClick: () => { const target = deleteTarget; setDeleteTarget(null); if (target) onDelete(target.id) } }]} />
-      <button className="mt-3 flex items-center gap-[9px] border-0 border-t border-line bg-transparent px-[18px] pb-0 pt-3 text-left text-sm text-ink-soft" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span className="flex-1">设置</span><kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘,</kbd></button>
-    </aside>
-  </>
 }
 
 function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, liveThoughts, liveModelStep, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, scrollResetKey }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; liveThoughts: Thought[]; liveModelStep: number; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; scrollResetKey: number }) {
@@ -752,7 +690,6 @@ function groupMessagesIntoTurns(messages: Message[]) {
 
 
 function activityLabel(item?: AgentActivity) { if (!item) return '正在思考…'; const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''; if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`; if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`; if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`; if (item.kind === 'route_start') return `${child}正在选择能力组`; if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`; if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`; if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`; return 'Agent 正在工作…' }
-function relativeTime(value: string) { const timestamp = new Date(value).getTime(); if (!Number.isFinite(timestamp)) return ''; const elapsed = Math.max(0, Math.floor((Date.now() - timestamp) / 1000)); if (elapsed < 60) return '刚刚'; const minutes = Math.floor(elapsed / 60); if (minutes < 60) return `${minutes} 分钟前`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours} 小时前`; return `${Math.floor(hours / 24)} 天前` }
 function normalizeTimestamp(value?: string) { if (!value) return undefined; const timestamp = new Date(value).getTime(); return Number.isFinite(timestamp) && timestamp >= Date.UTC(2000, 0, 1) ? value : undefined }
 function formatTurnTime(value?: string) {
   if (!value) return '本地'

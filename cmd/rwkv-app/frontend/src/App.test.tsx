@@ -55,7 +55,10 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   PreviewSystemPrompt: vi.fn(),
   NewConversation: vi.fn().mockResolvedValue(undefined),
   ChooseWorkspace: vi.fn(),
-  OpenWorkspace: vi.fn(),
+  OpenWorkspaceConversation: vi.fn(),
+  RemoveWorkspace: vi.fn(),
+  ListAllConversations: vi.fn(),
+  DeleteConversations: vi.fn(),
   OpenConversation: vi.fn(),
   DeleteConversation: vi.fn().mockResolvedValue(undefined),
   ExportTrajectory: vi.fn().mockResolvedValue('/tmp/exported.jsonl'),
@@ -258,7 +261,7 @@ describe('App', () => {
     openSettings()
     switchToRemoteProvider()
     expect(screen.getByRole('button', { name: '远端连接' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('combobox', { name: '远端协议' })).toHaveTextContent('OpenAI 兼容')
+    expect(screen.getByRole('combobox', { name: '远端协议' })).toHaveTextContent('OpenAI Chat Completions')
   })
 
   it('defaults to OpenAI-compatible and passes custom HTTP headers', async () => {
@@ -566,12 +569,19 @@ describe('App', () => {
     expect(await screen.findByText(/档案已保存；当前运行连接保持不变/)).toBeInTheDocument()
   })
 
-  it('marks edited fields as an unsaved draft', async () => {
+  it('saves a new connection from the bottom bar and cancels back to the list', async () => {
     renderApp()
     openSettings()
+    // 新建是一张表：保存在右下角，没填东西时不可点。
+    const save = screen.getByRole('button', { name: '保存并连接' })
+    expect(save).toBeDisabled()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Unsaved connection' } })
+    await waitFor(() => expect(save).toBeEnabled())
 
-    expect(await screen.findByText('未保存更改')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    expect(screen.queryByLabelText('连接名称')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '新建连接' }))
+    expect(screen.getByLabelText('连接名称')).toHaveValue('')
   })
 
   it('marks only the running profile in the list and opens others without the badge', async () => {
@@ -1212,25 +1222,99 @@ describe('App', () => {
     expect(screen.getByLabelText('搜索后端')).toHaveAttribute('data-value', 'deepseek')
   })
 
-  it('switches to a remembered workspace', async () => {
+  it('groups conversations by workspace and opens one from another workspace', async () => {
     const workspaces = [
       new WorkspaceItem({ path: '/tmp/project-a', name: 'project-a', available: true, active: true }),
       new WorkspaceItem({ path: '/tmp/project-b', name: 'project-b', available: true, active: false }),
+    ]
+    const now = new Date().toISOString()
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelIdle, workspace: '/tmp/project-a', hasApiKey: false, updatedAt: now }),
+      workspaces,
+      conversations: [
+        new ConversationSummary({ id: 'a-1', workspace: '/tmp/project-a', title: 'A 的对话', updatedAt: now }),
+        new ConversationSummary({ id: 'b-1', workspace: '/tmp/project-b', title: 'B 的对话', updatedAt: now }),
+      ],
+    }))
+    vi.mocked(Backend.OpenWorkspaceConversation).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelIdle, workspace: '/tmp/project-b', hasApiKey: false, updatedAt: now }),
+      workspaces: workspaces.map((item) => new WorkspaceItem({ ...item, active: item.path === '/tmp/project-b' })),
+    }))
+
+    renderApp()
+    const groupB = await screen.findByRole('region', { name: 'project-b' })
+    expect(within(groupB).getByText('B 的对话')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'project-a' })).queryByText('B 的对话')).not.toBeInTheDocument()
+
+    // 组标题折叠/展开。
+    fireEvent.click(within(groupB).getByRole('button', { name: 'project-b' }))
+    expect(within(groupB).queryByText('B 的对话')).not.toBeInTheDocument()
+    fireEvent.click(within(groupB).getByRole('button', { name: 'project-b' }))
+
+    fireEvent.click(within(groupB).getByText('B 的对话'))
+    await waitFor(() => expect(Backend.OpenWorkspaceConversation).toHaveBeenCalledWith('/tmp/project-b', 'b-1'))
+    expect(Backend.OpenConversation).not.toHaveBeenCalled()
+
+    await waitFor(() => expect(screen.getByRole('button', { name: '在“project-a”里新建对话' })).toBeEnabled())
+    fireEvent.click(screen.getByRole('button', { name: '在“project-a”里新建对话' }))
+    await waitFor(() => expect(Backend.OpenWorkspaceConversation).toHaveBeenCalledWith('/tmp/project-a', ''))
+  })
+
+  it('bulk-deletes stale conversations from settings, keeping pinned and recent ones', async () => {
+    const day = 24 * 60 * 60 * 1000
+    const ago = (days: number) => new Date(Date.now() - days * day).toISOString()
+    const current = new ConversationSummary({ id: 'c-open', workspace: '/tmp/RWKV-Agent', title: '正在用', updatedAt: ago(40) })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      conversations: [current],
+      conversation: new ConversationView({ id: 'c-open', title: '正在用', messages: [new DisplayMessage({ id: 'o1', role: 'user', content: '旧问题' })] }),
+    }))
+    vi.mocked(Backend.ListAllConversations).mockResolvedValue([
+      current,
+      new ConversationSummary({ id: 'c-old', workspace: '/tmp/gone', title: '很久以前', updatedAt: ago(60) }),
+      new ConversationSummary({ id: 'c-pinned', workspace: '/tmp/RWKV-Agent', title: '置顶的', updatedAt: ago(90), pinned: true }),
+      new ConversationSummary({ id: 'c-new', workspace: '/tmp/RWKV-Agent', title: '昨天的', updatedAt: ago(1) }),
+    ])
+    vi.mocked(Backend.DeleteConversations).mockResolvedValue(bootstrap({ conversations: [] }))
+
+    renderApp()
+    await screen.findByText('旧问题')
+    fireEvent.click(screen.getByRole('button', { name: '设置' }))
+    fireEvent.click(await screen.findByRole('button', { name: '对话记录' }))
+
+    // 默认 30 天前、保留置顶：只命中两条旧的。
+    const list = await screen.findByRole('list', { name: '将删除的对话' })
+    expect(within(list).getAllByRole('checkbox').map((box) => box.getAttribute('aria-label'))).toEqual(['正在用', '很久以前'])
+    fireEvent.click(within(list).getByRole('checkbox', { name: '正在用' }))
+    fireEvent.click(within(list).getByRole('checkbox', { name: '正在用' }))
+
+    fireEvent.click(screen.getByRole('button', { name: '删除所选' }))
+    fireEvent.click(screen.getByRole('button', { name: '删除 2 条' }))
+    await waitFor(() => expect(Backend.DeleteConversations).toHaveBeenCalledWith(['c-open', 'c-old']))
+    // 正在看的对话被删了，聊天区换成空的新对话。
+    await waitFor(() => expect(screen.queryByText('旧问题')).not.toBeInTheDocument())
+    expect(await screen.findByText('已删除 2 条对话。')).toBeInTheDocument()
+  })
+
+  it('removes a remembered workspace from the sidebar, optionally with its conversations', async () => {
+    const workspaces = [
+      new WorkspaceItem({ path: '/tmp/project-a', name: 'project-a', available: true, active: true }),
+      new WorkspaceItem({ path: '/tmp/project-b', name: 'project-b', available: false, active: false }),
     ]
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: new Status({ state: ModelState.ModelIdle, workspace: '/tmp/project-a', hasApiKey: false, updatedAt: new Date().toISOString() }),
       workspaces,
     }))
-    vi.mocked(Backend.OpenWorkspace).mockResolvedValue(bootstrap({
-      status: new Status({ state: ModelState.ModelIdle, workspace: '/tmp/project-b', hasApiKey: false, updatedAt: new Date().toISOString() }),
-      workspaces: workspaces.map((item) => new WorkspaceItem({ ...item, active: item.path === '/tmp/project-b' })),
-    }))
+    vi.mocked(Backend.RemoveWorkspace).mockResolvedValue(bootstrap({ workspaces: [workspaces[0]] }))
 
     renderApp()
-    fireEvent.click(await screen.findByRole('button', { name: 'project-b' }))
+    // 当前打开的工作区不能移除，也就没有「…」菜单。
+    fireEvent.click(await screen.findByRole('button', { name: '工作区“project-b”的更多操作' }))
+    expect(screen.queryByRole('button', { name: '工作区“project-a”的更多操作' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('menuitem', { name: '从列表移除' }))
+    fireEvent.click(screen.getByRole('button', { name: '移除并删除对话' }))
 
-    await waitFor(() => expect(Backend.OpenWorkspace).toHaveBeenCalledWith('/tmp/project-b'))
-    expect(screen.getAllByText('project-b').length).toBeGreaterThan(0)
+    await waitFor(() => expect(Backend.RemoveWorkspace).toHaveBeenCalledWith('/tmp/project-b', true))
+    await waitFor(() => expect(screen.queryByText('project-b')).not.toBeInTheDocument())
   })
 
   it('reopens a saved conversation and shows the tool activity card', async () => {
@@ -1575,7 +1659,7 @@ describe('App', () => {
   })
 
   it('regenerates the last turn in place instead of resending the prompt', async () => {
-    const summary = new ConversationSummary({ id: 'regen-conversation', title: '重新生成', updatedAt: new Date().toISOString() })
+    const summary = new ConversationSummary({ id: 'regen-conversation', title: '原地重跑', updatedAt: new Date().toISOString() })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: readyStatus(),
       conversations: [summary],
@@ -1608,7 +1692,7 @@ describe('App', () => {
   })
 
   it('edits only the last user message and reruns that turn in place', async () => {
-    const summary = new ConversationSummary({ id: 'edit-conversation', title: '编辑', updatedAt: new Date().toISOString() })
+    const summary = new ConversationSummary({ id: 'edit-conversation', title: '改最后一问', updatedAt: new Date().toISOString() })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: readyStatus(),
       conversations: [summary],

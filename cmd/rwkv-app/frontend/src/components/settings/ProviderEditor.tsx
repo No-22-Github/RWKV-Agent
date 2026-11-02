@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { ChevronLeft, Plus, Trash2 } from 'lucide-react'
+import { ChevronRight, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager, RemoteProtocol } from '../../state/providerManager'
-import { Button, Disclosure, Notice, NumberRow, PANE_WIDTH, Row, RunningBadge, SaveStatus, Section, SettingsPane, TextInput, TextRow } from './ui'
+import { Button, Disclosure, Notice, NumberRow, PANE_HEADER_TOP, PANE_WIDTH, Row, RunningBadge, SaveStatus, Section, SettingsPane, TextInput, TextRow } from './ui'
 import { Select } from './Select'
 import AdapterSection from './AdapterSection'
 import StateSection from './StateSection'
@@ -17,10 +17,11 @@ type Props = {
   onSaveAndUse: () => void
   onUnload: () => void
   onRequestDelete: () => void
+  onCancel: () => void
 }
 
 /*
- * 档案详情：从列表点进来，页头「‹ 远端连接」回到列表。页头只有一层——名称、状态、动作；
+ * 档案详情：从列表点进来，页头面包屑「远端连接 ›」回到列表。页头只有一层——名称、状态、动作；
  * 下面只有连接本身：来源与凭据、请求头、批处理参数，以及记在这个连接上的 State 与适配器（MiSS / NoRA）。
  * 对话格式也记在连接上，但在对话页的格式芯片里切换；生成参数与工具所有连接共用，在「Agent」分区。
  *
@@ -28,15 +29,16 @@ type Props = {
  * 重新加载与释放——它们占内存、要时间，必须由用户显式触发。已建档的档案改动自动保存，
  * 保存状态在页头右侧一闪而过，不常驻说明。
  */
-export default function ProviderEditor({ manager, ready, backLabel, onBack, onTestRemote, onSave, onSaveAndUse, onUnload, onRequestDelete }: Props) {
+export default function ProviderEditor({ manager, ready, backLabel, onBack, onTestRemote, onSave, onSaveAndUse, onUnload, onRequestDelete, onCancel }: Props) {
   const isNew = manager.editingProviderId === ''
   const local = manager.settingsTab === 'local'
   const busy = manager.settingsBusy
   const blocked = !isNew && manager.draftError !== ''
   const noun = local ? '模型' : '连接'
 
-  const status = isNew && manager.draftDirty
-    ? <RunningBadge tone="warning">未保存更改</RunningBadge>
+  // 新建是在填一张表：底部固定「取消 / 保存」，主按钮在右下角；已建档的改动自动保存，没有保存按钮。
+  const status = isNew
+    ? null
     : manager.draftIsRunning
       ? (local && manager.draftNeedsReload ? <RunningBadge tone="warning">已加载 · 待重新加载</RunningBadge> : <RunningBadge>{local ? '已加载' : '运行中'}</RunningBadge>)
       : null
@@ -44,14 +46,15 @@ export default function ProviderEditor({ manager, ready, backLabel, onBack, onTe
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex-none border-b border-line">
-        <div className={`${PANE_WIDTH} pb-[14px] pt-[18px]`}>
-          <button aria-label={`返回${backLabel}列表`} className="-ml-[6px] flex h-[26px] items-center gap-[2px] rounded-md border-0 bg-transparent pl-[2px] pr-[8px] text-sm text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" onClick={onBack}>
-            <ChevronLeft size={15} />{backLabel}
-          </button>
-          <header className="mt-[8px] flex min-h-[34px] items-center gap-[12px]">
+        <div className={`${PANE_WIDTH} ${PANE_HEADER_TOP} pb-[14px]`}>
+          {/* 面包屑与列表页标题同字号、同位置：进出详情时「远端连接」几个字原地不动，只是变灰、后面接上名称。 */}
+          <header className="flex min-h-[34px] items-center gap-[12px]">
+            <button aria-label={`返回${backLabel}列表`} className="-ml-[6px] flex h-[32px] flex-none items-center gap-[4px] rounded-md border-0 bg-transparent px-[6px] text-md font-semibold text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" onClick={onBack}>
+              {backLabel}<ChevronRight size={15} className="text-ink-ghost" />
+            </button>
             <input
               aria-label="连接名称"
-              className={`h-[32px] min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-[6px] -ml-[6px] text-md font-semibold text-ink outline-0 transition-colors ${isNew ? 'placeholder:font-normal placeholder:text-ink-ghost' : 'placeholder:text-ink'} hover:border-line focus:border-brand`}
+              className={`h-[32px] min-w-0 flex-1 text-ellipsis rounded-md border border-transparent bg-transparent px-[6px] -ml-[6px] text-md font-semibold text-ink outline-0 transition-colors ${isNew ? 'placeholder:font-normal placeholder:text-ink-ghost' : 'placeholder:text-ink'} hover:border-line focus:border-brand`}
               title={`点击修改${noun}名称`}
               value={manager.draftLabel}
               placeholder={isNew ? `新${noun}` : `${derivedProviderLabel(manager.draftConfigValue)}（自动命名）`}
@@ -60,24 +63,35 @@ export default function ProviderEditor({ manager, ready, backLabel, onBack, onTe
             {status}
             <span className="flex flex-none items-center gap-[8px]">
               {!isNew && <SaveStatus state={manager.saveState} />}
-              {local ? (<>
+              {/* 本地模型的加载与释放占内存、要时间，是动作不是保存，留在页头。 */}
+              {local && !isNew && (<>
                 {manager.draftIsRunning && !busy && <Button onClick={onUnload}>释放模型</Button>}
-                {isNew && <Button onClick={onSave} disabled={!manager.draftDirty || busy}>{busy ? '处理中…' : '保存'}</Button>}
-                {(isNew || !manager.draftIsRunning || manager.draftNeedsReload) && (
+                {(!manager.draftIsRunning || manager.draftNeedsReload) && (
                   <Button variant="primary" onClick={onSaveAndUse} disabled={busy || blocked} title={blocked ? manager.draftError : '读入模型文件、占用内存，加载期间无法对话'}>
-                    {busy ? '处理中…' : isNew ? '保存并加载' : manager.draftNeedsReload ? '重新加载模型' : '加载模型'}
+                    {busy ? '处理中…' : manager.draftNeedsReload ? '重新加载模型' : '加载模型'}
                   </Button>
                 )}
-              </>) : isNew && (
-                // 远端只有建档：还没有任何运行连接时顺手连上，否则保持当前连接不变。
-                <Button variant="primary" onClick={ready ? onSave : onSaveAndUse} disabled={!manager.draftDirty || busy} title={ready ? '保存后在对话页的模型标签里切换' : undefined}>{busy ? '处理中…' : ready ? '保存' : '保存并连接'}</Button>
-              )}
+              </>)}
             </span>
           </header>
         </div>
       </div>
 
-      <SettingsPane>
+      <SettingsPane footer={isNew && (
+        <div className="flex-none border-t border-line">
+          <div className={`${PANE_WIDTH} flex min-h-[56px] items-center justify-end gap-[8px] py-[12px]`}>
+            {manager.draftBlockReason && manager.draftDirty && <span className="mr-auto min-w-0 truncate text-sm text-warning" title={manager.draftBlockReason}>{manager.draftBlockReason}</span>}
+            <Button onClick={onCancel} disabled={busy}>取消</Button>
+            {local ? (<>
+              <Button onClick={onSave} disabled={!manager.draftDirty || busy}>保存</Button>
+              <Button variant="primary" onClick={onSaveAndUse} disabled={busy || blocked} title="读入模型文件、占用内存，加载期间无法对话">{busy ? '处理中…' : '保存并加载'}</Button>
+            </>) : (
+              // 远端只有建档：还没有任何运行连接时顺手连上，否则保持当前连接不变。
+              <Button variant="primary" onClick={ready ? onSave : onSaveAndUse} disabled={!manager.draftDirty || busy} title={ready ? '保存后在对话页的模型标签里切换' : undefined}>{busy ? '处理中…' : ready ? '保存' : '保存并连接'}</Button>
+            )}
+          </div>
+        </div>
+      )}>
         {local && manager.draftNeedsReload && (
           <Notice tone="warning">更改已保存，但本地模型仍在用旧配置运行；点右上「重新加载模型」生效。</Notice>
         )}
@@ -125,7 +139,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
       <Section title="服务">
         <Row label="接口协议">
           <Select label="远端协议" className="w-[300px]" value={manager.remoteProtocol} onChange={(value) => manager.setRemoteProtocol(value as RemoteProtocol)} options={[
-            { value: 'openai', label: 'OpenAI 兼容' },
+            { value: 'openai', label: 'OpenAI Chat Completions', hint: '/v1/chat/completions 接口；Responses 接口暂不支持' },
             { value: 'python', label: 'RWKV Lightning Python' },
             { value: 'cuda', label: 'RWKV Lightning CUDA' },
             { value: 'irwkv', label: 'iRWKV（不支持 State / 适配器）' },

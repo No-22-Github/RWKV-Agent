@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Config } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { AgentSettingsState } from '../../state/agentSettings'
-import { PANE_WIDTH, Row, SaveStatus, Section, SettingsPane, TextRow } from './ui'
+import { PANE_HEADER_TOP, PANE_WIDTH, Row, SaveStatus, Section, SettingsPane, TextRow } from './ui'
 import { Select } from './Select'
 import ParametersSection from './ParametersSection'
 import AgentBehaviorSection from './AgentBehaviorSection'
@@ -25,7 +25,7 @@ export default function GlobalAgentSection({ agent, runtimeConfig }: { agent: Ag
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex-none border-b border-line">
-        <div className={`${PANE_WIDTH} pt-[18px]`}>
+        <div className={`${PANE_WIDTH} ${PANE_HEADER_TOP}`}>
           <header className="flex min-h-[34px] items-center gap-[12px]">
             <h2 className="m-0 min-w-0 flex-1 text-md font-semibold text-ink">Agent</h2>
             {/* 整个分区任何一项改动都在这里报「已保存」。 */}

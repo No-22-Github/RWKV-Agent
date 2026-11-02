@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Check, ChevronDown, Folder, Globe, Layers, Loader2, MessageSquareCode, Network, Puzzle, Search } from 'lucide-react'
+import { Check, ChevronDown, Globe, Layers, Loader2, MessageSquareCode, Network, Puzzle, Search } from 'lucide-react'
 import { ModelState, Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import { shortRunName } from '../runNames'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
@@ -12,7 +12,7 @@ import { FORMAT_PRESETS, formatPresetById, formatValuesOf, matchFormatPreset } f
 
 /*
  * 输入框上方的一排运行标签（参照 Claude Code）：从左到右是「谁来跑 → 带什么跑 → 在哪跑」。
- * 模型（点开切换连接）· 对话格式 · 适配器（MiSS / NoRA）与 State（仅 Lightning CUDA，可同时用）· 能力开关 · 工作区。
+ * 模型（点开切换连接）· 对话格式 · 适配器（MiSS / NoRA）与 State（仅 Lightning CUDA，可同时用）· 能力开关。
  * 格式、适配器与 State 跟着连接走：选了就记在这个连接上，下次切回来自动用上。能力开关所有连接共用。
  * 选择不随对话变：切到别的对话仍是同一套；每轮实际用了什么记在回答下面的运行信息里。
  */
@@ -24,7 +24,6 @@ type Props = {
   runtimeConfig: Config | null
   providers: SavedProvider[]
   runtimeProviderId: string
-  workspace: string
   runConfigOpen: boolean
   setRunConfigOpen: (value: boolean | ((current: boolean) => boolean)) => void
   onActivate: (id: string) => void
@@ -32,22 +31,23 @@ type Props = {
   onSetFormat: (presetId: string) => Promise<void>
   onSetState: (stateId: string) => Promise<void>
   onSetAdapter: (adapterId: string) => Promise<void>
-  onChooseWorkspace: () => void
   onUnload: () => void
   localInference: boolean
   onOpenSettings: (section?: SettingsSection, options?: OpenSettingsOptions) => void
 }
 
-const chipClass = 'flex h-[26px] min-w-0 items-center gap-[6px] rounded-lg border border-line bg-paper-wash px-[9px] text-xs text-ink-soft shadow-hair transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-60'
+const chipClass = 'flex h-[26px] min-w-0 items-center gap-[6px] rounded-lg border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-60'
 
 export default function RunChips(props: Props) {
-  const { ready, busy, status, runtimeConfig, providers, runtimeProviderId, workspace, runConfigOpen, setRunConfigOpen } = props
+  const { ready, busy, status, runtimeConfig, providers, runtimeProviderId, runConfigOpen, setRunConfigOpen } = props
   const runtime = providers.find((provider) => provider.id === runtimeProviderId)
   const supportsState = ready && runtime?.config.provider === Provider.ProviderRWKVLightningCUDA
   const capabilities = [runtimeConfig?.enableWeb ? 'web' : null, runtimeConfig?.enableSubagents ? 'subagents' : null, runtimeConfig?.weatherBackend ? 'weather' : null, runtimeConfig?.enableBash ? 'bash' : null].filter(Boolean).join(' · ') || '无'
   const loading = status.state === ModelState.ModelLoading
 
-  // 始终一行：放不下时各芯片按比例收窄、文字截断（全名在悬停提示里），不把工作区挤到第二行。
+  // 始终一行：放不下时只收窄带长名字的芯片（模型、适配器、State ID），文字截断、全名在悬停提示里；
+  // 工作区不在这里显示：侧栏按工作区分组，当前工作区的组标题加粗，切换与新建也都在侧栏。
+  // 格式和「默认状态」「基模」这类几个字的短标签不收缩，否则会被截成「深度…」。
   return <div className="flex min-w-0 flex-nowrap items-center gap-[6px]">
     <div className="relative min-w-[64px] max-w-[200px]">
       {/* 模型标签：完整信息放在悬停提示与弹出菜单里，标签本身只认得出「是哪个」。 */}
@@ -66,9 +66,6 @@ export default function RunChips(props: Props) {
       <CapabilityToggle icon={<Globe size={13} />} label="网页搜索" checked={Boolean(runtimeConfig?.enableWeb)} disabled={busy} onChange={(value) => props.onToggleCapability('enableWeb', value)} />
       <CapabilityToggle icon={<Network size={13} />} label="子 Agent" checked={Boolean(runtimeConfig?.enableSubagents)} disabled={busy} onChange={(value) => props.onToggleCapability('enableSubagents', value)} />
     </>}
-    <button type="button" title="切换工作区" disabled={busy} onClick={props.onChooseWorkspace} className={`${chipClass} min-w-[64px] max-w-[200px]`}>
-      <Folder size={13} className="flex-none" /><span className="truncate">{workspace}</span>
-    </button>
   </div>
 }
 
@@ -151,7 +148,7 @@ function FormatChip({ config, busy, onSelect }: { config: Config; busy: boolean;
     try { await onSelect(id); menu.setOpen(false) } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)) } finally { setApplying('') }
   }
 
-  return <div ref={menu.anchorRef} className="relative min-w-[64px] max-w-[160px]">
+  return <div ref={menu.anchorRef} className="relative flex-none">
     <button type="button" aria-label="对话格式" aria-haspopup="listbox" aria-expanded={menu.open} disabled={busy} onClick={() => menu.setOpen((value) => !value)}
       title={`对话格式：${preset?.label ?? '自定义'}（${wireName}）${warn ? '\n不推荐，建议改成标准或深度思考' : ''}`} className={`${chipClass} max-w-full ${warn ? 'text-warning' : ''}`}>
       <MessageSquareCode size={13} className="flex-none" />
@@ -211,7 +208,7 @@ function RemotePickerChip({ config, current, busy, onSelect, onManage, icon, kin
   const search = query.trim().toLocaleLowerCase()
   const filtered = options?.filter((option) => `${option.label} ${option.id}`.toLocaleLowerCase().includes(search))
 
-  return <div ref={menu.anchorRef} className="relative min-w-[64px] max-w-[180px]">
+  return <div ref={menu.anchorRef} className={`relative ${current ? 'min-w-[64px] max-w-[180px]' : 'flex-none'}`}>
     <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `${kind}：${current}` : `未使用 ${kind}`} className={`${chipClass} max-w-full`}>
       {icon}
       <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current ? shortRunName(current) : chipNone}</span>

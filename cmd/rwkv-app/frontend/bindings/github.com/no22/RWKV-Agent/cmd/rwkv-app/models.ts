@@ -196,6 +196,7 @@ export class AppBootstrap {
 
 export class ConversationSummary {
     "id": string;
+    "workspace": string;
     "title": string;
     "updatedAt": string;
     "pinned": boolean;
@@ -204,6 +205,9 @@ export class ConversationSummary {
     constructor($$source: Partial<ConversationSummary> = {}) {
         if (!("id" in $$source)) {
             this["id"] = "";
+        }
+        if (!("workspace" in $$source)) {
+            this["workspace"] = "";
         }
         if (!("title" in $$source)) {
             this["title"] = "";

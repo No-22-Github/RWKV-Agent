@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -33,6 +34,7 @@ type (
 
 type ConversationSummary struct {
 	ID        string    `json:"id"`
+	Workspace string    `json:"workspace"`
 	Title     string    `json:"title"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Pinned    bool      `json:"pinned"`
@@ -945,31 +947,58 @@ func (s *AppService) SetConversationPinned(id string, pinned bool) error {
 func (s *AppService) DeleteConversation(id string) error {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	return s.deleteConversations([]string{id})
+}
+
+// ListAllConversations lists every saved conversation across all
+// workspaces, for bulk cleanup in settings.
+func (s *AppService) ListAllConversations() ([]ConversationSummary, error) {
+	summaries, err := s.storage.ListAllConversations()
+	if err != nil {
+		return nil, err
+	}
+	return conversationSummaries(summaries), nil
+}
+
+// DeleteConversations removes several conversations at once and returns the
+// refreshed bootstrap; deleting the open one leaves an empty conversation.
+func (s *AppService) DeleteConversations(ids []string) (AppBootstrap, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	if err := s.deleteConversations(ids); err != nil {
+		return AppBootstrap{}, err
+	}
+	return s.bootstrap()
+}
+
+func (s *AppService) deleteConversations(ids []string) error {
 	s.mu.Lock()
-	active := s.active != nil && s.active.ID == id
+	activeID := ""
+	if s.active != nil {
+		activeID = s.active.ID
+	}
 	s.mu.Unlock()
-	if active {
+	if activeID != "" && slices.Contains(ids, activeID) {
 		if err := s.requireResolvedChanges(); err != nil {
 			return err
 		}
-	}
-	s.mu.Lock()
-	workspace := s.service.Status().Workspace
-	var old *agentapi.Session
-	if active {
-		old = s.session
+		s.mu.Lock()
+		workspace := s.service.Status().Workspace
+		old := s.session
 		s.session = nil
 		s.active = nil
+		s.mu.Unlock()
+		if old != nil {
+			_ = old.Close()
+		}
+		if err := s.storage.SetActiveConversation(workspace, ""); err != nil {
+			return err
+		}
 	}
-	s.mu.Unlock()
-	if old != nil {
-		_ = old.Close()
-	}
-	if err := s.storage.DeleteConversation(id); err != nil {
-		return err
-	}
-	if active {
-		return s.storage.SetActiveConversation(workspace, "")
+	for _, id := range ids {
+		if err := s.storage.DeleteConversation(id); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -997,8 +1026,8 @@ func (s *AppService) ChooseWorkspace() (AppBootstrap, error) {
 	return s.OpenWorkspace(selected)
 }
 
-// OpenWorkspace switches to an existing directory and unloads the current
-// provider. Persisted model settings remain available for reconnection.
+// OpenWorkspace switches to an existing directory. A remote connection is
+// carried over to the new workspace; a local model is unloaded.
 func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
@@ -1019,13 +1048,24 @@ func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 		_ = service.Close()
 		return AppBootstrap{}, err
 	}
+	// 远端连接只是一份配置（不发网络请求），换工作区时在新服务上原样接上；本地模型加载重，仍需用户手动加载。
+	s.mu.Lock()
+	config, runtimeProviderID := s.config, s.runtimeProviderID
+	s.mu.Unlock()
+	if runtimeProviderID != "" && config.Provider != agentapi.ProviderLocal {
+		if _, err := service.Configure(context.Background(), liveStreamConfig(config), func(value agentapi.Status) { s.emit("model:status", value) }); err != nil {
+			runtimeProviderID = ""
+		}
+	} else {
+		runtimeProviderID = ""
+	}
 	s.mu.Lock()
 	oldService := s.service
 	oldSession := s.session
 	s.service = service
 	s.session = nil
 	s.active = nil
-	s.runtimeProviderID = ""
+	s.runtimeProviderID = runtimeProviderID
 	s.mu.Unlock()
 	if oldSession != nil {
 		_ = oldSession.Close()
@@ -1035,6 +1075,42 @@ func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 	}
 	s.loadActiveConversation()
 	s.emit("model:status", service.Status())
+	return s.bootstrap()
+}
+
+// OpenWorkspaceConversation switches to workspace and opens one of its
+// conversations; an empty id starts a new conversation there.
+func (s *AppService) OpenWorkspaceConversation(path string, id string) (AppBootstrap, error) {
+	if id != "" {
+		value, err := s.storage.LoadConversation(id)
+		if err != nil {
+			return AppBootstrap{}, err
+		}
+		if !appstorage.SamePath(value.Workspace, path) {
+			return AppBootstrap{}, fmt.Errorf("conversation belongs to another workspace")
+		}
+	}
+	if err := s.storage.SetActiveConversation(path, id); err != nil {
+		return AppBootstrap{}, err
+	}
+	return s.OpenWorkspace(path)
+}
+
+// RemoveWorkspace drops a workspace from the recent list; with
+// deleteConversations its saved conversations go too. The directory on disk
+// is left alone. The open workspace cannot be removed: switch away first.
+func (s *AppService) RemoveWorkspace(path string, deleteConversations bool) (AppBootstrap, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	s.mu.Lock()
+	active := s.service.Status().Workspace
+	s.mu.Unlock()
+	if appstorage.SamePath(path, active) {
+		return AppBootstrap{}, fmt.Errorf("不能移除当前打开的工作区，请先切换到其他工作区")
+	}
+	if err := s.storage.ForgetWorkspace(path, deleteConversations); err != nil {
+		return AppBootstrap{}, err
+	}
 	return s.bootstrap()
 }
 
@@ -1136,11 +1212,17 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	warning := s.warning
 	s.mu.Unlock()
 	status := service.Status()
-	summaries, err := s.storage.ListConversations(status.Workspace)
+	state, err := s.storage.LoadState()
 	if err != nil {
 		return AppBootstrap{}, err
 	}
-	state, err := s.storage.LoadState()
+	// 侧栏按工作区分组列出对话：最近的工作区（含当前这个）的对话一次读出来，每条带上所属工作区。
+	workspaces := workspaceItems(state.RecentWorkspaces, status.Workspace)
+	workspacePaths := make([]string, 0, len(workspaces))
+	for _, workspace := range workspaces {
+		workspacePaths = append(workspacePaths, workspace.Path)
+	}
+	summaries, err := s.storage.ListConversationsIn(workspacePaths)
 	if err != nil {
 		return AppBootstrap{}, err
 	}
@@ -1161,7 +1243,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 		Providers: settings.Providers, ActiveProviderID: settings.ActiveID, RuntimeProviderID: runtimeProviderID,
 		RuntimeOutdated: runtimeOutdated,
 		Conversations:   conversationSummaries(summaries),
-		Workspaces:      workspaceItems(state.RecentWorkspaces, status.Workspace),
+		Workspaces:      workspaces,
 		Paths: StoragePaths{
 			ConfigFile: paths.ConfigFile, DataDirectory: paths.DataDirectory,
 			StateFile: paths.StateFile, CacheDirectory: paths.CacheDirectory,
@@ -1239,7 +1321,7 @@ func (s *AppService) emit(name string, data ...any) {
 func conversationSummaries(values []appstorage.Summary) []ConversationSummary {
 	result := make([]ConversationSummary, 0, len(values))
 	for _, value := range values {
-		result = append(result, ConversationSummary{ID: value.ID, Title: value.Title, UpdatedAt: value.UpdatedAt, Pinned: value.Pinned})
+		result = append(result, ConversationSummary{ID: value.ID, Workspace: value.Workspace, Title: value.Title, UpdatedAt: value.UpdatedAt, Pinned: value.Pinned})
 	}
 	return result
 }
@@ -1314,8 +1396,17 @@ func storedToolRetries(values []agentapi.ToolRetryTrace) []appstorage.ToolRetryT
 	return result
 }
 
+// workspaceItems lists the recent workspaces. The open workspace is always
+// included, first when it was never remembered (the startup default).
 func workspaceItems(paths []string, active string) []WorkspaceItem {
-	result := make([]WorkspaceItem, 0, len(paths))
+	result := make([]WorkspaceItem, 0, len(paths)+1)
+	remembered := false
+	for _, path := range paths {
+		remembered = remembered || appstorage.SamePath(path, active)
+	}
+	if !remembered && active != "" {
+		paths = append([]string{active}, paths...)
+	}
 	for _, path := range paths {
 		info, err := os.Stat(path)
 		result = append(result, WorkspaceItem{

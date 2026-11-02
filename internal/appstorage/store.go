@@ -600,6 +600,36 @@ func (s *Store) RememberWorkspace(workspace string) (State, error) {
 	return value, s.SaveState(value)
 }
 
+// ForgetWorkspace drops workspace from the recent list together with its
+// remembered active conversation. The directory itself is never touched; with
+// deleteConversations the workspace's saved conversations are removed too.
+func (s *Store) ForgetWorkspace(workspace string, deleteConversations bool) error {
+	if deleteConversations {
+		summaries, err := s.ListConversations(workspace)
+		if err != nil {
+			return err
+		}
+		for _, summary := range summaries {
+			if err := s.DeleteConversation(summary.ID); err != nil {
+				return err
+			}
+		}
+	}
+	value, err := s.LoadState()
+	if err != nil {
+		return err
+	}
+	kept := value.RecentWorkspaces[:0]
+	for _, candidate := range value.RecentWorkspaces {
+		if !SamePath(candidate, workspace) {
+			kept = append(kept, candidate)
+		}
+	}
+	value.RecentWorkspaces = kept
+	delete(value.ActiveConversations, pathKey(workspace))
+	return s.SaveState(value)
+}
+
 func (s *Store) SetActiveConversation(workspace, id string) error {
 	value, err := s.LoadState()
 	if err != nil {
@@ -773,6 +803,30 @@ func (s *Store) LoadConversation(id string) (Conversation, error) {
 }
 
 func (s *Store) ListConversations(workspace string) ([]Summary, error) {
+	workspace = filepath.Clean(workspace)
+	return s.listConversations(func(candidate string) bool { return SamePath(candidate, workspace) })
+}
+
+// ListAllConversations lists every saved conversation, whatever workspace
+// it belongs to (including ones no longer in the recent list).
+func (s *Store) ListAllConversations() ([]Summary, error) {
+	return s.listConversations(func(string) bool { return true })
+}
+
+// ListConversationsIn lists the conversations of every given workspace in
+// one pass over the conversation directory, pinned first, newest next.
+func (s *Store) ListConversationsIn(workspaces []string) ([]Summary, error) {
+	return s.listConversations(func(candidate string) bool {
+		for _, workspace := range workspaces {
+			if SamePath(candidate, workspace) {
+				return true
+			}
+		}
+		return false
+	})
+}
+
+func (s *Store) listConversations(keep func(workspace string) bool) ([]Summary, error) {
 	entries, err := os.ReadDir(s.paths.ConversationData)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -780,7 +834,6 @@ func (s *Store) ListConversations(workspace string) ([]Summary, error) {
 	if err != nil {
 		return nil, err
 	}
-	workspace = filepath.Clean(workspace)
 	result := make([]Summary, 0, len(entries))
 	for _, entry := range entries {
 		if entry.IsDir() || filepath.Ext(entry.Name()) != ".json" {
@@ -788,7 +841,7 @@ func (s *Store) ListConversations(workspace string) ([]Summary, error) {
 		}
 		id := strings.TrimSuffix(entry.Name(), ".json")
 		value, loadErr := s.LoadConversation(id)
-		if loadErr != nil || !SamePath(value.Workspace, workspace) {
+		if loadErr != nil || !keep(value.Workspace) {
 			continue
 		}
 		result = append(result, Summary{

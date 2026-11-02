@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Bot, Cloud, Cpu, Palette, Settings2, X } from 'lucide-react'
+import { Bot, Cloud, Cpu, History, Palette, Settings2, X } from 'lucide-react'
 import type { Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import { type ProviderManager, type SettingsSection } from '../state/providerManager'
 import type { ThemePreference } from '../theme'
 import ConfirmDialog, { type ConfirmAction } from './ConfirmDialog'
 import ConnectionsSection from './settings/ConnectionsSection'
+import ConversationsSection from './settings/ConversationsSection'
 import GeneralSection, { AppearanceSection } from './settings/GeneralSection'
 import GlobalAgentSection from './settings/GlobalAgentSection'
 import type { AgentSettingsState } from '../state/agentSettings'
@@ -19,12 +21,14 @@ type Props = {
   themePreference: ThemePreference
   onThemeChange: (preference: ThemePreference) => void
   onDeleteProvider: (id: string) => void
+  onConversationsChanged: (value: AppBootstrap) => void
 }
 
 const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
   { id: '远端连接', icon: <Cloud size={15} /> },
   { id: '本地推理', icon: <Cpu size={15} /> },
   { id: 'Agent', icon: <Bot size={15} /> },
+  { id: '对话记录', icon: <History size={15} /> },
   { id: '外观', icon: <Palette size={15} /> },
   { id: '通用', icon: <Settings2 size={15} /> },
 ]
@@ -37,7 +41,7 @@ const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
  * 连接分区只管连接本身（地址、模型、凭据，以及记在连接上的 State 与适配器）；生成参数、工具与
  * 搜索 Key 所有连接共用，在「Agent」分区。
  */
-export default function SettingsPage({ manager, agent, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider }: Props) {
+export default function SettingsPage({ manager, agent, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider, onConversationsChanged }: Props) {
   const section = manager.settingsSection
   // 切分区前草稿没法自动保存时，先问；问完再去这里。
   const [pendingSection, setPendingSection] = useState<SettingsSection | null>(null)
@@ -118,9 +122,9 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
   const creating = manager.editingProviderId === ''
   const closeActions: ConfirmAction[] = [
     // 已有档案走到这里说明自动保存失败，只给放弃/留下；新建连接才能在这里建档。
-    ...(creating ? [{ label: '保存并返回', variant: 'primary' as const, onClick: () => void resolveClose('save') }] : []),
-    { label: '放弃更改', onClick: () => void resolveClose('discard') },
     { label: '留在设置', onClick: () => setConfirmClose(false) },
+    { label: '放弃更改', onClick: () => void resolveClose('discard') },
+    ...(creating ? [{ label: '保存并返回', variant: 'primary' as const, onClick: () => void resolveClose('save') }] : []),
   ]
   // 自动保存后"未保存"只剩两种真问题：新建连接未建档、或更改无法保存。
   const profileNeedsAttention = manager.draftDirty && (creating || manager.saveState.kind === 'invalid' || manager.saveState.kind === 'error')
@@ -138,7 +142,7 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
         className="flex h-[min(780px,100%)] w-[min(1140px,100%)] animate-sheet-in overflow-hidden rounded-xl border border-line bg-paper text-ink shadow-pop outline-0 motion-reduce:animate-none"
       >
         <aside className="flex w-[200px] flex-none flex-col border-r border-line bg-paper-sidebar px-[10px] py-[18px]">
-          <div className="px-[10px] pb-[14px] text-md font-semibold text-ink">设置</div>
+          <div className="mb-[8px] flex h-[34px] items-center px-[10px] text-md font-semibold text-ink">设置</div>
           <nav aria-label="设置分区" className="flex flex-col gap-[2px]">
             {NAV_ITEMS.filter(({ id }) => id !== '本地推理' || manager.localInference).map(({ id, icon }) => (
               <button
@@ -163,6 +167,8 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
             ? <ConnectionsSection key={section} kind={section === '本地推理' ? 'local' : 'remote'} manager={manager} ready={ready} onDeleteProvider={onDeleteProvider} />
             : section === 'Agent'
               ? <GlobalAgentSection agent={agent} runtimeConfig={manager.runtimeConfig} />
+            : section === '对话记录'
+              ? <ConversationsSection onChanged={onConversationsChanged} />
             : section === '外观'
               ? <AppearanceSection themePreference={themePreference} onThemeChange={onThemeChange} />
               : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} />}
@@ -174,9 +180,9 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
         title="有未保存的更改"
         body={`${manager.draftBlockReason || '当前档案有未保存的更改。'}要如何处理？`}
         actions={[
-          ...(manager.editingProviderId === '' ? [{ label: '保存', variant: 'primary' as const, onClick: () => void resolveSection('save') }] : []),
-          { label: '放弃更改', onClick: () => void resolveSection('discard') },
           { label: '留在这里', onClick: () => setPendingSection(null) },
+          { label: '放弃更改', onClick: () => void resolveSection('discard') },
+          ...(manager.editingProviderId === '' ? [{ label: '保存', variant: 'primary' as const, onClick: () => void resolveSection('save') }] : []),
         ]}
         onClose={() => setPendingSection(null)}
       />

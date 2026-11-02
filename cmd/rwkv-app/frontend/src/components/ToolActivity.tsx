@@ -309,7 +309,7 @@ function SubagentDetail({ agent }: { agent: SubagentTrace }) {
 function Block({ label, text, danger }: { label: string; text: string; danger?: boolean }) {
   return <div className="flex min-w-0 flex-col gap-[4px]">
     <span className="text-2xs text-ink-muted">{label}</span>
-    <pre className={`m-0 max-h-[240px] overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-card-bg px-[10px] py-[8px] font-mono text-2xs leading-[1.6] [overflow-wrap:anywhere] ${danger ? 'text-danger' : 'text-ink-soft'}`}>{text}</pre>
+    <pre className={`m-0 max-h-[240px] overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-card-bg px-[12px] py-[8px] font-mono text-2xs leading-[1.6] [overflow-wrap:anywhere] ${danger ? 'text-danger' : 'text-ink-soft'}`}>{text}</pre>
   </div>
 }
 

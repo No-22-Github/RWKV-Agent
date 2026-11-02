@@ -53,7 +53,7 @@ export function Chat(prompt: string): $CancellablePromise<api$0.Result> {
 }
 
 /**
- * ChooseAdapterFile opens the native file picker for a MiSS package
+ * ChooseAdapterFile opens the native file picker for a MiSS or NoRA package
  * (adapter-final.pth or a checkpoint's training.pth).
  */
 export function ChooseAdapterFile(): $CancellablePromise<string> {
@@ -110,6 +110,16 @@ export function DeleteAdapter(config: api$0.Config, id: string, serverSide: bool
  */
 export function DeleteConversation(id: string): $CancellablePromise<void> {
     return $Call.ByID(1906186646, id);
+}
+
+/**
+ * DeleteConversations removes several conversations at once and returns the
+ * refreshed bootstrap; deleting the open one leaves an empty conversation.
+ */
+export function DeleteConversations(ids: string[]): $CancellablePromise<$models.AppBootstrap> {
+    return $Call.ByID(3236086655, ids).then(($result: any) => {
+        return $$createType1($result);
+    });
 }
 
 /**
@@ -179,11 +189,21 @@ export function ListAdapters(config: api$0.Config): $CancellablePromise<$models.
 }
 
 /**
+ * ListAllConversations lists every saved conversation across all
+ * workspaces, for bulk cleanup in settings.
+ */
+export function ListAllConversations(): $CancellablePromise<$models.ConversationSummary[]> {
+    return $Call.ByID(449707951).then(($result: any) => {
+        return $$createType8($result);
+    });
+}
+
+/**
  * ListRemoteModels verifies remote connectivity and returns model identifiers.
  */
 export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$0.RemoteModel[]> {
     return $Call.ByID(3365822742, config).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType10($result);
     });
 }
 
@@ -192,7 +212,7 @@ export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$
  */
 export function ListStates(config: api$0.Config): $CancellablePromise<$models.StateListing> {
     return $Call.ByID(260521560, config).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType11($result);
     });
 }
 
@@ -207,16 +227,26 @@ export function NewConversation(): $CancellablePromise<void> {
  */
 export function OpenConversation(id: string): $CancellablePromise<$models.ConversationView> {
     return $Call.ByID(2245178561, id).then(($result: any) => {
-        return $$createType10($result);
+        return $$createType12($result);
     });
 }
 
 /**
- * OpenWorkspace switches to an existing directory and unloads the current
- * provider. Persisted model settings remain available for reconnection.
+ * OpenWorkspace switches to an existing directory. A remote connection is
+ * carried over to the new workspace; a local model is unloaded.
  */
 export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBootstrap> {
     return $Call.ByID(928350323, path).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
+/**
+ * OpenWorkspaceConversation switches to workspace and opens one of its
+ * conversations; an empty id starts a new conversation there.
+ */
+export function OpenWorkspaceConversation(path: string, id: string): $CancellablePromise<$models.AppBootstrap> {
+    return $Call.ByID(1114865548, path, id).then(($result: any) => {
         return $$createType1($result);
     });
 }
@@ -227,7 +257,7 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
     return $Call.ByID(766505949, config).then(($result: any) => {
-        return $$createType11($result);
+        return $$createType13($result);
     });
 }
 
@@ -238,6 +268,17 @@ export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<a
 export function Regenerate(): $CancellablePromise<api$0.Result> {
     return $Call.ByID(3829194448).then(($result: any) => {
         return $$createType2($result);
+    });
+}
+
+/**
+ * RemoveWorkspace drops a workspace from the recent list; with
+ * deleteConversations its saved conversations go too. The directory on disk
+ * is left alone. The open workspace cannot be removed: switch away first.
+ */
+export function RemoveWorkspace(path: string, deleteConversations: boolean): $CancellablePromise<$models.AppBootstrap> {
+    return $Call.ByID(3800550335, path, deleteConversations).then(($result: any) => {
+        return $$createType1($result);
     });
 }
 
@@ -269,7 +310,7 @@ export function SaveAgentSettings(value: appstorage$0.AgentSettings): $Cancellab
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType12($result);
+        return $$createType14($result);
     });
 }
 
@@ -328,14 +369,14 @@ export function UnloadModel(): $CancellablePromise<api$0.Status> {
 }
 
 /**
- * UploadAdapter uploads a local MiSS package (adapter-final.pth or a
+ * UploadAdapter uploads a local MiSS or NoRA package (adapter-final.pth or a
  * checkpoint's training.pth) and registers it under id, remembering the file
  * for a re-upload after a server restart. Re-uploading an existing ID adds a
  * version that becomes its default.
  */
 export function UploadAdapter(config: api$0.Config, id: string, path: string): $CancellablePromise<$models.AdapterEntry> {
     return $Call.ByID(270781990, config, id, path).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType15($result);
     });
 }
 
@@ -346,7 +387,7 @@ export function UploadAdapter(config: api$0.Config, id: string, path: string): $
  */
 export function UploadBrowserAdapter(config: api$0.Config, id: string, token: string): $CancellablePromise<$models.AdapterEntry> {
     return $Call.ByID(878917108, config, id, token).then(($result: any) => {
-        return $$createType13($result);
+        return $$createType15($result);
     });
 }
 
@@ -357,7 +398,7 @@ export function UploadBrowserAdapter(config: api$0.Config, id: string, token: st
  */
 export function UploadBrowserState(config: api$0.Config, token: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(111862102, config, token).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType16($result);
     });
 }
 
@@ -368,7 +409,7 @@ export function UploadBrowserState(config: api$0.Config, token: string): $Cancel
  */
 export function UploadState(config: api$0.Config, path: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(320817040, config, path).then(($result: any) => {
-        return $$createType14($result);
+        return $$createType16($result);
     });
 }
 
@@ -380,11 +421,13 @@ const $$createType3 = tools$0.FileChange.createFrom;
 const $$createType4 = $Create.Array($$createType3);
 const $$createType5 = appstorage$0.AgentSettings.createFrom;
 const $$createType6 = $models.AdapterListing.createFrom;
-const $$createType7 = api$0.RemoteModel.createFrom;
+const $$createType7 = $models.ConversationSummary.createFrom;
 const $$createType8 = $Create.Array($$createType7);
-const $$createType9 = $models.StateListing.createFrom;
-const $$createType10 = $models.ConversationView.createFrom;
-const $$createType11 = api$0.AgentPromptPreview.createFrom;
-const $$createType12 = appstorage$0.SavedProvider.createFrom;
-const $$createType13 = $models.AdapterEntry.createFrom;
-const $$createType14 = $models.StateEntry.createFrom;
+const $$createType9 = api$0.RemoteModel.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = $models.StateListing.createFrom;
+const $$createType12 = $models.ConversationView.createFrom;
+const $$createType13 = api$0.AgentPromptPreview.createFrom;
+const $$createType14 = appstorage$0.SavedProvider.createFrom;
+const $$createType15 = $models.AdapterEntry.createFrom;
+const $$createType16 = $models.StateEntry.createFrom;

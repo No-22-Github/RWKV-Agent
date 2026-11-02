@@ -284,6 +284,146 @@ func TestAppServiceSwitchesWorkspaceAndRestoresItsConversation(t *testing.T) {
 	}
 }
 
+func TestAppServiceOpensConversationInAnotherWorkspaceKeepingRemoteConnection(t *testing.T) {
+	t.Parallel()
+	workspaceA := resolvedWorkspace(t)
+	workspaceB := resolvedWorkspace(t)
+	store := testAppStore(t)
+	testConversation(t, store, workspaceA, "Conversation A", "from A")
+	conversationB := testConversation(t, store, workspaceB, "Conversation B", "from B")
+	if _, err := store.RememberWorkspace(workspaceB); err != nil {
+		t.Fatal(err)
+	}
+	remote := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://remote.test", Model: "remote-model"}
+	saved, err := store.SaveProvider("", "", remote, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 启动时的工作区 A 没被记住过，也要出现在侧栏里。
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspaceA})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	bootstrap, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bootstrap.Workspaces) != 2 || bootstrap.Workspaces[0].Path != workspaceA || !bootstrap.Workspaces[0].Active {
+		t.Fatalf("workspaces = %+v", bootstrap.Workspaces)
+	}
+	if len(bootstrap.Conversations) != 2 {
+		t.Fatalf("conversations = %+v", bootstrap.Conversations)
+	}
+
+	if _, err := backend.OpenWorkspaceConversation(workspaceA, conversationB.ID); err == nil {
+		t.Fatal("opened a conversation under the wrong workspace")
+	}
+	bootstrap, err = backend.OpenWorkspaceConversation(workspaceB, conversationB.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.Status.Workspace != workspaceB || bootstrap.Conversation == nil || bootstrap.Conversation.ID != conversationB.ID {
+		t.Fatalf("opened = %+v / %+v", bootstrap.Status, bootstrap.Conversation)
+	}
+	if bootstrap.RuntimeProviderID != saved.ID || bootstrap.Status.State != agentapi.ModelReady || bootstrap.Status.Model != remote.Model {
+		t.Fatalf("remote connection dropped on workspace switch: %+v / %s", bootstrap.Status, bootstrap.RuntimeProviderID)
+	}
+
+	bootstrap, err = backend.OpenWorkspaceConversation(workspaceA, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.Status.Workspace != workspaceA || bootstrap.Conversation != nil {
+		t.Fatalf("new conversation = %+v / %+v", bootstrap.Status, bootstrap.Conversation)
+	}
+}
+
+func TestAppServiceBulkDeletesConversationsAcrossWorkspaces(t *testing.T) {
+	t.Parallel()
+	workspaceA := resolvedWorkspace(t)
+	forgotten := resolvedWorkspace(t)
+	store := testAppStore(t)
+	keep := testConversation(t, store, workspaceA, "Keep", "keep")
+	open := testConversation(t, store, workspaceA, "Open", "open")
+	stale := testConversation(t, store, forgotten, "Stale", "stale")
+	if err := store.SetActiveConversation(workspaceA, open.ID); err != nil {
+		t.Fatal(err)
+	}
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspaceA})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	// 不在侧栏里的工作区的对话也要能列出来清理。
+	all, err := backend.ListAllConversations()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(all) != 3 {
+		t.Fatalf("all conversations = %+v", all)
+	}
+	bootstrap, err := backend.DeleteConversations([]string{open.ID, stale.ID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.Conversation != nil {
+		t.Fatalf("deleted open conversation is still active: %+v", bootstrap.Conversation)
+	}
+	all, err = backend.ListAllConversations()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(all) != 1 || all[0].ID != keep.ID {
+		t.Fatalf("remaining conversations = %+v", all)
+	}
+}
+
+func TestAppServiceRemovesRecentWorkspace(t *testing.T) {
+	t.Parallel()
+	workspaceA := resolvedWorkspace(t)
+	workspaceB := resolvedWorkspace(t)
+	workspaceC := resolvedWorkspace(t)
+	store := testAppStore(t)
+	testConversation(t, store, workspaceB, "Conversation B", "from B")
+	conversationC := testConversation(t, store, workspaceC, "Conversation C", "from C")
+	for _, workspace := range []string{workspaceA, workspaceB, workspaceC} {
+		if _, err := store.RememberWorkspace(workspace); err != nil {
+			t.Fatal(err)
+		}
+	}
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspaceA})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	if _, err := backend.RemoveWorkspace(workspaceA, false); err == nil {
+		t.Fatal("removing the open workspace succeeded")
+	}
+	if _, err := backend.RemoveWorkspace(workspaceB, true); err != nil {
+		t.Fatal(err)
+	}
+	bootstrap, err := backend.RemoveWorkspace(workspaceC, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bootstrap.Workspaces) != 1 || bootstrap.Workspaces[0].Path != workspaceA {
+		t.Fatalf("recent workspaces = %+v", bootstrap.Workspaces)
+	}
+	if remaining, _ := store.ListConversations(workspaceB); len(remaining) != 0 {
+		t.Fatalf("workspace B conversations = %+v", remaining)
+	}
+	if remaining, _ := store.ListConversations(workspaceC); len(remaining) != 1 || remaining[0].ID != conversationC.ID {
+		t.Fatalf("workspace C conversations = %+v", remaining)
+	}
+}
+
 func TestParseOptionsTracksExplicitWorkspace(t *testing.T) {
 	t.Parallel()
 	implicit, err := parseOptions(nil)

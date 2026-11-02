@@ -96,7 +96,7 @@ export default function ParametersSection({ agent, runtimeConfig }: Props) {
             </span>
             <textarea
               aria-label="附加任务约定"
-              className="min-h-[80px] resize-y rounded-md border border-line bg-paper-wash px-[10px] py-[8px] text-base leading-[1.6] text-ink outline-0 transition-colors placeholder:text-ink-ghost hover:border-line-strong focus:border-brand"
+              className="min-h-[80px] resize-y rounded-md border border-line bg-paper-wash px-[12px] py-[8px] text-base leading-[1.6] text-ink outline-0 transition-colors placeholder:text-ink-ghost hover:border-line-strong focus:border-brand"
               value={value.taskControl || ''}
               placeholder="回答使用中文；先列出步骤再给结论。"
               onChange={(event) => update({ taskControl: event.target.value })}
@@ -114,9 +114,10 @@ export default function ParametersSection({ agent, runtimeConfig }: Props) {
           {preview.busy && !preview.value && <p className="m-0 py-[4px] text-sm text-ink-muted">生成中…</p>}
           {preview.error && <p className="m-0 py-[4px] text-sm text-danger">{preview.error}</p>}
           {preview.value && (
-            <div className="flex flex-col gap-[8px]">
-              {preview.value.sessionContext && <pre className="m-0 whitespace-pre-wrap font-mono text-sm leading-[1.7] text-ink-soft">{preview.value.sessionContext}</pre>}
-              <pre className="m-0 max-h-[420px] overflow-auto whitespace-pre-wrap font-mono text-sm leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{preview.value.control}</pre>
+            // 会话上下文与提示词正文是同一段提示词，放在同一个滚动区里一起滚，不让时间那段钉在外面。
+            <div className="flex max-h-[420px] flex-col gap-[8px] overflow-y-auto overflow-x-hidden pr-[6px]">
+              {preview.value.sessionContext && <pre className="m-0 whitespace-pre-wrap font-mono text-sm leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{preview.value.sessionContext}</pre>}
+              <pre className="m-0 whitespace-pre-wrap font-mono text-sm leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{preview.value.control}</pre>
             </div>
           )}
         </Disclosure>

@@ -47,7 +47,7 @@
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* 布局 token：供 tailwind.css 的组件类与宽高任意值引用 */
-  --sidebar-w: 216px;
+  --sidebar-w: 232px;
   --header-h: 52px;
   --content-narrow: 720px;
 

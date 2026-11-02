@@ -11,6 +11,10 @@ import type { SaveState } from '../../state/providerManager'
  *   正文  text-base text-ink                    行标签、输入框、按钮、标签页
  *   说明  text-sm text-ink-muted                行说明、列表副标题、保存状态
  *
+ * 控件尺寸也只有两档，文字离边框的距离跟着高度走，不要在调用处另写 px：
+ *   中  32px 高  按钮左右 14px，输入框 / 下拉框 / 多行输入左右 12px
+ *   小  28px 高  按钮、分段选择左右 12px；徽标 26px 高、左右 10px
+ *
  * 说明文字是例外不是默认：只给「不看会填错」的行写，取值范围放进 title，预设的用途放进下拉选项的 hint。
  * 所有 aria-label 供测试与读屏使用。
  */
@@ -29,13 +33,13 @@ const BUTTON_VARIANT: Record<ButtonVariant, string> = {
  * 新按钮一律用它，不要再手写 h-[..] px-[..]。
  */
 /*
- * square：只放图标的方形按钮。宽度与内边距要在这里定，调用方再写 px-0 压不过 sizing 里的 px-[10px]
+ * square：只放图标的方形按钮。宽度与内边距要在这里定，调用方再写 px-0 压不过 sizing 里的 px-[12px]
  * （Tailwind 按生成顺序而不是类名顺序生效），图标会被挤成几个像素。
  */
 export function Button({ variant = 'secondary', size = 'md', square = false, icon, className = '', children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md'; square?: boolean; icon?: ReactNode }) {
   const sizing = size === 'sm'
-    ? `h-[28px] gap-[5px] text-sm ${square ? 'w-[28px]' : 'px-[10px]'}`
-    : `h-[32px] gap-[6px] text-base ${square ? 'w-[32px]' : 'px-[12px]'}`
+    ? `h-[28px] gap-[6px] text-sm ${square ? 'w-[28px]' : 'px-[12px]'}`
+    : `h-[32px] gap-[6px] text-base ${square ? 'w-[32px]' : 'px-[14px]'}`
   return (
     <button type="button" className={`inline-flex flex-none items-center justify-center [&>svg]:flex-none whitespace-nowrap rounded-md border transition-colors disabled:pointer-events-none disabled:opacity-40 ${sizing} ${BUTTON_VARIANT[variant]} ${className}`} {...rest}>
       {icon}
@@ -55,7 +59,7 @@ export function TextInput({ label, value, onChange, placeholder, type = 'text', 
         aria-label={label}
         aria-invalid={invalid ? true : undefined}
         aria-describedby={describedBy}
-        className={`h-[32px] min-w-0 rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 transition-colors placeholder:text-ink-ghost hover:border-line-strong focus:border-brand ${invalid ? 'border-danger' : 'border-line'} ${className}`}
+        className={`h-[32px] min-w-0 rounded-md border bg-paper-wash px-[12px] text-base text-ink outline-0 transition-colors placeholder:text-ink-ghost hover:border-line-strong focus:border-brand ${invalid ? 'border-danger' : 'border-line'} ${className}`}
         type={type}
         value={value}
         placeholder={placeholder}
@@ -104,7 +108,7 @@ export function NumberRow({ label, description, value, onChange, min, max, step 
       {changed && (
         <button type="button" className="grid h-[28px] w-[28px] place-items-center rounded-md border-0 bg-transparent text-ink-muted transition-colors hover:bg-surface-active hover:text-ink" onClick={() => onChange(defaultValue)} aria-label={`${label}恢复默认`} title={`恢复为 ${defaultValue}`}><RotateCcw size={13} /></button>
       )}
-      <input id={id} aria-label={label} title={range} className="h-[32px] w-[104px] rounded-md border border-line bg-paper-wash px-[10px] text-right text-base tabular-nums text-ink outline-0 transition-colors hover:border-line-strong focus:border-brand" type="number" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
+      <input id={id} aria-label={label} title={range} className="h-[32px] w-[104px] rounded-md border border-line bg-paper-wash px-[12px] text-right text-base tabular-nums text-ink outline-0 transition-colors hover:border-line-strong focus:border-brand" type="number" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
     </Row>
   )
 }
@@ -119,7 +123,7 @@ export function Segmented<T extends string>({ label, value, onChange, options }:
           type="button"
           role="radio"
           aria-checked={value === option.value}
-          className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[10px] text-sm transition-colors ${value === option.value ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted hover:text-ink'}`}
+          className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[12px] text-sm transition-colors ${value === option.value ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted hover:text-ink'}`}
           onClick={() => onChange(option.value)}
         >{option.icon}{option.label}</button>
       ))}
@@ -199,7 +203,7 @@ export function Disclosure({ label, summary, open, onToggle, children }: { label
 /* 运行状态徽标：列表行与详情页头共用。 */
 export function RunningBadge({ tone = 'running', children }: { tone?: 'running' | 'warning'; children: string }) {
   return (
-    <span className="flex flex-none items-center gap-[6px] rounded-full border border-line px-[8px] py-[2px] text-sm text-ink-soft">
+    <span className="flex h-[26px] flex-none items-center gap-[6px] rounded-full border border-line px-[10px] text-sm text-ink-soft">
       <span className={`h-[6px] w-[6px] rounded-full ${tone === 'warning' ? 'bg-warning' : 'bg-brand-bright'}`} />
       {children}
     </span>
@@ -234,7 +238,7 @@ export function SettingsPane({ children, footer }: { children: ReactNode; footer
   return (
     <div className="@container flex min-w-0 min-h-0 flex-1 flex-col">
       <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
-        <div className="flex-none pb-[40px] pt-[28px]" style={PANE_FIXED_POSITION}>
+        <div className="flex-none pb-[40px] pt-[21px]" style={PANE_FIXED_POSITION}>
           {children}
         </div>
       </div>
@@ -243,7 +247,14 @@ export function SettingsPane({ children, footer }: { children: ReactNode; footer
   )
 }
 
-/* 详情页与 SettingsPane 同宽的固定页头容器（页头不滚动，按自身宽度居中即可）。 */
+/*
+ * 详情页与 SettingsPane 同宽的固定页头容器（页头不滚动，按自身宽度居中即可）。
+ *
+ * 各分区的第一行标题必须落在同一高度，切分区、进出详情时标题才不跳：固定页头用
+ * PANE_HEADER_TOP + 34px 高的标题行（中线 18+17=35），SettingsPane 用 21px 顶距 + Section 的
+ * 28px 标题行（中线 21+14=35），设置弹窗左栏的「设置」也是 18px + 34px 行。改其中一个要一起改。
+ */
+export const PANE_HEADER_TOP = 'pt-[18px]'
 export const PANE_WIDTH = 'mx-auto w-[min(640px,calc(100%-112px))]'
 
 /* SettingsPane 里同一宽度、同一位置，但按外层容器宽度（100cqw）算，滚动条出现也不动。 */

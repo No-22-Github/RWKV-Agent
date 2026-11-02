@@ -100,7 +100,7 @@ export function Select({ label, value, options, onChange, className = '' }: { la
         data-value={value}
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKeyDown}
-        className={`rounded-md flex h-[32px] min-w-0 items-center gap-[8px] border border-line bg-paper-wash px-[10px] text-left text-base text-ink outline-0 transition-colors hover:border-line-strong focus-visible:border-brand ${open ? 'border-brand' : ''} ${className}`}
+        className={`rounded-md flex h-[32px] min-w-0 items-center gap-[8px] border border-line bg-paper-wash px-[12px] text-left text-base text-ink outline-0 transition-colors hover:border-line-strong focus-visible:border-brand ${open ? 'border-brand' : ''} ${className}`}
       >
         <span className="min-w-0 flex-1 truncate">{selected?.label ?? value}</span>
         <ChevronsUpDown size={14} className="flex-none text-ink-muted" />
@@ -127,7 +127,7 @@ export function Select({ label, value, options, onChange, className = '' }: { la
                 onMouseEnter={() => setActive(index)}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => choose(index)}
-                className={`flex cursor-default items-center gap-[8px] rounded-lg px-[10px] py-[7px] text-sm ${index === active ? 'bg-surface-active' : ''}`}
+                className={`flex cursor-default items-center gap-[8px] rounded-lg px-[12px] py-[7px] text-sm ${index === active ? 'bg-surface-active' : ''}`}
               >
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className={`truncate ${isSelected ? 'text-ink-strong' : 'text-ink'}`}>{option.label}</span>

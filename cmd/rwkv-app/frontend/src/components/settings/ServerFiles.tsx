@@ -124,7 +124,7 @@ export function formatBytes(bytes: number): string {
 /* 选中的文件已不在服务器上（多半是服务端重启清空了）：一条警告 + 重新上传 / 改回不用。 */
 export function MissingCurrent({ children, actions }: { children: ReactNode; actions: ReactNode }) {
   return (
-    <div role="alert" className="mb-[8px] rounded-md border border-warning/40 bg-paper px-[10px] py-[8px] text-sm leading-[1.6] text-ink-soft">
+    <div role="alert" className="mb-[8px] rounded-md border border-warning/40 bg-paper px-[12px] py-[8px] text-sm leading-[1.6] text-ink-soft">
       <p className="m-0">{children}</p>
       <div className="mt-[6px] flex flex-wrap gap-[8px]">{actions}</div>
     </div>
