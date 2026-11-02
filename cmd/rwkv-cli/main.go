@@ -37,7 +37,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/native/converter"
 	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 	"github.com/no22/RWKV-Agent/internal/terminal"
-	"github.com/no22/RWKV-Agent/internal/tokenizer"
+	tokenizerpkg "github.com/no22/RWKV-Agent/internal/tokenizer"
 	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
 	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
 	buildversion "github.com/no22/RWKV-Agent/internal/version"
@@ -408,21 +408,7 @@ func convertModel(args []string) error {
 	return nil
 }
 
-func bundledTokenizerPath() (string, error) {
-	const filename = "rwkv_vocab_v20230424.txt"
-	candidates := make([]string, 0, 2)
-	if executable, err := os.Executable(); err == nil {
-		candidates = append(candidates, filepath.Join(filepath.Dir(executable), "assets", filename))
-	}
-	candidates = append(candidates, filepath.Join("third_party", "rwkv-mobile", "assets", filename))
-	for _, candidate := range candidates {
-		info, err := os.Stat(candidate)
-		if err == nil && !info.IsDir() {
-			return filepath.Abs(candidate)
-		}
-	}
-	return "", fmt.Errorf("bundled tokenizer %q was not found", filename)
-}
+func bundledTokenizerPath() (string, error) { return tokenizerpkg.VocabPath() }
 
 func parseRunOptions(name string, args []string) (runOptions, error) {
 	var options runOptions
@@ -492,7 +478,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.completion,
 			"completion",
 			"local",
-			"continuation provider: local, chat-completions (optional build), rwkv-lightning-python, rwkv-lightning-cuda, irwkv",
+			"continuation provider: local, chat-completions, rwkv-lightning-python, rwkv-lightning-cuda, irwkv",
 		)
 		fs.StringVar(&options.apiURL, "api-url", "", "full remote continuation endpoint URL")
 		fs.StringVar(
@@ -1174,6 +1160,9 @@ func loadRuntime(ctx context.Context, options runOptions) (*loadedRuntime, error
 	if options.concurrency > 0 {
 		maxActiveBatch = options.concurrency
 	}
+	if !agentapi.LocalInferenceAvailable() {
+		return nil, errors.New("this build has no local inference; run ./scripts/build-macos.sh, or pass --completion with a remote provider")
+	}
 	backend := rwkvbackend.New(rwkvbackend.Options{
 		Provider:       options.provider,
 		MaxActiveBatch: maxActiveBatch,
@@ -1463,42 +1452,6 @@ func evalToolBundles(options runOptions) []agent.ToolBundle {
 		}
 	}
 	return bundles
-}
-
-// resolveTokenCounter loads the RWKV World vocabulary for in-process real
-// token counting (round-3 step 1). It prefers an explicit --tokenizer, then
-// the model-adjacent vocabulary, then the bundled repo copy; when nothing can
-// be loaded it returns (nil, "", nil) and the documented fallback applies:
-// the fetch-compression hook stays off (never armed on the estimator) and web
-// budget slicing falls back to the estimator. An explicitly requested
-// vocabulary that fails to load is a hard error — silently dropping the real
-// counter would silently change experiment semantics.
-func resolveTokenCounter(options runOptions, command string) (func(string) int, string, error) {
-	vocabPath := options.tokenizer
-	explicit := vocabPath != ""
-	if !explicit {
-		if bundled, err := bundledTokenizerPath(); err == nil {
-			vocabPath = bundled
-		} else if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
-			// Local-model runs without an explicit vocabulary previously
-			// required one (bundledTokenizerPath failed → parseRunOptions
-			// already surfaced the error), so this branch only records intent.
-			vocabPath = ""
-		}
-	}
-	if vocabPath == "" {
-		fmt.Fprintf(os.Stderr, "%s: no World vocabulary found; fetch compression stays off and the web budget falls back to the estimator (round-3 step 1 fallback behavior)\n", command)
-		return nil, "", nil
-	}
-	world, err := tokenizer.OpenWorldCached(vocabPath)
-	if err != nil {
-		if explicit {
-			return nil, "", err
-		}
-		fmt.Fprintf(os.Stderr, "%s: vocabulary %s unusable (%v); fetch compression stays off and the web budget falls back to the estimator\n", command, vocabPath, err)
-		return nil, "", nil
-	}
-	return world.Count, world.SHA256(), nil
 }
 
 func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
@@ -1930,10 +1883,8 @@ func runAgentEval(args []string) error {
 			"agent-eval-"+time.Now().UTC().Format("20060102-150405.000000000"),
 		)
 	}
-	tokenCount, vocabSHA, err := resolveTokenCounter(options, "agent-eval")
-	if err != nil {
-		return err
-	}
+	world := tokenizerpkg.World()
+	tokenCount, vocabSHA := world.Count, world.VocabSHA256()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	var source *agentGeneratorSource

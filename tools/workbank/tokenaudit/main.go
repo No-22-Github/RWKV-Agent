@@ -13,12 +13,11 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 3 {
-		panic("usage: tokenaudit VOCAB RUN...")
+	if len(os.Args) < 2 {
+		panic("usage: tokenaudit RUN...")
 	}
-	v, err := tokenizer.OpenWorld(os.Args[1])
-	must(err)
-	for _, run := range os.Args[2:] {
+	v := tokenizer.World()
+	for _, run := range os.Args[1:] {
 		data, err := os.ReadFile(filepath.Join(run, "summary.json"))
 		must(err)
 		var summary struct {
@@ -46,7 +45,7 @@ func main() {
 				}
 			}
 		}
-		b, err := json.Marshal(map[string]any{"run": run, "vocab_sha256": v.SHA256(), "steps": rows})
+		b, err := json.Marshal(map[string]any{"run": run, "vocab_sha256": v.VocabSHA256(), "steps": rows})
 		must(err)
 		fmt.Println(string(b))
 	}

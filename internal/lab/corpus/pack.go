@@ -33,10 +33,6 @@ import (
 // only), rows.jsonl (the accepted input lines, byte for byte) and
 // manifest.json. An existing --out directory is refused.
 
-// packVocab is the vocabulary lab.RunTokcount counts with. The two commands
-// must agree, so the path is repeated here rather than owned by pack.
-const packVocab = "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"
-
 // canaries are the prefixes lint puts in bench descriptions; seeing one in a
 // training text means a fixture leaked the marker into model-visible bytes.
 const (
@@ -183,13 +179,7 @@ func RunPack(args PackArgs) int {
 		inputs[row.input].Rows++
 	}
 
-	// The World vocabulary is loaded once and reused for every row; the
-	// process-wide cache in tokenizer keeps repeated commands cheap too.
-	world, err := tokenizer.OpenWorldCached(packVocabPath())
-	if err != nil {
-		fmt.Fprintf(stderr, "pack: %v\n", err)
-		return 1
-	}
+	world := tokenizer.World()
 	tokens := make([]int, len(kept))
 	for index, row := range kept {
 		tokens[index] = world.Count(row.text)
@@ -612,18 +602,4 @@ func writePackOutputs(out string, rows []*packRow, manifest *lab.OrderedMap) err
 		return err
 	}
 	return os.WriteFile(filepath.Join(out, "manifest.json"), data, 0o644)
-}
-
-// packVocabPath resolves the World vocabulary like tokcount does: the shipped
-// relative path, then relative to the repository root so the tool works from
-// any working directory.
-func packVocabPath() string {
-	if _, err := os.Stat(packVocab); err == nil {
-		return packVocab
-	}
-	candidate := filepath.Join(lab.RepoRoot(), packVocab)
-	if _, err := os.Stat(candidate); err == nil {
-		return candidate
-	}
-	return packVocab
 }

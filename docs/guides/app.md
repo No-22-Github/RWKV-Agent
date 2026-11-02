@@ -60,23 +60,31 @@ frontend and bind the same public Go API from `api/`.
   activity card interleaves an expandable "思考" row per step with the tool calls
   (thought → call → thought → answer). The trajectory view splits it out too,
   including agent-wire-think-v1.0's withheld `<think` opening.
-- Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
-  Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
+- Remote OpenAI-compatible Chat Completions or RWKV continuation configuration, or a local
+  model (`.pth` or MLX directory) in a `--with-metal` build, remote model listing via `GET /v1/models`, arbitrary
   HTTP headers, and macOS system proxy support.
 
-## Build on Apple Silicon macOS
+## Build on macOS
 
-The complete build prepares the native MLX runtime, verifies the frontend, and creates
-both launch modes. In addition to the native toolchain, the build requires Node.js 26
-with npm. It uses the exact pnpm version declared in the frontend's `packageManager`
-(also used by CI). If that version is not on PATH, the script installs and reuses it
-under `local/build/toolchain/` without changing your global pnpm:
+The default build talks to remote endpoints only. It needs macOS with the Command Line Tools,
+Go, Bun and Node.js 26 with npm, and neither Xcode nor the `rwkv-mobile` submodule. It uses the
+exact pnpm version declared in the frontend's `packageManager` (also used by CI). If that
+version is not on PATH, the script installs and reuses it under `local/build/toolchain/` without
+changing your global pnpm:
 
 ```sh
 ./scripts/build-app.sh
 ```
 
-The native runtime and frontend build run concurrently; both must succeed before
+Add local inference with `--with-metal`, which also needs Apple Silicon, full Xcode with the
+Metal toolchain, CMake, Ninja and the submodule. In a build without it, the settings page and
+the model menu hide local models; saved local profiles are kept for a later Metal build.
+
+```sh
+./scripts/build-app.sh --with-metal
+```
+
+With `--with-metal`, the native runtime and frontend build run concurrently; both must succeed before
 the desktop executables are built. Unchanged MLX products and prepared PTH loader
 sources keep their timestamps so repeated builds can reuse Ninja's compiled
 objects and linked runtime. Builds skip frontend tests by default; TypeScript
@@ -86,7 +94,7 @@ checking and all builds still run. Run frontend tests separately with:
 ./scripts/test-app.sh
 ```
 
-The outputs stay together with the native runtime and Metal resources in `local/dist/`:
+The outputs stay in `local/dist/`; the runtime library and Metal resources appear only with `--with-metal`:
 
 ```text
 local/dist/RWKV Agent.app/
@@ -94,7 +102,6 @@ local/dist/rwkv-app
 local/dist/rwkv-app-server
 local/dist/librwkv_agent_runtime.dylib
 local/dist/mlx-swift_Cmlx.bundle/
-local/dist/assets/rwkv_vocab_v20230424.txt
 ```
 
 Launch the native Wails window:
@@ -203,7 +210,7 @@ indexes keep their current behavior and are outside this persistence change.
 
 Open **设置** in the lower-left corner.
 
-- **本地模型** accepts an RWKV-7 `.pth` checkpoint or an MLX safetensors directory. The tokenizer is discovered beside the model, beside the executable, in `local/dist/assets`, or in the pinned `rwkv-mobile` assets; it can also be selected explicitly.
+- **本地模型** accepts an RWKV-7 `.pth` checkpoint or an MLX safetensors directory. The tokenizer is discovered beside the model, otherwise the vocabulary embedded in the app (from `rwkv-tokenizer-go`) is used; it can also be selected explicitly.
 - **远端 API** defaults to **RWKV 续写**. It accepts an API base URL, `/v1/models`, or `/v1/batch/completions` and normalizes inference to the continuation-native `/v1/batch/completions` endpoint. Stop sequences are enforced by the Harness client, so the server-specific `stop_tokens` field is omitted by default.
 - **OpenAI 兼容** is the fallback for non-RWKV models and normalizes the same base URL to `/v1/chat/completions`.
 - Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. The desktop app saves these values in the local plaintext `settings.json`; model status exposes only sanitized header names, never values.

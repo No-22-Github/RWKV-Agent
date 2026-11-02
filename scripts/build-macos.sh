@@ -8,31 +8,25 @@ runtime_build_dir="$repo_root/local/build/native/agent-runtime"
 mlx_ffi_dir="$repo_root/local/build/native/mlx-ffi"
 dist_dir="$repo_root/local/dist"
 resource_dir="$dist_dir/mlx-swift_Cmlx.bundle/Contents/Resources"
-asset_dir="$dist_dir/assets"
 deployment_target="15.0"
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/build-macos.sh [--check] [--with-chat-completions]
+Usage: ./scripts/build-macos.sh [--check]
 
-Build the Apple Silicon macOS distribution.
+Build rwkv-cli with local Metal inference, plus the native runtime it needs.
 
 Options:
-  --check                    Verify the local build environment without compiling.
-  --with-chat-completions    Include the optional official OpenAI Go SDK adapter.
-  -h                         Show this help.
+  --check    Verify the local build environment without compiling.
+  -h         Show this help.
 EOF
 }
 
 check_only=0
-with_chat_completions=0
 while (( $# > 0 )); do
   case "$1" in
     --check)
       check_only=1
-      ;;
-    --with-chat-completions)
-      with_chat_completions=1
       ;;
     -h|--help)
       usage
@@ -114,19 +108,14 @@ cmake -S "$runtime_source_dir" -B "$runtime_build_dir" -G Ninja \
 cmake --build "$runtime_build_dir" --target rwkv_agent_runtime -j
 
 echo "[3/4] Building rwkv-cli..."
-mkdir -p "$dist_dir" "$resource_dir" "$asset_dir"
+mkdir -p "$dist_dir" "$resource_dir"
 cp "$runtime_build_dir/librwkv_agent_runtime.dylib" "$dist_dir/librwkv_agent_runtime.dylib"
 cp "$mlx_ffi_dir/default.metallib" "$resource_dir/default.metallib"
-cp "$source_dir/assets/rwkv_vocab_v20230424.txt" "$asset_dir/rwkv_vocab_v20230424.txt"
 
 (
   cd "$repo_root"
-  build_tags="mlx converter"
-  if (( with_chat_completions )); then
-    build_tags="$build_tags chatcompletions"
-  fi
   CGO_ENABLED=1 go build \
-    -tags "$build_tags" \
+    -tags "mlx converter" \
     -trimpath \
     -ldflags "-s -w" \
     -o "$dist_dir/rwkv-cli" \
@@ -153,12 +142,7 @@ fi
 go_version="$(go version | awk '{print $3}')"
 cli_sha="$(shasum -a 256 "$dist_dir/rwkv-cli" | awk '{print $1}')"
 runtime_sha="$(shasum -a 256 "$dist_dir/librwkv_agent_runtime.dylib" | awk '{print $1}')"
-tokenizer_sha="$(shasum -a 256 "$asset_dir/rwkv_vocab_v20230424.txt" | awk '{print $1}')"
 metallib_sha="$(shasum -a 256 "$resource_dir/default.metallib" | awk '{print $1}')"
-chat_completions_manifest=false
-if (( with_chat_completions )); then
-  chat_completions_manifest=true
-fi
 
 printf '%s\n' \
   '{' \
@@ -167,11 +151,9 @@ printf '%s\n' \
   '  "runtime_abi_version": 2,' \
   "  \"go_version\": \"$go_version\"," \
   "  \"deployment_target\": \"$deployment_target\"," \
-  "  \"chat_completions\": $chat_completions_manifest," \
   '  "sha256": {' \
   "    \"rwkv-cli\": \"$cli_sha\"," \
   "    \"librwkv_agent_runtime.dylib\": \"$runtime_sha\"," \
-  "    \"rwkv_vocab_v20230424.txt\": \"$tokenizer_sha\"," \
   "    \"default.metallib\": \"$metallib_sha\"" \
   '  }' \
   '}' >"$dist_dir/build-manifest.json"

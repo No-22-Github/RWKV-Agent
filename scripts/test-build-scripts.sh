@@ -24,7 +24,7 @@ cat >"$mock_bin/driver" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 case "${0##*/}" in
-  uname) if [[ "$1" == -s ]]; then echo Darwin; else echo arm64; fi ;;
+  uname) if [[ "$1" == -s ]]; then echo Darwin; else echo "${MOCK_ARCH:-arm64}"; fi ;;
   xcrun)
     # Finding the launcher still succeeds when the compiler cannot execute.
     if [[ "$*" == *metal* && "$*" == *--version* ]]; then
@@ -82,7 +82,7 @@ expect_failure() {
     echo "Expected failure: $message" >&2
     exit 1
   fi
-  if [[ -n "$message" ]] && ! grep -Fq "$message" "$test_root/output.log"; then
+  if [[ -n "$message" ]] && ! grep -Fq -- "$message" "$test_root/output.log"; then
     cat "$test_root/output.log" >&2
     exit 1
   fi
@@ -109,10 +109,9 @@ if [[ "${MOCK_NATIVE_FAILURE:-0}" == 1 ]]; then exit 1; fi
 # A normal native build initializes missing submodule sources automatically.
 touch "$MOCK_REPO/third_party/rwkv-mobile/CMakeLists.txt"
 dist="$MOCK_REPO/local/dist"
-mkdir -p "$dist/mlx-swift_Cmlx.bundle/Contents/Resources" "$dist/assets"
+mkdir -p "$dist/mlx-swift_Cmlx.bundle/Contents/Resources"
 touch "$dist/librwkv_agent_runtime.dylib" \
-  "$dist/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" \
-  "$dist/assets/rwkv_vocab_v20230424.txt"
+  "$dist/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib"
 printf 'native finished\n' >>"$MOCK_LOG"
 EOF
 
@@ -124,11 +123,16 @@ touch "$1"
 EOF
 chmod +x "$fixture/scripts/build-justbash.sh"
 
-expect_failure '' env MOCK_METAL_FAILURE=1 bash "$fixture/scripts/build-app.sh"
+expect_failure '' env MOCK_METAL_FAILURE=1 bash "$fixture/scripts/build-app.sh" --with-metal
 test ! -s "$MOCK_LOG" # Native dependency checks must precede tool downloads.
 rm "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
-bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
+bash "$fixture/scripts/build-app.sh" --with-metal >"$test_root/output.log"
 test -f "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
+bundle="$fixture/local/dist/RWKV Agent.app/Contents"
+test -f "$bundle/MacOS/librwkv_agent_runtime.dylib"
+test -f "$bundle/Resources/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib"
+grep -q '^go build -tags production mlx ' "$MOCK_LOG"
+grep -q '^go build -tags server production mlx ' "$MOCK_LOG"
 grep -Fq 'pnpm@11.7.0' "$MOCK_LOG"
 test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 2
 test -f "$fixture/local/dist/RWKV Agent.app/Contents/MacOS/RWKV Agent"
@@ -137,6 +141,29 @@ bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
 test "$(grep -c '^npm ' "$MOCK_LOG" || true)" -eq 0
 test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 2
 echo 'PASS: native source initialization, pinned pnpm bootstrap and cache reuse'
+
+# The default online build must not touch anything native, even when it is all
+# missing or broken, and must not package a runtime left by an earlier build.
+: >"$MOCK_LOG"
+rm "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
+env MOCK_METAL_FAILURE=1 MOCK_SDK_FAILURE=1 MOCK_NATIVE_FAILURE=1 MOCK_ARCH=x86_64 \
+  bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
+test ! -f "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
+touch "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
+test "$(grep -c '^native finished$' "$MOCK_LOG" || true)" -eq 0
+test ! -e "$bundle/MacOS/librwkv_agent_runtime.dylib"
+test ! -e "$bundle/Resources/mlx-swift_Cmlx.bundle"
+test -f "$bundle/MacOS/RWKV Agent"
+test -f "$bundle/MacOS/justbash-sidecar"
+grep -q '^go build -tags production -trimpath' "$MOCK_LOG"
+grep -q '^go build -tags server production -trimpath' "$MOCK_LOG"
+if grep -q 'mlx' "$MOCK_LOG"; then
+  echo 'online build asked for mlx' >&2
+  exit 1
+fi
+expect_failure '--with-metal requires Apple Silicon' \
+  env MOCK_ARCH=x86_64 bash "$fixture/scripts/build-app.sh" --with-metal
+echo 'PASS: default build skips native inference and packages none of it'
 
 : >"$MOCK_LOG"
 MOCK_PNPM_VERSION=11.7.0 bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
@@ -162,6 +189,7 @@ test "$(grep -c '^pnpm .* test$' "$MOCK_LOG" || true)" -eq 0
 : >"$MOCK_LOG"
 bash "$fixture/scripts/build-app.sh" --help >"$test_root/output.log"
 grep -Fq -- '--skip-tests' "$test_root/output.log"
+grep -Fq -- '--with-metal' "$test_root/output.log"
 expect_failure 'Unknown option: --skip-test' bash "$fixture/scripts/build-app.sh" --skip-test
 test ! -s "$MOCK_LOG"
 echo 'PASS: default builds skip tests; compatibility flag, help and unknown options'
@@ -177,7 +205,7 @@ echo 'PASS: standalone frontend tests forward arguments and propagate failures'
 
 for failure in MOCK_NATIVE_FAILURE MOCK_FRONTEND_FAILURE; do
   : >"$MOCK_LOG"
-  expect_failure '' env "$failure=1" bash "$fixture/scripts/build-app.sh"
+  expect_failure '' env "$failure=1" bash "$fixture/scripts/build-app.sh" --with-metal
   test "$(grep -c '^go ' "$MOCK_LOG" || true)" -eq 0
   if [[ "$failure" == MOCK_FRONTEND_FAILURE ]]; then
     grep -q '^native finished$' "$MOCK_LOG"

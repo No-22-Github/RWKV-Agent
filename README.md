@@ -1,10 +1,10 @@
 # RWKV-Agent
 
-本地优先的 RWKV 工作区 Agent。在 Mac 上直接加载 RWKV-7 `.pth`，用 MLX 推理，让模型在
-你指定的项目目录里读文件、搜索、计算、查网页，再基于真实工具结果作答；也可以接远端
-`rwkv_lightning` 部署或任意 OpenAI 兼容接口。
+RWKV 工作区 Agent。默认连接在线模型（任意 OpenAI 兼容接口或 `rwkv_lightning` 部署），让
+模型在你指定的项目目录里读文件、搜索、计算、查网页，再基于真实工具结果作答。本地推理是
+可选项：加 Metal 构建后，能在 Apple Silicon Mac 上直接加载 RWKV-7 `.pth`，用 MLX 推理。
 
-- **零 Python 运行时**：Go 负责 Conversation、Session 与 Agent 事务；推理由独立的
+- **零 Python 运行时**：Go 负责 Conversation、Session 与 Agent 事务；可选的本地推理由独立的
   `librwkv_agent_runtime.dylib`（固定版本的 RWKV Mobile tokenizer/sampler + MLX FFI）完成，
   不依赖 PyTorch、HTTP 服务或外部进程。
 - **一套 API，四种入口**：CLI、TUI、桌面 App、浏览器服务共用同一个公开 `api` 包。
@@ -24,20 +24,32 @@
 
 ## 快速开始
 
-> 第一次使用建议直接照 [macOS 从零上手](docs/guides/getting-started-macos.md) 走一遍，
-> 里面有模型准备、更新和常见报错。
+**桌面 App（默认在线）**：只需要 macOS 15+、Go 1.26+、Node.js 26（pnpm 由脚本自动准备）和
+Bun，不需要 Xcode 完整版和子模块。启动后在设置的「远端连接」里填接口地址。
 
-**环境**：Apple Silicon Mac（macOS 15+）、Xcode（含 Swift 与 Metal Toolchain）、
-CMake 3.25+、Ninja、Go 1.26+；构建桌面 App 另需 Node.js 26（pnpm 由脚本自动准备）。
-模型用 RWKV-7 `.pth` checkpoint，或已转换的 MLX safetensors 目录。
+```sh
+./scripts/build-app.sh
+open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
+
+# 不开窗口，只起浏览器服务
+./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
+```
+
+**加上本地 Metal 推理**（可选）：需要 Apple Silicon、Xcode（含 Swift 与 Metal Toolchain）、
+CMake 3.25+、Ninja。模型用 RWKV-7 `.pth` checkpoint，或已转换的 MLX safetensors 目录。第一次
+走这条路线建议照 [macOS 从零上手](docs/guides/getting-started-macos.md) 做一遍，里面有模型准备、
+更新和常见报错。
 
 ```sh
 git submodule update --init --recursive
 brew install cmake ninja go
 
-./scripts/build-macos.sh --check   # 检查环境
-./scripts/build-macos.sh           # 产物在 local/dist/
+./scripts/build-macos.sh --check       # 检查环境
+./scripts/build-macos.sh               # 带本地推理的 rwkv-cli，产物在 local/dist/
+./scripts/build-app.sh --with-metal    # 带本地推理的桌面 App
 ```
+
+只要在线的 CLI 不用这些依赖：`go build -o local/dist/rwkv-cli ./cmd/rwkv-cli`。
 
 **和模型对话**（直接加载 `.pth`，无需转换）：
 
@@ -54,16 +66,6 @@ brew install cmake ninja go
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project \
   --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
-```
-
-**桌面 App**：
-
-```sh
-./scripts/build-app.sh
-open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
-
-# 不开窗口，只起浏览器服务
-./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
 ## 组成
@@ -113,10 +115,10 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 
 | `--completion` | 后端 |
 | --- | --- |
-| `local` | 本地 MLX 推理（默认） |
+| `local` | 本地 MLX 推理（CLI 的默认值，需带 Metal 的构建） |
 | `rwkv-lightning-cuda` | C++/CUDA Lightning，`/v1/batch/completions` 原始续写，支持 `--state-id` 复用上传的 State |
 | `rwkv-lightning-python` | Python Lightning，`/v1/chat/completions` 原始续写 |
-| `chat-completions` | OpenAI 兼容 Chat Completions，需 `-tags chatcompletions` 或 `build-macos.sh --with-chat-completions` |
+| `chat-completions` | OpenAI 兼容 Chat Completions |
 
 凭证只从环境变量读取（`--api-key-env`、`--api-header-env HEADER=ENV`），不进入命令行参数、
 配置文件或评测产物。示例与各后端差异见 [CLI 参考手册 · 远程 Provider](docs/guides/cli.md#5-远程-provider)。
@@ -186,7 +188,7 @@ native/                  C ABI runtime（librwkv_agent_runtime）
 bench/                   数据仓库（独立 git 仓库，不随本仓库提交）：题库、考卷、老师脚本、冻结基线（见 docs/guides/data.md）
 docs/                    文档：guides/ 使用、design/ 设计与契约、evaluations/ 评测、distill/ 蒸馏、archive/ 停更
 scripts/                 构建、测试、BFCL 脚本
-third_party/rwkv-mobile  固定 revision 的 tokenizer/sampler 上游（submodule）
+third_party/rwkv-mobile  固定 revision 的原生推理 tokenizer/sampler 上游（submodule）；Go 侧词表与分词统一走 rwkv-tokenizer-go
 local/                   本机产物（构建、模型、runs），不入库
 ```
 

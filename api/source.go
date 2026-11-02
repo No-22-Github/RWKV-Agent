@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/provider"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 type generatorSource interface {
@@ -74,7 +76,16 @@ func buildSource(ctx context.Context, config Config, progress func(Status)) (gen
 	}
 }
 
+// LocalInferenceAvailable reports whether this build can run a local model.
+// Local Metal inference is optional; see scripts/build-app.sh --with-metal.
+func LocalInferenceAvailable() bool {
+	return rwkvbackend.New(rwkvbackend.Options{}).Info().Available
+}
+
 func buildLocalSource(ctx context.Context, config Config, progress func(Status)) (generatorSource, error) {
+	if !LocalInferenceAvailable() {
+		return nil, errors.New("this build has no local inference; use a remote provider or rebuild with Metal")
+	}
 	backend := rwkvbackend.New(rwkvbackend.Options{
 		Provider:       config.NativeProvider,
 		MaxActiveBatch: config.MaxActiveBatch,
@@ -174,7 +185,8 @@ func validatedHeaders(values map[string]string) (http.Header, []string, error) {
 	return headers, names, nil
 }
 
-// ResolveTokenizer locates the tokenizer used for a local model.
+// ResolveTokenizer locates the vocabulary file for the native engine: an
+// explicit path, one beside the model, else the embedded one written to disk.
 func ResolveTokenizer(modelPath, explicit string) (string, error) {
 	if explicit = strings.TrimSpace(explicit); explicit != "" {
 		absolute, err := filepath.Abs(explicit)
@@ -190,27 +202,16 @@ func ResolveTokenizer(modelPath, explicit string) (string, error) {
 		return absolute, nil
 	}
 	const filename = "rwkv_vocab_v20230424.txt"
-	candidates := []string{}
+	candidate := ""
 	if strings.EqualFold(filepath.Ext(modelPath), ".pth") {
-		candidates = append(candidates, filepath.Join(filepath.Dir(modelPath), filename))
+		candidate = filepath.Join(filepath.Dir(modelPath), filename)
 	} else if modelPath != "" {
-		candidates = append(candidates, filepath.Join(modelPath, filename))
+		candidate = filepath.Join(modelPath, filename)
 	}
-	if executable, err := os.Executable(); err == nil {
-		candidates = append(candidates, filepath.Join(filepath.Dir(executable), "assets", filename))
-	}
-	candidates = append(candidates,
-		filepath.Join("local", "dist", "assets", filename),
-		filepath.Join("third_party", "rwkv-mobile", "assets", filename),
-	)
-	for _, candidate := range candidates {
-		absolute, err := filepath.Abs(candidate)
-		if err != nil {
-			continue
-		}
-		if info, err := os.Stat(absolute); err == nil && !info.IsDir() {
-			return absolute, nil
+	if candidate != "" {
+		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			return filepath.Abs(candidate)
 		}
 	}
-	return "", fmt.Errorf("tokenizer %q was not found; choose it explicitly", filename)
+	return tokenizer.VocabPath()
 }

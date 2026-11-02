@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
@@ -35,7 +34,6 @@ type CostArgs struct {
 	// NoRecount leaves tokens missing from the summary as missing instead of
 	// counting them from trace.jsonl.
 	NoRecount bool
-	Vocab     string
 	// counter replaces the World vocabulary in tests.
 	counter func(string) int
 }
@@ -291,23 +289,7 @@ func BuildCostReport(args CostArgs) (CostReport, error) {
 		count = args.counter
 	}
 	if !args.NoRecount && count == nil {
-		var world *tokenizer.World
-		var err error
-		if args.Vocab != "" {
-			world, err = tokenizer.OpenWorldCached(args.Vocab)
-		} else {
-			world, err = lab.OpenWorld()
-		}
-		switch {
-		case err == nil:
-			count = world.Count
-		case args.Vocab != "":
-			return CostReport{}, fmt.Errorf("--vocab: %v", err)
-		default:
-			// Without the vocabulary the report still works; missing
-			// counts stay missing.
-			fmt.Fprintf(stderr, "warning: no World vocabulary (%v); tokens missing from the summary stay missing\n", err)
-		}
+		count = tokenizer.World().Count
 	}
 	report := CostReport{Top: args.Top, Rankings: map[string][]string{}, Groups: map[string][]GroupCost{}}
 	for _, dir := range args.Runs {

@@ -1,12 +1,13 @@
 # RWKV-Agent
 
-A local-first RWKV workspace agent. It loads RWKV-7 `.pth` checkpoints directly on a Mac,
-runs inference with MLX, and lets the model list, read, and search files in a project
-directory you choose, compute, and browse the web, then answer from the actual tool results.
-It can also talk to a remote `rwkv_lightning` deployment or any OpenAI-compatible endpoint.
+An RWKV workspace agent. By default it connects to an online model (any OpenAI-compatible
+endpoint or a `rwkv_lightning` deployment) and lets the model list, read, and search files in a
+project directory you choose, compute, and browse the web, then answer from the actual tool
+results. Local inference is optional: a Metal build loads RWKV-7 `.pth` checkpoints directly on
+an Apple Silicon Mac and runs them with MLX.
 
 - **No Python at runtime**: Go owns the Conversation, Session, and Agent transactions;
-  inference runs in a standalone `librwkv_agent_runtime.dylib` (a pinned RWKV Mobile
+  optional local inference runs in a standalone `librwkv_agent_runtime.dylib` (a pinned RWKV Mobile
   tokenizer/sampler plus the MLX FFI), with no PyTorch, HTTP service, or external process.
 - **One API, four front ends**: the CLI, TUI, desktop app, and browser service share the
   same public `api` package.
@@ -26,20 +27,34 @@ It can also talk to a remote `rwkv_lightning` deployment or any OpenAI-compatibl
 
 ## Quick start
 
-> For a first run, follow [macOS from scratch](docs/guides/getting-started-macos.md)
-> (in Chinese); it covers model preparation, updates, and common errors.
+**Desktop app (online by default)**: needs only macOS 15+, Go 1.26+, Node.js 26 (pnpm is
+provisioned by the script) and Bun, with neither full Xcode nor the submodule. After launch, add
+your endpoint under 远端连接 in settings.
 
-**Requirements**: Apple Silicon Mac (macOS 15+), Xcode (with Swift and the Metal Toolchain),
-CMake 3.25+, Ninja, Go 1.26+; the desktop app also needs Node.js 26 (pnpm is provisioned by
-the script). Models are RWKV-7 `.pth` checkpoints or converted MLX safetensors directories.
+```sh
+./scripts/build-app.sh
+open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
+
+# No window, browser service only
+./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
+```
+
+**Add local Metal inference** (optional): needs an Apple Silicon Mac, Xcode (with Swift and the
+Metal Toolchain), CMake 3.25+ and Ninja. Models are RWKV-7 `.pth` checkpoints or converted MLX
+safetensors directories. For a first run, follow
+[macOS from scratch](docs/guides/getting-started-macos.md) (in Chinese); it covers model
+preparation, updates, and common errors.
 
 ```sh
 git submodule update --init --recursive
 brew install cmake ninja go
 
-./scripts/build-macos.sh --check   # check the toolchain
-./scripts/build-macos.sh           # outputs land in local/dist/
+./scripts/build-macos.sh --check       # check the toolchain
+./scripts/build-macos.sh               # rwkv-cli with local inference, in local/dist/
+./scripts/build-app.sh --with-metal    # desktop app with local inference
 ```
+
+An online-only CLI needs none of that: `go build -o local/dist/rwkv-cli ./cmd/rwkv-cli`.
 
 **Chat with a model** (loads `.pth` directly, no conversion needed):
 
@@ -56,16 +71,6 @@ brew install cmake ninja go
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project \
   --prompt "Read the README and docs, then summarize what is done and what comes next"
-```
-
-**Desktop app**:
-
-```sh
-./scripts/build-app.sh
-open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
-
-# No window, browser service only
-./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
 ## Components
@@ -126,7 +131,7 @@ and configuration are in [docs/guides/app.md](docs/guides/app.md).
 | `local` | Local MLX inference (default) |
 | `rwkv-lightning-cuda` | C++/CUDA Lightning, raw continuation on `/v1/batch/completions`; supports reusing an uploaded State with `--state-id` |
 | `rwkv-lightning-python` | Python Lightning, raw continuation on `/v1/chat/completions` |
-| `chat-completions` | OpenAI-compatible Chat Completions; needs `-tags chatcompletions` or `build-macos.sh --with-chat-completions` |
+| `chat-completions` | OpenAI-compatible Chat Completions |
 
 Credentials are read only from environment variables (`--api-key-env`,
 `--api-header-env HEADER=ENV`) and never appear in command-line arguments, config files, or eval
@@ -187,7 +192,7 @@ native/                  C ABI runtime (librwkv_agent_runtime)
 bench/                   Data checkout, a separate git repository: case banks, exams, teacher scripts, frozen baselines (see docs/guides/data.md)
 docs/                    Docs: guides/ usage, design/ design and contracts, evaluations/, distill/, archive/
 scripts/                 Build, test, and BFCL scripts
-third_party/rwkv-mobile  Pinned tokenizer/sampler upstream (submodule)
+third_party/rwkv-mobile  Pinned native-engine tokenizer/sampler upstream (submodule); the Go side uses rwkv-tokenizer-go for vocabulary and tokenization
 local/                   Machine-local outputs (builds, models, runs), not tracked
 ```
 

@@ -58,18 +58,14 @@ type request struct {
 	LongContext   bool           `json:"long_context,omitempty"`
 	TestEntryID   string         `json:"test_entry_id,omitempty"`
 	Calls         []string       `json:"calls,omitempty"`
-	Prompt        string         `json:"prompt,omitempty"`
-	Vocab         string         `json:"vocab,omitempty"`
 }
 
 type response struct {
-	RequestID   uint64   `json:"request_id"`
-	OK          bool     `json:"ok"`
-	SessionID   string   `json:"sid,omitempty"`
-	Results     []string `json:"results,omitempty"`
-	Tokens      int      `json:"tokens,omitempty"`
-	VocabSHA256 string   `json:"vocab_sha256,omitempty"`
-	Error       string   `json:"error,omitempty"`
+	RequestID uint64   `json:"request_id"`
+	OK        bool     `json:"ok"`
+	SessionID string   `json:"sid,omitempty"`
+	Results   []string `json:"results,omitempty"`
+	Error     string   `json:"error,omitempty"`
 }
 
 type SessionOptions struct {
@@ -137,17 +133,6 @@ func (client *Client) Execute(ctx context.Context, sessionID string, calls []str
 		return nil, err
 	}
 	return answer.Results, nil
-}
-
-// CountTokens measures a prompt with the same RWKV tokenizer the E5 context
-// census used, so the runtime guard and the feasibility set share one unit.
-// Returns the token count and the vocabulary SHA-256 for the manifest.
-func (client *Client) CountTokens(ctx context.Context, vocab, prompt string) (int, string, error) {
-	answer, err := client.call(ctx, request{Operation: "count_tokens", Vocab: vocab, Prompt: prompt})
-	if err != nil {
-		return 0, "", err
-	}
-	return answer.Tokens, answer.VocabSHA256, nil
 }
 
 func (client *Client) CloseSession(ctx context.Context, sessionID string) error {

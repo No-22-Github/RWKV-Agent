@@ -6,11 +6,11 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
-import importlib.util
 import json
 import math
 import re
 import statistics
+import subprocess
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -44,30 +44,30 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def load_rwkv_tokenizer(repo: Path, vocab_path: Path) -> Any:
-    module_path = repo / "third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py"
-    spec = importlib.util.spec_from_file_location("rwkv_mobile_tokenizer", module_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load RWKV tokenizer implementation: {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    tokenizer = module.RWKV_TOKENIZER(str(vocab_path))
-    probe = 'System: tokenizer verification\nAssistant: {"name":"pwd","arguments":{}}'
-    if tokenizer.decode(tokenizer.encode(probe)) != probe:
-        raise RuntimeError("RWKV tokenizer round-trip verification failed")
-    return tokenizer
-
-
 class CachedTokenCounter:
-    def __init__(self, tokenizer: Any, counts: dict[str, int] | None = None) -> None:
-        self.tokenizer = tokenizer
+    """Counts through `rwkv-lab tokcount --jsonl`, the project's one tokenizer."""
+
+    def __init__(self, repo: Path, counts: dict[str, int] | None = None) -> None:
         self.counts = counts or {}
+        self.process = subprocess.Popen(
+            ["go", "run", "./cmd/rwkv-lab", "tokcount", "--jsonl"],
+            cwd=repo,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+        )
 
     def count(self, prompt: str) -> int:
         digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
         count = self.counts.get(digest)
         if count is None:
-            count = len(self.tokenizer.encode(prompt))
+            self.process.stdin.write(json.dumps({"prompt": prompt}) + "\n")
+            self.process.stdin.flush()
+            line = self.process.stdout.readline()
+            if not line:
+                raise RuntimeError("rwkv-lab tokcount exited early")
+            count = int(json.loads(line)["prompt_tok"])
             self.counts[digest] = count
         return count
 
@@ -300,11 +300,6 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path, default=Path("local/runs/bfcl-mt/context-budget.md"))
-    parser.add_argument(
-        "--tokenizer",
-        type=Path,
-        default=Path("third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"),
-    )
     parser.add_argument("--context-tokens", type=int, default=DEFAULT_CONTEXT_TOKENS)
     parser.add_argument(
         "--max-output-tokens", type=int, default=DEFAULT_MAX_OUTPUT_TOKENS
@@ -328,9 +323,10 @@ def main() -> int:
         parser.error("max output tokens must be smaller than total context")
     repo = args.repo.resolve()
     output = args.output if args.output.is_absolute() else repo / args.output
-    vocab_path = args.tokenizer if args.tokenizer.is_absolute() else repo / args.tokenizer
-    tokenizer_sha256 = hashlib.sha256(vocab_path.read_bytes()).hexdigest()
-    tokenizer = load_rwkv_tokenizer(repo, vocab_path)
+    tokenizer_sha256 = subprocess.run(
+        ["go", "run", "./cmd/rwkv-lab", "tokcount", "--vocab-sha256"],
+        cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
     cache_path = args.token_cache if args.token_cache.is_absolute() else repo / args.token_cache
     cached_counts: dict[str, int] = {}
     if cache_path.exists():
@@ -340,7 +336,7 @@ def main() -> int:
                 str(key): int(value)
                 for key, value in cache_payload.get("counts", {}).items()
             }
-    token_counter = CachedTokenCounter(tokenizer, cached_counts)
+    token_counter = CachedTokenCounter(repo, cached_counts)
     data_dir = repo / "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data"
     all_rows: list[dict[str, Any]] = []
     for split in SPLITS:

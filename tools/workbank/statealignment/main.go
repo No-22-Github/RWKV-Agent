@@ -23,13 +23,12 @@ type row struct {
 }
 
 func main() {
-	if len(os.Args) != 4 {
-		panic("usage: statealignment VOCAB NONE_JSONL FAST_JSONL")
+	if len(os.Args) != 3 {
+		panic("usage: statealignment NONE_JSONL FAST_JSONL")
 	}
-	vocab, err := tokenizer.OpenWorld(os.Args[1])
-	must(err)
+	vocab := tokenizer.World()
 	pattern := regexp.MustCompile(`(?:^|\n\n)(System|User|Assistant): `)
-	for fi, path := range os.Args[2:] {
+	for fi, path := range os.Args[1:] {
 		f, err := os.Open(path)
 		must(err)
 		scanner := bufio.NewScanner(f)
@@ -102,7 +101,7 @@ func main() {
 		}
 		must(scanner.Err())
 		must(f.Close())
-		out, err := json.Marshal(map[string]any{"path": path, "counts": counts, "mismatch_examples": examples, "vocab_sha256": vocab.SHA256()})
+		out, err := json.Marshal(map[string]any{"path": path, "counts": counts, "mismatch_examples": examples, "vocab_sha256": vocab.VocabSHA256()})
 		must(err)
 		fmt.Println(string(out))
 	}

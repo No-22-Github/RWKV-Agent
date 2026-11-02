@@ -78,7 +78,12 @@ type AppBootstrap struct {
 	// BrowserUploads is true in server mode: there is no native file dialog,
 	// so uploads go through the browser's picker and browserUploadPath.
 	BrowserUploads bool `json:"browserUploads,omitempty"`
+	// LocalInference is true when this build includes local Metal inference.
+	LocalInference bool `json:"localInference,omitempty"`
 }
+
+// noLocalInferenceMessage is what a build without Metal says about local models.
+const noLocalInferenceMessage = "这个版本不含本地推理，请使用远端连接；需要本地模型时用 ./scripts/build-app.sh --with-metal 构建。"
 
 // AppService binds durable application state to the public Agent API.
 type AppService struct {
@@ -132,6 +137,8 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 			} else {
 				backend.runtimeProviderID = settings.ActiveID
 			}
+		} else if !agentapi.LocalInferenceAvailable() {
+			backend.warning = joinWarning(backend.warning, noLocalInferenceMessage+"上次用的本地模型档案已保留，换成带 Metal 的版本后还能看到。")
 		}
 	}
 	// 不要在这里持久化工作区：启动时的工作区可能是默认值（用户主目录），
@@ -193,6 +200,9 @@ func (s *AppService) ConfigureProvider(ctx context.Context, id string, label str
 func (s *AppService) configureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	if err := s.requireResolvedChanges(); err != nil {
 		return agentapi.Status{}, err
+	}
+	if config.Provider == agentapi.ProviderLocal && !agentapi.LocalInferenceAvailable() {
+		return s.currentService().Status(), errors.New(noLocalInferenceMessage)
 	}
 	// 先确认 State 与 MiSS 适配器还在服务器上，失败时保留当前运行连接不动。
 	if err := s.verifyStateAvailable(ctx, config); err != nil {
@@ -1137,6 +1147,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 		},
 		Warning:        warning,
 		BrowserUploads: serverBuild,
+		LocalInference: agentapi.LocalInferenceAvailable(),
 	}
 	if active != nil {
 		view := conversationView(*active)

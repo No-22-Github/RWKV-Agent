@@ -125,10 +125,10 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
       <Section title="服务">
         <Row label="接口协议">
           <Select label="远端协议" className="w-[300px]" value={manager.remoteProtocol} onChange={(value) => manager.setRemoteProtocol(value as RemoteProtocol)} options={[
+            { value: 'openai', label: 'OpenAI 兼容' },
             { value: 'python', label: 'RWKV Lightning Python' },
             { value: 'cuda', label: 'RWKV Lightning CUDA' },
             { value: 'irwkv', label: 'iRWKV（不支持 State / MiSS）' },
-            { value: 'openai', label: 'OpenAI 兼容' },
           ]} />
         </Row>
         {/* 新建连接只在填了内容后才报地址错误，空表单不先挂满红字。 */}

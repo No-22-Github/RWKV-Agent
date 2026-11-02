@@ -55,22 +55,6 @@ func TaskControl(workspaceOpen, staged bool, user string) string {
 	return strings.Join(parts, "\n\n")
 }
 
-// TokenCounter opens the World vocabulary at path and returns its token
-// counter. It is best effort: without a loadable vocabulary it returns nil,
-// which keeps the fetch-compression hook off (it must never arm on the
-// estimator) and makes the web budget fall back to the estimator, never the
-// reverse.
-func TokenCounter(tokenizerPath string) func(string) int {
-	if strings.TrimSpace(tokenizerPath) == "" {
-		return nil
-	}
-	world, err := tokenizer.OpenWorldCached(tokenizerPath)
-	if err != nil {
-		return nil
-	}
-	return world.Count
-}
-
 // ProgressiveEnabled resolves the optional capability-router switch: unset is
 // off so the decision stage owns tool selection directly.
 func ProgressiveEnabled(value *bool) bool { return value != nil && *value }
@@ -118,9 +102,8 @@ type HarnessConfig struct {
 	// SessionStart, when non-zero, injects the <session_time> context message.
 	SessionStart time.Time
 
-	// TokenCount counts real tokens; nil resolves TokenizerPath instead.
-	TokenCount    func(string) int
-	TokenizerPath string
+	// TokenCount counts real tokens; nil uses the shared World vocabulary.
+	TokenCount func(string) int
 
 	// Tools is the directory the Runner will receive; its bundles select the
 	// progressive router's catalog.
@@ -137,7 +120,7 @@ type HarnessConfig struct {
 func HarnessOptions(config HarnessConfig) agent.Options {
 	tokenCount := config.TokenCount
 	if tokenCount == nil {
-		tokenCount = TokenCounter(config.TokenizerPath)
+		tokenCount = tokenizer.World().Count
 	}
 	toolBundles := agent.EnabledToolBundles(config.Tools, agent.DefaultToolBundles())
 	taskControl := TaskControl(config.WorkspaceOpen, config.Staged, config.UserTaskControl)

@@ -8,7 +8,7 @@ require (
 	charm.land/lipgloss/v2 v2.0.5
 	codeberg.org/readeck/go-readability/v2 v2.1.3
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.2
-	github.com/No-22-Github/rwkv-tokenizer-go v0.2.0
+	github.com/No-22-Github/rwkv-tokenizer-go v0.3.0
 	github.com/abadojack/whatlanggo v1.0.1
 	github.com/adrg/xdg v0.5.3
 	github.com/charmbracelet/x/ansi v0.11.7

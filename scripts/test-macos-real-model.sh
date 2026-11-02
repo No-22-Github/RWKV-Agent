@@ -4,7 +4,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 model_path="${RWKV_TEST_MODEL:-}"
 pth_path="${RWKV_TEST_PTH:-}"
-tokenizer_path="${RWKV_TEST_TOKENIZER:-$repo_root/local/dist/assets/rwkv_vocab_v20230424.txt}"
+tokenizer_path="${RWKV_TEST_TOKENIZER:-$(cd "$repo_root" && go list -m -f '{{.Dir}}' github.com/No-22-Github/rwkv-tokenizer-go)/assets/rwkv_vocab_v20230424.txt}"
 work_dir="${RWKV_TEST_WORK_DIR:-$repo_root/local/build/real-model-test}"
 session_path="$work_dir/replay-$$.rwkv-session"
 

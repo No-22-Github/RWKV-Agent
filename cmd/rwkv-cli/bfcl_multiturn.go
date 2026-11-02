@@ -17,6 +17,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+	tokenizerpkg "github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 const bfclSidecarProtocolV1 = "bfcl-python-sidecar-v1"
@@ -55,7 +56,6 @@ type bfclMultiTurnOptions struct {
 	finishTool               bool
 	caseConcurrency          int
 	maxPromptTokens          int
-	tokenizerVocab           string
 	chatThinking             string
 	chatTemplateThinking     string
 	chatTokenLimit           string
@@ -119,25 +119,7 @@ func runBFCLMultiTurn(args []string) error {
 		sidecar.Close()
 		return err
 	}
-	// The token guard shares the E5 census tokenizer through the sidecar so the
-	// manifest's feasible set and the runtime check use one unit.
-	var tokenCounter func(string) (int, error)
-	var tokenizerVocabSHA256 string
-	if options.maxPromptTokens > 0 {
-		vocab := options.tokenizerVocab
-		// Fail fast: load the tokenizer once before the run so a bad vocab path
-		// surfaces here instead of aborting mid-case, and record the digest.
-		if _, sha, err := sidecar.CountTokens(ctx, vocab, "probe"); err != nil {
-			sidecar.Close()
-			return fmt.Errorf("prompt token guard requires a working tokenizer: %w", err)
-		} else {
-			tokenizerVocabSHA256 = sha
-		}
-		tokenCounter = func(prompt string) (int, error) {
-			tokens, _, err := sidecar.CountTokens(ctx, vocab, prompt)
-			return tokens, err
-		}
-	}
+	tokenCounter, tokenizerVocabSHA256 := multiTurnTokenGuard(options)
 	trace := bfcl.RunMultiTurnCase(ctx, entry, catalog, multiTurnRunnerOptions(options, generator, sidecar, sessionID, tokenCounter))
 	closeSessionErr := sidecar.CloseSession(context.Background(), sessionID)
 	closeErr := sidecar.Close()
@@ -192,6 +174,16 @@ func multiTurnRunnerOptions(
 		SameToolRescueLimit: options.sameToolRescueLimit, Temperature: float32(options.temperature),
 		CaseTimeout: options.caseTimeout,
 	}
+}
+
+// multiTurnTokenGuard returns the prompt token guard and the vocabulary digest
+// for the manifest, both nil and empty when the guard is off.
+func multiTurnTokenGuard(options bfclMultiTurnOptions) (func(string) (int, error), string) {
+	if options.maxPromptTokens <= 0 {
+		return nil, ""
+	}
+	world := tokenizerpkg.World()
+	return func(prompt string) (int, error) { return world.Count(prompt), nil }, world.VocabSHA256()
 }
 
 func multiTurnManifest(options bfclMultiTurnOptions, headers http.Header, tokenizerVocabSHA256 string) bfcl.MultiTurnManifest {
@@ -280,7 +272,6 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 48, "maximum tokens per route call")
 	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 0, "optional prompt byte guard; 0 disables it")
 	fs.IntVar(&options.maxPromptTokens, "max-prompt-tokens", 0, "prompt token guard using the RWKV tokenizer; 0 disables it")
-	fs.StringVar(&options.tokenizerVocab, "tokenizer-vocab", "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt", "RWKV vocabulary for the prompt token guard")
 	// Default is fence only because it is C1's shallowest measured tier, not
 	// because it is the right choice; the E7b probe picks the tier.
 	fs.StringVar(&options.anchor, "anchor", string(bfcl.MultiTurnAnchorFence), "prefill anchor: fence, array, object")

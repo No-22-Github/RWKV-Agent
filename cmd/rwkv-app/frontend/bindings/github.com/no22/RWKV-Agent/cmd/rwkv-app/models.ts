@@ -120,6 +120,11 @@ export class AppBootstrap {
      */
     "browserUploads"?: boolean;
 
+    /**
+     * LocalInference is true when this build includes local Metal inference.
+     */
+    "localInference"?: boolean;
+
     /** Creates a new AppBootstrap instance. */
     constructor($$source: Partial<AppBootstrap> = {}) {
         if (!("status" in $$source)) {

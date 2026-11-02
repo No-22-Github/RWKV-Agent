@@ -16,6 +16,7 @@ type Props = {
   runtimeProviderId: string
   onActivate: (id: string) => void
   onUnload: () => void
+  localInference: boolean
   onOpenSettings: (section?: SettingsSection) => void
 }
 
@@ -26,7 +27,7 @@ const CLOSE_MS = 120
  * 运行配置菜单：从输入框上方的模型标签向上弹出，显示当前运行信息与远端连接切换；能力与 State 各有自己的标签。
  * 只有远端连接能一点就切：本地模型加载要读文件、占内存，放在设置的「本地推理」里显式加载与释放。
  */
-export default function RunConfigDropdown({ open, onClose, ready, busy, status, providers, runtimeProviderId, onActivate, onUnload, onOpenSettings }: Props) {
+export default function RunConfigDropdown({ open, onClose, ready, busy, status, providers, runtimeProviderId, localInference, onActivate, onUnload, onOpenSettings }: Props) {
   const remotes = providers.filter((provider) => provider.config.provider !== Provider.ProviderLocal)
   const runtime = providers.find((provider) => provider.id === runtimeProviderId)
   const localRunning = ready && runtime?.config.provider === Provider.ProviderLocal
@@ -115,11 +116,13 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
         })
       )}
 
-      <button className="flex items-center gap-[9px] border-b border-line bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => onOpenSettings('本地推理')}>
-        <Cpu size={14} className="text-brand" />
-        <span className="flex-1 text-sm text-ink-soft">本地模型</span>
-        <span className="text-xs text-brand">加载与释放</span>
-      </button>
+      {localInference && (
+        <button className="flex items-center gap-[9px] border-b border-line bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => onOpenSettings('本地推理')}>
+          <Cpu size={14} className="text-brand" />
+          <span className="flex-1 text-sm text-ink-soft">本地模型</span>
+          <span className="text-xs text-brand">加载与释放</span>
+        </button>
+      )}
       <button className="flex items-center gap-[9px] bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => onOpenSettings('远端连接')}>
         <Plus size={14} className="text-brand" />
         <span className="flex-1 text-sm text-ink-soft">管理远端连接</span>

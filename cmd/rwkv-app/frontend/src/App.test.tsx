@@ -75,6 +75,7 @@ function bootstrap(overrides: Partial<AppBootstrap> = {}) {
     conversations: [],
     workspaces: [new WorkspaceItem({ path: '/tmp/RWKV-Agent', name: 'RWKV-Agent', available: true, active: true })],
     paths: new StoragePaths(),
+    localInference: true,
     ...overrides,
   })
 }
@@ -230,8 +231,10 @@ describe('App', () => {
     expect(container.querySelector(modelChipSelector)).toHaveTextContent('g1i-13.3b-20260805…')
   })
 
-  it('opens the settings page from the sidebar', () => {
+  it('opens the settings page from the sidebar', async () => {
     renderApp()
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalled())
+    await act(async () => {})
     openSettings()
     expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '远端连接' })).toBeInTheDocument()
@@ -239,7 +242,26 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Agent' })).toBeInTheDocument()
   })
 
-  it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
+  it('hides local inference in a build without Metal', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ localInference: false }))
+    renderApp()
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalled())
+    await act(async () => {})
+    openSettings()
+    expect(screen.getByRole('button', { name: '远端连接' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '本地推理' })).not.toBeInTheDocument()
+  })
+
+  it('starts a new connection as OpenAI-compatible', async () => {
+    renderApp()
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalled())
+    openSettings()
+    switchToRemoteProvider()
+    expect(screen.getByRole('button', { name: '远端连接' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('combobox', { name: '远端协议' })).toHaveTextContent('OpenAI 兼容')
+  })
+
+  it('defaults to OpenAI-compatible and passes custom HTTP headers', async () => {
     vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
       provider: Provider.ProviderRWKVLightningCUDA,
@@ -261,8 +283,8 @@ describe('App', () => {
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
-    expect(config.provider).toBe('rwkv-lightning-cuda')
-    expect(config.rwkvStopTokens).toBe('eos')
+    expect(config.provider).toBe('chat-completions')
+    expect(config.rwkvStopTokens).toBeUndefined()
     expect(config.stream).toBeUndefined()
     expect(config.headers).toEqual({ 'CF-Access-Client-Id': 'secret' })
     expect(config.agentProtocol).toBe('xml')

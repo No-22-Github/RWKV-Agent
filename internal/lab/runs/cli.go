@@ -245,7 +245,6 @@ func runCostCmd(argv []string) int {
 	fs.BoolVar(&args.JSON, "json", false, "emit the report as JSON")
 	fs.BoolVar(&args.NoRecount, "no-recount", false,
 		"show tokens missing from the summary as missing instead of counting trace.jsonl with the local World vocabulary")
-	fs.StringVar(&args.Vocab, "vocab", "", "World vocabulary for counting (default: the bundled third_party copy)")
 	if err := ParseInterspersed(fs, argv, map[string]bool{"json": true, "no-recount": true}); err != nil {
 		return 2
 	}

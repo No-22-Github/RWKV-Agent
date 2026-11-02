@@ -40,7 +40,7 @@ func main() {
 	backend := newAppService(service, storage)
 	app := application.New(application.Options{
 		Name:        "RWKV Agent",
-		Description: "Local-first RWKV workspace agent",
+		Description: "RWKV workspace agent",
 		Services: []application.Service{
 			application.NewService(backend),
 		},

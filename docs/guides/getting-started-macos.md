@@ -2,8 +2,9 @@
 
 这份文档面向第一次拿到 RWKV-Agent 仓库、希望尽快在本地跑起聊天的人。
 
-当前可用实现是 **Apple Silicon macOS 15+**。Windows 和 Linux 属于项目目标，但还没有
-可用的构建与运行入口。模型权重不包含在仓库中，需要自行准备 RWKV-7 G1 的 `.pth`
+这份文档走的是带本地 Metal 推理的路线，当前要求 **Apple Silicon macOS 15+**。只想连在线
+模型的话不用这些依赖，直接 `./scripts/build-app.sh`，见 [README](../../README.md)。Windows 和
+Linux 属于项目目标，但还没有可用的构建与运行入口。模型权重不包含在仓库中，需要自行准备 RWKV-7 G1 的 `.pth`
 checkpoint，或已经转换好的 MLX 模型目录。
 
 ## 1. 安装构建环境
@@ -79,8 +80,8 @@ git submodule update --init --recursive
 local/dist/rwkv-cli
 ```
 
-请保留整个 `local/dist/` 目录，不要只复制 `rwkv-cli`。程序运行时还需要同目录中的 dylib、
-tokenizer 和 Metal resource。
+请保留整个 `local/dist/` 目录，不要只复制 `rwkv-cli`。程序运行时还需要同目录中的 dylib
+和 Metal resource。
 
 ## 4. 准备模型
 

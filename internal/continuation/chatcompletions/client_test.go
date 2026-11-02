@@ -1,5 +1,3 @@
-//go:build chatcompletions
-
 package chatcompletions
 
 import (

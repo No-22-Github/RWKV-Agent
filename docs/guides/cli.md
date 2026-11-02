@@ -375,8 +375,7 @@ export OPENAI_API_KEY='...'
   --prompt "阅读 README 并概括项目"
 ```
 
-`chat-completions` 由官方 `github.com/openai/openai-go/v3` SDK 实现，通过
-`chatcompletions` build tag 与默认发行包隔离。默认 `--chat-prompt-mode native-chat`
+`chat-completions` 由官方 `github.com/openai/openai-go/v3` SDK 实现。默认 `--chat-prompt-mode native-chat`
 传递真正的 system/user/assistant 消息与原生 `tools`；`wrapped-continuation` 把完整
 continuation prompt 放进一个 user message，作为不支持原生工具的兼容回退。两者都使用
 非流式响应，固定发送 `parallel_tool_calls: false`；输出预算默认使用
@@ -414,7 +413,7 @@ export CHAT_COMPLETIONS_INTEGRATION_API_KEY='...'
 export CHAT_COMPLETIONS_INTEGRATION_THINKING=disabled
 export CHAT_COMPLETIONS_INTEGRATION_PROMPT_MODE=native-chat
 export CHAT_COMPLETIONS_INTEGRATION_TOKEN_LIMIT_FIELD=max-tokens
-go test -tags chatcompletions ./internal/continuation/chatcompletions \
+go test ./internal/continuation/chatcompletions \
   -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
 ```
 

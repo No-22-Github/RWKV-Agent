@@ -54,6 +54,52 @@ func testConversation(t *testing.T, store *appstorage.Store, workspace, title, c
 	return conversation
 }
 
+func TestLocalProviderIsRefusedWithoutMetal(t *testing.T) {
+	if agentapi.LocalInferenceAvailable() {
+		t.Skip("this build includes local inference")
+	}
+	service, err := agentapi.NewService(agentapi.Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, testAppStore(t))
+	defer backend.Close()
+	_, err = backend.ConfigureProvider(context.Background(), "", "local", agentapi.Config{Provider: agentapi.ProviderLocal, Model: "/models/m.pth"})
+	if err == nil || !strings.Contains(err.Error(), "--with-metal") {
+		t.Fatalf("err = %v, want the rebuild hint", err)
+	}
+	bootstrap, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.LocalInference {
+		t.Fatal("bootstrap claims local inference in a build without it")
+	}
+}
+
+func TestSavedLocalProviderWarnsWithoutMetal(t *testing.T) {
+	if agentapi.LocalInferenceAvailable() {
+		t.Skip("this build includes local inference")
+	}
+	store := testAppStore(t)
+	if _, err := store.SaveProvider("", "local", agentapi.Config{Provider: agentapi.ProviderLocal, Model: "/models/m.pth"}, true); err != nil {
+		t.Fatal(err)
+	}
+	service, err := agentapi.NewService(agentapi.Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	defer backend.Close()
+	bootstrap, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(bootstrap.Warning, "--with-metal") || len(bootstrap.Providers) != 1 {
+		t.Fatalf("warning = %q, providers = %d; want the hint and the profile kept", bootstrap.Warning, len(bootstrap.Providers))
+	}
+}
+
 func TestAppServiceBootstrapsSavedSettingsAndConversation(t *testing.T) {
 	t.Parallel()
 	workspace := resolvedWorkspace(t)

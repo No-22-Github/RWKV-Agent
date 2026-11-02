@@ -80,20 +80,7 @@ func runBFCLMultiTurnCells(
 	ctx, cancel := signalContext()
 	defer cancel()
 
-	var tokenizerVocabSHA256 string
-	var tokenCounter func(string) (int, error)
-	if options.maxPromptTokens > 0 {
-		vocab := options.tokenizerVocab
-		if _, sha, err := sidecar.CountTokens(ctx, vocab, "probe"); err != nil {
-			return fmt.Errorf("prompt token guard requires a working tokenizer: %w", err)
-		} else {
-			tokenizerVocabSHA256 = sha
-		}
-		tokenCounter = func(prompt string) (int, error) {
-			tokens, _, err := sidecar.CountTokens(ctx, vocab, prompt)
-			return tokens, err
-		}
-	}
+	tokenCounter, tokenizerVocabSHA256 := multiTurnTokenGuard(options)
 
 	concurrency := options.caseConcurrency
 	if concurrency <= 0 {

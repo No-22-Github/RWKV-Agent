@@ -34,7 +34,7 @@ RWKV World 词表（`rwkv_vocab_v20230424`）是贪心最长匹配。和 prompt 
 
 词表里**没有** `: ` 这个 token（只有 ` :`、`::`），所以 `Assistant:` 和后面的内容之间永远在冒号后断开。
 
-复查方法：`third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt` 加几十行贪心匹配脚本即可，
+复查方法：用 [rwkv-tokenizer-go](https://github.com/No-22-Github/rwkv-tokenizer-go) 的 `rwkv-tokenizer encode`，
 `rwkv-lab run cost` 回算 token 也用同一份词表。
 
 ## 2. 生成点：`Assistant:` 后面不留空格

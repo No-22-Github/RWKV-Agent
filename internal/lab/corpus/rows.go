@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
-	"github.com/no22/RWKV-Agent/internal/lab"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 // Turn a scripted agent-eval run into training rows. This is the former
@@ -83,11 +83,7 @@ func RunRows(args RowsArgs) int {
 		fmt.Fprintf(stderr, "rows: %v\n", err)
 		return 1
 	}
-	world, err := lab.OpenWorld()
-	if err != nil {
-		fmt.Fprintf(stderr, "rows: %v\n", err)
-		return 1
-	}
+	world := tokenizer.World()
 	entries, err := eval.LoadScript(args.Script)
 	if err != nil {
 		fmt.Fprintf(stderr, "rows: %v\n", err)

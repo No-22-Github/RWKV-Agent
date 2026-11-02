@@ -29,10 +29,7 @@ func loadFixtureTexts(tb testing.TB) []string {
 }
 
 func BenchmarkCountCorpus(b *testing.B) {
-	world, err := OpenWorld(findVocab(b))
-	if err != nil {
-		b.Fatal(err)
-	}
+	world := World()
 	texts := loadFixtureTexts(b)
 	total := 0
 	for _, text := range texts {
@@ -43,15 +40,6 @@ func BenchmarkCountCorpus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, text := range texts {
 			world.Count(text)
-		}
-	}
-}
-
-func BenchmarkOpenWorld(b *testing.B) {
-	vocab := findVocab(b)
-	for i := 0; i < b.N; i++ {
-		if _, err := OpenWorld(vocab); err != nil {
-			b.Fatal(err)
 		}
 	}
 }

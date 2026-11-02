@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/lab"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 // SegcheckArgs are the `corpus segcheck` arguments.
@@ -59,11 +60,7 @@ func RunSegcheck(args SegcheckArgs) int {
 	}
 	defer file.Close()
 
-	world, err := lab.OpenWorld()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "segcheck: load world tokenizer: %v\n", err)
-		return 1
-	}
+	world := tokenizer.World()
 
 	scanner := bufio.NewScanner(file)
 	// Buffer up to 10MB per line for long trajectories
@@ -93,7 +90,7 @@ func RunSegcheck(args SegcheckArgs) int {
 
 		var wholeBuilder strings.Builder
 		prefixOK := true
-		var segTokens []int
+		var segTokens []int32
 
 		for i, seg := range row.Segments {
 			if seg.Train {

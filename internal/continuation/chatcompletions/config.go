@@ -2,7 +2,6 @@ package chatcompletions
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -25,9 +24,6 @@ var (
 	ErrRemote = fmt.Errorf(
 		"%w: Chat Completions continuation error",
 		continuation.ErrUpstream,
-	)
-	ErrNotBuilt = errors.New(
-		"Chat Completions support is not included in this build; rebuild with -tags chatcompletions",
 	)
 )
 

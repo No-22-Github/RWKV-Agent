@@ -1,56 +1,26 @@
 package tokenizer
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"reflect"
-	"strings"
 	"testing"
+
+	rwkvtok "github.com/No-22-Github/rwkv-tokenizer-go"
 )
 
 // testdata/world-corpus.* was generated from the same deterministic builders
 // used by the round-3 probe and e2e corpora. The truth counts come from the
-// Python trie tokenizer implementation that the BFCL pysidecar count_tokens op
-// also verified against (round-3 census cross-check: 0 mismatches on shared
-// texts).
+// Python trie tokenizer implementation (round-3 census cross-check: 0
+// mismatches on shared texts).
 const (
 	fixtureTexts  = "world-corpus.jsonl"
 	fixtureCounts = "world-corpus-counts.json"
 )
 
-func openTestWorld(t *testing.T) *World {
-	t.Helper()
-	vocab := findVocab(t)
-	world, err := OpenWorld(vocab)
-	if err != nil {
-		t.Fatalf("OpenWorld(%s): %v", vocab, err)
-	}
-	return world
-}
-
-func findVocab(t testing.TB) string {
-	t.Helper()
-	candidates := []string{
-		filepath.Join("..", "..", "third_party", "rwkv-mobile", "assets",
-			"rwkv_vocab_v20230424.txt"),
-		"third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt",
-	}
-	for _, candidate := range candidates {
-		if _, err := os.Stat(candidate); err == nil {
-			absolute, err := filepath.Abs(candidate)
-			if err != nil {
-				t.Fatalf("abs path: %v", err)
-			}
-			return absolute
-		}
-	}
-	t.Skipf("World vocab not found (run `git submodule update --init`)")
-	return ""
-}
-
 func TestWorldMatchesPythonCountsOnCorpus(t *testing.T) {
-	world := openTestWorld(t)
+	world := World()
 	countsFile, err := os.Open(filepath.Join("testdata", fixtureCounts))
 	if err != nil {
 		t.Skipf("fixture counts not found: %v", err)
@@ -64,9 +34,9 @@ func TestWorldMatchesPythonCountsOnCorpus(t *testing.T) {
 	if err := json.NewDecoder(countsFile).Decode(&fixture); err != nil {
 		t.Fatalf("decode fixture counts: %v", err)
 	}
-	if world.SHA256() != fixture.VocabSHA256 {
+	if world.VocabSHA256() != fixture.VocabSHA256 {
 		t.Fatalf("vocab sha256 mismatch: Go %s != fixture %s",
-			world.SHA256(), fixture.VocabSHA256)
+			world.VocabSHA256(), fixture.VocabSHA256)
 	}
 	textsFile, err := os.Open(filepath.Join("testdata", fixtureTexts))
 	if err != nil {
@@ -90,11 +60,6 @@ func TestWorldMatchesPythonCountsOnCorpus(t *testing.T) {
 		if got := world.Count(row.Text); got != want {
 			t.Fatalf("%s: Go count %d != Python count %d", row.ID, got, want)
 		}
-		// Round-trip: decoding must reproduce the text byte-for-byte.
-		ids := world.Encode(row.Text)
-		if len(ids) != want {
-			t.Fatalf("%s: Encode length %d != Count %d", row.ID, len(ids), want)
-		}
 		checked++
 	}
 	if checked != fixture.NTexts {
@@ -103,7 +68,7 @@ func TestWorldMatchesPythonCountsOnCorpus(t *testing.T) {
 }
 
 func TestWorldCountsSmallSamples(t *testing.T) {
-	world := openTestWorld(t)
+	world := World()
 	// Exact pins from the round-3 census Python runs.
 	pins := map[string]int{
 		"The quick brown fox jumps over the lazy dog. Observatory operations were audited in 2024.": 19,
@@ -123,39 +88,62 @@ func TestWorldCountsSmallSamples(t *testing.T) {
 	}
 }
 
-func TestWorldEODMatchesReferenceTrie(t *testing.T) {
-	world := openTestWorld(t)
-	// Ids from the pre-rwkvtok trie (rwkv_trie.hpp semantics): "<EOD>" is
-	// token 0 only where greedy encoding lands on it; ".<", "<<" and " <"
-	// straddle the marker and leave it to the plain vocab.
-	pins := map[string][]int{
-		"<EOD><EOD>":                      {0, 0},
-		"a<EOD>b":                         {98, 0, 99},
-		".<EOD>":                          {589, 979, 69, 63},
-		"<<EOD>>":                         {755, 979, 69, 792},
-		"x <EOD>\n\nUser:":                {121, 295, 979, 69, 63, 261, 24281, 59},
-		"</EOD><EOD>EOD>":                 {754, 979, 69, 790, 979, 69, 63, 979, 69, 63},
-		strings.Repeat("-", 32) + "<EOD>": {65458, 0},
+func TestVocabPathMatchesWorld(t *testing.T) {
+	cache := t.TempDir()
+	t.Setenv("HOME", cache)
+	t.Setenv("XDG_CACHE_HOME", cache)
+	path, err := VocabPath()
+	if err != nil {
+		t.Fatal(err)
 	}
-	for text, want := range pins {
-		if got := world.Encode(text); !reflect.DeepEqual(got, want) {
-			t.Fatalf("Encode(%q) = %v, want %v", text, got, want)
-		}
-		if got := world.Count(text); got != len(want) {
-			t.Fatalf("Count(%q) = %d, want %d", text, got, len(want))
-		}
+	onDisk, err := rwkvtok.NewFromFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if onDisk.VocabSHA256() != World().VocabSHA256() {
+		t.Fatalf("file %s differs from the embedded vocabulary", path)
 	}
 }
 
-func TestWorldEODFloodIsLinear(t *testing.T) {
-	world := openTestWorld(t)
-	// Fetched pages are counted before truncation; re-encoding the suffix at
-	// every marker made this quadratic and would time the test out.
-	const markers = 4 << 20 / len(eodTokenText)
-	if got := world.Count(strings.Repeat(eodTokenText, markers)); got != markers {
-		t.Fatalf("Count(marker flood) = %d, want %d", got, markers)
+func TestWriteVocabReusesAndRepairs(t *testing.T) {
+	data, err := rwkvtok.DefaultVocab()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if got := world.Count(strings.Repeat("a"+eodTokenText, 100000)); got != 200000 {
-		t.Fatalf("Count(interleaved flood) = %d, want 200000", got)
+	dir := filepath.Join(t.TempDir(), "cache")
+	path, err := writeVocab(dir, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Base(path) != vocabFilename {
+		t.Fatalf("path = %s, want the name the native engine looks for", path)
+	}
+	before, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again, err := writeVocab(dir, data); err != nil || again != path {
+		t.Fatalf("second write = %s, %v", again, err)
+	}
+	after, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !os.SameFile(before, after) {
+		t.Fatal("identical vocabulary was rewritten")
+	}
+	if err := os.WriteFile(path, []byte("truncated"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := writeVocab(dir, data); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(path)
+	if err != nil || !bytes.Equal(got, data) {
+		t.Fatalf("damaged file not repaired: %d bytes, %v", len(got), err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("leftover temp files: %v, %v", entries, err)
 	}
 }

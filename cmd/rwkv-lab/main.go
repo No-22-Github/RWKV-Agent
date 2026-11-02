@@ -19,6 +19,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab/geval"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 	"github.com/no22/RWKV-Agent/internal/lab/state"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 	buildversion "github.com/no22/RWKV-Agent/internal/version"
 )
 
@@ -33,7 +34,7 @@ usage: rwkv-lab <group> <command> [flags]
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
   state   run | probe | sanity
-  tokcount  count tokens with the RWKV World vocabulary (--jsonl: per-line string fields)
+  tokcount  count tokens with the RWKV World vocabulary (--jsonl: per-line string fields; --vocab-sha256: print its digest)
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
 Also: rwkv-lab --version | version
@@ -64,18 +65,19 @@ func run(args []string) int {
 	case "state":
 		return state.Run(args[1:])
 	case "tokcount":
-		vocab, jsonl := "", false
+		jsonl := false
 		rest := args[1:]
 		for len(rest) > 0 {
-			if len(rest) > 1 && rest[0] == "--vocab" {
-				vocab, rest = rest[1], rest[2:]
-			} else if rest[0] == "--jsonl" {
+			if rest[0] == "--jsonl" {
 				jsonl, rest = true, rest[1:]
+			} else if rest[0] == "--vocab-sha256" {
+				fmt.Println(tokenizer.World().VocabSHA256())
+				return 0
 			} else {
 				break
 			}
 		}
-		return lab.RunTokcount(vocab, jsonl, rest)
+		return lab.RunTokcount(jsonl, rest)
 	case "--version", "version":
 		buildversion.Print(os.Stdout, "rwkv-lab")
 		return 0

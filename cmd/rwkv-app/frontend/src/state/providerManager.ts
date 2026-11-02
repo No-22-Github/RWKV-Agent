@@ -134,15 +134,17 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [draftBaseConfig, setDraftBaseConfig] = useState<Config>(() => new Config())
   const [draftSnapshot, setDraftSnapshot] = useState('')
   const [draftInitialized, setDraftInitialized] = useState(false)
-  const [settingsTab, setSettingsTab] = useState<'local' | 'remote'>('local')
+  const [settingsTab, setSettingsTab] = useState<'local' | 'remote'>('remote')
   const [modelPath, setModelPath] = useState('')
   const [tokenizerPath, setTokenizerPath] = useState('')
   const [remoteEndpoint, setRemoteEndpoint] = useState('')
   const [remoteModel, setRemoteModel] = useState('')
-  const [remoteProtocol, setRemoteProtocol] = useState<RemoteProtocol>('cuda')
+  const [remoteProtocol, setRemoteProtocol] = useState<RemoteProtocol>('openai')
   const [apiKey, setAPIKey] = useState('')
   /* 网页版（server 模式）没有系统文件对话框，上传改走浏览器的文件选择框。 */
   const [browserUploads, setBrowserUploads] = useState(false)
+  /* 本地 Metal 推理是可选构建；不带时设置页和模型菜单都不出现本地入口。 */
+  const [localInference, setLocalInference] = useState(false)
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_CONNECTION_LIMITS.maxActiveBatch)
   const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS)
@@ -337,6 +339,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setRuntimeConfig(value.runtimeProviderId ? Config.createFrom(value.config) : null)
     setRuntimeOutdated(Boolean(value.runtimeOutdated))
     setBrowserUploads(Boolean(value.browserUploads))
+    setLocalInference(Boolean(value.localInference))
   }
 
   function beginEditingProvider(provider: SavedProvider) {
@@ -352,9 +355,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   function beginNewProvider(kind: ProviderKind = 'remote') {
     // 新连接从默认格式出发；之后在对话页的格式芯片里改，记在这个连接上。
     const config = new Config({
-      provider: kind === 'local' ? Provider.ProviderLocal : Provider.ProviderRWKVLightningCUDA,
+      provider: kind === 'local' ? Provider.ProviderLocal : Provider.ProviderChatCompletions,
       model: '', endpoint: '', headers: {},
-      chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
+      chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: kind === 'local' ? 'eos' : undefined,
       agentProtocol: AgentProtocol.AgentProtocolXML, profile: NEW_CONFIG_DEFAULTS.profile, thinking: 'off',
       maxActiveBatch: DEFAULT_CONNECTION_LIMITS.maxActiveBatch, remoteBatchWaitMs: DEFAULT_CONNECTION_LIMITS.remoteBatchWaitMS,
     })
@@ -596,6 +599,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     stateId, setStateId,
     adapterId, setAdapterId,
     browserUploads,
+    localInference,
     maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS,
     availableModels, setAvailableModels,
     settingsBusy,

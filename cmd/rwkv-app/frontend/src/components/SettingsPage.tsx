@@ -143,7 +143,7 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
         <aside className="flex w-[200px] flex-none flex-col border-r border-line bg-paper-sidebar px-[10px] py-[18px]">
           <div className="px-[10px] pb-[14px] text-md font-semibold text-ink">设置</div>
           <nav aria-label="设置分区" className="flex flex-col gap-[2px]">
-            {NAV_ITEMS.map(({ id, icon }) => (
+            {NAV_ITEMS.filter(({ id }) => id !== '本地推理' || manager.localInference).map(({ id, icon }) => (
               <button
                 key={id}
                 aria-current={section === id ? 'page' : undefined}

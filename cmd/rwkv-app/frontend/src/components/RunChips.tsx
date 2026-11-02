@@ -33,6 +33,7 @@ type Props = {
   onSetAdapter: (adapterId: string) => Promise<void>
   onChooseWorkspace: () => void
   onUnload: () => void
+  localInference: boolean
   onOpenSettings: (section?: SettingsSection, options?: OpenSettingsOptions) => void
 }
 
@@ -54,7 +55,7 @@ export default function RunChips(props: Props) {
         <span className="truncate text-ink">{status.model ? shortRunName(status.model) : '选择模型'}</span>
         <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
       </button>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} providers={providers} runtimeProviderId={runtimeProviderId} onActivate={props.onActivate} onUnload={props.onUnload} onOpenSettings={props.onOpenSettings} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} providers={providers} runtimeProviderId={runtimeProviderId} localInference={props.localInference} onActivate={props.onActivate} onUnload={props.onUnload} onOpenSettings={props.onOpenSettings} />
     </div>
     {ready && runtimeConfig && <FormatChip config={runtimeConfig} busy={busy} onSelect={props.onSetFormat} />}
     {supportsState && runtimeConfig && <AdapterChip config={runtimeConfig} current={status.adapterId || ''} busy={busy} onSelect={props.onSetAdapter} onManage={() => props.onOpenSettings('远端连接', { focus: 'adapter' })} />}
