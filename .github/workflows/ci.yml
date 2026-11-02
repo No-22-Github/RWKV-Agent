@@ -45,7 +45,7 @@ jobs:
         run: |
           python3 -m pip install --quiet "huggingface_hub>=1.0"
           hf download No-22/rwkv-agent-exam --repo-type dataset \
-            --revision 52a2bad52a43d328c877242378fe64663adf3c81 --local-dir bench
+            --revision c35551d184632dac05209b888e79f1b2a1eb8ee2 --local-dir bench
 
       # API, library and CLI packages are pure Go and do not import Wails, so
       # they run with the race detector (cgo enabled) without needing GTK.
