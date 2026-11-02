@@ -47,10 +47,11 @@ export default function RunChips(props: Props) {
   const capabilities = [runtimeConfig?.enableWeb ? 'web' : null, runtimeConfig?.enableSubagents ? 'subagents' : null, runtimeConfig?.weatherBackend ? 'weather' : null, runtimeConfig?.enableBash ? 'bash' : null].filter(Boolean).join(' · ') || '无'
   const loading = status.state === ModelState.ModelLoading
 
-  return <div className="flex min-w-0 flex-wrap items-center gap-[6px]">
-    <div className="relative min-w-0">
+  // 始终一行：放不下时各芯片按比例收窄、文字截断（全名在悬停提示里），不把工作区挤到第二行。
+  return <div className="flex min-w-0 flex-nowrap items-center gap-[6px]">
+    <div className="relative min-w-[64px] max-w-[200px]">
       {/* 模型标签：完整信息放在悬停提示与弹出菜单里，标签本身只认得出「是哪个」。 */}
-      <button type="button" className={`${chipClass} max-w-[200px]`} data-run-config-trigger aria-label={status.model ? `运行配置：${status.model}` : '运行配置'} aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
+      <button type="button" className={`${chipClass} max-w-full`} data-run-config-trigger aria-label={status.model ? `运行配置：${status.model}` : '运行配置'} aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
         title={[status.model || '运行配置', ready && status.adapterId ? `适配器：${status.adapterId}` : '', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
         {loading ? <Loader2 size={11} className="animate-spin-fast motion-reduce:animate-none flex-none" /> : <span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-ghost'}`} />}
         <span className="truncate text-ink">{status.model ? shortRunName(status.model) : '选择模型'}</span>
@@ -65,7 +66,7 @@ export default function RunChips(props: Props) {
       <CapabilityToggle icon={<Globe size={13} />} label="网页搜索" checked={Boolean(runtimeConfig?.enableWeb)} disabled={busy} onChange={(value) => props.onToggleCapability('enableWeb', value)} />
       <CapabilityToggle icon={<Network size={13} />} label="子 Agent" checked={Boolean(runtimeConfig?.enableSubagents)} disabled={busy} onChange={(value) => props.onToggleCapability('enableSubagents', value)} />
     </>}
-    <button type="button" title="切换工作区" disabled={busy} onClick={props.onChooseWorkspace} className={`${chipClass} max-w-[200px]`}>
+    <button type="button" title="切换工作区" disabled={busy} onClick={props.onChooseWorkspace} className={`${chipClass} min-w-[64px] max-w-[200px]`}>
       <Folder size={13} className="flex-none" /><span className="truncate">{workspace}</span>
     </button>
   </div>
@@ -150,9 +151,9 @@ function FormatChip({ config, busy, onSelect }: { config: Config; busy: boolean;
     try { await onSelect(id); menu.setOpen(false) } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)) } finally { setApplying('') }
   }
 
-  return <div ref={menu.anchorRef} className="relative min-w-0">
+  return <div ref={menu.anchorRef} className="relative min-w-[64px] max-w-[160px]">
     <button type="button" aria-label="对话格式" aria-haspopup="listbox" aria-expanded={menu.open} disabled={busy} onClick={() => menu.setOpen((value) => !value)}
-      title={`对话格式：${preset?.label ?? '自定义'}（${wireName}）${warn ? '\n不推荐，建议改成标准或深度思考' : ''}`} className={`${chipClass} max-w-[160px] ${warn ? 'text-warning' : ''}`}>
+      title={`对话格式：${preset?.label ?? '自定义'}（${wireName}）${warn ? '\n不推荐，建议改成标准或深度思考' : ''}`} className={`${chipClass} max-w-full ${warn ? 'text-warning' : ''}`}>
       <MessageSquareCode size={13} className="flex-none" />
       <span className="truncate">{preset?.short ?? '自定义'}</span>
       <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${menu.open ? 'rotate-180' : ''}`} />
@@ -210,8 +211,8 @@ function RemotePickerChip({ config, current, busy, onSelect, onManage, icon, kin
   const search = query.trim().toLocaleLowerCase()
   const filtered = options?.filter((option) => `${option.label} ${option.id}`.toLocaleLowerCase().includes(search))
 
-  return <div ref={menu.anchorRef} className="relative min-w-0">
-    <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `${kind}：${current}` : `未使用 ${kind}`} className={`${chipClass} max-w-[180px]`}>
+  return <div ref={menu.anchorRef} className="relative min-w-[64px] max-w-[180px]">
+    <button type="button" aria-haspopup="listbox" aria-expanded={open} disabled={busy} onClick={() => setOpen((value) => !value)} title={current ? `${kind}：${current}` : `未使用 ${kind}`} className={`${chipClass} max-w-full`}>
       {icon}
       <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current ? shortRunName(current) : chipNone}</span>
       <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
