@@ -170,7 +170,7 @@ func TestJoinAdaptersPicksRecordedVersion(t *testing.T) {
 
 func TestTurnMetaShowsAdapterBeforeState(t *testing.T) {
 	meta := turnMeta(agentapi.Result{DurationMS: 1500}, "rwkv7", "lr3e-5", "state-1")
-	if !strings.HasSuffix(meta, "rwkv7 · MiSS lr3e-5 · state-1") {
+	if !strings.HasSuffix(meta, "rwkv7 · 适配器 lr3e-5 · state-1") {
 		t.Fatalf("meta = %q", meta)
 	}
 }
@@ -187,7 +187,7 @@ func TestAdapterOnOldDeploymentIsExplainedAndBlocksConnect(t *testing.T) {
 	config := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: server.URL, Model: "rwkv7"}
 	ctx := context.Background()
 
-	if _, err := backend.ListAdapters(ctx, config); err == nil || !strings.Contains(err.Error(), "不支持 MiSS") || strings.Contains(err.Error(), "404 page") {
+	if _, err := backend.ListAdapters(ctx, config); err == nil || !strings.Contains(err.Error(), "不支持 MiSS / NoRA") || strings.Contains(err.Error(), "404 page") {
 		t.Fatalf("list error = %v", err)
 	}
 	if err := backend.verifyAdapterAvailable(ctx, config); err != nil {

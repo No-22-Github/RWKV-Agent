@@ -13,7 +13,7 @@ import * as api$0 from "../../api/models.js";
 import * as appstorage$0 from "../../internal/appstorage/models.js";
 
 /**
- * AdapterEntry is one MiSS adapter ID on the deployment, joined with how this
+ * AdapterEntry is one MiSS or NoRA adapter ID on the deployment, joined with how this
  * machine registered it, if it did. Several content versions can share an ID;
  * generations bind the newest one.
  */
@@ -27,6 +27,11 @@ export class AdapterEntry {
      */
     "version"?: string;
     "versions": number;
+
+    /**
+     * Method is the adapter family ("miss" or "nora") of the version shown.
+     */
+    "method"?: string;
     "rank"?: number;
     "alpha"?: number;
 

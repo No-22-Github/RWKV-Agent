@@ -18,7 +18,7 @@ const TABS: { id: Tab; label: string }[] = [
  * 全局 Agent 分区：所有连接共用、和用哪个端点无关的设置，只存一份，换连接不用重设，
  * 改了下一轮对话就生效。三个标签：生成（采样、预算、提示词）、工具（开关与调度）、
  * 搜索与数据源（后端、天气源与各服务的 Key）。
- * 跟着端点走的对话格式、State 与 MiSS 适配器不在这里，在对话页输入框上方的芯片里切换。
+ * 跟着端点走的对话格式、State 与适配器不在这里，在对话页输入框上方的芯片里切换。
  */
 export default function GlobalAgentSection({ agent, runtimeConfig }: { agent: AgentSettingsState; runtimeConfig: Config | null }) {
   const [tab, setTab] = useState<Tab>('generation')
@@ -31,7 +31,7 @@ export default function GlobalAgentSection({ agent, runtimeConfig }: { agent: Ag
             {/* 整个分区任何一项改动都在这里报「已保存」。 */}
             <SaveStatus state={agent.saveState} />
           </header>
-          <p className="m-0 mt-[2px] text-sm text-ink-muted">所有连接共用；对话格式、State 与 MiSS 跟着连接走，在对话页的芯片里切换</p>
+          <p className="m-0 mt-[2px] text-sm text-ink-muted">所有连接共用；对话格式、State 与适配器跟着连接走，在对话页的芯片里切换</p>
           <div role="tablist" aria-label="Agent 设置" className="mt-[12px] flex gap-[22px]">
             {TABS.map((item) => (
               <button

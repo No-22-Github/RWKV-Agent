@@ -225,6 +225,15 @@ func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
 	if bootstrap.RuntimeProviderID != draft.ID || bootstrap.RuntimeOutdated || bootstrap.Config.Model != edited.Model {
 		t.Fatalf("re-applying the edited profile should clear the outdated flag: %+v", bootstrap)
 	}
+
+	// 删掉运行中的档案要一并断开：对话页不能还挂着已删除的连接。
+	bootstrap, err = backend.DeleteProvider(draft.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.RuntimeProviderID != "" || bootstrap.Status.State == agentapi.ModelReady {
+		t.Fatalf("deleting the running profile should disconnect it: runtime=%q status=%+v", bootstrap.RuntimeProviderID, bootstrap.Status)
+	}
 }
 
 func TestAppServiceSwitchesWorkspaceAndRestoresItsConversation(t *testing.T) {

@@ -56,7 +56,7 @@ func (c *Client) uploadHTTPClient() *http.Client {
 	return &client
 }
 
-// AdapterInfo describes one registered version of a MiSS adapter. The server
+// AdapterInfo describes one registered version of a MiSS or NoRA adapter. The server
 // keeps registrations in process RAM, so a restart forgets all of them.
 type AdapterInfo struct {
 	ID string `json:"id"`
@@ -68,6 +68,8 @@ type AdapterInfo struct {
 
 // AdapterManifest is the subset of the package manifest clients display.
 type AdapterManifest struct {
+	// Method is the adapter family the server detected ("miss" or "nora").
+	Method          string  `json:"method"`
 	Rank            int     `json:"rank"`
 	Alpha           float64 `json:"alpha"`
 	Scale           float64 `json:"scale"`

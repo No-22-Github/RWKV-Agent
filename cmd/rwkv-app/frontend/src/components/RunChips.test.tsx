@@ -36,7 +36,7 @@ it('picks a MiSS adapter alongside the state', async () => {
   const onSetState = vi.fn()
   render(<RunChips ready busy={false} status={new Status({ stateId: 'state-1' })} runtimeConfig={new Config()} providers={[new SavedProvider({ id: 'cuda', config: new Config({ provider: Provider.ProviderRWKVLightningCUDA }) })]} runtimeProviderId="cuda" localInference={false} workspace="workspace" runConfigOpen={false} setRunConfigOpen={vi.fn()} onActivate={vi.fn()} onToggleCapability={vi.fn()} onSetFormat={vi.fn()} onSetState={onSetState} onSetAdapter={onSetAdapter} onChooseWorkspace={vi.fn()} onUnload={vi.fn()} onOpenSettings={vi.fn()} />)
   expect(screen.getByTitle('State：state-1')).toBeInTheDocument()
-  fireEvent.click(screen.getByTitle('未使用 MiSS 适配器'))
+  fireEvent.click(screen.getByTitle('未使用 适配器'))
   await screen.findByText('rank 16 · abcdef01')
   fireEvent.click(screen.getByText('r16-lr3e-5'))
   await waitFor(() => expect(onSetAdapter).toHaveBeenCalledWith('r16-lr3e-5'))

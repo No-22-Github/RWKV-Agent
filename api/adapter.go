@@ -13,6 +13,9 @@ import (
 // they are shared by every client and vanish when the server restarts.
 type RemoteAdapter struct {
 	ID string `json:"id"`
+	// Method is the adapter family ("miss" or "nora"); generations bind both
+	// the same way.
+	Method string `json:"method,omitempty"`
 	// Version is the content SHA-256; the newest version of an ID is the one
 	// generations bind when they name only the ID.
 	Version         string  `json:"version"`
@@ -102,7 +105,7 @@ func adapterClient(config Config) (*rwkvlightning.Client, error) {
 
 func remoteAdapter(info rwkvlightning.AdapterInfo) RemoteAdapter {
 	return RemoteAdapter{
-		ID: info.ID, Version: info.Version,
+		ID: info.ID, Method: info.Manifest.Method, Version: info.Version,
 		Rank: info.Manifest.Rank, Alpha: info.Manifest.Alpha, Scale: info.Manifest.Scale,
 		BaseFingerprint: info.Manifest.BaseFingerprint, DType: info.Manifest.DType,
 	}

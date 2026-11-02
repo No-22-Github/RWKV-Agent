@@ -6,7 +6,7 @@ import type { StateEntry, StateListing } from '../../../bindings/github.com/no22
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
 import { Button } from './ui'
-import { MissingCurrent, ServerFiles } from './ServerFiles'
+import { MissingCurrent, ServerFiles, type UploadingFile } from './ServerFiles'
 import { useSnackbar } from '../../snackbar'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
@@ -35,7 +35,7 @@ export default function StateSection({ manager }: Props) {
   function notifySuccess(message: string) {
     if (message) notify(message, 'success', actionToast)
   }
-  const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null)
+  const [uploading, setUploading] = useState<UploadingFile | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
   const requestRef = useRef(0)
 
@@ -70,7 +70,7 @@ export default function StateSection({ manager }: Props) {
   useEffect(() => {
     const off = Events.On('state:upload-progress', (event) => {
       const value = event.data as StateUploadProgress
-      setUploading({ name: baseName(value.path), percent: value.total > 0 ? Math.round((value.sent * 100) / value.total) : 0 })
+      setUploading({ name: baseName(value.path), percent: value.total > 0 ? Math.round((value.sent * 100) / value.total) : 0, sent: value.sent })
     })
     return () => { off() }
   }, [])

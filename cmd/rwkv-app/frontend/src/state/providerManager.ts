@@ -109,7 +109,7 @@ function configSignature(config: Config): string {
  * 连接档案域的唯一状态所有者：档案列表、编辑器表单、脏标记与全部档案动作。
  * App 只保留聊天/会话域状态，通过这里的方法操作设置。
  *
- * 档案只管连接本身：地址、模型、凭据与批处理参数。对话格式、State 与 MiSS 适配器也记在档案里，
+ * 档案只管连接本身：地址、模型、凭据与批处理参数。对话格式、State 与适配器（MiSS / NoRA）也记在档案里，
  * 但在对话页的芯片里改（后端保存草稿时沿用档案里的值）；生成参数、工具与提示词是所有连接共用的，
  * 见 agentSettings.ts。
  *
@@ -450,10 +450,10 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       })
   }
 
-  /** 切换运行中连接的 MiSS 适配器（仅 Lightning CUDA）；空串表示用基模本身的权重。记在这个连接上。 */
+  /** 切换运行中连接的适配器（MiSS / NoRA）（仅 Lightning CUDA）；空串表示用基模本身的权重。记在这个连接上。 */
   async function setRuntimeAdapter(adapterId: string) {
-    await notifyOperation('runtime-adapter', adapterId ? '正在使用 MiSS 适配器…' : '正在停用 MiSS 适配器…',
-      adapterId ? `已使用 MiSS 适配器：${adapterId}` : '已恢复基模', async () => {
+    await notifyOperation('runtime-adapter', adapterId ? '正在使用适配器…' : '正在停用适配器…',
+      adapterId ? `已使用适配器：${adapterId}` : '已恢复基模', async () => {
         onStatus(await Backend.SetRuntimeAdapter(adapterId))
         await refreshProviders()
       })

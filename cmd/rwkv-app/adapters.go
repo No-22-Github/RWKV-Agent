@@ -14,7 +14,7 @@ import (
 
 const adapterUploadProgressEvent = "adapter:upload-progress"
 
-// AdapterEntry is one MiSS adapter ID on the deployment, joined with how this
+// AdapterEntry is one MiSS or NoRA adapter ID on the deployment, joined with how this
 // machine registered it, if it did. Several content versions can share an ID;
 // generations bind the newest one.
 type AdapterEntry struct {
@@ -22,10 +22,12 @@ type AdapterEntry struct {
 	// Version is the version this machine registered last when the server
 	// still holds it, otherwise the only version listed. It is empty when the
 	// server holds several versions this machine cannot tell apart.
-	Version  string  `json:"version,omitempty"`
-	Versions int     `json:"versions"`
-	Rank     int     `json:"rank,omitempty"`
-	Alpha    float64 `json:"alpha,omitempty"`
+	Version  string `json:"version,omitempty"`
+	Versions int    `json:"versions"`
+	// Method is the adapter family ("miss" or "nora") of the version shown.
+	Method string  `json:"method,omitempty"`
+	Rank   int     `json:"rank,omitempty"`
+	Alpha  float64 `json:"alpha,omitempty"`
 	// LocalPath is the file this machine uploaded; LocalAvailable reports
 	// whether it still exists for a re-upload.
 	LocalPath      string `json:"localPath,omitempty"`
@@ -46,7 +48,7 @@ type AdapterUploadProgress struct {
 	Total int64  `json:"total"`
 }
 
-// ChooseAdapterFile opens the native file picker for a MiSS package
+// ChooseAdapterFile opens the native file picker for a MiSS or NoRA package
 // (adapter-final.pth or a checkpoint's training.pth).
 func (s *AppService) ChooseAdapterFile() (string, error) {
 	s.mu.Lock()
@@ -58,8 +60,8 @@ func (s *AppService) ChooseAdapterFile() (string, error) {
 	dialog := app.Dialog.OpenFile().
 		CanChooseFiles(true).
 		CanChooseDirectories(false).
-		SetTitle("选择 MiSS 适配器文件")
-	dialog.AddFilter("MiSS 适配器", "*.pth")
+		SetTitle("选择适配器文件（MiSS / NoRA）")
+	dialog.AddFilter("适配器（MiSS / NoRA）", "*.pth")
 	dialog.AddFilter("所有文件", "*")
 	return dialog.PromptForSingleSelection()
 }
@@ -79,7 +81,7 @@ func (s *AppService) ListAdapters(ctx context.Context, config agentapi.Config) (
 	return joinAdapters(adapters, records), nil
 }
 
-// UploadAdapter uploads a local MiSS package (adapter-final.pth or a
+// UploadAdapter uploads a local MiSS or NoRA package (adapter-final.pth or a
 // checkpoint's training.pth) and registers it under id, remembering the file
 // for a re-upload after a server restart. Re-uploading an existing ID adds a
 // version that becomes its default.
@@ -174,7 +176,7 @@ func (s *AppService) verifyAdapterAvailable(ctx context.Context, config agentapi
 	defer cancel()
 	adapters, err := s.currentService().ListAdapters(ctx, config)
 	if errors.Is(err, agentapi.ErrAdaptersUnsupported) {
-		return fmt.Errorf("%w；已选的适配器 %s 用不上，请恢复基模或换一台支持 MiSS 的部署", adapterError(err), id)
+		return fmt.Errorf("%w；已选的适配器 %s 用不上，请恢复基模或换一台支持适配器的部署", adapterError(err), id)
 	}
 	if err != nil {
 		return nil
@@ -184,10 +186,10 @@ func (s *AppService) verifyAdapterAvailable(ctx context.Context, config agentapi
 			return nil
 		}
 	}
-	return fmt.Errorf("MiSS 适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的 MiSS 分组里重新上传，或恢复基模", id)
+	return fmt.Errorf("适配器 %s 已不在服务器上（服务端重启会清空注册）。请在连接设置的适配器分组里重新上传，或恢复基模", id)
 }
 
-// runtimeAdapterID is the MiSS adapter the running provider generates with.
+// runtimeAdapterID is the MiSS/NoRA adapter the running provider generates with.
 func (s *AppService) runtimeAdapterID() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -201,7 +203,7 @@ func (s *AppService) runtimeAdapterID() string {
 // page can show instead of the server's 404 page.
 func adapterError(err error) error {
 	if errors.Is(err, agentapi.ErrAdaptersUnsupported) {
-		return fmt.Errorf("这台部署不支持 MiSS 适配器（没有 /v1/adapters，rwkv_lightning 版本较旧）")
+		return fmt.Errorf("这台部署不支持 MiSS / NoRA 适配器（没有 /v1/adapters，rwkv_lightning 版本较旧）")
 	}
 	return err
 }
@@ -236,7 +238,7 @@ func joinAdapters(adapters []agentapi.RemoteAdapter, records []appstorage.Adapte
 				shown, version = adapter, adapter.Version
 			}
 		}
-		entry := AdapterEntry{ID: id, Version: version, Versions: len(listed), Rank: shown.Rank, Alpha: shown.Alpha}
+		entry := AdapterEntry{ID: id, Version: version, Versions: len(listed), Method: shown.Method, Rank: shown.Rank, Alpha: shown.Alpha}
 		if known {
 			entry.LocalPath, entry.LocalAvailable = record.LocalPath, localFileExists(record.LocalPath)
 		}

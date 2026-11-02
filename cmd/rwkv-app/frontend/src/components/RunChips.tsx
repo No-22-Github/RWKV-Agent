@@ -6,13 +6,14 @@ import { shortRunName } from '../runNames'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import RunConfigDropdown from './RunConfigDropdown'
+import { adapterMethodLabel } from './settings/AdapterSection'
 import type { OpenSettingsOptions, SettingsSection } from '../state/providerManager'
 import { FORMAT_PRESETS, formatPresetById, formatValuesOf, matchFormatPreset } from '../state/formatPresets'
 
 /*
  * 输入框上方的一排运行标签（参照 Claude Code）：从左到右是「谁来跑 → 带什么跑 → 在哪跑」。
- * 模型（点开切换连接）· 对话格式 · MiSS 适配器与 State（仅 Lightning CUDA，可同时用）· 能力开关 · 工作区。
- * 格式、MiSS 与 State 跟着连接走：选了就记在这个连接上，下次切回来自动用上。能力开关所有连接共用。
+ * 模型（点开切换连接）· 对话格式 · 适配器（MiSS / NoRA）与 State（仅 Lightning CUDA，可同时用）· 能力开关 · 工作区。
+ * 格式、适配器与 State 跟着连接走：选了就记在这个连接上，下次切回来自动用上。能力开关所有连接共用。
  * 选择不随对话变：切到别的对话仍是同一套；每轮实际用了什么记在回答下面的运行信息里。
  */
 
@@ -50,7 +51,7 @@ export default function RunChips(props: Props) {
     <div className="relative min-w-0">
       {/* 模型标签：完整信息放在悬停提示与弹出菜单里，标签本身只认得出「是哪个」。 */}
       <button type="button" className={`${chipClass} max-w-[200px]`} data-run-config-trigger aria-label={status.model ? `运行配置：${status.model}` : '运行配置'} aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
-        title={[status.model || '运行配置', ready && status.adapterId ? `MiSS：${status.adapterId}` : '', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
+        title={[status.model || '运行配置', ready && status.adapterId ? `适配器：${status.adapterId}` : '', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
         {loading ? <Loader2 size={11} className="animate-spin-fast motion-reduce:animate-none flex-none" /> : <span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-ghost'}`} />}
         <span className="truncate text-ink">{status.model ? shortRunName(status.model) : '选择模型'}</span>
         <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
@@ -175,15 +176,15 @@ function StateChip(props: ChipProps) {
     load={async (config) => ((await Backend.ListStates(config)).states || []).map((entry) => ({ id: entry.id, label: entry.filename && entry.filename !== entry.id ? entry.filename : entry.id, hint: entry.filename && entry.filename !== entry.id ? entry.id : undefined }))} />
 }
 
-/** MiSS 适配器标签：和 State 并列、互不影响；选中即对运行中的连接生效。 */
+/** 适配器（MiSS / NoRA）标签：和 State 并列、互不影响；选中即对运行中的连接生效。 */
 function AdapterChip(props: ChipProps) {
-  return <RemotePickerChip {...props} icon={<Puzzle size={13} className="flex-none" />} kind="MiSS 适配器" noneLabel="恢复基模（不使用 MiSS）" chipNone="基模" manageLabel="注册或管理适配器…" searchPlaceholder="搜索适配器 ID…"
-    load={async (config) => ((await Backend.ListAdapters(config)).adapters || []).map((entry) => ({ id: entry.id, label: entry.id, hint: [entry.rank ? `rank ${entry.rank}` : '', entry.version ? entry.version.slice(0, 8) : ''].filter(Boolean).join(' · ') || undefined }))} />
+  return <RemotePickerChip {...props} icon={<Puzzle size={13} className="flex-none" />} kind="适配器" noneLabel="恢复基模（不使用适配器）" chipNone="基模" manageLabel="注册或管理适配器…" searchPlaceholder="搜索适配器 ID…"
+    load={async (config) => ((await Backend.ListAdapters(config)).adapters || []).map((entry) => ({ id: entry.id, label: entry.id, hint: [adapterMethodLabel(entry.method), entry.rank ? `rank ${entry.rank}` : '', entry.version ? entry.version.slice(0, 8) : ''].filter(Boolean).join(' · ') || undefined }))} />
 }
 
 type PickerOption = { id: string; label: string; hint?: string }
 
-/** 部署端资源（State、MiSS 适配器）的选择标签：每次打开重新拉一次列表，因为服务端重启就清空。 */
+/** 部署端资源（State、适配器）的选择标签：每次打开重新拉一次列表，因为服务端重启就清空。 */
 function RemotePickerChip({ config, current, busy, onSelect, onManage, icon, kind, noneLabel, chipNone, manageLabel, searchPlaceholder, load }: ChipProps & {
   icon: ReactNode; kind: string; noneLabel: string; chipNone: string; manageLabel: string; searchPlaceholder: string; load: (config: Config) => Promise<PickerOption[]>
 }) {

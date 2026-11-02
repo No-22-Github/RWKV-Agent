@@ -47,3 +47,16 @@ func TestFailureExplanationKeepsRawErrorWithoutToolWork(t *testing.T) {
 		t.Fatalf("cancelled run should keep the stop message, got %q", text)
 	}
 }
+
+func TestProviderFailureExplanationTranslatesFingerprintMismatch(t *testing.T) {
+	err := errors.New(`upstream provider failure: rwkv_lightning continuation error: stream error: "adapter base fingerprint mismatch"`)
+	text := providerFailureExplanation(err, "v2.3-g1l-NoRA")
+	for _, want := range []string{"适配器 v2.3-g1l-NoRA 和这台端点正在跑的基模不匹配", "恢复基模", "技术信息：upstream provider failure"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("explanation missing %q:\n%s", want, text)
+		}
+	}
+	if providerFailureExplanation(errors.New("connection refused"), "x") != "" {
+		t.Fatal("unrecognized errors must keep the raw message")
+	}
+}

@@ -97,9 +97,32 @@ func failureExplanation(result agentapi.Result, err error) string {
 	return text.String()
 }
 
+// providerFailureExplanation explains inference-server errors the user can act
+// on, keeping the raw message as technical detail. It returns "" for anything
+// it does not recognize, so the raw error is shown as before.
+func providerFailureExplanation(err error, adapterID string) string {
+	if err == nil || errors.Is(err, context.Canceled) {
+		return ""
+	}
+	message := err.Error()
+	switch {
+	case strings.Contains(message, "adapter base fingerprint mismatch"):
+		name := "当前适配器"
+		if adapterID != "" {
+			name = "适配器 " + adapterID
+		}
+		return name + " 和这台端点正在跑的基模不匹配：适配器是在另一个基模（或另一个版本）上训练的，推理端拒绝用它生成。" +
+			"\n\n可以在对话页的适配器芯片里换一个在当前基模上训练的适配器，或选「恢复基模」；也可以换到运行对应基模的端点。" +
+			"\n\n技术信息：" + message
+	}
+	return ""
+}
+
 func failureReason(err error) string {
 	message := err.Error()
 	switch {
+	case strings.Contains(message, "adapter base fingerprint mismatch"):
+		return "这一轮没能生成最终回答：适配器和端点上的基模不匹配（适配器是在另一个基模上训练的）。"
 	case strings.Contains(message, "empty G1 answer"):
 		return "这一轮没能生成最终回答：工具调用已经结束，但模型在作答阶段没有写出内容。"
 	case strings.Contains(message, "step limit"):

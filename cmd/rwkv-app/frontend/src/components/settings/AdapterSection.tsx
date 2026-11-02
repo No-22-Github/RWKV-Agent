@@ -6,7 +6,7 @@ import type { AdapterEntry, AdapterListing } from '../../../bindings/github.com/
 import * as Backend from '../../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import ConfirmDialog from '../ConfirmDialog'
 import { Button, TextInput } from './ui'
-import { MissingCurrent, ServerFiles } from './ServerFiles'
+import { MissingCurrent, ServerFiles, type UploadingFile } from './ServerFiles'
 import { useSnackbar } from '../../snackbar'
 import { baseName, pickLocalFile, stageBrowserFile, type PickedFile } from '../../localFile'
 
@@ -21,7 +21,8 @@ type PendingUpload = { file: PickedFile; id: string }
 type AdapterUploadProgress = { path: string; sent: number; total: number }
 
 /*
- * 连接档案的 MiSS 适配器分组（仅 RWKV Lightning CUDA）。适配器改的是权重，State 改的是
+ * 连接档案的适配器分组（仅 RWKV Lightning CUDA）。MiSS 与 NoRA 走同一个 /v1/adapters 接口，
+ * 服务端从包里的 manifest 认出是哪一种（列表里显示），客户端不区分。适配器改的是权重，State 改的是
  * 起始上下文，两者独立、可以同时用。注册只存在部署进程的内存里：整台部署共享、
  * 服务端重启即清空，所以和 State 一样记下本机上传过的文件，失效时一键重新上传。
  */
@@ -38,7 +39,7 @@ export default function AdapterSection({ manager }: Props) {
   function notifySuccess(message: string) {
     if (message) notify(message, 'success', actionToast)
   }
-  const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null)
+  const [uploading, setUploading] = useState<UploadingFile | null>(null)
   const [pending, setPending] = useState<PendingUpload | null>(null)
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null)
   const requestRef = useRef(0)
@@ -73,7 +74,7 @@ export default function AdapterSection({ manager }: Props) {
   useEffect(() => {
     const off = Events.On('adapter:upload-progress', (event) => {
       const value = event.data as AdapterUploadProgress
-      setUploading({ name: baseName(value.path), percent: value.total > 0 ? Math.round((value.sent * 100) / value.total) : 0 })
+      setUploading({ name: baseName(value.path), percent: value.total > 0 ? Math.round((value.sent * 100) / value.total) : 0, sent: value.sent })
     })
     return () => { off() }
   }, [])
@@ -85,13 +86,13 @@ export default function AdapterSection({ manager }: Props) {
     if (!trimmedID || (picked.kind === 'path' && !picked.path)) return
     setUploading({ name: picked.name, percent: 0 })
     setError('')
-    notify('正在上传 MiSS 适配器…', 'loading', actionToast)
+    notify('正在上传适配器…', 'loading', actionToast)
     try {
       const entry = picked.kind === 'path'
         ? await Backend.UploadAdapter(config, trimmedID, picked.path)
         : await Backend.UploadBrowserAdapter(config, trimmedID, await stageBrowserFile(picked.file))
       setPending(null)
-      notifySuccess(`MiSS 适配器已上传：${entry.id}${entry.version ? `（版本 ${shortVersion(entry.version)}）` : ''}`)
+      notifySuccess(`适配器已上传：${entry.id}${entry.version ? `（版本 ${shortVersion(entry.version)}）` : ''}`)
       if (manager.draftIsRunning) await manager.setRuntimeAdapter(entry.id).catch(() => { /* 应用结果已由 manager 通知；上传列表仍需刷新。 */ })
       await refresh()
     } catch (reason) {
@@ -140,7 +141,7 @@ export default function AdapterSection({ manager }: Props) {
         items={adapters.map((entry) => ({
           id: entry.id,
           title: entry.id,
-          meta: [entry.version ? shortVersion(entry.version) : '', entry.rank ? `rank ${entry.rank}` : '', entry.alpha ? `alpha ${entry.alpha}` : '', entry.versions > 1 ? `${entry.versions} 个版本` : '', entry.localPath ? baseName(entry.localPath) : ''].filter(Boolean).join(' · '),
+          meta: [adapterMethodLabel(entry.method), entry.version ? shortVersion(entry.version) : '', entry.rank ? `rank ${entry.rank}` : '', entry.alpha ? `alpha ${entry.alpha}` : '', entry.versions > 1 ? `${entry.versions} 个版本` : '', entry.localPath ? baseName(entry.localPath) : ''].filter(Boolean).join(' · '),
           metaTitle: [entry.versions > 1 ? '有多个版本时生成用最新注册的' : '', entry.localPath ? `本机上传：${entry.localPath}` : ''].filter(Boolean).join('\n') || undefined,
         }))}
         missing={missing.map((entry) => ({ id: entry.id, title: `${entry.id} · ${baseName(entry.localPath || '')}`, canReupload: Boolean(entry.localAvailable && entry.localPath) }))}
@@ -186,6 +187,14 @@ export default function AdapterSection({ manager }: Props) {
       />
     </div>
   )
+}
+
+/** 服务端 manifest 的 method（miss / nora）显示成 MiSS / NoRA；认不出的原样大写。 */
+export function adapterMethodLabel(method?: string): string {
+  const value = (method || '').trim().toLowerCase()
+  if (value === 'miss') return 'MiSS'
+  if (value === 'nora') return 'NoRA'
+  return value.toUpperCase()
 }
 
 function shortVersion(version: string): string {

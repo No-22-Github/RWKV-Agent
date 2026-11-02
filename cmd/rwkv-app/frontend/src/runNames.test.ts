@@ -11,7 +11,7 @@ describe('shortRunName', () => {
 
 describe('metaStats', () => {
   it('keeps only the step count and duration', () => {
-    expect(metaStats('2 步 · 9.2 秒 · rwkv7-g1k-7.2b-20260930-ctx25600 · MiSS rwkv7-g1k-7b-r16-lr3e-5-e2-miss · v141b-s1224.pth'))
+    expect(metaStats('2 步 · 9.2 秒 · rwkv7-g1k-7.2b-20260930-ctx25600 · 适配器 rwkv7-g1k-7b-r16-lr3e-5-e2-miss · v141b-s1224.pth'))
       .toEqual(['2 步', '9.2 秒'])
     expect(metaStats(undefined)).toEqual([])
   })

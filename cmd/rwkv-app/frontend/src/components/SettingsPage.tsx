@@ -31,9 +31,10 @@ const NAV_ITEMS: { id: SettingsSection; icon: ReactNode }[] = [
 
 /*
  * 设置弹窗：浮在对话上方的卡片，背后的对话保持可见，进出都不丢上下文。
- * 关闭方式：右上 ✕、Esc、点卡片外、再按 ⌘,。脏表单时关闭走确认框，不再阻断或静默丢失。
+ * 关闭方式：右上 ✕、Esc、再按 ⌘,。点卡片外不关：上传 State / 适配器时误点空白会把进度一起关掉。
+ * 脏表单时关闭走确认框，不再阻断或静默丢失。
  * 远端连接与本地推理分开：本地模型有加载与释放的代价，远端只是换个地址，两者不混在一个列表里。
- * 连接分区只管连接本身（地址、模型、凭据，以及记在连接上的 State 与 MiSS）；生成参数、工具与
+ * 连接分区只管连接本身（地址、模型、凭据，以及记在连接上的 State 与适配器）；生成参数、工具与
  * 搜索 Key 所有连接共用，在「Agent」分区。
  */
 export default function SettingsPage({ manager, agent, status, ready, onChooseWorkspace, themePreference, onThemeChange, onDeleteProvider }: Props) {
@@ -41,7 +42,6 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
   // 切分区前草稿没法自动保存时，先问；问完再去这里。
   const [pendingSection, setPendingSection] = useState<SettingsSection | null>(null)
   const [confirmClose, setConfirmClose] = useState(false)
-  const pointerOnBackdrop = useRef(false)
 
   /* 返回对话：待保存的更改先落盘再关；只有无法自动保存时才弹确认框。 */
   async function requestClose() {
@@ -128,9 +128,6 @@ export default function SettingsPage({ manager, agent, status, ready, onChooseWo
   return (
     <div
       className="fixed inset-0 z-[60] grid animate-fade-in place-items-center bg-overlay p-[24px] wails-mac:pt-[44px] motion-reduce:animate-none"
-      // 只认按下与松开都在遮罩上的点击：在卡片里拖选文字拖到外面松手，不该关掉设置。
-      onPointerDown={(event) => { pointerOnBackdrop.current = event.target === event.currentTarget }}
-      onClick={(event) => { if (pointerOnBackdrop.current && event.target === event.currentTarget) void requestClose() }}
     >
       <div
         ref={dialogRef}

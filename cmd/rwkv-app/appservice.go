@@ -327,7 +327,7 @@ func (s *AppService) savedProvider(id string) (appstorage.SavedProvider, bool) {
 	return appstorage.SavedProvider{}, false
 }
 
-// dropMissingBindings 检查档案记住的 State 与 MiSS 适配器还在不在服务器上（服务端重启会清空它们）。
+// dropMissingBindings 检查档案记住的 State 与适配器（MiSS / NoRA）还在不在服务器上（服务端重启会清空它们）。
 // 不在的这次不用，连接照常建立，返回一句给用户看的说明。
 func (s *AppService) dropMissingBindings(ctx context.Context, config agentapi.Config) (agentapi.Config, string) {
 	var missing []string
@@ -336,7 +336,7 @@ func (s *AppService) dropMissingBindings(ctx context.Context, config agentapi.Co
 		config.StateID = ""
 	}
 	if err := s.verifyAdapterAvailable(ctx, config); err != nil {
-		missing = append(missing, "MiSS 适配器 "+config.AdapterID)
+		missing = append(missing, "适配器 "+config.AdapterID)
 		config.AdapterID = ""
 	}
 	if len(missing) == 0 {
@@ -562,14 +562,31 @@ func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.
 func (s *AppService) DeleteProvider(id string) (AppBootstrap, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	s.mu.Lock()
+	running := s.runtimeProviderID == id
+	s.mu.Unlock()
+	// Deleting the running connection also disconnects it; otherwise the chat
+	// page keeps showing (and generating with) a connection that is gone.
+	if running {
+		if err := s.requireResolvedChanges(); err != nil {
+			return AppBootstrap{}, err
+		}
+	}
 	if _, err := s.storage.RemoveProvider(id); err != nil {
 		return AppBootstrap{}, err
 	}
-	s.mu.Lock()
-	if s.runtimeProviderID == id {
+	if running {
+		s.mu.Lock()
+		service := s.service
+		old := s.session
+		s.session = nil
 		s.runtimeProviderID = ""
+		s.mu.Unlock()
+		if old != nil {
+			_ = old.Close()
+		}
+		s.emit("model:status", service.Unload())
 	}
-	s.mu.Unlock()
 	s.emit(providersChangedEvent)
 	return s.bootstrap()
 }
@@ -728,6 +745,10 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 				result.Output = preview.String()
 			}
 		}
+		// 推理端能认出原因的报错（如适配器和基模不匹配）换成中文说明，原文留在技术信息里。
+		if explanation := providerFailureExplanation(err, s.runtimeAdapterID()); explanation != "" {
+			content = explanation
+		}
 		// 已经跑过工具的失败轮：把查了什么、拿到了什么讲清楚，而不是只给一行协议错误。
 		if explanation := failureExplanation(result, err); explanation != "" {
 			content = explanation
@@ -813,7 +834,7 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 func turnMeta(result agentapi.Result, model, adapterID, stateID string) string {
 	meta := fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000)
 	if adapterID != "" {
-		adapterID = "MiSS " + adapterID
+		adapterID = "适配器 " + adapterID
 	}
 	for _, part := range []string{model, adapterID, stateID} {
 		if part != "" {

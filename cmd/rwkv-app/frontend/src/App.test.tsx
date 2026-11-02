@@ -742,9 +742,9 @@ describe('App', () => {
   })
 
   it.each([
-    ['State', '默认状态', 'test.pth', 'state-1', 'SetRuntimeState'],
-    ['MiSS 适配器', '基模', 'miss-1', 'miss-1', 'SetRuntimeAdapter'],
-  ] as const)('notifies %s only after the backend confirms applying it', async (noun, chip, option, id, method) => {
+    ['State', '默认状态', 'test.pth', '正在使用 State…', '已使用 State：state-1', 'SetRuntimeState'],
+    ['适配器', '基模', 'miss-1', '正在使用适配器…', '已使用适配器：miss-1', 'SetRuntimeAdapter'],
+  ] as const)('notifies %s only after the backend confirms applying it', async (_noun, chip, option, applying, applied, method) => {
     bootstrapWithRunningProvider()
     let resolve!: (value: Status) => void
     vi.mocked(Backend[method]).mockReturnValue(new Promise<Status>((done) => { resolve = done }) as ReturnType<typeof Backend.SetRuntimeState>)
@@ -752,11 +752,11 @@ describe('App', () => {
     await waitRuntimeReady()
     fireEvent.click(screen.getByRole('button', { name: chip }))
     fireEvent.click(await screen.findByRole('option', { name: new RegExp(option) }))
-    expect(await screen.findByText(`正在使用 ${noun}…`)).toBeInTheDocument()
-    expect(screen.queryByText(`已使用 ${noun}：${id}`)).not.toBeInTheDocument()
+    expect(await screen.findByText(applying)).toBeInTheDocument()
+    expect(screen.queryByText(applied)).not.toBeInTheDocument()
     await act(async () => resolve(new Status({ state: ModelState.ModelReady })))
-    expect(await screen.findByText(`已使用 ${noun}：${id}`)).toBeInTheDocument()
-    expect(screen.queryByText(`正在使用 ${noun}…`)).not.toBeInTheDocument()
+    expect(await screen.findByText(applied)).toBeInTheDocument()
+    expect(screen.queryByText(applying)).not.toBeInTheDocument()
   })
 
   it('replaces a failed connection notification without claiming success', async () => {
@@ -821,7 +821,7 @@ describe('App', () => {
     await waitFor(() => expect(screen.queryByLabelText('连接名称')).not.toBeInTheDocument())
   })
 
-  it('closes the settings sheet with the close button, a backdrop click or a second Cmd+,', async () => {
+  it('closes the settings sheet with the close button or a second Cmd+, but not a backdrop click', async () => {
     renderApp()
     fireEvent.keyDown(window, { key: ',', metaKey: true })
     expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
@@ -832,9 +832,9 @@ describe('App', () => {
     const backdrop = screen.getByRole('dialog', { name: '设置' }).parentElement!
     fireEvent.pointerDown(backdrop)
     fireEvent.click(backdrop)
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
+    // 点空白不关：上传 State / 适配器时误点会把进度一起关掉。
+    expect(screen.getByRole('dialog', { name: '设置' })).toBeInTheDocument()
 
-    openSettings()
     fireEvent.click(screen.getByRole('button', { name: '关闭设置' }))
     await waitFor(() => expect(screen.queryByRole('dialog', { name: '设置' })).not.toBeInTheDocument())
   })

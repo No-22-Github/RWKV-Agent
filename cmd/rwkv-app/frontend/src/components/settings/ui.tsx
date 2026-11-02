@@ -28,10 +28,16 @@ const BUTTON_VARIANT: Record<ButtonVariant, string> = {
  * 设置页唯一的按钮：高度只有 sm(28) / md(32) 两档，同一行的按钮因此必然对齐。
  * 新按钮一律用它，不要再手写 h-[..] px-[..]。
  */
-export function Button({ variant = 'secondary', size = 'md', icon, className = '', children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md'; icon?: ReactNode }) {
-  const sizing = size === 'sm' ? 'h-[28px] gap-[5px] px-[10px] text-sm' : 'h-[32px] gap-[6px] px-[12px] text-base'
+/*
+ * square：只放图标的方形按钮。宽度与内边距要在这里定，调用方再写 px-0 压不过 sizing 里的 px-[10px]
+ * （Tailwind 按生成顺序而不是类名顺序生效），图标会被挤成几个像素。
+ */
+export function Button({ variant = 'secondary', size = 'md', square = false, icon, className = '', children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: 'sm' | 'md'; square?: boolean; icon?: ReactNode }) {
+  const sizing = size === 'sm'
+    ? `h-[28px] gap-[5px] text-sm ${square ? 'w-[28px]' : 'px-[10px]'}`
+    : `h-[32px] gap-[6px] text-base ${square ? 'w-[32px]' : 'px-[12px]'}`
   return (
-    <button type="button" className={`inline-flex flex-none items-center justify-center whitespace-nowrap rounded-md border transition-colors disabled:pointer-events-none disabled:opacity-40 ${sizing} ${BUTTON_VARIANT[variant]} ${className}`} {...rest}>
+    <button type="button" className={`inline-flex flex-none items-center justify-center [&>svg]:flex-none whitespace-nowrap rounded-md border transition-colors disabled:pointer-events-none disabled:opacity-40 ${sizing} ${BUTTON_VARIANT[variant]} ${className}`} {...rest}>
       {icon}
       {children}
     </button>

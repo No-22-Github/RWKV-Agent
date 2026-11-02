@@ -21,7 +21,7 @@ type Props = {
 
 /*
  * 档案详情：从列表点进来，页头「‹ 远端连接」回到列表。页头只有一层——名称、状态、动作；
- * 下面只有连接本身：来源与凭据、请求头、批处理参数，以及记在这个连接上的 State 与 MiSS 适配器。
+ * 下面只有连接本身：来源与凭据、请求头、批处理参数，以及记在这个连接上的 State 与适配器（MiSS / NoRA）。
  * 对话格式也记在连接上，但在对话页的格式芯片里切换；生成参数与工具所有连接共用，在「Agent」分区。
  *
  * 页头动作按类别分开：远端连接只有新建时的「保存」，切换在对话页做；本地模型有加载、
@@ -128,7 +128,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
             { value: 'openai', label: 'OpenAI 兼容' },
             { value: 'python', label: 'RWKV Lightning Python' },
             { value: 'cuda', label: 'RWKV Lightning CUDA' },
-            { value: 'irwkv', label: 'iRWKV（不支持 State / MiSS）' },
+            { value: 'irwkv', label: 'iRWKV（不支持 State / 适配器）' },
           ]} />
         </Row>
         {/* 新建连接只在填了内容后才报地址错误，空表单不先挂满红字。 */}
@@ -144,7 +144,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
             <div key={row.id} className="flex items-center gap-[8px] py-[4px]">
               <TextInput label="Header 名称" className="flex-1" value={row.name} onChange={(value) => updateHeader(row.id, { name: value })} placeholder="CF-Access-Client-Id" />
               <TextInput label="Header 值" className="flex-1" value={row.value} onChange={(value) => updateHeader(row.id, { value })} type="password" placeholder="值" />
-              <Button variant="ghost" className="w-[32px] px-0" onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={14} /></Button>
+              <Button variant="ghost" square onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={14} /></Button>
             </div>
           ))}
           <Button variant="ghost" size="sm" className="-ml-[8px] mt-[2px]" icon={<Plus size={14} />} onClick={addHeader}>添加请求头</Button>
@@ -156,7 +156,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
           </Disclosure>
         )}
         {cuda && (
-          <Disclosure label="MiSS 适配器" summary={manager.adapterId ? `当前：${manager.adapterId}` : '记在这个连接上，可与 State 同时使用'} open={Boolean(open.adapter)} onToggle={() => toggle('adapter')}>
+          <Disclosure label="适配器（MiSS / NoRA）" summary={manager.adapterId ? `当前：${manager.adapterId}` : '记在这个连接上，可与 State 同时使用'} open={Boolean(open.adapter)} onToggle={() => toggle('adapter')}>
             <AdapterSection manager={manager} />
           </Disclosure>
         )}
@@ -170,7 +170,7 @@ function RemoteSource({ manager, isNew, onTestRemote, onRequestDelete }: { manag
 function DeleteSection({ noun, disabled, onRequestDelete }: { noun: string; disabled: boolean; onRequestDelete: () => void }) {
   return (
     <Section title="管理">
-      <Row label={`删除这个${noun}`} description="连同它记住的对话格式、State 与 MiSS 选择，不可撤销">
+      <Row label={`删除这个${noun}`} description="连同它记住的对话格式、State 与适配器选择，不可撤销">
         <Button variant="danger" onClick={onRequestDelete} disabled={disabled} aria-label={`删除${noun}`}>删除</Button>
       </Row>
     </Section>
