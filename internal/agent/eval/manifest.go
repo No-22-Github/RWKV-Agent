@@ -51,8 +51,11 @@ type ExamCase struct {
 	AnswerForm   string   `json:"answer_form"`
 	Task         string   `json:"task"`
 	Difficulties []string `json:"difficulties"`
-	Author       string   `json:"author,omitempty"`
-	Status       string   `json:"status,omitempty"`
+	// Block is the finer angle under Task ("外部信息-天气"); training data is
+	// split into blocks of the same names, so a panel row maps to a data block.
+	Block  string `json:"block,omitempty"`
+	Author string `json:"author,omitempty"`
+	Status string `json:"status,omitempty"`
 	// Leaked marks a case whose content reached a training set; source-suite
 	// listings keep it for history, exams leave it out.
 	Leaked bool `json:"leaked,omitempty"`

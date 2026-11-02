@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
@@ -45,11 +46,24 @@ type panelRow struct {
 	keep  func(eval.ExamCase) bool
 }
 
-func panelRows() []panelRow {
+// panelRows lists each task kind followed by its blocks (the finer angles
+// the think-SFT data is split by), so a weak task points at a data block.
+func panelRows(cases []eval.ExamCase) []panelRow {
 	rows := []panelRow{{"总分", func(eval.ExamCase) bool { return true }}}
 	for _, task := range TaskOrder {
 		task := task
 		rows = append(rows, panelRow{"任务 · " + TaskLabel[task], func(c eval.ExamCase) bool { return c.Task == task }})
+		var blocks []string
+		for _, c := range cases {
+			if c.Task == task && c.Block != "" && !slices.Contains(blocks, c.Block) {
+				blocks = append(blocks, c.Block)
+			}
+		}
+		slices.Sort(blocks)
+		for _, block := range blocks {
+			block := block
+			rows = append(rows, panelRow{"　子块 · " + block, func(c eval.ExamCase) bool { return c.Block == block }})
+		}
 	}
 	for _, diff := range DifficultyOrder {
 		diff := diff
@@ -112,7 +126,7 @@ func runPanel(args []string) int {
 	}
 	fmt.Println(header)
 	fmt.Println(rule)
-	for _, row := range panelRows() {
+	for _, row := range panelRows(manifest.Cases) {
 		var members []eval.ExamCase
 		for _, c := range manifest.Cases {
 			if row.keep(c) {

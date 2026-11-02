@@ -11,6 +11,34 @@ import (
 
 func ptr[T any](v T) *T { return &v }
 
+func TestBlock(t *testing.T) {
+	cases := []struct {
+		name  string
+		tags  map[string]any
+		suite string
+		task  string
+		want  string
+	}{
+		{"ambiguous ask is 反问", map[string]any{"scenario": "notool", "task_type": "ambiguous_request"}, "", TaskAnswerDirect, "直接回答-反问"},
+		{"knowledge answer", map[string]any{"scenario": "notool", "task_type": "rewrite_text"}, "", TaskAnswerDirect, "直接回答-知识直答"},
+		{"first turn direct in a local case", map[string]any{"scenario": "tabular", "task_type": "aggregate"}, "", TaskAnswerDirect, "直接回答-先答再查"},
+		{"weather probe suite", map[string]any{"scenario": "weatherprobe"}, "weatherprobe", TaskExternal, "外部信息-天气"},
+		{"special tool without weather", map[string]any{"scenario": "hybrid", "task_type": "special_tool"}, "", TaskExternal, "外部信息-专用工具"},
+		{"web lookup", map[string]any{"scenario": "web", "task_type": "lookup_value"}, "", TaskExternal, "外部信息-网络查询"},
+		{"web then edit", map[string]any{"scenario": "hybrid", "task_type": "web_then_edit"}, "", TaskExternal, "外部信息-网络加本地"},
+		{"script domain folds into 代码", map[string]any{"scenario": "script"}, "", TaskWrite, "改文件写产物-代码"},
+		{"bash probe domain", map[string]any{"scenario": "bashprobe"}, "", TaskCompute, "统计计算-bash"},
+		{"unknown domain", map[string]any{"scenario": "weatherprobe"}, "", TaskFindRead, "查找阅读-其他"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := Block(eval.Case{Tags: c.tags}, c.suite, c.task); got != c.want {
+				t.Errorf("Block = %q, want %q", got, c.want)
+			}
+		})
+	}
+}
+
 func TestDeriveRules(t *testing.T) {
 	cases := []struct {
 		name  string

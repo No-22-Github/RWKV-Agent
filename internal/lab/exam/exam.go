@@ -19,6 +19,7 @@ usage: rwkv-lab exam <command> [flags]
   select-quick    pick the quick exam from the full one and local run history
   panel           score runs by task kind, difficulty, language and source
   rescore         re-judge finished runs under the current scorer and case files
+  classify        label any case collection with the exam's task kind and difficulties (JSONL)
 `
 
 // Run dispatches an exam subcommand.
@@ -40,6 +41,8 @@ func Run(args []string) int {
 		return runPanel(args[1:])
 	case "rescore":
 		return runRescore(args[1:])
+	case "classify":
+		return runClassify(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

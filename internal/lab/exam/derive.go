@@ -44,6 +44,15 @@ var TaskLabel = map[string]string{
 	TaskExternal:     "外部信息（上网、天气）",
 }
 
+// TaskShortLabel names the task in block names ("统计计算-日志").
+var TaskShortLabel = map[string]string{
+	TaskAnswerDirect: "直接回答",
+	TaskFindRead:     "查找阅读",
+	TaskCompute:      "统计计算",
+	TaskWrite:        "改文件写产物",
+	TaskExternal:     "外部信息",
+}
+
 var DifficultyLabel = map[string]string{
 	DiffMultiSource: "多个来源拼答案",
 	DiffCheck:       "核对与守约束（版本冲突、数据里的指令、只读）",
@@ -209,6 +218,59 @@ func Task(c eval.Case, suite string) string {
 	return TaskFindRead
 }
 
+// blockDomain names the workspace domain of a local task.
+var blockDomain = map[string]string{
+	"code": "代码", "script": "代码",
+	"docs": "文档配置", "config": "文档配置",
+	"logs": "日志", "tabular": "表格", "filesystem": "文件系统",
+	"hybrid": "跨类混合", "bashprobe": "bash",
+}
+
+var directKnowledgeTaskTypes = map[string]bool{
+	"concept": true, "concept_question": true, "unit_convert": true, "stable_fact": true,
+	"code_help": true, "snippet_in_reply": true, "rewrite_text": true, "answer_only": true,
+}
+
+// Block returns "<task>-<angle>": behaviour for direct answers, tool family
+// for external information, workspace domain for the local tasks. The think-SFT
+// data blocks (bench/distill/tools/think_sft/split_blocks.py) use these names.
+func Block(c eval.Case, suite, task string) string {
+	scenario := tagString(c, "scenario")
+	taskType := tagString(c, "task_type")
+	angle := "其他"
+	switch task {
+	case TaskAnswerDirect:
+		switch {
+		case taskType == "smalltalk":
+			angle = "闲聊"
+		case taskType == "ambiguous_request":
+			angle = "反问"
+		case taskType == "beyond_capability":
+			angle = "做不到"
+		case directKnowledgeTaskTypes[taskType]:
+			angle = "知识直答"
+		case scenario != "notool":
+			angle = "先答再查"
+		}
+	case TaskExternal:
+		switch {
+		case len(c.WeatherFixture) > 0 || strings.HasPrefix(suite, "weatherprobe") || requiredTool(c, "get_weather"):
+			angle = "天气"
+		case taskType == "special_tool":
+			angle = "专用工具"
+		case scenario == "web":
+			angle = "网络查询"
+		default:
+			angle = "网络加本地"
+		}
+	default:
+		if domain, ok := blockDomain[scenario]; ok {
+			angle = domain
+		}
+	}
+	return TaskShortLabel[task] + "-" + angle
+}
+
 // writesFiles reports a case scored on the final workspace.
 func writesFiles(c eval.Case) bool {
 	if c.Expect != nil && (len(c.Expect.Files) > 0 || c.Expect.Run != nil) {
@@ -304,6 +366,7 @@ func Row(c eval.Case, suite, relPath, sha string) eval.ExamCase {
 	if row.Scenario == "" {
 		row.Scenario = c.Category
 	}
+	row.Block = Block(c, suite, row.Task)
 	if calls, ok := tagInt(c, "ref_calls"); ok {
 		row.RefCalls = &calls
 	}
