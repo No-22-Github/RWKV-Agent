@@ -39,7 +39,7 @@ func assertNativeToolCallsAnswered(t *testing.T, index int, messages []toolchat.
 }
 
 // TestNativeDuplicateThenForcedAnswerKeepsToolCallsAnswered reproduces the
-// teacher-k1 failure: a duplicate call forces the answer stage, the model
+// teacher-k1 failure: a repeated duplicate forces the answer stage, the model
 // calls a tool again there, and the stage-violation retry used to leave that
 // assistant tool_call without a tool message, which Chat Completions rejects.
 func TestNativeDuplicateThenForcedAnswerKeepsToolCallsAnswered(t *testing.T) {
@@ -68,8 +68,9 @@ func TestNativeDuplicateThenForcedAnswerKeepsToolCallsAnswered(t *testing.T) {
 	}
 	generator := &scriptedNativeGenerator{results: []toolchat.Result{
 		call("call_1"),
-		call("call_2"), // duplicate: rejected, forces the answer stage
-		call("call_3"), // tool call in the answer stage: stage violation
+		call("call_2"), // duplicate: rejected, one more decision
+		call("call_3"), // second duplicate: rejected, forces the answer stage
+		call("call_4"), // tool call in the answer stage: stage violation
 		{Content: "The echo tool returned ping.", FinishReason: continuation.FinishStop},
 	}}
 	runner, err := NewRunner(generator, []Tool{nativeEchoTool{}}, options)
@@ -86,22 +87,22 @@ func TestNativeDuplicateThenForcedAnswerKeepsToolCallsAnswered(t *testing.T) {
 	if result.Output != "The echo tool returned ping." {
 		t.Fatalf("output = %q", result.Output)
 	}
-	if len(generator.requests) != 4 {
-		t.Fatalf("native completions = %d, want 4", len(generator.requests))
+	if len(generator.requests) != 5 {
+		t.Fatalf("native completions = %d, want 5", len(generator.requests))
 	}
 	for index, request := range generator.requests {
 		assertNativeToolCallsAnswered(t, index, request.Messages)
 	}
 	// The rejected answer-stage call is answered by its own tool message.
 	var answered bool
-	for _, message := range generator.requests[3].Messages {
-		if message.Role == toolchat.RoleTool && message.ToolCallID == "call_3" &&
+	for _, message := range generator.requests[4].Messages {
+		if message.Role == toolchat.RoleTool && message.ToolCallID == "call_4" &&
 			strings.Contains(message.Content, "rejected and not executed") {
 			answered = true
 		}
 	}
 	if !answered {
-		t.Fatalf("call_3 has no tool message: %+v", generator.requests[3].Messages)
+		t.Fatalf("call_4 has no tool message: %+v", generator.requests[4].Messages)
 	}
 }
 

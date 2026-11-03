@@ -74,8 +74,11 @@ type runnerTurn struct {
 	frame                 wire.Frame
 	forceAnswer           bool
 	terminalToolCompleted bool
-	answerViolations      int
-	answerOpenerTried     bool
+	// duplicateRetryUsed spends the one extra decision a turn gets after
+	// repeating a successful call.
+	duplicateRetryUsed bool
+	answerViolations   int
+	answerOpenerTried  bool
 	// answerRollback marks turn.messages indices the rewrite variant drops at
 	// answer-stage entry: rejected/violating assistant outputs and their
 	// receipts. A zero keep length drops the message; a positive one truncates

@@ -274,6 +274,29 @@ func duplicateToolReminder(hasEvidence bool) string {
 Tools are now unavailable. Answer from the Tool results, and clearly state anything that could not be verified.`
 }
 
+// duplicateToolRetryReminder answers the first repeat of a successful call:
+// the result is already in context, so steer toward the next real step and
+// name the edit tools when the task may be a change the model has not made.
+func duplicateToolRetryReminder(tools map[string]Tool) string {
+	var prompt strings.Builder
+	prompt.WriteString("That tool call was rejected because it repeats a successful call; its result is already above. Do not call it again.\n")
+	var edits []string
+	for _, name := range []string{"replace_lines", "write_file"} {
+		if _, ok := tools[name]; ok {
+			edits = append(edits, name)
+		}
+	}
+	if len(edits) > 0 {
+		fmt.Fprintf(
+			&prompt,
+			"If the task asks to change a file you have already read, make the change now with %s, using the line numbers already shown.\n",
+			strings.Join(edits, " or "),
+		)
+	}
+	prompt.WriteString("If one specific fact is still missing, call a tool with different arguments. Otherwise answer now.")
+	return prompt.String()
+}
+
 func toolFailureReminder(
 	name string,
 	err error,

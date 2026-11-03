@@ -842,6 +842,7 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 	outputs := []string{
 		`<tool_call>{"name":"echo","arguments":{"value":"same"}}</tool_call>`,
 		`<tool_call>{"name":"echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"echo","arguments":{"value":"same"}}</tool_call>`,
 		"done",
 	}
 	generations := 0
@@ -861,7 +862,7 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 			return result, nil
 		}),
 		[]Tool{echoTool{}},
-		Options{MaxSteps: 3},
+		Options{MaxSteps: 4},
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -875,31 +876,86 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 		result.Steps[0].ToolExecuted != true ||
 		result.Steps[1].ToolExecuted ||
 		result.Steps[1].ToolRejected != rejectedDuplicateCall ||
-		result.Steps[1].ToolError != "duplicate tool call rejected" {
+		result.Steps[1].ToolError != "duplicate tool call rejected" ||
+		result.Steps[2].Stage != StageDecision ||
+		result.Steps[2].ToolRejected != rejectedDuplicateCall {
 		t.Fatalf("duplicate call result = %+v", result)
 	}
-	if len(requests) != 3 ||
-		result.Steps[2].Stage != StageAnswer ||
-		!strings.Contains(requests[2].Prompt, "Tools are unavailable") ||
-		!strings.Contains(requests[2].Prompt, `"result":{"value":"same"}`) ||
-		!strings.Contains(requests[2].Prompt, "repeats a successful call") ||
-		!strings.Contains(requests[2].Prompt, "Assistant: <answer>") {
+	// The first repeat gets one more decision; only the second forces the
+	// answer stage.
+	if len(requests) != 4 ||
+		!strings.Contains(requests[2].Prompt, "its result is already above") ||
+		strings.Contains(requests[2].Prompt, "Tools are unavailable") ||
+		result.Steps[3].Stage != StageAnswer ||
+		!strings.Contains(requests[3].Prompt, "Tools are unavailable") ||
+		!strings.Contains(requests[3].Prompt, `"result":{"value":"same"}`) ||
+		!strings.Contains(requests[3].Prompt, "repeats a successful call") ||
+		!strings.Contains(requests[3].Prompt, "Assistant: <answer>") {
 		t.Fatalf("forced answer requests=%+v result=%+v", requests, result)
 	}
 	history := runner.History()
-	if len(history) != 6 ||
+	if len(history) != 8 ||
 		history[1].Role != RoleAssistant ||
 		history[2].Role != RoleTool ||
 		history[3].Role != RoleAssistant ||
 		history[4].Role != RoleTool ||
-		history[5].Content != "done" {
+		history[7].Content != "done" {
 		t.Fatalf("duplicate-call history = %+v", history)
+	}
+}
+
+// TestRunnerDuplicateReadStillAllowsEdit replays the 2026-11-02 App trace: the
+// model re-read the file it meant to recolor, the duplicate forced the answer
+// stage and the edit never happened. The first repeat now hints at the edit
+// tools and leaves the next decision open.
+func TestRunnerDuplicateReadStillAllowsEdit(t *testing.T) {
+	t.Parallel()
+	read := `<tool_call>{"name":"echo","arguments":{"value":"theme.css"}}</tool_call>`
+	outputs := []string{
+		read,
+		read,
+		`<tool_call>{"name":"replace_lines","arguments":{"value":"--background: #ffffff;"}}</tool_call>`,
+		"已把背景改成白色。",
+	}
+	generations := 0
+	var prompts []string
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompts = append(prompts, request.Prompt)
+			result := continuation.Result{Text: outputs[generations], FinishReason: continuation.FinishStop}
+			generations++
+			return result, nil
+		}),
+		[]Tool{echoTool{}, bundledEchoTool{name: "replace_lines"}, bundledEchoTool{name: "write_file"}},
+		Options{MaxSteps: 6},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "把 theme.css 的背景改成白色")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ForcedAnswerReason != "" ||
+		result.Steps[1].ToolRejected != rejectedDuplicateCall ||
+		!result.Steps[2].ToolExecuted ||
+		result.Steps[2].Tool != "replace_lines" ||
+		result.Output != "已把背景改成白色。" {
+		t.Fatalf("result = %+v", result)
+	}
+	if !strings.Contains(prompts[2], "make the change now with replace_lines or write_file") {
+		t.Fatalf("retry prompt lacks the edit hint:\n%s", prompts[2])
 	}
 }
 
 func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
 	t.Parallel()
 	outputs := []string{
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
 		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
 		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
 		`<tool_call>{"name":"counting_echo","arguments":{"value":"must-not-run"}}</tool_call>`,
@@ -918,7 +974,7 @@ func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
 			return result, nil
 		}),
 		[]Tool{&countingEchoTool{calls: &executions}},
-		Options{MaxSteps: 4, ProtocolRetries: 1},
+		Options{MaxSteps: 5, ProtocolRetries: 1},
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -927,10 +983,10 @@ func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if executions != 1 || result.Output != "final from existing evidence" || len(result.Steps) != 4 {
+	if executions != 1 || result.Output != "final from existing evidence" || len(result.Steps) != 5 {
 		t.Fatalf("answer-stage guard result = %+v, executions = %d", result, executions)
 	}
-	violation := result.Steps[2]
+	violation := result.Steps[3]
 	if violation.Stage != StageAnswer || violation.ActionType != "tool" ||
 		!violation.StageViolation || !strings.Contains(violation.ProtocolError, ErrStageViolation.Error()) {
 		t.Fatalf("answer-stage violation = %+v", violation)

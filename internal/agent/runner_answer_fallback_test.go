@@ -9,8 +9,9 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
-// answerStageRunner scripts a turn that executes one call, repeats it (which
-// forces the answer stage) and then keeps emitting tool calls.
+// answerStageRunner scripts a turn that executes one call, repeats it twice
+// (the second repeat forces the answer stage) and then keeps emitting tool
+// calls.
 func answerStageRunner(t *testing.T, outputs []string, prompts *[]string) *Runner {
 	t.Helper()
 	generations := 0
@@ -42,6 +43,7 @@ func TestAnswerStagePrefillsOpeningAfterRepeatedToolCalls(t *testing.T) {
 	var prompts []string
 	runner := answerStageRunner(t, []string{
 		answerStageToolCall, answerStageToolCall, // execute, then duplicate
+		answerStageToolCall,                      // second duplicate forces the answer
 		answerStageToolCall, answerStageToolCall, // answer stage: retry, then opener
 		" the echo returned same.",
 	}, &prompts)
@@ -56,9 +58,9 @@ func TestAnswerStagePrefillsOpeningAfterRepeatedToolCalls(t *testing.T) {
 	if result.AnswerFallback != AnswerFallbackOpener || !strings.Contains(result.Output, "the echo returned same") {
 		t.Fatalf("fallback = %q output = %q", result.AnswerFallback, result.Output)
 	}
-	for _, prompt := range prompts[3:] {
+	for _, prompt := range prompts[4:] {
 		// Rejected answer-stage calls are not echoed into later prompts.
-		if strings.Count(prompt, `"value":"same"`) > 2 {
+		if strings.Count(prompt, `"value":"same"`) > 3 {
 			t.Fatalf("rejected call echoed back:\n%s", prompt)
 		}
 	}
@@ -68,7 +70,7 @@ func TestAnswerStageSummarizesWhenOpenerAlsoCallsTools(t *testing.T) {
 	t.Parallel()
 	var prompts []string
 	runner := answerStageRunner(t, []string{
-		answerStageToolCall, answerStageToolCall,
+		answerStageToolCall, answerStageToolCall, answerStageToolCall,
 		answerStageToolCall, answerStageToolCall,
 		" let me check again " + answerStageToolCall,
 	}, &prompts)

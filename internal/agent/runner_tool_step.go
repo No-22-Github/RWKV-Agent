@@ -13,10 +13,13 @@ import (
 )
 
 type toolExecution struct {
-	tool            Tool
-	value           any
-	err             error
-	duplicate       bool
+	tool      Tool
+	value     any
+	err       error
+	duplicate bool
+	// repeatsSuccess marks a duplicate of a call that already succeeded, as
+	// opposed to one repeating an earlier failure.
+	repeatsSuccess  bool
 	replayed        bool
 	recoveryBlocked bool
 	executed        bool
@@ -167,6 +170,7 @@ func (turn *runnerTurn) applyToolGates(
 			execution.value, execution.err = tool.Execute(toolContext, action.Arguments)
 		} else {
 			execution.duplicate = true
+			execution.repeatsSuccess = true
 			current.ToolRejected = rejectedDuplicateCall
 			execution.err = errors.New("duplicate tool call rejected")
 		}
@@ -457,15 +461,27 @@ func (turn *runnerTurn) advanceAfterTool(
 			turn.appendUserMessage(reminder)
 		}
 	} else if execution.duplicate {
-		if turn.terminalToolCompleted && r.wire.Experiments.Duplicate != "continue" {
+		// The first repeat of a successful call gets one more decision with a
+		// hint instead of the answer stage: a model that re-reads a file it
+		// meant to edit can still make the edit. Unlimited retries loop
+		// (dup-continue, 2026-10-03), so a second repeat forces the answer.
+		retry := execution.repeatsSuccess && !turn.duplicateRetryUsed
+		if retry {
+			turn.duplicateRetryUsed = true
+		}
+		if turn.terminalToolCompleted && !retry && r.wire.Experiments.Duplicate != "continue" {
 			turn.forceAnswer = true
 			turn.result.ForcedAnswerReason = forcedAnswerDuplicateCall
 		}
 		if !preservesToolOrder(r.protocol) {
-			turn.appendUserReceipt(r.duplicateToolReminder(
+			reminder := r.duplicateToolReminder(
 				turn.successfulToolCalls > 0,
 				turn.terminalToolCompleted,
-			))
+			)
+			if retry && turn.terminalToolCompleted {
+				reminder = duplicateToolRetryReminder(turn.activeTools)
+			}
+			turn.appendUserReceipt(reminder)
 		}
 	} else if !preservesToolOrder(r.protocol) {
 		turn.appendUserMessage(toolFailureReminder(
