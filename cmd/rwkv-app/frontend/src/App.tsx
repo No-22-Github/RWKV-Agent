@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowDown, Check, Copy, CornerDownLeft, ListTree, PenLine, RotateCcw,
   Menu, Square, X,
@@ -22,6 +22,9 @@ import type { ToolTrace } from './trajectory-types'
 import RunChips from './components/RunChips'
 import SettingsPage from './components/SettingsPage'
 import PixelLoader from './components/PixelLoader'
+import ShimmerText from './components/ShimmerText'
+import TokenCount from './components/TokenCount'
+import { toolPreparing } from './i18n/toolLabels'
 import Sidebar from './components/Sidebar'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
 import { stepThoughts } from './components/LiveThought'
@@ -56,7 +59,7 @@ type AgentActivity = {
   // 收到事件的时刻：事件本身不带时间戳，轨迹页实时轮次靠它画时间线。
   runId?: string
   at: number
-  kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
+  kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string; tokens?: number
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
   attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string; text?: string
   // step_done 带上这一步的完整记录，轨迹页据此把跑完的步骤画成最终样子。
@@ -142,6 +145,15 @@ export default function App() {
         if (data.subagentIndex) return
         liveAnswerRef.current = data.kind === 'answer_reset' ? '' : liveAnswerRef.current + (data.text || '')
         setLiveAnswer(liveAnswerRef.current)
+        return
+      }
+      // 调用预览随生成不断刷新：同一步的新预览顶替上一条，不在活动列表里越堆越长。
+      if (data.kind === 'call_preview') {
+        setActivity((current) => {
+          const last = current.at(-1)
+          const replace = last?.kind === 'call_preview' && last.step === data.step && last.subagentIndex === data.subagentIndex
+          return [...(replace ? current.slice(0, -1) : current), { ...data, at: replace ? last.at : Date.now() }]
+        })
         return
       }
       setActivity((current) => [...current, { ...data, at: Date.now() }])
@@ -531,7 +543,7 @@ function TurnView({ onAnimating, fileChanges, fallbackChanges, onResolveFiles, o
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <UserMessage content={turn.user.content} canEdit={last} busy={busy} onEdit={onEditLast} />}
       {(calls.length > 0 || thoughts.length > 0) && <ToolActivity calls={calls} thoughts={thoughts} running={pending && !liveAnswer} liveLabel={liveLabel} liveThought={pending ? liveThoughts.find((thought) => thought.step === liveModelStep)?.text : ''} />}
-      {pending && !liveAnswer && calls.length === 0 && thoughts.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {pending && !liveAnswer && calls.length === 0 && thoughts.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><ShimmerText className="text-sm">{activityLabel(activity.at(-1))}</ShimmerText></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} immediate={immediate} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
@@ -689,7 +701,7 @@ function groupMessagesIntoTurns(messages: Message[]) {
 
 
 
-function activityLabel(item?: AgentActivity) { if (!item) return '正在思考…'; const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''; if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`; if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`; if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`; if (item.kind === 'route_start') return `${child}正在选择能力组`; if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`; if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`; if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`; return 'Agent 正在工作…' }
+function activityLabel(item?: AgentActivity): ReactNode { if (!item) return '正在思考…'; const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''; if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`; if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`; if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`; if (item.kind === 'call_preview') return <>{[`${child}步骤 ${item.step || 1} · ${toolPreparing(item.tool || '')}`, item.text].filter(Boolean).join(' · ')}{item.tokens ? <> · 已生成 <TokenCount value={item.tokens} /> tokens</> : null}</>; if (item.kind === 'route_start') return `${child}正在选择能力组`; if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`; if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`; if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`; return 'Agent 正在工作…' }
 function normalizeTimestamp(value?: string) { if (!value) return undefined; const timestamp = new Date(value).getTime(); return Number.isFinite(timestamp) && timestamp >= Date.UTC(2000, 0, 1) ? value : undefined }
 function formatTurnTime(value?: string) {
   if (!value) return '本地'

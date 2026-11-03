@@ -179,6 +179,9 @@ const (
 	// EventThinkingDelta streams the current step's thinking for live display;
 	// a new Step starts a new thought.
 	EventThinkingDelta EventKind = "thinking_delta"
+	// EventCallPreview names the tool a still-generating step is writing a
+	// call for, with its main target and the call tokens generated so far.
+	EventCallPreview EventKind = "call_preview"
 	// EventStepDone carries a finished step in StepTrace, in the same form as
 	// Result.Steps, so a live view can show it as the settled turn will. The
 	// turn's last step arrives with the Result instead.
@@ -202,6 +205,7 @@ type Event struct {
 	StatusCode    int       `json:"statusCode,omitempty"`
 	DelayMS       int64     `json:"delayMs,omitempty"`
 	Text          string    `json:"text,omitempty"`
+	Tokens        int       `json:"tokens,omitempty"`
 	StepTrace     *Step     `json:"stepTrace,omitempty"`
 	Error         string    `json:"error,omitempty"`
 }

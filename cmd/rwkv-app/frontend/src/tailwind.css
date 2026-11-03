@@ -111,7 +111,7 @@
   @keyframes wordmark-blink { 50% { opacity: 0; } }
   @keyframes stream-fade { from { opacity: 0; } }
   @keyframes tok-in { from { opacity: 0; filter: blur(2.5px); } }
-  @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+  @keyframes shimmer { from { background-position: -480px 0; } to { background-position: 0 0; } }
 }
 
 @utility content-narrow {
@@ -121,8 +121,10 @@
 @utility shimmer-text {
   display: inline-block;
   color: transparent;
-  background: linear-gradient(110deg, var(--ink-muted) 35%, var(--ink) 50%, var(--ink-muted) 65%);
-  background-size: 250% 100%;
+  /* 高光按固定 480px 一格横向平铺，每圈正好移动一格：位置与元素宽度无关。
+     按百分比算的话，文字一变长（「已生成 N tokens」逐位增加）高光就跟着瞬移。 */
+  background: linear-gradient(110deg, var(--ink-muted) 35%, var(--ink) 50%, var(--ink-muted) 65%) repeat-x;
+  background-size: 480px 100%;
   -webkit-background-clip: text;
   background-clip: text;
   animation: var(--animate-shimmer);

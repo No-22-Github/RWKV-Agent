@@ -1,7 +1,7 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import ToolActivity from './ToolActivity'
-import AnimatedToolIcon, { animatedToolIcon } from './AnimatedToolIcon'
+import AnimatedToolIcon, { animatedToolIcon, animationPassMs } from './AnimatedToolIcon'
 import { SearchIcon } from './icons/animated/search'
 import { FileFetchIcon } from './icons/animated/file-fetch'
 
@@ -37,6 +37,37 @@ describe('tool row icons', () => {
     ]} />)
     expect(screen.getByLabelText('Agent 运行中')).toBeInTheDocument()
     expect(document.querySelector('[data-running="true"]')).toBeNull()
+  })
+
+  it('holds a fast tool on the summary row until its animation has played once', () => {
+    vi.useFakeTimers()
+    try {
+      const { rerender } = render(<ToolActivity running calls={[{ id: 'a', tool: 'web_search', arguments: '{"query":"x"}', status: 'running' }]} />)
+      expect(document.querySelector('[data-running="true"]')).not.toBeNull()
+      // 200 ms 就跑完了，模型接着想下一步：图标还得挂着把这一遍放完。
+      act(() => { vi.advanceTimersByTime(200) })
+      rerender(<ToolActivity running liveLabel="步骤 2 · 正在决定下一步" calls={[{ id: 'a', tool: 'web_search', arguments: '{"query":"x"}', status: 'completed', durationMs: 200 }]} />)
+      expect(document.querySelector('[data-running="true"]')).not.toBeNull()
+      expect(screen.queryByLabelText('Agent 运行中')).toBeNull()
+      // 搜索图标一遍 1 秒：从开跑算起，到点就换回 R 点阵，不多挂。
+      act(() => { vi.advanceTimersByTime(animationPassMs('web_search') - 200) })
+      expect(document.querySelector('[data-running="true"]')).toBeNull()
+      expect(screen.getByLabelText('Agent 运行中')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('drops a held tool icon at once when the turn ends', () => {
+    vi.useFakeTimers()
+    try {
+      const { rerender } = render(<ToolActivity running calls={[{ id: 'a', tool: 'web_search', arguments: '{"query":"x"}', status: 'running' }]} />)
+      rerender(<ToolActivity calls={[{ id: 'a', tool: 'web_search', arguments: '{"query":"x"}', status: 'completed', durationMs: 100 }]} />)
+      expect(document.querySelector('[data-running="true"]')).toBeNull()
+      expect(document.querySelector('[aria-label="Agent 已完成"]')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('keeps a settled R mark on the summary row once the turn is done', () => {

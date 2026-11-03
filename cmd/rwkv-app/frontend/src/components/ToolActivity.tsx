@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Brain, ChevronRight, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import AnimatedToolIcon from './AnimatedToolIcon'
+import AnimatedToolIcon, { useHeldTool } from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
 import { LiveThought } from './LiveThought'
+import ShimmerText from './ShimmerText'
 import { isKnownTool, toolRunning, toolSummary, toolVerb } from '../i18n/toolLabels'
 import type { Step } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SubagentTrace, ToolTrace } from '../trajectory-types'
@@ -161,7 +162,7 @@ type Props = {
   thoughts?: readonly Thought[]
   running?: boolean
   /** 运行中摘要行的文字（如「步骤 3 · 正在决定下一步」）；不传则用最新调用。 */
-  liveLabel?: string
+  liveLabel?: ReactNode
   /** 正在生成的这一步的思考：卡片收起时在摘要行下露最后两行；展开后由思考行自己显示，不重复。 */
   liveThought?: string
 }
@@ -171,25 +172,27 @@ export default function ToolActivity({ calls, thoughts = [], running = false, li
   // 本次挂载期间跑过的卡片，结束时才播定格动画；历史回合挂载时就是完成态。
   const ranHere = useRef(running)
   if (running) ranHere.current = true
-  if (calls.length === 0 && thoughts.length === 0) return null
   const groups = groupCalls(calls)
   const timeline = buildTimeline(calls, thoughts)
   const failed = calls.filter((call) => call.status === 'failed').length
-  const latestEntry = timeline.at(-1)!
-  const latest = latestEntry.kind === 'calls' ? latestEntry.group : undefined
+  const latestEntry = timeline.at(-1)
+  const latest = latestEntry?.kind === 'calls' ? latestEntry.group : undefined
   // 运行中的标题行：工具正在执行时显示该工具的动画图标，模型在想下一步时显示 R 点阵。
   // 卡片默认收起，不放到这里的话工具动画平时根本看不到。
   const executing = running && latest?.calls.at(-1)!.status === 'running'
+  // 快工具结束后图标再挂一会儿，让动画放完一遍；整轮结束（running=false）就不再挂。
+  const shownTool = useHeldTool(executing ? latest!.tool : undefined)
+  if (!latestEntry) return null
   const summary = [thoughts.length > 0 ? `思考了 ${thoughts.length} 次` : '', groups.length > 0 ? summarize(groups) : ''].filter(Boolean).join(' · ')
 
   return <div className="tool-activity text-sm" data-testid="tool-activity">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="group flex max-w-full items-center gap-[6px] border-0 bg-transparent p-0 text-left text-ink-muted transition-colors hover:text-ink">
-      {executing
+      {running && shownTool
         // 与 ThinkingMark 同宽同高的方框：两种标记互换时文字不左右挪。
-        ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={latest!.tool} running size={15} /></span>
+        ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={shownTool} running size={15} /></span>
         : running ? <ThinkingMark /> : <SettledMark fresh={ranHere.current} />}
       {running
-        ? <span className="shimmer-text min-w-0 truncate">{liveLabel || (latest ? `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim() : '正在思考…')}</span>
+        ? <ShimmerText className="min-w-0 truncate">{liveLabel || (latest ? `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim() : '正在思考…')}</ShimmerText>
         : <span className="min-w-0 truncate">{summary}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
       <ChevronRight size={15} className={`flex-none transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
@@ -263,7 +266,9 @@ function ThoughtRow({ thought, live }: { thought: Thought; live: boolean }) {
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex w-full min-w-0 items-center gap-[10px] border-0 bg-transparent px-[14px] py-[10px] text-left transition-colors hover:bg-surface-active">
       <Brain size={15} className={`flex-none text-ink-muted ${live ? 'animate-pulse motion-reduce:animate-none' : ''}`} />
       <span className="flex-none text-ink-muted">思考</span>
-      <span className={`min-w-0 truncate text-ink-soft ${live ? 'shimmer-text' : ''}`} title={flat}>{preview}</span>
+      {live
+        ? <ShimmerText className="min-w-0 truncate text-ink-soft" title={flat}>{preview}</ShimmerText>
+        : <span className="min-w-0 truncate text-ink-soft" title={flat}>{preview}</span>}
       <span className="flex-1" />
       <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>

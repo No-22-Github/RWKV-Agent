@@ -63,6 +63,12 @@ export function toolPhrase(tool: string, count: number, locale: Locale = 'zh') {
   return count > 1 ? `${copy.verb} ${count} ${copy.plural || `${copy.noun}s`}` : `${copy.verb} ${article} ${copy.noun}`
 }
 
+/** 模型还在写这次调用（参数没写完、工具没开跑）：准备写入文件 / Preparing file…（英文动词表是过去式，不拼动词） */
+export function toolPreparing(tool: string, locale: Locale = 'zh') {
+  const copy = entry(tool)[locale]
+  return locale === 'zh' ? `准备${copy.verb}${copy.noun}` : `Preparing ${copy.noun}…`
+}
+
 /** 进行态：正在读取文件 / Reading file… 用于运行中的摘要行。 */
 export function toolRunning(tool: string, locale: Locale = 'zh') {
   const copy = entry(tool)[locale]

@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 	"time"
@@ -25,6 +26,8 @@ type answerPreview struct {
 	raw      strings.Builder
 	sent     string
 	thought  string
+	call     callPreview
+	callSent time.Time
 	// firstToken is when the first non-empty text delta arrived (time to first token).
 	firstToken time.Time
 }
@@ -60,6 +63,14 @@ func (preview *answerPreview) sink() continuation.EventSink {
 		if thought, ok := previewThinkingText(output); ok && len(thought) > len(preview.thought) && strings.HasPrefix(thought, preview.thought) {
 			preview.emit(Event{Kind: EventThinkingDelta, Step: preview.step, Text: thought[len(preview.thought):]})
 			preview.thought = thought
+		}
+		if call, ok := previewCall(output); ok && call.worthSending(preview.call, time.Since(preview.callSent)) {
+			if count := preview.turn.r.options.TokenCount; count != nil {
+				call.tokens = count(call.body)
+			}
+			preview.emit(Event{Kind: EventCallPreview, Step: preview.step, Tool: call.tool, Text: call.target, Tokens: call.tokens})
+			preview.call = call
+			preview.callSent = time.Now()
 		}
 		visible, ok := previewAnswerText(output)
 		if !ok || visible == preview.sent {
@@ -154,4 +165,86 @@ func holdPartialTag(text string) string {
 		return text
 	}
 	return text[:index]
+}
+
+// callPreview is what a partial output reveals about the tool call it is
+// writing, so a viewer waiting on a long call (a big write_file) sees which
+// tool and target it is for and that it is still growing.
+type callPreview struct {
+	tool   string
+	target string
+	body   string
+	tokens int
+}
+
+// callPreviewInterval throttles growth-only updates, which recount the whole
+// call body: often enough that the count reads as climbing, not jumping, and
+// rare enough that a long call is not retokenized on every delta. A new tool
+// or target is always sent.
+const callPreviewInterval = 100 * time.Millisecond
+
+func (call callPreview) worthSending(last callPreview, sinceLast time.Duration) bool {
+	if call.tool == "" {
+		return false
+	}
+	if call.tool != last.tool || call.target != last.target {
+		return true
+	}
+	return len(call.body) > len(last.body) && sinceLast >= callPreviewInterval
+}
+
+var (
+	callName = regexp.MustCompile(`"name"\s*:\s*"((?:[^"\\]|\\.)+)"`)
+	// callTargetKeys mirrors the App's primary-argument order: the one string
+	// that best says what a call acts on.
+	callTargetKeys = []string{"path", "file", "filename", "query", "url", "pattern", "command", "script", "dir", "directory", "location"}
+	callTargets    = func() map[string]*regexp.Regexp {
+		patterns := map[string]*regexp.Regexp{}
+		for _, key := range callTargetKeys {
+			patterns[key] = regexp.MustCompile(`"` + key + `"\s*:\s*"((?:[^"\\]|\\.)*)"`)
+		}
+		return patterns
+	}()
+)
+
+// previewCall finds the tool call a partial output has started writing: a
+// <tool_call> envelope, a fenced call or bare call JSON after any thinking.
+// The name and target are read only once their strings have closed, so a
+// half-written value is never shown.
+func previewCall(output string) (callPreview, bool) {
+	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(output))
+	if strings.HasPrefix(candidate, "<think>") {
+		return callPreview{}, false
+	}
+	start := strings.Index(candidate, "<tool_call")
+	if start < 0 {
+		if match := callFence.FindStringIndex(candidate); match != nil {
+			start = match[0]
+		} else if strings.HasPrefix(candidate, "{") {
+			start = 0
+		} else {
+			return callPreview{}, false
+		}
+	}
+	body := candidate[start:]
+	name := callName.FindStringSubmatch(body)
+	if name == nil {
+		return callPreview{}, false
+	}
+	call := callPreview{tool: unquoteJSON(name[1]), body: body}
+	for _, key := range callTargetKeys {
+		if match := callTargets[key].FindStringSubmatch(body); match != nil && strings.TrimSpace(match[1]) != "" {
+			call.target = strings.TrimSpace(unquoteJSON(match[1]))
+			break
+		}
+	}
+	return call, true
+}
+
+func unquoteJSON(raw string) string {
+	var value string
+	if json.Unmarshal([]byte(`"`+raw+`"`), &value) != nil {
+		return raw
+	}
+	return value
 }

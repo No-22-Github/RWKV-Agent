@@ -1120,6 +1120,26 @@ describe('App', () => {
     expect(screen.queryByText('旧会话不应出现')).not.toBeInTheDocument()
   })
 
+  it('names the tool a still-generating step is writing, refreshing one label in place', async () => {
+    bootstrapWithRunningProvider()
+    vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => {}) as ReturnType<typeof Backend.Chat>)
+    renderApp()
+    await waitRuntimeReady()
+    fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'write it' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送' }))
+    await screen.findByRole('button', { name: '停止运行' })
+    const emit = (data: object) => act(async () => { eventHandlers.get('agent:event')?.({ data }) })
+    await emit({ kind: 'run_start', runId: '1' })
+    await emit({ kind: 'model_start', runId: '1', step: 1 })
+    expect(screen.getByText('步骤 1 · 正在决定下一步')).toBeInTheDocument()
+    await emit({ kind: 'call_preview', runId: '1', step: 1, tool: 'write_file', text: 'report.html', tokens: 512 })
+    await emit({ kind: 'call_preview', runId: '1', step: 1, tool: 'write_file', text: 'report.html', tokens: 1280 })
+    // 数字逐帧追向最新计数，追到后整行是一句话。
+    const label = () => document.querySelector('.tool-activity .shimmer-text, .turn-pending-answer .shimmer-text')?.textContent
+    await waitFor(() => expect(label()).toMatch(/^步骤 1 · 准备.+ · report\.html · 已生成 1\.2k tokens$/))
+    expect(document.querySelector('.tabular-nums')).not.toBeNull()
+  })
+
   it('keeps Stop available for local playback and flushes without cancelling a completed request', async () => {
     bootstrapWithRunningProvider()
     let resolve!: (result: Result) => void

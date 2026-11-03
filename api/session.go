@@ -436,6 +436,7 @@ func publicEvent(event agent.Event) Event {
 		StatusCode:    event.StatusCode,
 		DelayMS:       event.DelayMS,
 		Text:          terminal.SanitizeModelText(event.Text),
+		Tokens:        event.Tokens,
 	}
 	if event.StepTrace != nil {
 		step := publicStep(*event.StepTrace)

@@ -197,6 +197,11 @@ const (
 	// EventThinkingDelta carries newly generated text of the step's leading
 	// think block, for live display only; the step's ModelOutput keeps it.
 	EventThinkingDelta EventKind = "thinking_delta"
+	// EventCallPreview reports, while a step is still generating, the tool it
+	// is writing a call for: Tool once the name is out, Text the call's main
+	// target once that string has closed, Tokens the call text generated so
+	// far (zero without Options.TokenCount). Live display only; the parsed call arrives with EventToolStart.
+	EventCallPreview EventKind = "call_preview"
 	// EventStepDone carries a finished step's full trace in StepTrace, so a
 	// live view can show it exactly as the settled Result will. A step is
 	// finished once the next one starts; the turn's last step arrives with
@@ -220,6 +225,7 @@ type Event struct {
 	StatusCode    int
 	DelayMS       int64
 	Text          string
+	Tokens        int
 	// StepTrace is the finished step, set only on EventStepDone.
 	StepTrace *Step
 	Err       error
